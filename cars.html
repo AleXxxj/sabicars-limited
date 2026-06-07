@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
+<title>Buy Cars — Sabicars Limited | Luxury Cars, Hiace, Trucks Lagos</title>
+<meta name="description" content="Browse Sabicars verified inventory. Luxury cars, Toyota Hiace buses, trucks and SUVs. All tokunbo, accident-free with warranty. Pay 40% & drive."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="theme.css"/>
+<style>
+.page-hero{background:var(--bg2);padding:60px 0 48px;border-bottom:1px solid var(--border);}
+.page-hero h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:600;color:var(--text);margin-bottom:10px;}
+.page-hero p{font-size:1rem;color:var(--muted);font-weight:300;}
+.inventory-page{padding:60px 0 88px;background:var(--bg);}
+.inv-controls{display:flex;align-items:center;justify-content:space-between;margin-bottom:40px;flex-wrap:wrap;gap:16px;}
+.filter-bar{display:flex;gap:6px;background:var(--bg3);padding:5px;border-radius:8px;flex-wrap:wrap;}
+.f-btn{padding:8px 18px;border-radius:6px;font-size:0.73rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);background:transparent;border:none;cursor:pointer;transition:all .25s;}
+.f-btn.active,.f-btn:hover{background:var(--gold);color:#fff;}
+.inv-count{font-size:0.83rem;color:var(--muted);}
+.cars-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+@media(max-width:960px){.cars-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:560px){.cars-grid{grid-template-columns:1fr;}}
+.car-card{background:var(--card);border:1px solid var(--border2);border-radius:8px;overflow:hidden;transition:all .3s;}
+.car-card:hover{border-color:var(--gold-border);transform:translateY(-4px);box-shadow:var(--shadow-lg);}
+.car-img{height:200px;position:relative;overflow:hidden;}
+.car-img-bg{position:absolute;inset:0;background-size:cover;background-position:center;transition:transform .5s ease;}
+.car-card:hover .car-img-bg{transform:scale(1.04);}
+.car-tag{position:absolute;top:12px;left:12px;padding:4px 10px;border-radius:50px;font-size:.57rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;z-index:2;}
+.tag-hot{background:#DC2626;color:#fff;} .tag-new{background:var(--gold);color:#fff;} .tag-supply{background:#1d4ed8;color:#fff;} .tag-premium{background:transparent;border:1px solid var(--gold);color:var(--gold);}
+.car-body{padding:18px 20px 20px;}
+.car-make{font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:3px;}
+.car-model{font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:700;color:var(--text);line-height:1.1;margin-bottom:3px;}
+.car-year{font-size:.76rem;color:var(--muted);margin-bottom:12px;}
+.car-specs{display:flex;gap:12px;flex-wrap:wrap;padding-bottom:13px;border-bottom:1px solid var(--border2);margin-bottom:13px;}
+.cs{display:flex;align-items:center;gap:4px;font-size:.72rem;color:var(--muted);}
+.cs i{color:var(--gold);font-size:.62rem;}
+.car-footer{display:flex;align-items:center;justify-content:space-between;}
+.price-lbl{font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted2);}
+.price-val{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:700;color:var(--gold);}
+.car-cta{display:inline-flex;align-items:center;gap:6px;background:var(--gold);color:#fff;padding:8px 14px;border-radius:6px;font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;transition:all .25s;}
+.car-cta:hover{background:var(--gold-lt);}
+</style>
+</head>
+<body>
+<a href="https://wa.me/2348055065825" class="float-wa" target="_blank"><i class="fab fa-whatsapp"></i></a>
+<nav class="mobile-nav" id="mobileNav">
+  <a href="index.html" onclick="closeNav()">Home</a><a href="cars.html" onclick="closeNav()">Buy Cars</a><a href="financing.html" onclick="closeNav()">Financing</a><a href="about.html" onclick="closeNav()">About</a><a href="blog.html" onclick="closeNav()">Blog</a><a href="contact.html" onclick="closeNav()">Contact</a>
+  <a href="https://wa.me/2348055065825" class="mob-wa-btn" target="_blank"><i class="fab fa-whatsapp"></i> Chat on WhatsApp</a>
+</nav>
+<div class="topbar"><div class="topbar-inner"><span class="topbar-pill"><span class="topbar-dot"></span><a href="tel:+2348101885558">📞 0810 188 5558</a></span><span class="topbar-sep">·</span><span class="topbar-pill"><span class="topbar-dot"></span>Verified Dealer · RC 1560100</span><span class="topbar-sep">·</span><span class="topbar-pill"><span class="topbar-dot"></span>Pay <strong>40%</strong> &amp; Drive Today</span></div></div>
+<header class="header"><div class="container"><div class="header-inner">
+  <a href="index.html" class="logo"><img data-logo alt="Sabicars"/><div style="display:flex;flex-direction:column;line-height:1;margin-left:10px"><span class="logo-name">Sabicars</span><span class="logo-sub">Luxury Auto · Lagos</span></div></a>
+  <nav class="nav"><a href="index.html">Home</a><a href="cars.html" class="active">Buy Cars</a><a href="financing.html">Financing</a><a href="about.html">About</a><a href="blog.html">Blog</a><a href="contact.html">Contact</a></nav>
+  <div class="header-right"><button class="theme-btn" data-theme-toggle><i data-theme-icon class="fas fa-moon"></i></button><a href="https://wa.me/2348055065825" class="btn-wa" target="_blank"><i class="fab fa-whatsapp"></i><span class="wa-label">WhatsApp</span></a><button class="hamburger" id="hamburger" onclick="toggleNav()"><span></span><span></span><span></span></button></div>
+</div></div></header>
+
+<div class="page-hero"><div class="container"><div class="sec-label"><div class="sec-label-line"></div><span class="sec-label-text">Inventory</span></div><h1>Our <em class="serif" style="font-style:italic;color:var(--gold)">Vehicles</em></h1><p>All vehicles are verified, tokunbo, accident-free. Pay 40% and drive today.</p></div></div>
+
+<section class="inventory-page"><div class="container">
+  <div class="inv-controls">
+    <div class="filter-bar">
+      <button class="f-btn active" onclick="filterCars('all',this)">All</button>
+      <button class="f-btn" onclick="filterCars('luxury',this)">Luxury</button>
+      <button class="f-btn" onclick="filterCars('hiace',this)">Hiace</button>
+      <button class="f-btn" onclick="filterCars('suv',this)">SUVs</button>
+      <button class="f-btn" onclick="filterCars('truck',this)">Trucks</button>
+    </div>
+    <span class="inv-count" id="invCount">Showing all vehicles</span>
+  </div>
+  <div class="cars-grid" id="carsGrid">
+
+    <div class="car-card reveal" data-cat="suv"><div class="car-img"><span class="car-tag tag-supply">Fleet Supply</span><div class="car-img-bg" style="background-image:url('https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=600&q=70')"></div></div><div class="car-body"><div class="car-make">Toyota</div><h3 class="car-model">Highlander</h3><div class="car-year">2021 · Tokunbo · Super Clean</div><div class="car-specs"><div class="cs"><i class="fas fa-gas-pump"></i> V6</div><div class="cs"><i class="fas fa-road"></i> Low km</div><div class="cs"><i class="fas fa-star"></i> Full Opt</div></div><div class="car-footer"><div><div class="price-lbl">Fleet Available</div><div class="price-val">Call Us</div></div><a href="https://wa.me/2348055065825?text=Highlander" class="car-cta" target="_blank"><i class="fab fa-whatsapp"></i> Inquire</a></div></div></div>
+
+    <div class="car-card reveal" data-cat="suv"><div class="car-img"><span class="car-tag tag-supply">Fleet Supply</span><div class="car-img-bg" style="background-image:url('https://images.unsplash.com/photo-1555215695-3004980ad54e?w=600&q=70')"></div></div><div class="car-body"><div class="car-make">Lexus</div><h3 class="car-model">GX 460</h3><div class="car-year">2020 · Tokunbo · Full Options</div><div class="car-specs"><div class="cs"><i class="fas fa-gas-pump"></i> V8</div><div class="cs"><i class="fas fa-road"></i> 38k km</div><div class="cs"><i class="fas fa-star"></i> Premium</div></div><div class="car-footer"><div><div class="price-lbl">Price</div><div class="price-val">Call Us</div></div><a href="https://wa.me/2348055065825?text=Lexus%20GX%20460" class="car-cta" target="_blank"><i class="fab fa-whatsapp"></i> Inquire</a></div></div></div>
+
+    <div class="car-card reveal" data-cat="luxury"><div class="car-img"><span class="car-tag tag-new">New In</span><div class="car-img-bg" style="background-image:url('https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=600&q=70')"></div></div><div class="car-body"><div class="car-make">Land Rover</div><h3 class="car-model">Range Rover Sport</h3><div class="car-year">2020 · HSE · Tokunbo</div><div class="car-specs"><div class="cs"><i class="fas fa-gas-pump"></i> Petrol</div><div class="cs"><i class="fas fa-road"></i> 31k km</div><div class="cs"><i class="fas fa-star"></i> HSE</div></div><div class="car-footer"><div><div class="price-lbl">Price</div><div class="price-val">Call Us</div></div><a href="https://wa.me/2348055065825?text=Range%20Rover%20Sport" class="car-cta" target="_blank"><i class="fab fa-whatsapp"></i> Inquire</a></div></div></div>
+
+    <div class="car-card reveal" data-cat="hiace"><div class="car-img"><span class="car-tag tag-hot">🔥 Hot</span><div class="car-img-bg" style="background-image:url('https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=600&q=70')"></div></div><div class="car-body"><div class="car-make">Toyota</div><h3 class="car-model">Hiace Bus</h3><div class="car-year">2020/2021 · Low Mileage</div><div class="car-specs"><div class="cs"><i class="fas fa-gas-pump"></i> Diesel</div><div class="cs"><i class="fas fa-road"></i> Low km</div><div class="cs"><i class="fas fa-shield-alt"></i> Warranty</div></div><div class="car-footer"><div><div class="price-lbl">40% Plan</div><div class="price-val">Available</div></div><a href="https://wa.me/2348055065825?text=Hiace%202020" class="car-cta" target="_blank"><i class="fab fa-whatsapp"></i> Inquire</a></div></div></div>
+
+    <div class="car-card reveal" data-cat="hiace"><div class="car-img"><span class="car-tag tag-new">In Stock</span><div class="car-img-bg" style="background-image:url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=70')"></div></div><div class="car-body"><div class="car-make">Toyota</div><h3 class="car-model">Hiace Bus</h3><div class="car-year">2018/2019 · ~45,000 km</div><div class="car-specs"><div class="cs"><i class="fas fa-gas-pump"></i> Diesel</div><div class="cs"><i class="fas fa-tachometer-alt"></i> 45k km</div><div class="cs"><i class="fas fa-check"></i> Inspected</div></div><div class="car-footer"><div><div class="price-lbl">40% Plan</div><div class="price-val">Available</div></div><a href="https://wa.me/2348055065825?text=Hiace%202018" class="car-cta" target="_blank"><i class="fab fa-whatsapp"></i> Inquire</a></div></div></div>
+
+    <div class="car-card reveal" data-cat="luxury"><div class="car-img"><span class="car-tag tag-hot">🔥 Hot</span><div class="car-img-bg" style="background-image:url('https://images.unsplash.com/photo-1563720223185-11003d516935?w=600&q=70')"></div></div><div class="car-body"><div class="car-make">Mercedes-Benz</div><h3 class="car-model">GLE 450</h3><div class="car-year">2021 · Tokunbo</div><div class="car-specs"><div class="cs"><i class="fas fa-gas-pump"></i> Petrol</div><div class="cs"><i class="fas fa-road"></i> 28k km</div><div class="cs"><i class="fas fa-palette"></i> Black</div></div><div class="car-footer"><div><div class="price-lbl">Price</div><div class="price-val">Call Us</div></div><a href="https://wa.me/2348055065825?text=GLE%20450" class="car-cta" target="_blank"><i class="fab fa-whatsapp"></i> Inquire</a></div></div></div>
+
+    <div class="car-card reveal" data-cat="luxury"><div class="car-img"><span class="car-tag tag-premium">Premium</span><div class="car-img-bg" style="background-image:url('https://images.unsplash.com/photo-1525609004556-c46c7d6cf023?w=600&q=70')"></div></div><div class="car-body"><div class="car-make">BMW</div><h3 class="car-model">X6 M Sport</h3><div class="car-year">2020 · Twin Turbo · Tokunbo</div><div class="car-specs"><div class="cs"><i class="fas fa-gas-pump"></i> TwinTurbo</div><div class="cs"><i class="fas fa-road"></i> 35k km</div><div class="cs"><i class="fas fa-sun"></i> Pano Roof</div></div><div class="car-footer"><div><div class="price-lbl">Price</div><div class="price-val">Call Us</div></div><a href="https://wa.me/2348055065825?text=BMW%20X6" class="car-cta" target="_blank"><i class="fab fa-whatsapp"></i> Inquire</a></div></div></div>
+
+    <div class="car-card reveal" data-cat="suv"><div class="car-img"><span class="car-tag tag-new">New In</span><div class="car-img-bg" style="background-image:url('https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=600&q=70')"></div></div><div class="car-body"><div class="car-make">Toyota</div><h3 class="car-model">Land Cruiser Prado</h3><div class="car-year">2019 · TXL · Tokunbo</div><div class="car-specs"><div class="cs"><i class="fas fa-gas-pump"></i> Diesel</div><div class="cs"><i class="fas fa-road"></i> 38k km</div><div class="cs"><i class="fas fa-star"></i> TXL</div></div><div class="car-footer"><div><div class="price-lbl">Price</div><div class="price-val">Call Us</div></div><a href="https://wa.me/2348055065825?text=Prado%20TXL" class="car-cta" target="_blank"><i class="fab fa-whatsapp"></i> Inquire</a></div></div></div>
+
+    <div class="car-card reveal" data-cat="truck"><div class="car-img"><span class="car-tag tag-new">Just In</span><div class="car-img-bg" style="background-image:url('https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=600&q=70')"></div></div><div class="car-body"><div class="car-make">Mack Trucks</div><h3 class="car-model">Granite Tipper</h3><div class="car-year">2018 · Serviced · Tokunbo</div><div class="car-specs"><div class="cs"><i class="fas fa-gas-pump"></i> Diesel</div><div class="cs"><i class="fas fa-weight-hanging"></i> 30T</div><div class="cs"><i class="fas fa-wrench"></i> Serviced</div></div><div class="car-footer"><div><div class="price-lbl">Price</div><div class="price-val">Call Us</div></div><a href="https://wa.me/2348055065825?text=Mack%20Granite" class="car-cta" target="_blank"><i class="fab fa-whatsapp"></i> Inquire</a></div></div></div>
+
+    <div class="car-card reveal" data-cat="truck"><div class="car-img"><span class="car-tag tag-new">In Stock</span><div class="car-img-bg" style="background-image:url('https://images.unsplash.com/photo-1519003722824-194d4455a60c?w=600&q=70')"></div></div><div class="car-body"><div class="car-make">Volvo Trucks</div><h3 class="car-model">FH Container</h3><div class="car-year">2017 · 40ft · Serviced</div><div class="car-specs"><div class="cs"><i class="fas fa-gas-pump"></i> Diesel</div><div class="cs"><i class="fas fa-weight-hanging"></i> 40T</div><div class="cs"><i class="fas fa-wrench"></i> Serviced</div></div><div class="car-footer"><div><div class="price-lbl">Price</div><div class="price-val">Call Us</div></div><a href="https://wa.me/2348055065825?text=Volvo%20FH" class="car-cta" target="_blank"><i class="fab fa-whatsapp"></i> Inquire</a></div></div></div>
+
+    <div class="car-card reveal" data-cat="luxury"><div class="car-img"><span class="car-tag tag-premium">Premium</span><div class="car-img-bg" style="background-image:url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=600&q=70')"></div></div><div class="car-body"><div class="car-make">Lexus</div><h3 class="car-model">LX 570</h3><div class="car-year">2019 · Full Options · Tokunbo</div><div class="car-specs"><div class="cs"><i class="fas fa-gas-pump"></i> V8</div><div class="cs"><i class="fas fa-road"></i> 42k km</div><div class="cs"><i class="fas fa-star"></i> Full Opt</div></div><div class="car-footer"><div><div class="price-lbl">Price</div><div class="price-val">Call Us</div></div><a href="https://wa.me/2348055065825?text=LX%20570" class="car-cta" target="_blank"><i class="fab fa-whatsapp"></i> Inquire</a></div></div></div>
+
+    <div class="car-card reveal" data-cat="luxury"><div class="car-img"><span class="car-tag tag-supply">Recent Supply</span><div class="car-img-bg" style="background-image:url('https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=600&q=70')"></div></div><div class="car-body"><div class="car-make">Hummer</div><h3 class="car-model">Hummer Bus</h3><div class="car-year">Tokunbo · VIP 14-Seater</div><div class="car-specs"><div class="cs"><i class="fas fa-gas-pump"></i> Petrol</div><div class="cs"><i class="fas fa-users"></i> 14 Seats</div><div class="cs"><i class="fas fa-star"></i> VIP</div></div><div class="car-footer"><div><div class="price-lbl">Price</div><div class="price-val">Call Us</div></div><a href="https://wa.me/2348055065825?text=Hummer%20Bus" class="car-cta" target="_blank"><i class="fab fa-whatsapp"></i> Inquire</a></div></div></div>
+
+  </div>
+</div></section>
+
+<footer class="footer"><div class="container">
+  <div class="footer-grid">
+    <div class="footer-brand"><a href="index.html" class="logo"><img data-logo alt="Sabicars" style="height:40px;width:40px;border-radius:8px;"/><div style="display:flex;flex-direction:column;line-height:1;margin-left:10px"><span class="logo-name">Sabicars</span><span class="logo-sub">Luxury Auto · Lagos</span></div></a><p>Nigeria's premier verified dealer. Pay 40%, drive today.</p><div class="socials"><a href="https://instagram.com/sabicarsltd" class="soc" target="_blank"><i class="fab fa-instagram"></i></a><a href="#" class="soc"><i class="fab fa-facebook-f"></i></a><a href="https://wa.me/2348055065825" class="soc" target="_blank"><i class="fab fa-whatsapp"></i></a><a href="#" class="soc"><i class="fab fa-tiktok"></i></a></div></div>
+    <div class="footer-col"><h5>Quick Links</h5><ul><li><a href="index.html">Home</a></li><li><a href="cars.html">Buy Cars</a></li><li><a href="financing.html">Financing</a></li><li><a href="about.html">About</a></li><li><a href="blog.html">Blog</a></li><li><a href="contact.html">Contact</a></li></ul></div>
+    <div class="footer-col"><h5>Vehicles</h5><ul><li><a href="cars.html">Luxury Cars</a></li><li><a href="cars.html">Toyota Hiace</a></li><li><a href="cars.html">Trucks</a></li><li><a href="cars.html">SUVs</a></li></ul></div>
+    <div class="footer-col"><h5>Contact</h5><ul><li><a href="tel:+2348101885558">0810 188 5558</a></li><li><a href="https://wa.me/2348055065825" target="_blank">WhatsApp Us</a></li><li><a href="mailto:info@sabicars.ng">info@sabicars.ng</a></li></ul></div>
+  </div>
+  <div class="footer-bottom"><p>© 2025 Sabicars Limited. RC 1560100.</p><span class="rc-pill"><i class="fas fa-building"></i> RC 1560100</span></div>
+</div></footer>
+<script src="theme.js"></script>
+<script>
+function filterCars(cat,btn){
+  document.querySelectorAll('.f-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const cards=document.querySelectorAll('.car-card');
+  let shown=0;
+  cards.forEach(c=>{const show=cat==='all'||c.dataset.cat===cat;c.style.display=show?'':'none';if(show)shown++;});
+  document.getElementById('invCount').textContent='Showing '+shown+' vehicle'+(shown!==1?'s':'');
+}
+document.getElementById('invCount').textContent='Showing '+document.querySelectorAll('.car-card').length+' vehicles';
+</script>
+</body></html>
