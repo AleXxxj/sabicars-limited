@@ -1,599 +1,283 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
-<title>Sabicars Limited — Luxury Cars · Toyota Hiace · Trucks | Lagos</title>
-<meta name="description" content="Nigeria's premier luxury auto dealership. Verified dealer of luxury cars, Toyota Hiace buses & trucks. Pay 40% & drive. RC 1560100."/>
+<title>Sabicars Limited — Luxury Cars · Toyota Hiace · Trucks | Lagos Nigeria</title>
+<meta name="description" content="Nigeria's premier verified auto dealer. Luxury cars, Toyota Hiace buses, trucks & fleet supply. Pay 40% & drive. RC 1560100. Lagos."/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="theme.css"/>
 <style>
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+/* ── INDEX-SPECIFIC ── */
 
-/* ══ THEME ══ */
-[data-theme="dark"]{
-  --bg:#080808; --bg2:#111; --bg3:#181818; --bg4:#222;
-  --border:rgba(201,168,76,.18); --border2:rgba(255,255,255,.06);
-  --text:#EDEDED; --muted:#888; --muted2:#555;
-  --card-bg:#131313;
-  --topbar-bg:rgba(201,168,76,.12);
-  --topbar-border:rgba(201,168,76,.35);
-  --topbar-text:#C9A84C;
-  --hero-overlay:linear-gradient(90deg,rgba(8,8,8,.88) 40%,rgba(8,8,8,.25) 100%);
-  --hero-overlay-mob:linear-gradient(180deg,rgba(8,8,8,.3) 0%,rgba(8,8,8,.92) 55%);
+/* HERO */
+.hero {
+  position: relative; min-height: 100vh;
+  display: flex; align-items: center; overflow: hidden;
 }
-[data-theme="light"]{
-  --bg:#F4F1EB; --bg2:#EBE8E1; --bg3:#E1DDD5; --bg4:#D5D0C7;
-  --border:rgba(139,105,20,.22); --border2:rgba(0,0,0,.07);
-  --text:#1A1A1A; --muted:#666; --muted2:#999;
-  --card-bg:#fff;
-  --topbar-bg:rgba(201,168,76,.15);
-  --topbar-border:rgba(139,105,20,.4);
-  --topbar-text:#8B6914;
-  --hero-overlay:linear-gradient(90deg,rgba(244,241,235,.93) 40%,rgba(244,241,235,.45) 100%);
-  --hero-overlay-mob:linear-gradient(180deg,rgba(244,241,235,.3) 0%,rgba(244,241,235,.95) 55%);
+.hero-slides { position: absolute; inset: 0; z-index: 0; }
+.hero-slide {
+  position: absolute; inset: 0;
+  background-size: cover; background-position: center;
+  opacity: 0; transition: opacity 1.2s ease;
 }
-:root{
-  --gold:#C9A84C; --gold-lt:#E2C47A; --gold-dim:rgba(201,168,76,.12);
-  --serif:'Cormorant Garamond',Georgia,serif;
-  --sans:'DM Sans',sans-serif;
-  --ease:cubic-bezier(.25,.46,.45,.94);
-  --t:.35s var(--ease);
-}
-html{scroll-behavior:smooth;}
-body{font-family:var(--sans);background:var(--bg);color:var(--text);overflow-x:hidden;transition:background var(--t),color var(--t);}
-::-webkit-scrollbar{width:3px;}
-::-webkit-scrollbar-track{background:var(--bg2);}
-::-webkit-scrollbar-thumb{background:var(--gold);border-radius:2px;}
+.hero-slide.active { opacity: 1; animation: kenburns 9s ease-out forwards; }
+@keyframes kenburns { from{transform:scale(1.07) translateX(0);} to{transform:scale(1.0) translateX(-1%);} }
+.slide-1{background-image:url('https://images.unsplash.com/photo-1563720223185-11003d516935?w=1800&q=80');}
+.slide-2{background-image:url('https://images.unsplash.com/photo-1555215695-3004980ad54e?w=1800&q=80');}
+.slide-3{background-image:url('https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=1800&q=80');}
+.slide-4{background-image:url('https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=1800&q=80');}
+.slide-5{background-image:url('https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=1800&q=80');}
 
-.container{max-width:1280px;margin:0 auto;padding:0 40px;}
-@media(max-width:768px){.container{padding:0 18px;}}
+.hero-overlay { position: absolute; inset: 0; background: var(--hero-grad); z-index: 1; }
+@media(max-width:768px){ .hero-overlay { background: var(--hero-mob); } }
 
-/* ══ TOP BAR — same pill style as hero label ══ */
-.topbar{
-  background:var(--topbar-bg);
-  border-bottom:1px solid var(--topbar-border);
-  padding:9px 0;
-  display:flex; align-items:center; justify-content:center;
-  gap:0;
-  overflow:hidden;
+.hero-body {
+  position: relative; z-index: 2;
+  padding: 110px 0 80px; width: 100%;
 }
-.topbar-inner{
-  display:flex; align-items:center; justify-content:center;
-  flex-wrap:wrap; gap:6px;
-}
-.topbar-pill{
-  display:inline-flex; align-items:center; gap:8px;
-  background:var(--topbar-bg);
-  border:1px solid var(--topbar-border);
-  border-radius:50px;
-  padding:5px 14px;
-  font-size:0.68rem; font-weight:700;
-  letter-spacing:0.18em; text-transform:uppercase;
-  color:var(--topbar-text);
-}
-.topbar-pill a{color:var(--topbar-text);text-decoration:none;}
-.topbar-dot{
-  width:6px; height:6px;
-  background:var(--gold); border-radius:50%;
-  animation:tblink 1.8s infinite;
-}
-@keyframes tblink{0%,100%{opacity:1;}50%{opacity:.25;}}
-.topbar-sep{
-  color:var(--topbar-border);
-  font-size:1rem;
-  padding:0 4px;
-  opacity:.6;
-}
+@media(max-width:768px){ .hero-body { padding: 80px 0 60px; } }
 
-/* ══ HEADER ══ */
-.header{
-  position:sticky;top:0;z-index:1000;
-  background:rgba(8,8,8,.94);
-  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-  border-bottom:1px solid var(--border);
-  transition:background var(--t),border-color var(--t);
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--gold-dim); border: 1px solid var(--gold-border);
+  border-radius: 50px; padding: 5px 14px;
+  font-size: 0.67rem; font-weight: 700;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 22px;
 }
-[data-theme="light"] .header{background:rgba(244,241,235,.96);}
-.header-inner{display:flex;align-items:center;justify-content:space-between;padding:13px 0;gap:14px;}
+.hero-dot { width: 5px; height: 5px; background: var(--gold); border-radius: 50%; animation: blink 1.8s infinite; }
 
-.logo{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;}
-.logo img{height:46px;width:46px;object-fit:contain;border-radius:8px;}
-.logo-text{display:flex;flex-direction:column;line-height:1;}
-.logo-name{font-family:var(--serif);font-size:1.3rem;font-weight:700;color:var(--text);letter-spacing:.04em;}
-.logo-sub{font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-top:3px;}
+.hero h1 {
+  font-size: clamp(2.8rem, 7vw, 6rem);
+  font-weight: 600; line-height: 0.95;
+  color: var(--text); margin-bottom: 24px;
+}
+.hero h1 em { font-style: italic; color: var(--gold); display: block; }
+.hero-sub {
+  font-size: 1rem; color: var(--muted); font-weight: 300;
+  line-height: 1.8; max-width: 460px; margin-bottom: 36px;
+}
+.hero-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 52px; }
 
-/* Nav pill buttons */
-.nav{display:flex;align-items:center;gap:5px;}
-.nav-btn{
-  padding:8px 15px; border-radius:50px;
-  font-size:.73rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase;
-  color:var(--muted); border:1px solid transparent; background:transparent;
-  cursor:pointer; text-decoration:none; transition:all .25s; white-space:nowrap;
-}
-.nav-btn:hover{color:var(--gold);border-color:var(--border);background:var(--gold-dim);}
-.nav-btn.active{color:var(--gold);border-color:var(--gold);background:var(--gold-dim);}
+.hero-stats { display: flex; gap: 40px; flex-wrap: wrap; }
+.hs { }
+.hs-num { font-family: 'Cormorant Garamond', serif; font-size: 2.6rem; font-weight: 700; color: var(--gold); line-height: 1; }
+.hs-lbl { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
 
-.header-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
-.theme-toggle{
-  width:36px;height:36px;border-radius:50%;
-  border:1px solid var(--border);background:transparent;
-  color:var(--muted);cursor:pointer;
-  display:flex;align-items:center;justify-content:center;font-size:.88rem;transition:all .25s;
+/* Hero slide dots */
+.hero-dots {
+  position: absolute; bottom: 32px; left: 50%;
+  transform: translateX(-50%); z-index: 3;
+  display: flex; gap: 8px;
 }
-.theme-toggle:hover{border-color:var(--gold);color:var(--gold);}
-.wa-btn{
-  display:flex;align-items:center;gap:7px;
-  background:#25D366;color:#fff;
-  padding:8px 16px;border-radius:50px;
-  font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
-  text-decoration:none;transition:var(--t);white-space:nowrap;
+.hero-dot-btn {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: rgba(255,255,255,0.3); border: none; cursor: pointer;
+  transition: all 0.3s; padding: 0;
 }
-.wa-btn:hover{background:#1db954;transform:translateY(-1px);}
-.hamburger{
-  display:none;flex-direction:column;gap:5px;
-  background:none;border:1px solid var(--border);
-  width:38px;height:38px;border-radius:4px;
-  align-items:center;justify-content:center;cursor:pointer;padding:0;
-}
-.hamburger span{display:block;width:18px;height:2px;background:var(--text);border-radius:2px;transition:all .3s;}
-.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
-.hamburger.open span:nth-child(2){opacity:0;}
-.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+.hero-dot-btn.active { background: var(--gold); width: 24px; border-radius: 4px; }
 
-/* Mobile drawer */
-.mobile-nav{
-  display:none;position:fixed;inset:0;
-  background:var(--bg);z-index:999;
-  flex-direction:column;align-items:center;justify-content:center;gap:14px;
-  padding:80px 24px 40px;
+/* SERVICES STRIP */
+.services-strip { padding: 60px 0; background: var(--bg2); }
+.services-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+@media(max-width:768px){ .services-grid { grid-template-columns: 1fr; } }
+.service-card {
+  background: var(--card); border: 1px solid var(--border2);
+  border-radius: 8px; padding: 32px;
+  display: flex; align-items: flex-start; gap: 18px;
+  transition: all 0.3s;
 }
-.mobile-nav.open{display:flex;}
-.mobile-nav .nav-btn{font-size:1rem;padding:13px 36px;border:1px solid var(--border2);width:100%;text-align:center;}
-.mobile-nav .nav-btn:hover{border-color:var(--gold);}
-.mob-wa{width:100%;display:flex;align-items:center;justify-content:center;margin-top:16px;padding:14px;font-size:.9rem;gap:8px;background:#25D366;color:#fff;border-radius:50px;text-decoration:none;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
+.service-card:hover { border-color: var(--gold-border); box-shadow: var(--shadow-lg); transform: translateY(-3px); }
+.svc-icon {
+  width: 52px; height: 52px; flex-shrink: 0;
+  background: var(--gold-dim); border: 1px solid var(--gold-border);
+  border-radius: 8px; display: flex; align-items: center;
+  justify-content: center; color: var(--gold); font-size: 1.3rem;
+}
+.svc-body h4 { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.svc-body p { font-size: 0.83rem; color: var(--muted); font-weight: 300; line-height: 1.6; margin-bottom: 14px; }
+.svc-link { display: inline-flex; align-items: center; gap: 6px; color: var(--gold); font-size: 0.74rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; }
+.svc-link i { font-size: 0.65rem; transition: transform 0.25s; }
+.svc-link:hover i { transform: translateX(4px); }
 
-@media(max-width:900px){.nav{display:none;}.hamburger{display:flex;}}
-@media(max-width:480px){.wa-btn .wa-text{display:none;}.logo-text{display:none;}}
+/* FEATURED VEHICLES */
+.featured { padding: 88px 0; background: var(--bg); }
+.featured-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 48px; flex-wrap: wrap; gap: 16px; }
 
-/* ══ HERO ══ */
-.hero{
-  position:relative;
-  min-height:100vh;
-  display:flex;align-items:center;
-  overflow:hidden;
-}
+.cars-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+@media(max-width:960px){ .cars-grid { grid-template-columns: repeat(2,1fr); } }
+@media(max-width:560px){ .cars-grid { grid-template-columns: 1fr; } }
 
-/* Slideshow layers */
-.hero-slides{position:absolute;inset:0;z-index:0;}
-.hero-slide{
-  position:absolute;inset:0;
-  background-size:cover;background-position:center;
-  opacity:0;
-  transition:opacity 1.2s ease;
-  transform:scale(1.08);
-  animation:none;
-}
-.hero-slide.active{
-  opacity:1;
-  animation:kenburns 8s ease-out forwards;
-}
-@keyframes kenburns{
-  from{transform:scale(1.08) translateX(0);}
-  to{transform:scale(1.0) translateX(-1%);}
-}
-
-/* hero images per category */
-.slide-all-1{background-image:url('https://images.unsplash.com/photo-1563720223185-11003d516935?w=1800&q=80');}
-.slide-all-2{background-image:url('https://images.unsplash.com/photo-1555215695-3004980ad54e?w=1800&q=80');}
-.slide-all-3{background-image:url('https://images.unsplash.com/photo-1616422285623-13ff0162193c?w=1800&q=80');}
-.slide-luxury-1{background-image:url('https://images.unsplash.com/photo-1563720223185-11003d516935?w=1800&q=80');}
-.slide-luxury-2{background-image:url('https://images.unsplash.com/photo-1555215695-3004980ad54e?w=1800&q=80');}
-.slide-luxury-3{background-image:url('https://images.unsplash.com/photo-1525609004556-c46c7d6cf023?w=1800&q=80');}
-.slide-hiace-1{background-image:url('https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=1800&q=80');}
-.slide-hiace-2{background-image:url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1800&q=80');}
-.slide-truck-1{background-image:url('https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=1800&q=80');}
-.slide-truck-2{background-image:url('https://images.unsplash.com/photo-1519003722824-194d4455a60c?w=1800&q=80');}
-
-.hero-overlay{position:absolute;inset:0;background:var(--hero-overlay);z-index:1;}
-@media(max-width:768px){.hero-overlay{background:var(--hero-overlay-mob);}}
-
-.hero-content{
-  position:relative;z-index:2;
-  width:100%;padding:110px 0 80px;max-width:640px;
-}
-@media(max-width:768px){.hero-content{padding:70px 0 60px;max-width:100%;}}
-
-/* Hero pill — same style as topbar pills */
-.hero-pill{
-  display:inline-flex;align-items:center;gap:8px;
-  background:var(--topbar-bg);
-  border:1px solid var(--topbar-border);
-  border-radius:50px;
-  padding:5px 14px;
-  font-size:.68rem;font-weight:700;
-  letter-spacing:.18em;text-transform:uppercase;
-  color:var(--topbar-text);
-  margin-bottom:22px;
-}
-.hero-pill-dot{width:6px;height:6px;background:var(--gold);border-radius:50%;animation:tblink 1.8s infinite;}
-
-/* Hero text animation */
-.hero h1{
-  font-family:var(--serif);
-  font-size:clamp(2.8rem,7vw,6.5rem);
-  font-weight:600;line-height:.95;color:var(--text);
-  margin-bottom:26px;
-  overflow:hidden;
-}
-[data-theme="light"] .hero h1{color:#1A1A1A;}
-.hero h1 .line{
-  display:block;
-  transform:translateY(100%);opacity:0;
-  animation:slideUp .7s var(--ease) forwards;
-}
-.hero h1 .line:nth-child(1){animation-delay:.1s;}
-.hero h1 .line:nth-child(2){animation-delay:.25s;}
-.hero h1 .line:nth-child(3){animation-delay:.4s;}
-.hero h1 em{font-style:italic;color:var(--gold);}
-@keyframes slideUp{to{transform:translateY(0);opacity:1;}}
-
-.hero-desc{
-  font-size:.98rem;color:var(--muted);font-weight:300;line-height:1.8;
-  max-width:460px;margin-bottom:36px;
-  opacity:0;animation:fadeIn .8s .6s var(--ease) forwards;
-}
-[data-theme="light"] .hero-desc{color:#555;}
-@keyframes fadeIn{to{opacity:1;}}
-
-.hero-actions{
-  display:flex;gap:11px;flex-wrap:wrap;margin-bottom:50px;
-  opacity:0;animation:fadeIn .8s .75s var(--ease) forwards;
-}
-.btn-gold{
-  display:inline-flex;align-items:center;gap:8px;
-  background:var(--gold);color:#080808;
-  padding:13px 26px;border-radius:50px;
-  font-size:.76rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
-  text-decoration:none;border:none;cursor:pointer;transition:var(--t);
-}
-.btn-gold:hover{background:var(--gold-lt);transform:translateY(-2px);box-shadow:0 10px 28px rgba(201,168,76,.35);}
-.btn-outline{
-  display:inline-flex;align-items:center;gap:8px;
-  background:transparent;color:var(--text);
-  padding:12px 24px;border-radius:50px;
-  font-size:.76rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
-  text-decoration:none;border:1.5px solid rgba(255,255,255,.3);transition:var(--t);
-}
-[data-theme="light"] .btn-outline{border-color:rgba(0,0,0,.22);color:#1A1A1A;}
-.btn-outline:hover{border-color:var(--gold);color:var(--gold);}
-
-.hero-stats{
-  display:flex;gap:36px;flex-wrap:wrap;
-  opacity:0;animation:fadeIn .8s .9s var(--ease) forwards;
-}
-.hstat-num{font-family:var(--serif);font-size:2.5rem;font-weight:700;color:var(--gold);line-height:1;}
-.hstat-lbl{font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-top:4px;}
-
-/* ── Hero thumbnails — bottom right (desktop) / bottom strip (mobile) ── */
-.hero-thumbs{
-  position:absolute;bottom:36px;right:40px;z-index:3;
-  display:flex;gap:10px;
-  opacity:0;animation:fadeIn .8s 1.1s var(--ease) forwards;
-}
-.hero-thumb{
-  width:88px;height:62px;border-radius:6px;overflow:hidden;
-  border:2px solid transparent;cursor:pointer;
-  transition:border-color .3s,transform .3s;
-  position:relative;
-  flex-shrink:0;
-}
-.hero-thumb.active{border-color:var(--gold);}
-.hero-thumb:hover{transform:scale(1.05);}
-.hero-thumb img{width:100%;height:100%;object-fit:cover;}
-.hero-thumb-lbl{
-  position:absolute;bottom:0;left:0;right:0;
-  background:linear-gradient(transparent,rgba(0,0,0,.75));
-  color:#fff;font-size:.5rem;font-weight:700;
-  letter-spacing:.12em;text-transform:uppercase;
-  padding:3px 5px;text-align:center;
-}
-
-@media(max-width:768px){
-  .hero-thumbs{
-    bottom:auto;right:auto;
-    position:relative;z-index:3;
-    display:flex;gap:8px;flex-wrap:wrap;
-    margin-top:24px;
-    opacity:0;animation:fadeIn .8s 1.1s var(--ease) forwards;
-  }
-  .hero-thumb{width:72px;height:52px;}
-}
-
-/* Scroll cue */
-.scroll-cue{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);z-index:2;display:flex;flex-direction:column;align-items:center;gap:7px;}
-.scroll-cue span{font-size:.58rem;letter-spacing:.25em;text-transform:uppercase;color:rgba(255,255,255,.35);}
-[data-theme="light"] .scroll-cue span{color:rgba(0,0,0,.25);}
-.scroll-line{width:1px;height:40px;background:linear-gradient(var(--gold),transparent);animation:scue 2s ease-in-out infinite;}
-@keyframes scue{0%,100%{opacity:.3;}50%{opacity:1;}}
-
-/* ══ MARQUEE ══ */
-.marquee-bar{background:var(--gold);padding:11px 0;overflow:hidden;}
-.marquee-track{display:flex;animation:mq 22s linear infinite;white-space:nowrap;}
-.mq-item{display:inline-flex;align-items:center;gap:12px;padding:0 26px;font-size:.7rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:#080808;}
-.mq-dot{width:4px;height:4px;background:#080808;border-radius:50%;opacity:.4;}
-@keyframes mq{from{transform:translateX(0);}to{transform:translateX(-50%);}}
-
-/* ══ SECTION HELPERS ══ */
-.section-label{display:inline-flex;align-items:center;gap:9px;margin-bottom:12px;}
-.sl-line{width:26px;height:1px;background:var(--gold);}
-.sl-text{font-size:.64rem;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);font-weight:600;}
-.section-title{font-family:var(--serif);font-size:clamp(1.8rem,4vw,3rem);font-weight:600;color:var(--text);line-height:1.1;margin-bottom:12px;}
-.section-title em{font-style:italic;color:var(--gold);}
-.section-sub{font-size:.93rem;color:var(--muted);font-weight:300;line-height:1.75;max-width:480px;}
-
-/* ══ CATEGORIES ══ */
-.categories{padding:88px 0;background:var(--bg2);}
-.cat-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:48px;flex-wrap:wrap;gap:18px;}
-
-.cat-grid{
-  display:grid;
-  grid-template-columns:1.7fr 1fr 1fr;
-  grid-template-rows:260px 260px;
-  gap:12px;
-}
-.cat-card:first-child{grid-row:1/3;}
-
-/* Desktop — keep grid */
-@media(min-width:961px){
-  .cat-grid{display:grid;}
-}
-/* Tablet */
-@media(max-width:960px) and (min-width:561px){
-  .cat-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    grid-template-rows:auto;
-  }
-  .cat-card:first-child{grid-column:1/-1;grid-row:auto;height:240px;}
-}
-/* Mobile — full single column */
-@media(max-width:560px){
-  .cat-grid{display:flex;flex-direction:column;gap:10px;}
-  .cat-card{height:180px!important;}
-  .cat-card:first-child{height:220px!important;}
-}
-
-.cat-card{
-  position:relative;overflow:hidden;border-radius:6px;cursor:pointer;
-  border:1px solid var(--border2);
-  /* Each card has its own slideshow */
-}
-/* Cat slideshows */
-.cat-slides{position:absolute;inset:0;}
-.cat-slide{
-  position:absolute;inset:0;background-size:cover;background-position:center;
-  opacity:0;transition:opacity 1.2s ease;
-}
-.cat-slide.active{opacity:1;}
-.cat-card:hover .cat-slide.active{transform:scale(1.04);transition:opacity 1.2s ease,transform 6s ease;}
-
-.cat-dim{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.84) 0%,rgba(0,0,0,.12) 55%,transparent 100%);z-index:1;}
-.cat-body{position:absolute;bottom:0;left:0;right:0;padding:22px;z-index:2;}
-.cat-tag{display:inline-block;background:var(--gold);color:#080808;font-size:.56rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;padding:3px 9px;border-radius:50px;margin-bottom:7px;}
-.cat-name{font-family:var(--serif);font-size:1.4rem;font-weight:700;color:#fff;line-height:1.1;margin-bottom:4px;}
-.cat-card:first-child .cat-name{font-size:2rem;}
-.cat-desc{font-size:.75rem;color:rgba(255,255,255,.6);font-weight:300;}
-.cat-link{display:inline-flex;align-items:center;gap:6px;color:var(--gold);font-size:.7rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;margin-top:10px;opacity:0;transform:translateX(-8px);transition:opacity .3s,transform .3s;}
-.cat-card:hover .cat-link{opacity:1;transform:translateX(0);}
-
-/* Slideshow images per category */
-/* LUXURY */
-.cs-luxury-1{background-image:url('https://images.unsplash.com/photo-1563720223185-11003d516935?w=900&q=75');}
-.cs-luxury-2{background-image:url('https://images.unsplash.com/photo-1555215695-3004980ad54e?w=900&q=75');}
-.cs-luxury-3{background-image:url('https://images.unsplash.com/photo-1525609004556-c46c7d6cf023?w=900&q=75');}
-/* HIACE */
-.cs-hiace-1{background-image:url('https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=700&q=75');}
-.cs-hiace-2{background-image:url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=700&q=75');}
-/* TRUCK */
-.cs-truck-1{background-image:url('https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=700&q=75');}
-.cs-truck-2{background-image:url('https://images.unsplash.com/photo-1519003722824-194d4455a60c?w=700&q=75');}
-/* SUV */
-.cs-suv-1{background-image:url('https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=700&q=75');}
-.cs-suv-2{background-image:url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=700&q=75');}
-/* PLAN */
-.cs-plan-1{background-image:url('https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=700&q=75');}
-
-/* ══ INVENTORY ══ */
-.inventory{padding:88px 0;background:var(--bg);}
-.inv-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:46px;flex-wrap:wrap;gap:14px;}
-.filters{display:flex;gap:4px;background:var(--bg3);padding:4px;border-radius:50px;flex-wrap:wrap;}
-.f-tab{padding:7px 16px;border-radius:50px;font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:transparent;border:none;cursor:pointer;transition:all .25s;}
-.f-tab.active,.f-tab:hover{background:var(--gold);color:#080808;}
-
-.cars-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
-@media(max-width:1000px){.cars-grid{grid-template-columns:repeat(2,1fr);}}
-@media(max-width:560px){.cars-grid{grid-template-columns:1fr;}}
-
-.car-card{
-  background:var(--card-bg);border:1px solid var(--border2);
-  border-radius:6px;overflow:hidden;
-  transition:border-color var(--t),transform var(--t),box-shadow var(--t);
-  display:block;
-}
-.car-card:hover{border-color:rgba(201,168,76,.35);transform:translateY(-4px);box-shadow:0 18px 44px rgba(0,0,0,.28);}
-[data-theme="light"] .car-card:hover{box-shadow:0 14px 36px rgba(0,0,0,.1);}
-
-.car-img{
-  height:195px;position:relative;overflow:hidden;
-}
-/* Car img slideshow */
-.car-img-slides{position:absolute;inset:0;}
-.car-img-slide{
-  position:absolute;inset:0;background-size:cover;background-position:center;
-  opacity:0;transition:opacity 1.2s ease;
-}
-.car-img-slide.active{opacity:1;}
-/* individual car images */
+.car-card { background: var(--card); border: 1px solid var(--border2); border-radius: 8px; overflow: hidden; transition: all 0.3s; }
+.car-card:hover { border-color: var(--gold-border); transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+.car-img { height: 200px; position: relative; overflow: hidden; }
+.car-img-slide { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 1.2s ease; }
+.car-img-slide.active { opacity: 1; }
 .ci-gle1{background-image:url('https://images.unsplash.com/photo-1563720223185-11003d516935?w=600&q=70');}
 .ci-gle2{background-image:url('https://images.unsplash.com/photo-1571987502227-9231b837d92a?w=600&q=70');}
-.ci-hiace1{background-image:url('https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=600&q=70');}
-.ci-hiace2{background-image:url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=70');}
-.ci-lx1{background-image:url('https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=600&q=70');}
-.ci-lx2{background-image:url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=600&q=70');}
-.ci-mack1{background-image:url('https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=600&q=70');}
-.ci-mack2{background-image:url('https://images.unsplash.com/photo-1519003722824-194d4455a60c?w=600&q=70');}
-.ci-hiace3{background-image:url('https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=600&q=70');}
-.ci-bmw1{background-image:url('https://images.unsplash.com/photo-1555215695-3004980ad54e?w=600&q=70');}
-.ci-bmw2{background-image:url('https://images.unsplash.com/photo-1525609004556-c46c7d6cf023?w=600&q=70');}
-.ci-prado1{background-image:url('https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=600&q=70');}
-.ci-truck2{background-image:url('https://images.unsplash.com/photo-1586345122340-15b5bc9e56bb?w=600&q=70');}
+.ci-h1{background-image:url('https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=600&q=70');}
+.ci-h2{background-image:url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=70');}
+.ci-hl1{background-image:url('https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=600&q=70');}
+.ci-hl2{background-image:url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=600&q=70');}
+.ci-gx1{background-image:url('https://images.unsplash.com/photo-1555215695-3004980ad54e?w=600&q=70');}
+.ci-gx2{background-image:url('https://images.unsplash.com/photo-1525609004556-c46c7d6cf023?w=600&q=70');}
+.ci-tr1{background-image:url('https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=600&q=70');}
+.ci-tr2{background-image:url('https://images.unsplash.com/photo-1519003722824-194d4455a60c?w=600&q=70');}
+.ci-hm1{background-image:url('https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=600&q=70');}
 .ci-rr1{background-image:url('https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=600&q=70');}
 
-.car-tag-badge{position:absolute;top:12px;left:12px;padding:4px 10px;border-radius:50px;font-size:.56rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;z-index:2;}
-.tag-hot{background:#e53e3e;color:#fff;}
-.tag-new{background:var(--gold);color:#080808;}
-.tag-premium{background:transparent;border:1px solid var(--gold);color:var(--gold);}
+.car-tag { position: absolute; top: 12px; left: 12px; padding: 4px 10px; border-radius: 50px; font-size: 0.57rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; z-index: 2; }
+.tag-hot { background: #DC2626; color: #fff; }
+.tag-new { background: var(--gold); color: #fff; }
+.tag-supply { background: #1d4ed8; color: #fff; }
+.tag-premium { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
 
-.car-body{padding:20px;}
-.car-make{font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:3px;}
-.car-model{font-family:var(--serif);font-size:1.4rem;font-weight:700;color:var(--text);line-height:1.1;margin-bottom:3px;}
-.car-sub{font-size:.76rem;color:var(--muted);margin-bottom:12px;}
-.car-specs{display:flex;gap:12px;flex-wrap:wrap;padding-bottom:14px;border-bottom:1px solid var(--border2);margin-bottom:14px;}
-.cs-s{display:flex;align-items:center;gap:4px;font-size:.72rem;color:var(--muted);}
-.cs-s i{color:var(--gold);font-size:.62rem;}
-.car-footer{display:flex;align-items:center;justify-content:space-between;}
-.price-lbl{font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted2);}
-.price-val{font-family:var(--serif);font-size:1.2rem;font-weight:700;color:var(--gold);}
-.car-cta{display:inline-flex;align-items:center;gap:6px;background:var(--gold);color:#080808;padding:8px 14px;border-radius:50px;font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;transition:var(--t);}
-.car-cta:hover{background:var(--gold-lt);}
-.inv-footer{text-align:center;margin-top:44px;}
+.car-body { padding: 18px 20px 20px; }
+.car-make { font-size: 0.62rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); font-weight: 700; margin-bottom: 3px; }
+.car-model { font-family: 'Cormorant Garamond', serif; font-size: 1.35rem; font-weight: 700; color: var(--text); line-height: 1.1; margin-bottom: 3px; }
+.car-year { font-size: 0.76rem; color: var(--muted); margin-bottom: 12px; }
+.car-specs { display: flex; gap: 12px; flex-wrap: wrap; padding-bottom: 13px; border-bottom: 1px solid var(--border2); margin-bottom: 13px; }
+.cs { display: flex; align-items: center; gap: 4px; font-size: 0.72rem; color: var(--muted); }
+.cs i { color: var(--gold); font-size: 0.62rem; }
+.car-footer { display: flex; align-items: center; justify-content: space-between; }
+.price-lbl { font-size: 0.58rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted2); }
+.price-val { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 700; color: var(--gold); }
+.car-cta { display: inline-flex; align-items: center; gap: 6px; background: var(--gold); color: #fff; padding: 8px 14px; border-radius: 6px; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none; transition: all 0.25s; }
+.car-cta:hover { background: var(--gold-lt); }
+.featured-footer { text-align: center; margin-top: 44px; }
 
-/* ══ FINANCING ══ */
-.financing{padding:88px 0;background:var(--bg2);}
-.fin-inner{display:grid;grid-template-columns:1fr 1fr;gap:68px;align-items:center;}
-@media(max-width:900px){.fin-inner{grid-template-columns:1fr;gap:40px;}}
-.fin-card{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:40px;position:relative;overflow:hidden;}
-.fin-card::after{content:'';position:absolute;top:-60px;right:-60px;width:170px;height:170px;border-radius:50%;background:radial-gradient(circle,var(--gold-dim),transparent);}
-.fin-big{font-family:var(--serif);font-size:6rem;font-weight:700;color:var(--gold);line-height:1;}
-.fin-big sup{font-size:2rem;vertical-align:super;}
-.fin-lbl{font-size:.95rem;color:var(--text);font-weight:300;margin-bottom:28px;}
-.fin-steps{display:flex;flex-direction:column;gap:13px;}
-.fin-step{display:flex;align-items:center;gap:13px;}
-.fin-n{width:28px;height:28px;border-radius:50%;border:1px solid var(--gold);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;flex-shrink:0;}
-.fin-t{font-size:.85rem;color:var(--muted);font-weight:300;}
-.fin-t strong{color:var(--text);font-weight:500;}
-.fin-info .section-sub{margin-bottom:32px;}
-.fin-features{display:flex;flex-direction:column;gap:13px;margin-bottom:32px;}
-.ff{display:flex;align-items:flex-start;gap:13px;}
-.ff-icon{width:34px;height:34px;background:var(--gold-dim);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:.82rem;flex-shrink:0;border-radius:4px;}
-.ff-text h5{font-size:.86rem;font-weight:600;color:var(--text);margin-bottom:2px;}
-.ff-text p{font-size:.76rem;color:var(--muted);font-weight:300;}
+/* FLEET SUPPLY BANNER */
+.fleet-banner { padding: 72px 0; background: var(--text); position: relative; overflow: hidden; }
+[data-theme="dark"] .fleet-banner { background: var(--gold); }
+.fleet-banner::before { content: ''; position: absolute; inset: 0; background: url('https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=1400&q=60') center/cover; opacity: 0.1; }
+.fleet-inner { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+@media(max-width:800px){ .fleet-inner { grid-template-columns: 1fr; gap: 32px; } }
+.fleet-text h2 { font-size: clamp(2rem,4vw,3rem); font-weight: 600; color: #fff; line-height: 1.1; margin-bottom: 14px; }
+[data-theme="dark"] .fleet-text h2 { color: #0C0C0A; }
+.fleet-text h2 em { font-style: italic; color: var(--gold-lt); }
+[data-theme="dark"] .fleet-text h2 em { color: rgba(0,0,0,0.6); }
+.fleet-text p { font-size: 0.95rem; color: rgba(255,255,255,0.75); font-weight: 300; line-height: 1.8; margin-bottom: 28px; }
+[data-theme="dark"] .fleet-text p { color: rgba(0,0,0,0.65); }
+.fleet-btn { display: inline-flex; align-items: center; gap: 8px; background: var(--gold); color: #fff; padding: 13px 28px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; transition: all 0.3s; }
+[data-theme="dark"] .fleet-btn { background: #0C0C0A; color: var(--gold); }
+.fleet-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+.fleet-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.fleet-stat { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 20px; }
+[data-theme="dark"] .fleet-stat { background: rgba(0,0,0,0.1); border-color: rgba(0,0,0,0.15); }
+.fleet-stat-num { font-family: 'Cormorant Garamond', serif; font-size: 2.4rem; font-weight: 700; color: var(--gold-lt); line-height: 1; margin-bottom: 4px; }
+[data-theme="dark"] .fleet-stat-num { color: rgba(0,0,0,0.7); }
+.fleet-stat-lbl { font-size: 0.72rem; color: rgba(255,255,255,0.65); letter-spacing: 0.1em; text-transform: uppercase; }
+[data-theme="dark"] .fleet-stat-lbl { color: rgba(0,0,0,0.55); }
 
-/* ══ TRUST ══ */
-.trust{padding:88px 0;background:var(--bg);}
-.trust-hdr{text-align:center;margin-bottom:52px;}
-.trust-hdr .section-sub{margin:0 auto;text-align:center;}
-.trust-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border2);border:1px solid var(--border2);}
-@media(max-width:900px){.trust-grid{grid-template-columns:repeat(2,1fr);}}
-@media(max-width:480px){.trust-grid{grid-template-columns:1fr;}}
-.trust-item{background:var(--bg);padding:40px 28px;text-align:center;transition:background var(--t);position:relative;}
-.trust-item:hover{background:var(--bg2);}
-.trust-item::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%) scaleX(0);width:40%;height:2px;background:var(--gold);transition:transform .4s;}
-.trust-item:hover::after{transform:translateX(-50%) scaleX(1);}
-.t-icon{width:56px;height:56px;background:var(--gold-dim);border:1px solid var(--border);border-radius:4px;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;color:var(--gold);font-size:1.15rem;}
-.trust-item h4{font-family:var(--serif);font-size:1.15rem;font-weight:700;color:var(--text);margin-bottom:9px;}
-.trust-item p{font-size:.8rem;color:var(--muted);font-weight:300;line-height:1.7;}
+/* WHY US */
+.why { padding: 88px 0; background: var(--bg2); }
+.why-header { text-align: center; margin-bottom: 52px; }
+.why-header .section-sub { margin: 0 auto; text-align: center; }
+.why-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+@media(max-width:860px){ .why-grid { grid-template-columns: 1fr 1fr; } }
+@media(max-width:480px){ .why-grid { grid-template-columns: 1fr; } }
+.why-card { background: var(--card); border: 1px solid var(--border2); border-radius: 8px; padding: 32px 28px; transition: all 0.3s; position: relative; overflow: hidden; }
+.why-card:hover { border-color: var(--gold-border); transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+.why-card::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: var(--gold); transform: scaleX(0); transition: transform 0.4s; transform-origin: left; }
+.why-card:hover::after { transform: scaleX(1); }
+.why-icon { width: 52px; height: 52px; background: var(--gold-dim); border: 1px solid var(--gold-border); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--gold); font-size: 1.2rem; margin-bottom: 18px; }
+.why-card h4 { font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+.why-card p { font-size: 0.83rem; color: var(--muted); font-weight: 300; line-height: 1.7; }
 
-/* ══ TESTIMONIALS ══ */
-.testimonials{padding:88px 0;background:var(--bg2);}
-.testi-hdr{text-align:center;margin-bottom:46px;}
-.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
-@media(max-width:860px){.testi-grid{grid-template-columns:1fr;}}
-.testi-card{background:var(--card-bg);border:1px solid var(--border2);border-radius:6px;padding:28px;transition:border-color var(--t);}
-.testi-card:hover{border-color:rgba(201,168,76,.3);}
-.testi-stars{color:var(--gold);font-size:.68rem;letter-spacing:3px;margin-bottom:12px;}
-.testi-q{font-family:var(--serif);font-size:2.4rem;color:var(--gold);opacity:.22;line-height:1;margin-bottom:10px;}
-.testi-txt{font-size:.86rem;color:var(--muted);font-weight:300;line-height:1.8;margin-bottom:18px;}
-.testi-name{font-weight:600;font-size:.86rem;color:var(--text);}
-.testi-loc{font-size:.72rem;color:var(--muted2);}
+/* RECENT SUPPLY */
+.supply { padding: 88px 0; background: var(--bg); }
+.supply-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 48px; flex-wrap: wrap; gap: 16px; }
+.supply-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+@media(max-width:860px){ .supply-grid { grid-template-columns: 1fr 1fr; } }
+@media(max-width:560px){ .supply-grid { grid-template-columns: 1fr; } }
+.supply-card { background: var(--card); border: 1px solid var(--border2); border-radius: 8px; overflow: hidden; transition: all 0.3s; }
+.supply-card:hover { border-color: var(--gold-border); transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+.supply-img { height: 180px; background-size: cover; background-position: center; position: relative; }
+.supply-img::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top,rgba(0,0,0,0.5),transparent); }
+.supply-qty { position: absolute; bottom: 12px; left: 12px; z-index: 1; background: var(--gold); color: #fff; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; padding: 4px 10px; border-radius: 50px; }
+.supply-body { padding: 18px 20px; }
+.supply-body h4 { font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; font-weight: 700; color: var(--text); margin-bottom: 5px; }
+.supply-body p { font-size: 0.8rem; color: var(--muted); font-weight: 300; }
 
-/* ══ CONTACT ══ */
-.contact{padding:88px 0;background:var(--bg);}
-.contact-inner{display:grid;grid-template-columns:1fr 1.1fr;gap:68px;align-items:start;}
-@media(max-width:900px){.contact-inner{grid-template-columns:1fr;gap:40px;}}
-.contact-list{list-style:none;display:flex;flex-direction:column;gap:16px;margin-bottom:32px;}
-.c-item{display:flex;align-items:flex-start;gap:13px;}
-.c-icon{width:36px;height:36px;background:var(--gold-dim);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:.78rem;flex-shrink:0;border-radius:4px;}
-.c-text strong{display:block;font-size:.76rem;color:var(--text);font-weight:600;margin-bottom:2px;}
-.c-text span,.c-text a{font-size:.83rem;color:var(--muted);text-decoration:none;font-weight:300;}
-.c-text a:hover{color:var(--gold);}
-.hours-card{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:20px;}
-.h-title{font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:12px;}
-.h-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border2);font-size:.8rem;}
-.h-row:last-child{border:none;}
-.h-row span:first-child{color:var(--muted);}
-.h-row span:last-child{color:var(--text);font-weight:500;}
-.h-closed{color:#e53e3e!important;}
-.map-card{background:var(--bg2);border:1px solid var(--border);border-radius:6px;height:100%;min-height:360px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
-.map-card::before{content:'';position:absolute;inset:0;background:linear-gradient(var(--border2) 1px,transparent 1px),linear-gradient(90deg,var(--border2) 1px,transparent 1px);background-size:26px 26px;}
-.map-inner{text-align:center;position:relative;z-index:1;}
-.map-pin{width:52px;height:52px;background:var(--gold);border-radius:50% 50% 50% 0;transform:rotate(-45deg);margin:0 auto 18px;display:flex;align-items:center;justify-content:center;}
-.map-pin i{transform:rotate(45deg);color:#080808;font-size:.95rem;}
-.map-inner p{font-size:.85rem;color:var(--muted);margin-bottom:16px;}
-.map-link{display:inline-flex;align-items:center;gap:6px;color:var(--gold);font-size:.73rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;border-bottom:1px solid rgba(201,168,76,.3);padding-bottom:2px;transition:border-color .25s;}
-.map-link:hover{border-color:var(--gold);}
+/* BLOG PREVIEW */
+.blog-section { padding: 88px 0; background: var(--bg2); }
+.blog-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 48px; flex-wrap: wrap; gap: 16px; }
+.blog-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+@media(max-width:860px){ .blog-grid { grid-template-columns: 1fr 1fr; } }
+@media(max-width:560px){ .blog-grid { grid-template-columns: 1fr; } }
+.blog-card { background: var(--card); border: 1px solid var(--border2); border-radius: 8px; overflow: hidden; transition: all 0.3s; text-decoration: none; display: block; }
+.blog-card:hover { border-color: var(--gold-border); transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+.blog-img { height: 190px; background-size: cover; background-position: center; }
+.blog-body { padding: 20px; }
+.blog-cat { display: inline-block; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+.blog-body h4 { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 700; color: var(--text); line-height: 1.3; margin-bottom: 8px; }
+.blog-body p { font-size: 0.8rem; color: var(--muted); font-weight: 300; line-height: 1.6; margin-bottom: 14px; }
+.blog-meta { display: flex; align-items: center; gap: 12px; font-size: 0.72rem; color: var(--muted2); }
+.blog-read { display: inline-flex; align-items: center; gap: 5px; color: var(--gold); font-size: 0.72rem; font-weight: 700; }
 
-/* ══ FOOTER ══ */
-.footer{background:var(--bg2);border-top:1px solid var(--border);padding:56px 0 26px;}
-.footer-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:40px;margin-bottom:44px;}
-@media(max-width:900px){.footer-grid{grid-template-columns:1fr 1fr;gap:26px;}}
-@media(max-width:480px){.footer-grid{grid-template-columns:1fr;}}
-.footer-brand p{font-size:.8rem;color:var(--muted);font-weight:300;line-height:1.8;margin:13px 0 18px;max-width:230px;}
-.socials{display:flex;gap:7px;}
-.soc{width:34px;height:34px;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.8rem;text-decoration:none;border-radius:4px;transition:all .25s;}
-.soc:hover{border-color:var(--gold);color:var(--gold);}
-.footer-col h5{font-size:.62rem;letter-spacing:.25em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:16px;}
-.footer-col ul{list-style:none;display:flex;flex-direction:column;gap:8px;}
-.footer-col li a{font-size:.8rem;color:var(--muted);text-decoration:none;font-weight:300;transition:color .25s;}
-.footer-col li a:hover{color:var(--gold);}
-.footer-bottom{border-top:1px solid var(--border2);padding-top:22px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
-.footer-bottom p{font-size:.72rem;color:var(--muted2);}
-.rc-badge{display:inline-flex;align-items:center;gap:5px;background:var(--gold-dim);border:1px solid var(--border);padding:4px 10px;border-radius:50px;font-size:.62rem;color:var(--gold);letter-spacing:.1em;}
+/* REFERRAL */
+.referral { padding: 72px 0; background: var(--bg); }
+.ref-inner { background: var(--bg2); border: 1px solid var(--gold-border); border-radius: 12px; padding: 52px; display: grid; grid-template-columns: 1.2fr 1fr; gap: 60px; align-items: center; }
+@media(max-width:800px){ .ref-inner { grid-template-columns: 1fr; gap: 32px; padding: 32px; } }
+.ref-text h2 { font-size: clamp(1.8rem,3.5vw,2.8rem); font-weight: 600; color: var(--text); margin-bottom: 14px; }
+.ref-text h2 em { font-style: italic; color: var(--gold); }
+.ref-text p { font-size: 0.93rem; color: var(--muted); font-weight: 300; line-height: 1.8; margin-bottom: 24px; }
+.ref-perks { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+.ref-perks li { display: flex; align-items: center; gap: 10px; font-size: 0.86rem; color: var(--text2); }
+.ref-perks li i { color: var(--gold); font-size: 0.75rem; }
+.ref-card { background: var(--card); border: 1px solid var(--border2); border-radius: 10px; padding: 32px; text-align: center; }
+.ref-pct { font-family: 'Cormorant Garamond', serif; font-size: 5rem; font-weight: 700; color: var(--gold); line-height: 1; }
+.ref-pct sup { font-size: 2rem; vertical-align: super; }
+.ref-card p { font-size: 0.9rem; color: var(--muted); margin-bottom: 8px; font-weight: 300; }
+.ref-example { background: var(--gold-dim); border: 1px solid var(--gold-border); border-radius: 6px; padding: 12px; font-size: 0.82rem; color: var(--text2); margin-bottom: 20px; }
+.ref-example strong { color: var(--gold); }
 
-/* Floating WA */
-.float-wa{position:fixed;bottom:26px;right:26px;width:52px;height:52px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.35rem;text-decoration:none;box-shadow:0 6px 26px rgba(37,211,102,.45);z-index:998;transition:transform .3s;}
-.float-wa:hover{transform:scale(1.1);}
-.float-wa::before{content:'';position:absolute;width:100%;height:100%;border-radius:50%;background:#25D366;animation:wap 2.5s ease-out infinite;z-index:-1;}
-@keyframes wap{0%{transform:scale(1);opacity:.6;}100%{transform:scale(2.2);opacity:0;}}
+/* TESTIMONIALS */
+.testimonials { padding: 88px 0; background: var(--bg2); }
+.testi-hdr { text-align: center; margin-bottom: 48px; }
+.testi-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+@media(max-width:860px){ .testi-grid { grid-template-columns: 1fr; } }
+.testi-card { background: var(--card); border: 1px solid var(--border2); border-radius: 8px; padding: 28px; transition: border-color 0.3s; }
+.testi-card:hover { border-color: var(--gold-border); }
+.testi-stars { color: var(--gold); font-size: 0.68rem; letter-spacing: 3px; margin-bottom: 12px; }
+.testi-q { font-family: 'Cormorant Garamond', serif; font-size: 2.4rem; color: var(--gold); opacity: 0.2; line-height: 1; margin-bottom: 10px; }
+.testi-txt { font-size: 0.86rem; color: var(--muted); font-weight: 300; line-height: 1.8; margin-bottom: 18px; }
+.testi-name { font-weight: 700; font-size: 0.86rem; color: var(--text); }
+.testi-loc { font-size: 0.72rem; color: var(--muted2); }
 
-/* Reveal */
-.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease;}
-.reveal.on{opacity:1;transform:translateY(0);}
-.reveal:nth-child(2){transition-delay:.08s;}
-.reveal:nth-child(3){transition-delay:.16s;}
-.reveal:nth-child(4){transition-delay:.24s;}
-.reveal:nth-child(5){transition-delay:.32s;}
+/* CTA STRIP */
+.cta-strip { padding: 72px 0; background: var(--bg); }
+.cta-inner { background: var(--gold); border-radius: 12px; padding: 52px 60px; display: flex; align-items: center; justify-content: space-between; gap: 32px; flex-wrap: wrap; }
+@media(max-width:768px){ .cta-inner { padding: 36px 28px; } }
+.cta-text h2 { font-size: clamp(1.8rem,3.5vw,2.8rem); font-weight: 600; color: #fff; margin-bottom: 8px; }
+.cta-text p { font-size: 0.93rem; color: rgba(255,255,255,0.8); font-weight: 300; }
+.cta-btns { display: flex; gap: 12px; flex-wrap: wrap; }
+.cta-btn-wh { display: inline-flex; align-items: center; gap: 8px; background: #fff; color: var(--gold); padding: 13px 28px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; transition: all 0.3s; }
+.cta-btn-wh:hover { background: #f5f5f5; transform: translateY(-2px); }
+.cta-btn-dk { display: inline-flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.2); color: #fff; border: 1.5px solid rgba(255,255,255,0.5); padding: 12px 26px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; transition: all 0.3s; }
+.cta-btn-dk:hover { background: rgba(0,0,0,0.35); }
 </style>
 </head>
 <body>
 
-<!-- FLOATING WA -->
-<a href="https://wa.me/2348055065825?text=Hello%20Sabicars%2C%20I%20am%20interested%20in%20a%20vehicle." class="float-wa" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i></a>
+<a href="https://wa.me/2348055065825?text=Hello%20Sabicars!" class="float-wa" target="_blank"><i class="fab fa-whatsapp"></i></a>
 
 <!-- MOBILE NAV -->
 <nav class="mobile-nav" id="mobileNav">
-  <a href="#categories" class="nav-btn" onclick="closeNav()">Vehicles</a>
-  <a href="#inventory" class="nav-btn" onclick="closeNav()">Inventory</a>
-  <a href="#financing" class="nav-btn" onclick="closeNav()">40% Plan</a>
-  <a href="#trust" class="nav-btn" onclick="closeNav()">About</a>
-  <a href="#contact" class="nav-btn" onclick="closeNav()">Contact</a>
-  <a href="https://wa.me/2348055065825" class="mob-wa" target="_blank"><i class="fab fa-whatsapp"></i> Chat on WhatsApp</a>
+  <a href="index.html" onclick="closeNav()">Home</a>
+  <a href="cars.html" onclick="closeNav()">Buy Cars</a>
+  <a href="financing.html" onclick="closeNav()">Financing</a>
+  <a href="about.html" onclick="closeNav()">About</a>
+  <a href="blog.html" onclick="closeNav()">Blog</a>
+  <a href="contact.html" onclick="closeNav()">Contact</a>
+  <a href="https://wa.me/2348055065825" class="mob-wa-btn" target="_blank"><i class="fab fa-whatsapp"></i> Chat on WhatsApp</a>
 </nav>
 
-<!-- TOP BAR — pill style matching hero label -->
+<!-- TOPBAR -->
 <div class="topbar">
   <div class="topbar-inner">
     <span class="topbar-pill"><span class="topbar-dot"></span><a href="tel:+2348101885558">📞 0810 188 5558</a></span>
@@ -605,26 +289,27 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);overflow-x:h
 </div>
 
 <!-- HEADER -->
-<header class="header" id="mainHeader">
+<header class="header">
   <div class="container">
     <div class="header-inner">
-      <a href="#" class="logo">
-        <img src="LOGO_PLACEHOLDER" alt="Sabicars Limited"/>
-        <div class="logo-text">
+      <a href="index.html" class="logo">
+        <img data-logo alt="Sabicars Logo"/>
+        <div style="display:flex;flex-direction:column;line-height:1;">
           <span class="logo-name">Sabicars</span>
           <span class="logo-sub">Luxury Auto · Lagos</span>
         </div>
       </a>
       <nav class="nav">
-        <a href="#categories" class="nav-btn">Vehicles</a>
-        <a href="#inventory" class="nav-btn">Inventory</a>
-        <a href="#financing" class="nav-btn">40% Plan</a>
-        <a href="#trust" class="nav-btn">About</a>
-        <a href="#contact" class="nav-btn">Contact</a>
+        <a href="index.html" class="active">Home</a>
+        <a href="cars.html">Buy Cars</a>
+        <a href="financing.html">Financing</a>
+        <a href="about.html">About</a>
+        <a href="blog.html">Blog</a>
+        <a href="contact.html">Contact</a>
       </nav>
       <div class="header-right">
-        <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon" id="themeIcon"></i></button>
-        <a href="https://wa.me/2348055065825" class="wa-btn" target="_blank"><i class="fab fa-whatsapp"></i><span class="wa-text">WhatsApp</span></a>
+        <button class="theme-btn" data-theme-toggle><i data-theme-icon class="fas fa-moon"></i></button>
+        <a href="https://wa.me/2348055065825" class="btn-wa" target="_blank"><i class="fab fa-whatsapp"></i><span class="wa-label">WhatsApp</span></a>
         <button class="hamburger" id="hamburger" onclick="toggleNav()"><span></span><span></span><span></span></button>
       </div>
     </div>
@@ -633,67 +318,32 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);overflow-x:h
 
 <!-- HERO -->
 <section class="hero" id="home">
-  <!-- Slideshow -->
   <div class="hero-slides" id="heroSlides">
-    <div class="hero-slide slide-all-1 active" data-cat="all"></div>
-    <div class="hero-slide slide-all-2" data-cat="all"></div>
-    <div class="hero-slide slide-all-3" data-cat="all"></div>
-    <div class="hero-slide slide-luxury-1" data-cat="luxury"></div>
-    <div class="hero-slide slide-luxury-2" data-cat="luxury"></div>
-    <div class="hero-slide slide-luxury-3" data-cat="luxury"></div>
-    <div class="hero-slide slide-hiace-1" data-cat="hiace"></div>
-    <div class="hero-slide slide-hiace-2" data-cat="hiace"></div>
-    <div class="hero-slide slide-truck-1" data-cat="truck"></div>
-    <div class="hero-slide slide-truck-2" data-cat="truck"></div>
+    <div class="hero-slide slide-1 active"></div>
+    <div class="hero-slide slide-2"></div>
+    <div class="hero-slide slide-3"></div>
+    <div class="hero-slide slide-4"></div>
+    <div class="hero-slide slide-5"></div>
   </div>
   <div class="hero-overlay"></div>
-
-  <div class="container" style="position:relative;z-index:2;width:100%;">
-    <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:24px;">
-
-      <!-- Left: copy -->
-      <div class="hero-content" style="padding:0;">
-        <div class="hero-pill"><span class="hero-pill-dot"></span>Lagos · Nigeria's Finest Auto Dealer</div>
-        <h1>
-          <span class="line">Drive in</span>
-          <span class="line"><em>Unmatched</em></span>
-          <span class="line">Luxury.</span>
-        </h1>
-        <p class="hero-desc">From exotic luxury cars to rugged trucks and the legendary Toyota Hiace — all verified, all ready. Pay 40% and drive home today.</p>
-        <div class="hero-actions">
-          <a href="#inventory" class="btn-gold">Explore Inventory <i class="fas fa-arrow-right"></i></a>
-          <a href="#financing" class="btn-outline"><i class="fas fa-key"></i> 40% Drive Plan</a>
-        </div>
-        <div class="hero-stats">
-          <div><div class="hstat-num">500<sup style="font-size:1.3rem;vertical-align:super;">+</sup></div><div class="hstat-lbl">Vehicles Sold</div></div>
-          <div><div class="hstat-num">8</div><div class="hstat-lbl">Years Active</div></div>
-          <div><div class="hstat-num">36</div><div class="hstat-lbl">States Covered</div></div>
-        </div>
+  <div class="container">
+    <div class="hero-body">
+      <div class="hero-eyebrow"><span class="hero-dot"></span>Lagos · Nigeria's Premier Auto Dealer</div>
+      <h1>Drive in<em>Unmatched</em>Luxury.</h1>
+      <p class="hero-sub">From exotic luxury cars to rugged trucks and the legendary Toyota Hiace — all verified, all ready. Fleet supply available. Pay 40% and drive today.</p>
+      <div class="hero-actions">
+        <a href="cars.html" class="btn-primary">Browse Inventory <i class="fas fa-arrow-right"></i></a>
+        <a href="financing.html" class="btn-outline"><i class="fas fa-key"></i> 40% Drive Plan</a>
+        <a href="https://wa.me/2348055065825" class="btn-wa" target="_blank"><i class="fab fa-whatsapp"></i><span class="wa-label">Chat Now</span></a>
       </div>
-
-      <!-- Right: thumbnails (desktop) -->
-      <div class="hero-thumbs" id="heroThumbs" style="position:relative;bottom:auto;right:auto;">
-        <div class="hero-thumb active" data-cat="all" onclick="setHeroCategory('all',this)">
-          <img src="https://images.unsplash.com/photo-1563720223185-11003d516935?w=200&q=70" alt="All"/>
-          <div class="hero-thumb-lbl">All</div>
-        </div>
-        <div class="hero-thumb" data-cat="luxury" onclick="setHeroCategory('luxury',this)">
-          <img src="https://images.unsplash.com/photo-1555215695-3004980ad54e?w=200&q=70" alt="Luxury"/>
-          <div class="hero-thumb-lbl">Luxury</div>
-        </div>
-        <div class="hero-thumb" data-cat="hiace" onclick="setHeroCategory('hiace',this)">
-          <img src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=200&q=70" alt="Hiace"/>
-          <div class="hero-thumb-lbl">Hiace</div>
-        </div>
-        <div class="hero-thumb" data-cat="truck" onclick="setHeroCategory('truck',this)">
-          <img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=200&q=70" alt="Trucks"/>
-          <div class="hero-thumb-lbl">Trucks</div>
-        </div>
+      <div class="hero-stats">
+        <div class="hs"><div class="hs-num">500<sup style="font-size:1.3rem">+</sup></div><div class="hs-lbl">Vehicles Sold</div></div>
+        <div class="hs"><div class="hs-num">8</div><div class="hs-lbl">Years Active</div></div>
+        <div class="hs"><div class="hs-num">36</div><div class="hs-lbl">States Delivered</div></div>
       </div>
-
     </div>
   </div>
-  <div class="scroll-cue"><span>Scroll</span><div class="scroll-line"></div></div>
+  <div class="hero-dots" id="heroDots"></div>
 </section>
 
 <!-- MARQUEE -->
@@ -702,233 +352,291 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);overflow-x:h
     <span class="mq-item">Luxury Cars<span class="mq-dot"></span></span>
     <span class="mq-item">Toyota Hiace<span class="mq-dot"></span></span>
     <span class="mq-item">Trucks &amp; Tippers<span class="mq-dot"></span></span>
+    <span class="mq-item">Fleet Supply Available<span class="mq-dot"></span></span>
     <span class="mq-item">Pay 40% · Drive Today<span class="mq-dot"></span></span>
     <span class="mq-item">Nationwide Delivery<span class="mq-dot"></span></span>
     <span class="mq-item">CAC Verified · RC 1560100<span class="mq-dot"></span></span>
-    <span class="mq-item">Mercedes · BMW · Lexus · Range Rover<span class="mq-dot"></span></span>
-    <span class="mq-item">Tokunbo Certified<span class="mq-dot"></span></span>
+    <span class="mq-item">Mercedes · BMW · Lexus · Highlander<span class="mq-dot"></span></span>
     <span class="mq-item">Luxury Cars<span class="mq-dot"></span></span>
     <span class="mq-item">Toyota Hiace<span class="mq-dot"></span></span>
     <span class="mq-item">Trucks &amp; Tippers<span class="mq-dot"></span></span>
+    <span class="mq-item">Fleet Supply Available<span class="mq-dot"></span></span>
     <span class="mq-item">Pay 40% · Drive Today<span class="mq-dot"></span></span>
     <span class="mq-item">Nationwide Delivery<span class="mq-dot"></span></span>
     <span class="mq-item">CAC Verified · RC 1560100<span class="mq-dot"></span></span>
-    <span class="mq-item">Mercedes · BMW · Lexus · Range Rover<span class="mq-dot"></span></span>
-    <span class="mq-item">Tokunbo Certified<span class="mq-dot"></span></span>
+    <span class="mq-item">Mercedes · BMW · Lexus · Highlander<span class="mq-dot"></span></span>
   </div>
 </div>
 
-<!-- CATEGORIES -->
-<section class="categories" id="categories">
+<!-- SERVICES -->
+<section class="services-strip">
   <div class="container">
-    <div class="cat-header">
-      <div>
-        <div class="section-label"><div class="sl-line"></div><span class="sl-text">Our Fleet</span></div>
-        <h2 class="section-title">Every Vehicle<br><em>You Need</em></h2>
-      </div>
-      <p class="section-sub">From flagship luxury sedans to commercial workhorses — all verified, all ready.</p>
-    </div>
-    <div class="cat-grid">
-      <!-- Luxury (featured, tall) -->
-      <div class="cat-card reveal">
-        <div class="cat-slides">
-          <div class="cat-slide cs-luxury-1 active"></div>
-          <div class="cat-slide cs-luxury-2"></div>
-          <div class="cat-slide cs-luxury-3"></div>
+    <div class="services-grid">
+      <div class="service-card reveal">
+        <div class="svc-icon"><i class="fas fa-car"></i></div>
+        <div class="svc-body">
+          <h4>Buy a Vehicle</h4>
+          <p>Luxury cars, Hiace buses, SUVs and trucks — all verified, accident-free, with full documentation.</p>
+          <a href="cars.html" class="svc-link">Browse Inventory <i class="fas fa-arrow-right"></i></a>
         </div>
-        <div class="cat-dim"></div>
-        <div class="cat-body"><span class="cat-tag">Featured</span><h3 class="cat-name">Luxury Cars</h3><p class="cat-desc">Mercedes · BMW · Lexus · Range Rover · Porsche</p><a href="#inventory" class="cat-link">Browse <i class="fas fa-arrow-right"></i></a></div>
       </div>
-      <!-- Hiace -->
-      <div class="cat-card reveal">
-        <div class="cat-slides">
-          <div class="cat-slide cs-hiace-1 active"></div>
-          <div class="cat-slide cs-hiace-2"></div>
+      <div class="service-card reveal">
+        <div class="svc-icon"><i class="fas fa-hand-holding-dollar"></i></div>
+        <div class="svc-body">
+          <h4>40% Drive Plan</h4>
+          <p>Pay just 40% upfront and drive home the same day. Flexible terms for the balance — no stress.</p>
+          <a href="financing.html" class="svc-link">Learn More <i class="fas fa-arrow-right"></i></a>
         </div>
-        <div class="cat-dim"></div>
-        <div class="cat-body"><span class="cat-tag">Best Seller</span><h3 class="cat-name">Toyota Hiace</h3><p class="cat-desc">Tokunbo · Super Clean · Low Mileage</p><a href="#inventory" class="cat-link">View Stock <i class="fas fa-arrow-right"></i></a></div>
       </div>
-      <!-- Trucks -->
-      <div class="cat-card reveal">
-        <div class="cat-slides">
-          <div class="cat-slide cs-truck-1 active"></div>
-          <div class="cat-slide cs-truck-2"></div>
+      <div class="service-card reveal">
+        <div class="svc-icon"><i class="fas fa-truck"></i></div>
+        <div class="svc-body">
+          <h4>Fleet &amp; Bulk Supply</h4>
+          <p>Corporate and government fleet orders welcome. We recently supplied 13 Highlanders, 3 Lexus GX and a Hummer bus.</p>
+          <a href="contact.html" class="svc-link">Request a Quote <i class="fas fa-arrow-right"></i></a>
         </div>
-        <div class="cat-dim"></div>
-        <div class="cat-body"><span class="cat-tag">Commercial</span><h3 class="cat-name">Trucks</h3><p class="cat-desc">Tippers · Containers · Flatbeds · Tankers</p><a href="#inventory" class="cat-link">View Trucks <i class="fas fa-arrow-right"></i></a></div>
-      </div>
-      <!-- SUVs -->
-      <div class="cat-card reveal">
-        <div class="cat-slides">
-          <div class="cat-slide cs-suv-1 active"></div>
-          <div class="cat-slide cs-suv-2"></div>
-        </div>
-        <div class="cat-dim"></div>
-        <div class="cat-body"><span class="cat-tag">New Stock</span><h3 class="cat-name">Premium SUVs</h3><p class="cat-desc">Prado · GLE · Escalade · Defender</p><a href="#inventory" class="cat-link">Explore <i class="fas fa-arrow-right"></i></a></div>
-      </div>
-      <!-- Finance Plan -->
-      <div class="cat-card reveal">
-        <div class="cat-slides">
-          <div class="cat-slide cs-plan-1 active"></div>
-        </div>
-        <div class="cat-dim"></div>
-        <div class="cat-body"><span class="cat-tag">Exclusive</span><h3 class="cat-name">Drive on 40%</h3><p class="cat-desc">Pay 40% today, flexible balance terms.</p><a href="#financing" class="cat-link">Learn More <i class="fas fa-arrow-right"></i></a></div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- INVENTORY -->
-<section class="inventory" id="inventory">
+<!-- FEATURED VEHICLES -->
+<section class="featured" id="inventory">
   <div class="container">
-    <div class="inv-header">
-      <div><div class="section-label"><div class="sl-line"></div><span class="sl-text">Stock</span></div><h2 class="section-title">Hot <em>Arrivals</em></h2></div>
-      <div class="filters">
-        <button class="f-tab active" onclick="filterCars('all',this)">All</button>
-        <button class="f-tab" onclick="filterCars('luxury',this)">Luxury</button>
-        <button class="f-tab" onclick="filterCars('hiace',this)">Hiace</button>
-        <button class="f-tab" onclick="filterCars('truck',this)">Trucks</button>
+    <div class="featured-header">
+      <div>
+        <div class="sec-label"><div class="sec-label-line"></div><span class="sec-label-text">Hot Arrivals</span></div>
+        <h2 class="section-title">Featured <em>Vehicles</em></h2>
       </div>
+      <a href="cars.html" class="btn-outline">View All <i class="fas fa-arrow-right"></i></a>
     </div>
-    <div class="cars-grid" id="carsGrid">
-
-      <div class="car-card reveal" data-cat="luxury">
-        <div class="car-img"><span class="car-tag-badge tag-hot">🔥 Hot</span>
-          <div class="car-img-slides"><div class="car-img-slide ci-gle1 active"></div><div class="car-img-slide ci-gle2"></div></div>
+    <div class="cars-grid">
+      <div class="car-card reveal">
+        <div class="car-img">
+          <span class="car-tag tag-supply">Fleet Supply</span>
+          <div class="car-img-slide ci-hl1 active"></div>
+          <div class="car-img-slide ci-hl2"></div>
         </div>
-        <div class="car-body"><div class="car-make">Mercedes-Benz</div><h3 class="car-model">GLE 450</h3><div class="car-sub">2021 · Tokunbo · Super Clean</div>
-          <div class="car-specs"><div class="cs-s"><i class="fas fa-gas-pump"></i> Petrol</div><div class="cs-s"><i class="fas fa-road"></i> 28k km</div><div class="cs-s"><i class="fas fa-palette"></i> Black</div></div>
-          <div class="car-footer"><div><div class="price-lbl">Price</div><div class="price-val">Call Us</div></div><a href="https://wa.me/2348055065825?text=GLE%20450%202021" class="car-cta" target="_blank"><i class="fab fa-whatsapp"></i> Inquire</a></div>
+        <div class="car-body">
+          <div class="car-make">Toyota</div>
+          <h3 class="car-model">Highlander</h3>
+          <div class="car-year">2021 · Tokunbo · Super Clean</div>
+          <div class="car-specs"><div class="cs"><i class="fas fa-gas-pump"></i> V6</div><div class="cs"><i class="fas fa-road"></i> Low km</div><div class="cs"><i class="fas fa-star"></i> Full Opt</div></div>
+          <div class="car-footer"><div><div class="price-lbl">Fleet Available</div><div class="price-val">Call Us</div></div><a href="https://wa.me/2348055065825?text=Highlander%202021" class="car-cta" target="_blank"><i class="fab fa-whatsapp"></i> Inquire</a></div>
         </div>
       </div>
-
-      <div class="car-card reveal" data-cat="hiace">
-        <div class="car-img"><span class="car-tag-badge tag-new">New In</span>
-          <div class="car-img-slides"><div class="car-img-slide ci-hiace1 active"></div><div class="car-img-slide ci-hiace2"></div></div>
+      <div class="car-card reveal">
+        <div class="car-img">
+          <span class="car-tag tag-supply">Fleet Supply</span>
+          <div class="car-img-slide ci-gx1 active"></div>
+          <div class="car-img-slide ci-gx2"></div>
         </div>
-        <div class="car-body"><div class="car-make">Toyota</div><h3 class="car-model">Hiace Bus</h3><div class="car-sub">2020/2021 · Low Mileage</div>
-          <div class="car-specs"><div class="cs-s"><i class="fas fa-gas-pump"></i> Diesel</div><div class="cs-s"><i class="fas fa-road"></i> Low km</div><div class="cs-s"><i class="fas fa-shield-alt"></i> Warranty</div></div>
+        <div class="car-body">
+          <div class="car-make">Lexus</div>
+          <h3 class="car-model">GX 460</h3>
+          <div class="car-year">2020 · Tokunbo · Premium</div>
+          <div class="car-specs"><div class="cs"><i class="fas fa-gas-pump"></i> V8</div><div class="cs"><i class="fas fa-road"></i> 38k km</div><div class="cs"><i class="fas fa-star"></i> Full Opt</div></div>
+          <div class="car-footer"><div><div class="price-lbl">Price</div><div class="price-val">Call Us</div></div><a href="https://wa.me/2348055065825?text=Lexus%20GX%20460" class="car-cta" target="_blank"><i class="fab fa-whatsapp"></i> Inquire</a></div>
+        </div>
+      </div>
+      <div class="car-card reveal">
+        <div class="car-img">
+          <span class="car-tag tag-hot">🔥 Hot</span>
+          <div class="car-img-slide ci-h1 active"></div>
+          <div class="car-img-slide ci-h2"></div>
+        </div>
+        <div class="car-body">
+          <div class="car-make">Toyota</div>
+          <h3 class="car-model">Hiace Bus</h3>
+          <div class="car-year">2020/2021 · Low Mileage</div>
+          <div class="car-specs"><div class="cs"><i class="fas fa-gas-pump"></i> Diesel</div><div class="cs"><i class="fas fa-road"></i> Low km</div><div class="cs"><i class="fas fa-shield-alt"></i> Warranty</div></div>
           <div class="car-footer"><div><div class="price-lbl">40% Plan</div><div class="price-val">Available</div></div><a href="https://wa.me/2348055065825?text=Hiace%202020" class="car-cta" target="_blank"><i class="fab fa-whatsapp"></i> Inquire</a></div>
         </div>
       </div>
-
-      <div class="car-card reveal" data-cat="luxury">
-        <div class="car-img"><span class="car-tag-badge tag-premium">Premium</span>
-          <div class="car-img-slides"><div class="car-img-slide ci-lx1 active"></div><div class="car-img-slide ci-lx2"></div></div>
+      <div class="car-card reveal">
+        <div class="car-img">
+          <span class="car-tag tag-new">New In</span>
+          <div class="car-img-slide ci-gle1 active"></div>
+          <div class="car-img-slide ci-gle2"></div>
         </div>
-        <div class="car-body"><div class="car-make">Lexus</div><h3 class="car-model">LX 570</h3><div class="car-sub">2019 · Full Options · Tokunbo</div>
-          <div class="car-specs"><div class="cs-s"><i class="fas fa-gas-pump"></i> V8</div><div class="cs-s"><i class="fas fa-road"></i> 42k km</div><div class="cs-s"><i class="fas fa-star"></i> Full Opt</div></div>
-          <div class="car-footer"><div><div class="price-lbl">Price</div><div class="price-val">Call Us</div></div><a href="https://wa.me/2348055065825?text=LX%20570%202019" class="car-cta" target="_blank"><i class="fab fa-whatsapp"></i> Inquire</a></div>
+        <div class="car-body">
+          <div class="car-make">Mercedes-Benz</div>
+          <h3 class="car-model">GLE 450</h3>
+          <div class="car-year">2021 · Tokunbo · Super Clean</div>
+          <div class="car-specs"><div class="cs"><i class="fas fa-gas-pump"></i> Petrol</div><div class="cs"><i class="fas fa-road"></i> 28k km</div><div class="cs"><i class="fas fa-palette"></i> Black</div></div>
+          <div class="car-footer"><div><div class="price-lbl">Price</div><div class="price-val">Call Us</div></div><a href="https://wa.me/2348055065825?text=GLE%20450" class="car-cta" target="_blank"><i class="fab fa-whatsapp"></i> Inquire</a></div>
         </div>
       </div>
-
-      <div class="car-card reveal" data-cat="truck">
-        <div class="car-img"><span class="car-tag-badge tag-new">Just In</span>
-          <div class="car-img-slides"><div class="car-img-slide ci-mack1 active"></div><div class="car-img-slide ci-mack2"></div></div>
+      <div class="car-card reveal">
+        <div class="car-img">
+          <span class="car-tag tag-supply">Recent Supply</span>
+          <div class="car-img-slide ci-hm1 active"></div>
+          <div class="car-img-slide ci-rr1"></div>
         </div>
-        <div class="car-body"><div class="car-make">Mack Trucks</div><h3 class="car-model">Granite Tipper</h3><div class="car-sub">2018 · Serviced · Tokunbo</div>
-          <div class="car-specs"><div class="cs-s"><i class="fas fa-gas-pump"></i> Diesel</div><div class="cs-s"><i class="fas fa-weight-hanging"></i> 30T</div><div class="cs-s"><i class="fas fa-wrench"></i> Serviced</div></div>
+        <div class="car-body">
+          <div class="car-make">Hummer</div>
+          <h3 class="car-model">Hummer Bus</h3>
+          <div class="car-year">Tokunbo · Event &amp; VIP Use</div>
+          <div class="car-specs"><div class="cs"><i class="fas fa-gas-pump"></i> Petrol</div><div class="cs"><i class="fas fa-users"></i> 14 Seater</div><div class="cs"><i class="fas fa-star"></i> VIP</div></div>
+          <div class="car-footer"><div><div class="price-lbl">Price</div><div class="price-val">Call Us</div></div><a href="https://wa.me/2348055065825?text=Hummer%20Bus" class="car-cta" target="_blank"><i class="fab fa-whatsapp"></i> Inquire</a></div>
+        </div>
+      </div>
+      <div class="car-card reveal">
+        <div class="car-img">
+          <span class="car-tag tag-new">Just In</span>
+          <div class="car-img-slide ci-tr1 active"></div>
+          <div class="car-img-slide ci-tr2"></div>
+        </div>
+        <div class="car-body">
+          <div class="car-make">Mack Trucks</div>
+          <h3 class="car-model">Granite Tipper</h3>
+          <div class="car-year">2018 · Serviced · Tokunbo</div>
+          <div class="car-specs"><div class="cs"><i class="fas fa-gas-pump"></i> Diesel</div><div class="cs"><i class="fas fa-weight-hanging"></i> 30T</div><div class="cs"><i class="fas fa-wrench"></i> Serviced</div></div>
           <div class="car-footer"><div><div class="price-lbl">Price</div><div class="price-val">Call Us</div></div><a href="https://wa.me/2348055065825?text=Mack%20Granite" class="car-cta" target="_blank"><i class="fab fa-whatsapp"></i> Inquire</a></div>
         </div>
       </div>
-
-      <div class="car-card reveal" data-cat="hiace">
-        <div class="car-img"><span class="car-tag-badge tag-hot">🔥 Fast</span>
-          <div class="car-img-slides"><div class="car-img-slide ci-hiace2 active"></div><div class="car-img-slide ci-hiace3"></div></div>
-        </div>
-        <div class="car-body"><div class="car-make">Toyota</div><h3 class="car-model">Hiace Bus</h3><div class="car-sub">2018/2019 · ~45,000 km</div>
-          <div class="car-specs"><div class="cs-s"><i class="fas fa-gas-pump"></i> Diesel</div><div class="cs-s"><i class="fas fa-tachometer-alt"></i> 45k</div><div class="cs-s"><i class="fas fa-check"></i> Checked</div></div>
-          <div class="car-footer"><div><div class="price-lbl">40% Plan</div><div class="price-val">Available</div></div><a href="https://wa.me/2348055065825?text=Hiace%202018" class="car-cta" target="_blank"><i class="fab fa-whatsapp"></i> Inquire</a></div>
-        </div>
-      </div>
-
-      <div class="car-card reveal" data-cat="luxury">
-        <div class="car-img"><span class="car-tag-badge tag-premium">Premium</span>
-          <div class="car-img-slides"><div class="car-img-slide ci-bmw1 active"></div><div class="car-img-slide ci-bmw2"></div></div>
-        </div>
-        <div class="car-body"><div class="car-make">BMW</div><h3 class="car-model">X6 M Sport</h3><div class="car-sub">2020 · Twin Turbo · Tokunbo</div>
-          <div class="car-specs"><div class="cs-s"><i class="fas fa-gas-pump"></i> TwinTurbo</div><div class="cs-s"><i class="fas fa-road"></i> 35k km</div><div class="cs-s"><i class="fas fa-sun"></i> Pano</div></div>
-          <div class="car-footer"><div><div class="price-lbl">Price</div><div class="price-val">Call Us</div></div><a href="https://wa.me/2348055065825?text=BMW%20X6%202020" class="car-cta" target="_blank"><i class="fab fa-whatsapp"></i> Inquire</a></div>
-        </div>
-      </div>
-
-      <div class="car-card reveal" data-cat="luxury">
-        <div class="car-img"><span class="car-tag-badge tag-hot">🔥 Hot</span>
-          <div class="car-img-slides"><div class="car-img-slide ci-rr1 active"></div><div class="car-img-slide ci-lx2"></div></div>
-        </div>
-        <div class="car-body"><div class="car-make">Land Rover</div><h3 class="car-model">Range Rover Sport</h3><div class="car-sub">2020 · HSE · Tokunbo</div>
-          <div class="car-specs"><div class="cs-s"><i class="fas fa-gas-pump"></i> Petrol</div><div class="cs-s"><i class="fas fa-road"></i> 31k km</div><div class="cs-s"><i class="fas fa-star"></i> HSE</div></div>
-          <div class="car-footer"><div><div class="price-lbl">Price</div><div class="price-val">Call Us</div></div><a href="https://wa.me/2348055065825?text=Range%20Rover%20Sport%202020" class="car-cta" target="_blank"><i class="fab fa-whatsapp"></i> Inquire</a></div>
-        </div>
-      </div>
-
-      <div class="car-card reveal" data-cat="luxury">
-        <div class="car-img"><span class="car-tag-badge tag-new">New In</span>
-          <div class="car-img-slides"><div class="car-img-slide ci-prado1 active"></div><div class="car-img-slide ci-lx1"></div></div>
-        </div>
-        <div class="car-body"><div class="car-make">Toyota</div><h3 class="car-model">Land Cruiser Prado</h3><div class="car-sub">2019 · TXL · Tokunbo</div>
-          <div class="car-specs"><div class="cs-s"><i class="fas fa-gas-pump"></i> Diesel</div><div class="cs-s"><i class="fas fa-road"></i> 38k km</div><div class="cs-s"><i class="fas fa-star"></i> TXL</div></div>
-          <div class="car-footer"><div><div class="price-lbl">Price</div><div class="price-val">Call Us</div></div><a href="https://wa.me/2348055065825?text=Prado%20TXL%202019" class="car-cta" target="_blank"><i class="fab fa-whatsapp"></i> Inquire</a></div>
-        </div>
-      </div>
-
-      <div class="car-card reveal" data-cat="truck">
-        <div class="car-img"><span class="car-tag-badge tag-new">New</span>
-          <div class="car-img-slides"><div class="car-img-slide ci-truck2 active"></div><div class="car-img-slide ci-mack1"></div></div>
-        </div>
-        <div class="car-body"><div class="car-make">Volvo Trucks</div><h3 class="car-model">FH Container</h3><div class="car-sub">2017 · 40ft · Serviced</div>
-          <div class="car-specs"><div class="cs-s"><i class="fas fa-gas-pump"></i> Diesel</div><div class="cs-s"><i class="fas fa-weight-hanging"></i> 40T</div><div class="cs-s"><i class="fas fa-wrench"></i> Serviced</div></div>
-          <div class="car-footer"><div><div class="price-lbl">Price</div><div class="price-val">Call Us</div></div><a href="https://wa.me/2348055065825?text=Volvo%20FH%20Container" class="car-cta" target="_blank"><i class="fab fa-whatsapp"></i> Inquire</a></div>
-        </div>
-      </div>
-
     </div>
-    <div class="inv-footer"><a href="https://wa.me/2348055065825?text=Show%20full%20inventory" class="btn-gold" target="_blank">Full Inventory <i class="fas fa-arrow-right"></i></a></div>
+    <div class="featured-footer">
+      <a href="cars.html" class="btn-primary">See Full Inventory <i class="fas fa-arrow-right"></i></a>
+    </div>
   </div>
 </section>
 
-<!-- FINANCING -->
-<section class="financing" id="financing">
+<!-- FLEET SUPPLY BANNER -->
+<section class="fleet-banner">
   <div class="container">
-    <div class="fin-inner">
-      <div class="fin-card reveal">
-        <div class="fin-big"><sup></sup>40<sup>%</sup></div>
-        <div class="fin-lbl">Down payment. Drive same day.</div>
-        <div class="fin-steps">
-          <div class="fin-step"><div class="fin-n">01</div><div class="fin-t"><strong>Choose</strong> your vehicle from verified stock</div></div>
-          <div class="fin-step"><div class="fin-n">02</div><div class="fin-t"><strong>Pay 40%</strong> of the agreed price</div></div>
-          <div class="fin-step"><div class="fin-n">03</div><div class="fin-t"><strong>Drive home today</strong> — full warranty</div></div>
-          <div class="fin-step"><div class="fin-n">04</div><div class="fin-t"><strong>Complete balance</strong> on flexible terms</div></div>
-        </div>
+    <div class="fleet-inner">
+      <div class="fleet-text reveal">
+        <div class="sec-label" style="margin-bottom:14px"><div class="sec-label-line" style="background:rgba(255,255,255,0.5)"></div><span class="sec-label-text" style="color:rgba(255,255,255,0.7)">Fleet &amp; Corporate Supply</span></div>
+        <h2>We Supply <em>Fleets</em><br>for Corporates &amp; Government</h2>
+        <p>Need multiple vehicles at once? Sabicars handles large-scale supply — from 5 to 50+ units. We recently delivered 13 Highlanders, 3 Lexus GX and a Hummer bus to a single client.</p>
+        <a href="contact.html" class="fleet-btn">Request Fleet Quote <i class="fas fa-arrow-right"></i></a>
       </div>
-      <div class="fin-info reveal">
-        <div class="section-label"><div class="sl-line"></div><span class="sl-text">Drive Plan</span></div>
-        <h2 class="section-title">Your Dream Car<br><em>Starts at 40%</em></h2>
-        <p class="section-sub">We believe you shouldn't wait to own the car you deserve. Pay 40%, get behind the wheel today — no stress, no shakara.</p>
-        <div class="fin-features" style="margin-top:26px">
-          <div class="ff"><div class="ff-icon"><i class="fas fa-certificate"></i></div><div class="ff-text"><h5>Verified &amp; Documented</h5><p>Full documents and warranty on every vehicle.</p></div></div>
-          <div class="ff"><div class="ff-icon"><i class="fas fa-handshake"></i></div><div class="ff-text"><h5>Transparent Agreement</h5><p>No hidden charges. Clear written terms from day one.</p></div></div>
-          <div class="ff"><div class="ff-icon"><i class="fas fa-truck-fast"></i></div><div class="ff-text"><h5>Drive Same Day</h5><p>Pay 40%, do paperwork, drive home — same visit.</p></div></div>
-          <div class="ff"><div class="ff-icon"><i class="fas fa-map-marked-alt"></i></div><div class="ff-text"><h5>Nationwide Delivery</h5><p>Abuja, Port Harcourt, Kano — we deliver everywhere.</p></div></div>
-        </div>
-        <a href="https://wa.me/2348055065825?text=40%25%20drive%20plan" class="btn-gold" target="_blank">Apply Now <i class="fab fa-whatsapp"></i></a>
+      <div class="fleet-stats reveal">
+        <div class="fleet-stat"><div class="fleet-stat-num">13</div><div class="fleet-stat-lbl">Highlanders — Single Supply</div></div>
+        <div class="fleet-stat"><div class="fleet-stat-num">3</div><div class="fleet-stat-lbl">Lexus GX — One Order</div></div>
+        <div class="fleet-stat"><div class="fleet-stat-num">500<sup style="font-size:1.2rem">+</sup></div><div class="fleet-stat-lbl">Total Vehicles Delivered</div></div>
+        <div class="fleet-stat"><div class="fleet-stat-num">36</div><div class="fleet-stat-lbl">Nigerian States Covered</div></div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- TRUST -->
-<section class="trust" id="trust">
+<!-- WHY SABICARS -->
+<section class="why">
   <div class="container">
-    <div class="trust-hdr">
-      <div class="section-label" style="justify-content:center"><div class="sl-line"></div><span class="sl-text">Why Sabicars</span></div>
-      <h2 class="section-title" style="text-align:center">Thousands Trust Us.<br><em>Here's Why.</em></h2>
+    <div class="why-header">
+      <div class="sec-label" style="justify-content:center"><div class="sec-label-line"></div><span class="sec-label-text">Why Choose Us</span></div>
+      <h2 class="section-title" style="text-align:center">Thousands Trust <em>Sabicars</em></h2>
+      <p class="section-sub" style="text-align:center;margin:0 auto">We've built our reputation on one thing — delivering exactly what we promise, every single time.</p>
     </div>
-    <div class="trust-grid">
-      <div class="trust-item reveal"><div class="t-icon"><i class="fas fa-building"></i></div><h4>CAC Verified</h4><p>Registered Nigerian company RC 1560100. Not a roadside dealer — a legitimate auto business.</p></div>
-      <div class="trust-item reveal"><div class="t-icon"><i class="fas fa-shield-halved"></i></div><h4>Warranty Secure</h4><p>Every vehicle is inspected, certified and comes with warranty coverage for peace of mind.</p></div>
-      <div class="trust-item reveal"><div class="t-icon"><i class="fas fa-magnifying-glass"></i></div><h4>Accident-Free</h4><p>We verify every car's history. Clean, accident-free, low-mileage vehicles only — no surprises.</p></div>
-      <div class="trust-item reveal"><div class="t-icon"><i class="fas fa-headset"></i></div><h4>After-Sales Support</h4><p>Our relationship doesn't end at the sale. Always available for support and advice.</p></div>
+    <div class="why-grid">
+      <div class="why-card reveal"><div class="why-icon"><i class="fas fa-building"></i></div><h4>CAC Registered</h4><p>RC 1560100. A fully registered Nigerian company — not a roadside dealer. We're accountable.</p></div>
+      <div class="why-card reveal"><div class="why-icon"><i class="fas fa-shield-halved"></i></div><h4>Warranty on Every Car</h4><p>All our vehicles are inspected, certified, and come with warranty coverage for your peace of mind.</p></div>
+      <div class="why-card reveal"><div class="why-icon"><i class="fas fa-magnifying-glass"></i></div><h4>Accident-Free Stock</h4><p>We verify the full history of every vehicle. Clean, low-mileage, accident-free — no surprises.</p></div>
+      <div class="why-card reveal"><div class="why-icon"><i class="fas fa-hand-holding-dollar"></i></div><h4>Pay 40% & Drive</h4><p>Nigeria's most flexible payment plan. Pay 40% today, drive home, and complete the balance on agreed terms.</p></div>
+      <div class="why-card reveal"><div class="why-icon"><i class="fas fa-truck-fast"></i></div><h4>Nationwide Delivery</h4><p>Based in Lagos but we deliver to all 36 states. Your car arrives safe, fast, and fully insured in transit.</p></div>
+      <div class="why-card reveal"><div class="why-icon"><i class="fas fa-headset"></i></div><h4>After-Sales Support</h4><p>We don't disappear after the sale. Our team is always available for support, advice, and servicing referrals.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- RECENT SUPPLY SHOWCASE -->
+<section class="supply">
+  <div class="container">
+    <div class="supply-header">
+      <div>
+        <div class="sec-label"><div class="sec-label-line"></div><span class="sec-label-text">Recent Deliveries</span></div>
+        <h2 class="section-title">What We've <em>Recently Supplied</em></h2>
+      </div>
+    </div>
+    <div class="supply-grid">
+      <div class="supply-card reveal">
+        <div class="supply-img" style="background-image:url('https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=600&q=70')">
+          <span class="supply-qty">13 Units Supplied</span>
+        </div>
+        <div class="supply-body"><h4>Toyota Highlander</h4><p>Corporate fleet supply — 13 units delivered to a single client. 2021 models, Tokunbo, fully documented.</p></div>
+      </div>
+      <div class="supply-card reveal">
+        <div class="supply-img" style="background-image:url('https://images.unsplash.com/photo-1555215695-3004980ad54e?w=600&q=70')">
+          <span class="supply-qty">3 Units Supplied</span>
+        </div>
+        <div class="supply-body"><h4>Lexus GX 460</h4><p>Premium SUV fleet order — 3 units. Full options, low mileage, warranty-secured delivery.</p></div>
+      </div>
+      <div class="supply-card reveal">
+        <div class="supply-img" style="background-image:url('https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=600&q=70')">
+          <span class="supply-qty">1 Unit — VIP</span>
+        </div>
+        <div class="supply-body"><h4>Hummer Bus</h4><p>14-seater VIP Hummer bus — supplied for executive and event transportation use. Immaculate condition.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BLOG -->
+<section class="blog-section">
+  <div class="container">
+    <div class="blog-header">
+      <div>
+        <div class="sec-label"><div class="sec-label-line"></div><span class="sec-label-text">Automotive Insights</span></div>
+        <h2 class="section-title">Latest from the <em>Blog</em></h2>
+      </div>
+      <a href="blog.html" class="btn-outline">All Articles <i class="fas fa-arrow-right"></i></a>
+    </div>
+    <div class="blog-grid">
+      <a href="blog.html" class="blog-card reveal">
+        <div class="blog-img" style="background-image:url('https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=600&q=70')"></div>
+        <div class="blog-body">
+          <span class="blog-cat">Buying Guide</span>
+          <h4>Top 5 SUVs for Nigerian Roads in 2025</h4>
+          <p>Discover the best SUVs built to handle Nigerian terrain — from rugged roads to city driving.</p>
+          <div class="blog-meta"><span>Mar 2025</span><span>·</span><span>5 min read</span><span class="blog-read">Read <i class="fas fa-arrow-right" style="font-size:.6rem"></i></span></div>
+        </div>
+      </a>
+      <a href="blog.html" class="blog-card reveal">
+        <div class="blog-img" style="background-image:url('https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=600&q=70')"></div>
+        <div class="blog-body">
+          <span class="blog-cat">Financing</span>
+          <h4>How the 40% Drive Plan Works — Explained</h4>
+          <p>A complete breakdown of how to get behind the wheel today with just 40% down payment.</p>
+          <div class="blog-meta"><span>Feb 2025</span><span>·</span><span>6 min read</span><span class="blog-read">Read <i class="fas fa-arrow-right" style="font-size:.6rem"></i></span></div>
+        </div>
+      </a>
+      <a href="blog.html" class="blog-card reveal">
+        <div class="blog-img" style="background-image:url('https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=600&q=70')"></div>
+        <div class="blog-body">
+          <span class="blog-cat">Fleet Guide</span>
+          <h4>Why Businesses Are Choosing Sabicars for Fleet Supply</h4>
+          <p>Corporate buyers reveal why Sabicars is their #1 choice for bulk vehicle procurement in Nigeria.</p>
+          <div class="blog-meta"><span>Jan 2025</span><span>·</span><span>7 min read</span><span class="blog-read">Read <i class="fas fa-arrow-right" style="font-size:.6rem"></i></span></div>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- REFERRAL -->
+<section class="referral">
+  <div class="container">
+    <div class="ref-inner">
+      <div class="ref-text reveal">
+        <div class="sec-label"><div class="sec-label-line"></div><span class="sec-label-text">Referral Program</span></div>
+        <h2 class="section-title">Earn with Our<br><em>Refer &amp; Earn</em> Program</h2>
+        <p>Know someone looking for a quality vehicle? Refer them to Sabicars and earn a commission on every successful purchase — no limits, no cap.</p>
+        <ul class="ref-perks">
+          <li><i class="fas fa-check-circle"></i> Earn on every successful vehicle purchase</li>
+          <li><i class="fas fa-check-circle"></i> No limits — refer as many buyers as you want</li>
+          <li><i class="fas fa-check-circle"></i> Fast payout after transaction completes</li>
+          <li><i class="fas fa-check-circle"></i> Works for fleet orders too — bigger payout</li>
+        </ul>
+        <a href="https://wa.me/2348055065825?text=I%20want%20to%20join%20the%20Sabicars%20referral%20program" class="btn-primary" target="_blank"><i class="fab fa-whatsapp"></i> Become a Partner</a>
+      </div>
+      <div class="ref-card reveal">
+        <div class="ref-pct"><sup></sup>1.5<sup>%</sup></div>
+        <p>Commission per successful sale</p>
+        <div class="ref-example">Refer a <strong>₦10M</strong> vehicle = earn <strong>₦150,000</strong><br>Refer a <strong>₦50M fleet</strong> = earn <strong>₦750,000</strong></div>
+        <a href="https://wa.me/2348055065825?text=Referral%20program" class="btn-primary" style="width:100%;justify-content:center;" target="_blank">Start Referring</a>
+      </div>
     </div>
   </div>
 </section>
@@ -937,44 +645,28 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);overflow-x:h
 <section class="testimonials">
   <div class="container">
     <div class="testi-hdr">
-      <div class="section-label" style="justify-content:center"><div class="sl-line"></div><span class="sl-text">Reviews</span></div>
+      <div class="sec-label" style="justify-content:center"><div class="sec-label-line"></div><span class="sec-label-text">Reviews</span></div>
       <h2 class="section-title" style="text-align:center">What Our <em>Customers Say</em></h2>
     </div>
     <div class="testi-grid">
       <div class="testi-card reveal"><div class="testi-stars">★★★★★</div><div class="testi-q">"</div><p class="testi-txt">Paid 40% on a Hiace on Friday, drove it to Port Harcourt same day. Sabicars is the real deal. No stories, no shakara.</p><div class="testi-name">Emeka O.</div><div class="testi-loc">Port Harcourt, Rivers State</div></div>
-      <div class="testi-card reveal"><div class="testi-stars">★★★★★</div><div class="testi-q">"</div><p class="testi-txt">Came for a Lexus LX and left same afternoon. Clean docs, no hidden charges. Ccristian is a man of his word — just like on TikTok.</p><div class="testi-name">Alhaji Musa B.</div><div class="testi-loc">Abuja, FCT</div></div>
+      <div class="testi-card reveal"><div class="testi-stars">★★★★★</div><div class="testi-q">"</div><p class="testi-txt">We ordered 13 Highlanders for our company fleet. Every single one delivered on time, clean docs. Ccristian is professional to the core.</p><div class="testi-name">Mr. Taiwo A.</div><div class="testi-loc">Corporate Client, Lagos</div></div>
       <div class="testi-card reveal"><div class="testi-stars">★★★★★</div><div class="testi-q">"</div><p class="testi-txt">Got a Mack tipper for my construction business. Exactly as described — accident-free and well-serviced. Already referring my partners.</p><div class="testi-name">Chief Adebayo T.</div><div class="testi-loc">Ibadan, Oyo State</div></div>
     </div>
   </div>
 </section>
 
-<!-- CONTACT -->
-<section class="contact" id="contact">
+<!-- CTA -->
+<section class="cta-strip">
   <div class="container">
-    <div class="contact-inner">
-      <div>
-        <div class="section-label"><div class="sl-line"></div><span class="sl-text">Find Us</span></div>
-        <h2 class="section-title">Visit Our<br><em>Showroom</em></h2>
-        <p class="section-sub" style="margin-bottom:28px">Come see the stock in person. Our team is always ready to help.</p>
-        <ul class="contact-list">
-          <li class="c-item"><div class="c-icon"><i class="fas fa-location-dot"></i></div><div class="c-text"><strong>Showroom</strong><span>Amazing Grace Plaza, Km 13 Alhaji-Ede Bus Stop,<br>Lasu Road, off Isheri, Igando, Lagos 105101</span></div></li>
-          <li class="c-item"><div class="c-icon"><i class="fas fa-phone"></i></div><div class="c-text"><strong>Sales Lines</strong><span><a href="tel:+2348101885558">0810 188 5558</a> &nbsp;/&nbsp; <a href="tel:+2349121596011">0912 159 6011</a></span></div></li>
-          <li class="c-item"><div class="c-icon"><i class="fab fa-whatsapp"></i></div><div class="c-text"><strong>WhatsApp</strong><span><a href="https://wa.me/2348055065825" target="_blank">+234 805 506 5825</a></span></div></li>
-          <li class="c-item"><div class="c-icon"><i class="fas fa-envelope"></i></div><div class="c-text"><strong>Email</strong><span><a href="mailto:info@sabicars.ng">info@sabicars.ng</a></span></div></li>
-        </ul>
-        <div class="hours-card">
-          <div class="h-title"><i class="fas fa-clock"></i> &nbsp;Opening Hours</div>
-          <div class="h-row"><span>Monday – Friday</span><span>9:00 AM – 8:00 PM</span></div>
-          <div class="h-row"><span>Saturday</span><span>9:00 AM – 8:00 PM</span></div>
-          <div class="h-row"><span>Sunday</span><span class="h-closed">Closed</span></div>
-        </div>
+    <div class="cta-inner">
+      <div class="cta-text">
+        <h2>Ready to Drive<br>Your Dream Car?</h2>
+        <p>Talk to us today — we'll find exactly what you need.</p>
       </div>
-      <div class="map-card reveal">
-        <div class="map-inner">
-          <div class="map-pin"><i class="fas fa-location-dot"></i></div>
-          <p>Lasu Road, Igando, Lagos</p>
-          <a href="https://maps.google.com/?q=Lasu+Road+Igando+Lagos" target="_blank" class="map-link">Open in Google Maps <i class="fas fa-external-link-alt"></i></a>
-        </div>
+      <div class="cta-btns">
+        <a href="cars.html" class="cta-btn-wh">View Inventory <i class="fas fa-arrow-right"></i></a>
+        <a href="https://wa.me/2348055065825" class="cta-btn-dk" target="_blank"><i class="fab fa-whatsapp"></i> Chat on WhatsApp</a>
       </div>
     </div>
   </div>
@@ -985,8 +677,8 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);overflow-x:h
   <div class="container">
     <div class="footer-grid">
       <div class="footer-brand">
-        <a href="#" class="logo"><img src="LOGO_PLACEHOLDER" alt="Sabicars" style="height:42px;width:42px;border-radius:8px;"/><div class="logo-text"><span class="logo-name">Sabicars</span><span class="logo-sub">Luxury Auto · Lagos</span></div></a>
-        <p>Nigeria's premier verified dealer of luxury cars, Toyota Hiace buses, and trucks. Pay 40%, drive today.</p>
+        <a href="index.html" class="logo"><img data-logo alt="Sabicars" style="height:42px;width:42px;border-radius:8px;"/><div style="display:flex;flex-direction:column;line-height:1;margin-left:10px"><span class="logo-name">Sabicars</span><span class="logo-sub">Luxury Auto · Lagos</span></div></a>
+        <p>Nigeria's premier verified dealer of luxury cars, Toyota Hiace buses, trucks and fleet supply. Pay 40%, drive today.</p>
         <div class="socials">
           <a href="https://instagram.com/sabicarsltd" class="soc" target="_blank"><i class="fab fa-instagram"></i></a>
           <a href="#" class="soc"><i class="fab fa-facebook-f"></i></a>
@@ -994,152 +686,52 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);overflow-x:h
           <a href="#" class="soc"><i class="fab fa-tiktok"></i></a>
         </div>
       </div>
-      <div class="footer-col"><h5>Vehicles</h5><ul><li><a href="#inventory">Luxury Cars</a></li><li><a href="#inventory">Toyota Hiace</a></li><li><a href="#inventory">Trucks</a></li><li><a href="#inventory">Premium SUVs</a></li></ul></div>
-      <div class="footer-col"><h5>Company</h5><ul><li><a href="#trust">About Us</a></li><li><a href="#financing">40% Drive Plan</a></li><li><a href="#trust">Why Sabicars</a></li><li><a href="#contact">Contact</a></li></ul></div>
-      <div class="footer-col"><h5>Contact</h5><ul><li><a href="tel:+2348101885558">0810 188 5558</a></li><li><a href="https://wa.me/2348055065825" target="_blank">WhatsApp Us</a></li><li><a href="mailto:info@sabicars.ng">info@sabicars.ng</a></li><li><a href="https://instagram.com/sabicarsltd" target="_blank">@sabicarsltd</a></li></ul></div>
+      <div class="footer-col"><h5>Quick Links</h5><ul><li><a href="index.html">Home</a></li><li><a href="cars.html">Buy Cars</a></li><li><a href="financing.html">Financing</a></li><li><a href="about.html">About Us</a></li><li><a href="blog.html">Blog</a></li><li><a href="contact.html">Contact</a></li></ul></div>
+      <div class="footer-col"><h5>Vehicles</h5><ul><li><a href="cars.html">Luxury Cars</a></li><li><a href="cars.html">Toyota Hiace</a></li><li><a href="cars.html">Trucks</a></li><li><a href="cars.html">Premium SUVs</a></li><li><a href="cars.html">Highlander</a></li><li><a href="contact.html">Fleet Orders</a></li></ul></div>
+      <div class="footer-col"><h5>Contact</h5><ul><li><a href="tel:+2348101885558">0810 188 5558</a></li><li><a href="tel:+2349121596011">0912 159 6011</a></li><li><a href="https://wa.me/2348055065825" target="_blank">WhatsApp Us</a></li><li><a href="mailto:info@sabicars.ng">info@sabicars.ng</a></li><li><a href="https://instagram.com/sabicarsltd" target="_blank">@sabicarsltd</a></li></ul></div>
     </div>
     <div class="footer-bottom">
-      <p>© 2025 Sabicars Limited. All rights reserved. Lasu Road, Igando, Lagos.</p>
-      <span class="rc-badge"><i class="fas fa-building"></i> RC 1560100</span>
+      <p>© 2025 Sabicars Limited. All rights reserved. Lasu Road, Igando, Lagos, Nigeria.</p>
+      <span class="rc-pill"><i class="fas fa-building"></i> RC 1560100</span>
     </div>
   </div>
 </footer>
 
+<script src="theme.js"></script>
 <script>
-const LOGO_SRC = "data:image/png;base64,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";
+// Hero slideshow with dots
+const slides = document.querySelectorAll('.hero-slide');
+const dotsWrap = document.getElementById('heroDots');
+let cur = 0, timer;
 
-// Inject logo
-document.querySelectorAll('img[src="LOGO_PLACEHOLDER"]').forEach(img => img.src = LOGO_SRC);
-
-/* ── MOBILE NAV ── */
-const ham = document.getElementById('hamburger');
-const mNav = document.getElementById('mobileNav');
-function toggleNav(){ham.classList.toggle('open');mNav.classList.toggle('open');document.body.style.overflow=mNav.classList.contains('open')?'hidden':'';}
-function closeNav(){ham.classList.remove('open');mNav.classList.remove('open');document.body.style.overflow='';}
-
-/* ── THEME ── */
-const html=document.documentElement;
-const tBtn=document.getElementById('themeToggle');
-const tIcon=document.getElementById('themeIcon');
-let isDark=true;
-// Restore saved theme
-if(localStorage.getItem('sabi-theme')==='light'){isDark=false;html.setAttribute('data-theme','light');tIcon.className='fas fa-sun';}
-tBtn.addEventListener('click',()=>{
-  isDark=!isDark;
-  html.setAttribute('data-theme',isDark?'dark':'light');
-  tIcon.className=isDark?'fas fa-moon':'fas fa-sun';
-  localStorage.setItem('sabi-theme',isDark?'dark':'light');
+slides.forEach((_,i)=>{
+  const d = document.createElement('button');
+  d.className = 'hero-dot-btn' + (i===0?' active':'');
+  d.onclick = ()=>goSlide(i);
+  dotsWrap.appendChild(d);
 });
 
-/* ── HERO SLIDESHOW ── */
-let heroCat = 'all';
-let heroIdx = 0;
-let heroInterval = null;
-
-function getHeroSlides(cat){
-  return Array.from(document.querySelectorAll(`#heroSlides .hero-slide[data-cat="${cat}"]`));
+function goSlide(n){
+  slides[cur].classList.remove('active');
+  dotsWrap.children[cur].classList.remove('active');
+  cur = n;
+  slides[cur].classList.add('active');
+  dotsWrap.children[cur].classList.add('active');
+  clearInterval(timer);
+  timer = setInterval(()=>goSlide((cur+1)%slides.length), 5000);
 }
+timer = setInterval(()=>goSlide((cur+1)%slides.length), 5000);
 
-function showHeroSlide(slides, idx){
-  slides.forEach((s,i)=>{
-    s.classList.remove('active');
-    if(i===idx){ s.classList.add('active'); }
-  });
-}
-
-function startHeroCycle(cat){
-  clearInterval(heroInterval);
-  heroCat = cat;
-  heroIdx = 0;
-  const slides = getHeroSlides(cat);
-  if(!slides.length) return;
-  // hide all first
-  document.querySelectorAll('#heroSlides .hero-slide').forEach(s=>s.classList.remove('active'));
-  showHeroSlide(slides, 0);
-  heroInterval = setInterval(()=>{
-    heroIdx = (heroIdx+1) % slides.length;
-    showHeroSlide(slides, heroIdx);
-  }, 4000);
-}
-
-function setHeroCategory(cat, thumb){
-  document.querySelectorAll('.hero-thumb').forEach(t=>t.classList.remove('active'));
-  thumb.classList.add('active');
-  startHeroCycle(cat);
-  // Also sync inventory filter
-  const matchTab = document.querySelector(`.f-tab[onclick*="'${cat}'"]`);
-  if(matchTab) filterCars(cat, matchTab);
-}
-
-startHeroCycle('all');
-
-/* Auto-rotate thumbs every 6s */
-const thumbOrder = ['all','luxury','hiace','truck'];
-let thumbIdx = 0;
-setInterval(()=>{
-  thumbIdx = (thumbIdx+1) % thumbOrder.length;
-  const cat = thumbOrder[thumbIdx];
-  const thumb = document.querySelector(`.hero-thumb[data-cat="${cat}"]`);
-  if(thumb) setHeroCategory(cat, thumb);
-}, 6000);
-
-/* ── CAT CARD SLIDESHOWS ── */
-document.querySelectorAll('.cat-card').forEach(card=>{
-  const slides = card.querySelectorAll('.cat-slide');
-  if(slides.length<2) return;
-  let i=0;
-  setInterval(()=>{
-    slides[i].classList.remove('active');
-    i=(i+1)%slides.length;
-    slides[i].classList.add('active');
-  }, 3500 + Math.random()*1500);
-});
-
-/* ── CAR CARD SLIDESHOWS ── */
+// Car image slideshows
 document.querySelectorAll('.car-card').forEach(card=>{
-  const slides = card.querySelectorAll('.car-img-slide');
-  if(slides.length<2) return;
-  let i=0;
+  const imgs = card.querySelectorAll('.car-img-slide');
+  if(imgs.length < 2) return;
+  let i = 0;
   setInterval(()=>{
-    slides[i].classList.remove('active');
-    i=(i+1)%slides.length;
-    slides[i].classList.add('active');
-  }, 3000 + Math.random()*2000);
-});
-
-/* ── INVENTORY FILTER ── */
-function filterCars(cat, btn){
-  document.querySelectorAll('.f-tab').forEach(t=>t.classList.remove('active'));
-  if(btn) btn.classList.add('active');
-  document.querySelectorAll('.car-card').forEach(c=>{
-    c.style.display=(cat==='all'||c.dataset.cat===cat)?'':'none';
-  });
-}
-
-/* ── REVEAL ── */
-const revEls=document.querySelectorAll('.reveal');
-const obs=new IntersectionObserver(entries=>{
-  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('on');obs.unobserve(e.target);}});
-},{threshold:0.08});
-revEls.forEach(el=>obs.observe(el));
-
-/* ── SMOOTH SCROLL ── */
-document.querySelectorAll('a[href^="#"]').forEach(a=>{
-  a.addEventListener('click',function(e){
-    const h=this.getAttribute('href');
-    if(!h||h==='#') return;
-    const t=document.querySelector(h);
-    if(t){e.preventDefault();closeNav();t.scrollIntoView({behavior:'smooth',block:'start'});}
-  });
-});
-
-/* ── ACTIVE NAV ── */
-const sections=['home','categories','inventory','financing','trust','contact'];
-const navBtns=document.querySelectorAll('.nav .nav-btn');
-window.addEventListener('scroll',()=>{
-  let cur='';
-  sections.forEach(id=>{const s=document.getElementById(id);if(s&&window.scrollY>=s.offsetTop-130)cur=id;});
-  navBtns.forEach(b=>b.classList.toggle('active',b.getAttribute('href')==='#'+cur));
+    imgs[i].classList.remove('active');
+    i = (i+1)%imgs.length;
+    imgs[i].classList.add('active');
+  }, 3500 + Math.random()*1500);
 });
 </script>
 </body>
