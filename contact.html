@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
+<title>Contact Sabicars — Lagos Auto Dealer | Visit Our Showroom</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="theme.css"/><style>
+.page-hero{background:var(--bg2);padding:60px 0 48px;border-bottom:1px solid var(--border);}
+.page-hero h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:600;color:var(--text);margin-bottom:10px;}
+.page-hero p{font-size:1rem;color:var(--muted);font-weight:300;}
+.page-body{padding:72px 0 88px;background:var(--bg);}
+.content-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start;}
+@media(max-width:860px){.content-grid{grid-template-columns:1fr;gap:40px;}}
+.info-card{background:var(--card);border:1px solid var(--border2);border-radius:10px;padding:36px;}
+.info-card h3{font-family:"Cormorant Garamond",serif;font-size:1.8rem;font-weight:600;color:var(--text);margin-bottom:20px;}
+.step-list{list-style:none;display:flex;flex-direction:column;gap:16px;}
+.step-item{display:flex;align-items:flex-start;gap:14px;}
+.step-n{width:32px;height:32px;border-radius:50%;border:1px solid var(--gold);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;}
+.step-t h5{font-size:.9rem;font-weight:600;color:var(--text);margin-bottom:2px;}
+.step-t p{font-size:.8rem;color:var(--muted);font-weight:300;}
+.big-pct{font-family:"Cormorant Garamond",serif;font-size:6rem;font-weight:700;color:var(--gold);line-height:1;margin-bottom:8px;}
+.big-pct sup{font-size:2.2rem;vertical-align:super;}
+.faq{margin-top:40px;}
+.faq-item{border-bottom:1px solid var(--border2);padding:16px 0;}
+.faq-q{font-size:.95rem;font-weight:600;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
+.faq-a{font-size:.85rem;color:var(--muted);font-weight:300;line-height:1.7;margin-top:10px;display:none;}
+.faq-a.open{display:block;}
+.contact-list-pg{list-style:none;display:flex;flex-direction:column;gap:18px;}
+.c-item{display:flex;align-items:flex-start;gap:14px;}
+.c-icon{width:40px;height:40px;background:var(--gold-dim);border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:.85rem;flex-shrink:0;border-radius:6px;}
+.c-text strong{display:block;font-size:.78rem;color:var(--text);font-weight:600;margin-bottom:2px;}
+.c-text span,.c-text a{font-size:.88rem;color:var(--muted);text-decoration:none;font-weight:300;}
+.c-text a:hover{color:var(--gold);}
+.hours-box{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:22px;margin-top:24px;}
+.hours-title{font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:12px;}
+.h-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);font-size:.82rem;}
+.h-row:last-child{border:none;}
+.h-row span:first-child{color:var(--muted);}
+.h-row span:last-child{color:var(--text);font-weight:500;}
+.h-closed{color:#DC2626!important;}
+.map-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;min-height:340px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.map-card::before{content:"";position:absolute;inset:0;background:linear-gradient(var(--border2) 1px,transparent 1px),linear-gradient(90deg,var(--border2) 1px,transparent 1px);background-size:26px 26px;}
+.map-inner{text-align:center;position:relative;z-index:1;}
+.map-pin{width:52px;height:52px;background:var(--gold);border-radius:50% 50% 50% 0;transform:rotate(-45deg);margin:0 auto 18px;display:flex;align-items:center;justify-content:center;}
+.map-pin i{transform:rotate(45deg);color:#fff;font-size:.95rem;}
+.map-inner p{font-size:.88rem;color:var(--muted);margin-bottom:16px;}
+.map-link{display:inline-flex;align-items:center;gap:6px;color:var(--gold);font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;border-bottom:1px solid var(--gold-border);padding-bottom:2px;}
+.about-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:60px;align-items:center;}
+@media(max-width:860px){.about-grid{grid-template-columns:1fr;}}
+.founder-frame{background:var(--bg3);border:1px solid var(--gold-border);border-radius:8px;aspect-ratio:3/4;max-height:460px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.founder-placeholder{text-align:center;padding:32px;}
+.founder-placeholder i{font-size:4rem;color:var(--gold);opacity:.25;margin-bottom:16px;display:block;}
+.founder-placeholder small{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;}
+.founder-corner{position:absolute;top:-8px;right:-8px;width:60px;height:60px;border-top:2px solid var(--gold);border-right:2px solid var(--gold);}
+.founder-corner-bl{position:absolute;bottom:-8px;left:-8px;width:60px;height:60px;border-bottom:2px solid var(--gold);border-left:2px solid var(--gold);}
+.about-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px;}
+.about-stat{background:var(--bg2);border:1px solid var(--border2);border-radius:6px;padding:18px;text-align:center;}
+.about-stat-n{font-family:"Cormorant Garamond",serif;font-size:2.2rem;font-weight:700;color:var(--gold);line-height:1;}
+.about-stat-l{font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:4px;}
+.blog-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+@media(max-width:900px){.blog-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:560px){.blog-grid{grid-template-columns:1fr;}}
+.blog-card{background:var(--card);border:1px solid var(--border2);border-radius:8px;overflow:hidden;transition:all .3s;text-decoration:none;display:block;color:inherit;}
+.blog-card:hover{border-color:var(--gold-border);transform:translateY(-3px);box-shadow:var(--shadow-lg);}
+.blog-img{height:190px;background-size:cover;background-position:center;}
+.blog-body{padding:20px;}
+.blog-cat{display:inline-block;font-size:.6rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
+.blog-body h4{font-family:"Cormorant Garamond",serif;font-size:1.2rem;font-weight:700;color:var(--text);line-height:1.3;margin-bottom:8px;}
+.blog-body p{font-size:.8rem;color:var(--muted);font-weight:300;line-height:1.6;margin-bottom:14px;}
+.blog-meta{display:flex;align-items:center;gap:10px;font-size:.72rem;color:var(--muted2);}
+</style>
+</head>
+<body>
+<a href="https://wa.me/2348055065825" class="float-wa" target="_blank"><i class="fab fa-whatsapp"></i></a>
+<nav class="mobile-nav" id="mobileNav">
+  <a href="index.html" onclick="closeNav()">Home</a><a href="cars.html" onclick="closeNav()">Buy Cars</a><a href="financing.html" onclick="closeNav()">Financing</a><a href="about.html" onclick="closeNav()">About</a><a href="blog.html" onclick="closeNav()">Blog</a><a href="contact.html" onclick="closeNav()">Contact</a>
+  <a href="https://wa.me/2348055065825" class="mob-wa-btn" target="_blank"><i class="fab fa-whatsapp"></i> Chat on WhatsApp</a>
+</nav>
+<div class="topbar"><div class="topbar-inner"><span class="topbar-pill"><span class="topbar-dot"></span><a href="tel:+2348101885558">📞 0810 188 5558</a></span><span class="topbar-sep">·</span><span class="topbar-pill"><span class="topbar-dot"></span>Verified Dealer · RC 1560100</span><span class="topbar-sep">·</span><span class="topbar-pill"><span class="topbar-dot"></span>Pay <strong>40%</strong> &amp; Drive Today</span></div></div>
+<header class="header"><div class="container"><div class="header-inner">
+  <a href="index.html" class="logo"><img data-logo alt="Sabicars"/><div style="display:flex;flex-direction:column;line-height:1;margin-left:10px"><span class="logo-name">Sabicars</span><span class="logo-sub">Luxury Auto · Lagos</span></div></a>
+  <nav class="nav"><a href="index.html">Home</a><a href="cars.html">Buy Cars</a><a href="financing.html">Financing</a><a href="about.html">About</a><a href="blog.html">Blog</a><a href="contact.html" class="active">Contact</a></nav>
+  <div class="header-right"><button class="theme-btn" data-theme-toggle><i data-theme-icon class="fas fa-moon"></i></button><a href="https://wa.me/2348055065825" class="btn-wa" target="_blank"><i class="fab fa-whatsapp"></i><span class="wa-label">WhatsApp</span></a><button class="hamburger" id="hamburger" onclick="toggleNav()"><span></span><span></span><span></span></button></div>
+</div></div></header>
+<div class="page-hero"><div class="container">
+  <div class="sec-label"><div class="sec-label-line"></div><span class="sec-label-text">Get in Touch</span></div>
+  <h1>Visit Our <em class="serif" style="font-style:italic;color:var(--gold)">Showroom</em></h1>
+  <p>Come see the stock in person. We're always ready to help you find your perfect vehicle.</p>
+</div></div>
+<section class="page-body"><div class="container"><div class="content-grid">
+  <div class="reveal">
+    <div class="sec-label"><div class="sec-label-line"></div><span class="sec-label-text">Contact Details</span></div>
+    <h2 class="section-title">Let's <em>Talk</em></h2>
+    <ul class="contact-list-pg" style="margin-bottom:28px">
+      <li class="c-item"><div class="c-icon"><i class="fas fa-location-dot"></i></div><div class="c-text"><strong>Showroom Address</strong><span>Amazing Grace Plaza, Km 13 Alhaji-Ede Bus Stop,<br>Lasu Road, off Isheri, Igando, Lagos 105101</span></div></li>
+      <li class="c-item"><div class="c-icon"><i class="fas fa-phone"></i></div><div class="c-text"><strong>Sales Lines</strong><span><a href="tel:+2348101885558">0810 188 5558</a> &nbsp;/&nbsp; <a href="tel:+2349121596011">0912 159 6011</a></span></div></li>
+      <li class="c-item"><div class="c-icon"><i class="fab fa-whatsapp"></i></div><div class="c-text"><strong>WhatsApp</strong><span><a href="https://wa.me/2348055065825" target="_blank">+234 805 506 5825</a></span></div></li>
+      <li class="c-item"><div class="c-icon"><i class="fas fa-envelope"></i></div><div class="c-text"><strong>Email</strong><span><a href="mailto:info@sabicars.ng">info@sabicars.ng</a></span></div></li>
+      <li class="c-item"><div class="c-icon"><i class="fab fa-instagram"></i></div><div class="c-text"><strong>Instagram</strong><span><a href="https://instagram.com/sabicarsltd" target="_blank">@sabicarsltd</a></span></div></li>
+    </ul>
+    <div class="hours-box">
+      <div class="hours-title"><i class="fas fa-clock"></i> &nbsp;Opening Hours</div>
+      <div class="h-row"><span>Monday – Friday</span><span>9:00 AM – 8:00 PM</span></div>
+      <div class="h-row"><span>Saturday</span><span>9:00 AM – 8:00 PM</span></div>
+      <div class="h-row"><span>Sunday</span><span class="h-closed">Closed</span></div>
+    </div>
+    <div style="margin-top:28px;display:flex;gap:12px;flex-wrap:wrap">
+      <a href="https://wa.me/2348055065825" class="btn-wa" target="_blank"><i class="fab fa-whatsapp"></i> Chat on WhatsApp</a>
+      <a href="tel:+2348101885558" class="btn-outline"><i class="fas fa-phone"></i> Call Us</a>
+    </div>
+  </div>
+  <div class="reveal">
+    <div class="map-card" style="min-height:400px">
+      <div class="map-inner">
+        <div class="map-pin"><i class="fas fa-location-dot"></i></div>
+        <p style="font-size:.9rem;color:var(--muted);margin-bottom:16px">Lasu Road, Igando, Lagos</p>
+        <a href="https://maps.google.com/?q=Lasu+Road+Igando+Lagos" target="_blank" class="map-link">Open in Google Maps <i class="fas fa-external-link-alt" style="font-size:.65rem"></i></a>
+      </div>
+    </div>
+  </div>
+</div></div></section>
+<footer class="footer"><div class="container">
+  <div class="footer-grid">
+    <div class="footer-brand"><a href="index.html" class="logo"><img data-logo alt="Sabicars" style="height:40px;width:40px;border-radius:8px;"/><div style="display:flex;flex-direction:column;line-height:1;margin-left:10px"><span class="logo-name">Sabicars</span><span class="logo-sub">Luxury Auto · Lagos</span></div></a><p>Nigeria's premier verified dealer. Pay 40%, drive today.</p><div class="socials"><a href="https://instagram.com/sabicarsltd" class="soc" target="_blank"><i class="fab fa-instagram"></i></a><a href="#" class="soc"><i class="fab fa-facebook-f"></i></a><a href="https://wa.me/2348055065825" class="soc" target="_blank"><i class="fab fa-whatsapp"></i></a><a href="#" class="soc"><i class="fab fa-tiktok"></i></a></div></div>
+    <div class="footer-col"><h5>Quick Links</h5><ul><li><a href="index.html">Home</a></li><li><a href="cars.html">Buy Cars</a></li><li><a href="financing.html">Financing</a></li><li><a href="about.html">About</a></li><li><a href="blog.html">Blog</a></li><li><a href="contact.html">Contact</a></li></ul></div>
+    <div class="footer-col"><h5>Vehicles</h5><ul><li><a href="cars.html">Luxury Cars</a></li><li><a href="cars.html">Toyota Hiace</a></li><li><a href="cars.html">Trucks</a></li><li><a href="cars.html">SUVs</a></li></ul></div>
+    <div class="footer-col"><h5>Contact</h5><ul><li><a href="tel:+2348101885558">0810 188 5558</a></li><li><a href="https://wa.me/2348055065825" target="_blank">WhatsApp Us</a></li><li><a href="mailto:info@sabicars.ng">info@sabicars.ng</a></li></ul></div>
+  </div>
+  <div class="footer-bottom"><p>© 2025 Sabicars Limited. RC 1560100.</p><span class="rc-pill"><i class="fas fa-building"></i> RC 1560100</span></div>
+</div></footer>
+<script src="theme.js"></script>
+</body></html>
