@@ -102,7 +102,7 @@ async function loadInventory(){
     }
 
     grid.innerHTML = data.cars.map(car => `
-      <div class="car-card reveal" data-cat="${car.category}">
+      <div class="car-card" data-cat="${car.category}">
         <div class="car-img">
           <span class="car-tag tag-${car.tag}">${tagLabel(car.tag)}</span>
           <div class="car-img-bg" style="background-image:url('${(car.images && car.images[0]) ? car.images[0] : 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=600&q=70'}')"></div>
