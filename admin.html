@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Sabicars Admin Dashboard</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: -apple-system, sans-serif; background:#0d0d0d; color:#eee; min-height:100vh; }
+  .center { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:20px; }
+  .card { background:#1a1a1a; border:1px solid #333; border-radius:10px; padding:36px; width:100%; max-width:380px; }
+  .card h1 { font-size:1.4rem; margin-bottom:6px; color:#d4af37; }
+  .card p { font-size:.85rem; color:#999; margin-bottom:24px; }
+  input, select, textarea { width:100%; padding:11px; margin-bottom:14px; background:#252525; border:1px solid #3a3a3a; border-radius:6px; color:#eee; font-size:.9rem; }
+  button { width:100%; padding:12px; background:#d4af37; color:#000; border:none; border-radius:6px; font-weight:700; cursor:pointer; font-size:.9rem; }
+  button:hover { background:#c19b2e; }
+  .error { color:#ff6b6b; font-size:.8rem; margin-bottom:10px; display:none; }
+  #dashboard { display:none; padding:24px; max-width:1100px; margin:0 auto; }
+  .topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; flex-wrap:wrap; gap:10px; }
+  .topbar h2 { color:#d4af37; }
+  .logout-btn { width:auto; padding:8px 16px; background:#333; color:#eee; }
+  .grid { display:grid; grid-template-columns: 1fr 1fr; gap:24px; }
+  @media(max-width:800px){ .grid { grid-template-columns: 1fr; } }
+  .panel { background:#1a1a1a; border:1px solid #333; border-radius:10px; padding:20px; }
+  .panel h3 { color:#d4af37; margin-bottom:16px; font-size:1rem; }
+  .car-row { display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #2a2a2a; font-size:.85rem; }
+  .car-row:last-child { border-bottom:none; }
+  .car-info { flex:1; }
+  .car-actions button { width:auto; padding:6px 10px; font-size:.75rem; margin-left:6px; }
+  .del-btn { background:#c0392b; color:#fff; }
+  .edit-btn { background:#3a3a3a; color:#eee; }
+  .row2 { display:flex; gap:10px; }
+  .row2 > * { flex:1; }
+  .msg { font-size:.8rem; padding:8px; border-radius:5px; margin-bottom:10px; display:none; }
+  .msg.success { background:#1e3a24; color:#7ee08a; }
+  .msg.error { background:#3a1e1e; color:#ff6b6b; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="center" id="loginScreen">
+  <div class="card">
+    <h1>🚗 Sabicars Admin</h1>
+    <p>Login to manage inventory</p>
+    <div class="error" id="loginError"></div>
+    <input type="text" id="username" placeholder="Username" />
+    <input type="password" id="password" placeholder="Password" />
+    <button onclick="login()">Login</button>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <div class="topbar">
+    <h2>Sabicars Inventory Manager</h2>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+
+  <div class="grid">
+    <!-- ADD CAR FORM -->
+    <div class="panel">
+      <h3>Add New Car</h3>
+      <div class="msg" id="formMsg"></div>
+      <div class="row2">
+        <input type="text" id="make" placeholder="Make (e.g. Toyota)" />
+        <input type="text" id="model" placeholder="Model (e.g. Highlander)" />
+      </div>
+      <div class="row2">
+        <input type="text" id="year" placeholder="Year" />
+        <select id="category">
+          <option value="luxury">Luxury</option>
+          <option value="hiace">Hiace</option>
+          <option value="suv">SUV</option>
+          <option value="truck">Truck</option>
+        </select>
+      </div>
+      <div class="row2">
+        <input type="text" id="price" placeholder="Price (e.g. ₦25,000,000)" />
+        <input type="text" id="mileage" placeholder="Mileage" />
+      </div>
+      <div class="row2">
+        <input type="text" id="fuel" placeholder="Fuel" />
+        <input type="text" id="colour" placeholder="Colour" />
+      </div>
+      <select id="tag">
+        <option value="new">New</option>
+        <option value="hot">Hot</option>
+        <option value="premium">Premium</option>
+        <option value="supply">Supply</option>
+      </select>
+      <textarea id="description" placeholder="Description" rows="3"></textarea>
+      <input type="file" id="images" multiple accept="image/*" style="padding:8px;" />
+      <button onclick="addCar()">Add Car</button>
+    </div>
+
+    <!-- CAR LIST -->
+    <div class="panel">
+      <h3>Current Inventory (<span id="carCount">0</span>)</h3>
+      <div id="carList"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'http://localhost:5000/api';
+let token = localStorage.getItem('sabicars_token');
+
+if (token) showDashboard();
+
+async function login() {
+  const username = document.getElementById('username').value;
+  const password = document.getElementById('password').value;
+  const errEl = document.getElementById('loginError');
+  errEl.style.display = 'none';
+
+  try {
+    const res = await fetch(`${API}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+    if (data.success) {
+      token = data.token;
+      localStorage.setItem('sabicars_token', token);
+      showDashboard();
+    } else {
+      errEl.textContent = data.message;
+      errEl.style.display = 'block';
+    }
+  } catch (err) {
+    errEl.textContent = 'Connection error. Is the server running?';
+    errEl.style.display = 'block';
+  }
+}
+
+function logout() {
+  localStorage.removeItem('sabicars_token');
+  token = null;
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+}
+
+function showDashboard() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  loadCars();
+}
+
+async function loadCars() {
+  try {
+    const res = await fetch(`${API}/cars/admin/all`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+    if (!data.success) { logout(); return; }
+
+    document.getElementById('carCount').textContent = data.count;
+    const list = document.getElementById('carList');
+    list.innerHTML = data.cars.map(car => `
+      <div class="car-row">
+        <div class="car-info">
+          <strong>${car.make} ${car.model}</strong> (${car.year})<br/>
+          <span style="color:#999">${car.price} · ${car.category} ${car.available ? '' : '· SOLD'}</span>
+        </div>
+        <div class="car-actions">
+          <button class="edit-btn" onclick="toggleAvailable('${car._id}', ${car.available})">${car.available ? 'Mark Sold' : 'Mark Available'}</button>
+          <button class="del-btn" onclick="deleteCar('${car._id}')">Delete</button>
+        </div>
+      </div>
+    `).join('') || '<p style="color:#666">No cars yet. Add one!</p>';
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+async function addCar() {
+  const msgEl = document.getElementById('formMsg');
+  const formData = new FormData();
+  formData.append('make', document.getElementById('make').value);
+  formData.append('model', document.getElementById('model').value);
+  formData.append('year', document.getElementById('year').value);
+  formData.append('category', document.getElementById('category').value);
+  formData.append('price', document.getElementById('price').value);
+  formData.append('mileage', document.getElementById('mileage').value);
+  formData.append('fuel', document.getElementById('fuel').value);
+  formData.append('colour', document.getElementById('colour').value);
+  formData.append('tag', document.getElementById('tag').value);
+  formData.append('description', document.getElementById('description').value);
+
+  const imgInput = document.getElementById('images');
+  for (let file of imgInput.files) {
+    formData.append('images', file);
+  }
+
+  try {
+    const res = await fetch(`${API}/cars`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` },
+      body: formData
+    });
+    const data = await res.json();
+    msgEl.style.display = 'block';
+    if (data.success) {
+      msgEl.className = 'msg success';
+      msgEl.textContent = '✅ Car added successfully!';
+      document.querySelectorAll('#dashboard input, #dashboard textarea').forEach(el => el.value = '');
+      loadCars();
+    } else {
+      msgEl.className = 'msg error';
+      msgEl.textContent = '❌ ' + data.message;
+    }
+  } catch (err) {
+    msgEl.style.display = 'block';
+    msgEl.className = 'msg error';
+    msgEl.textContent = '❌ Connection error';
+  }
+}
+
+async function toggleAvailable(id, currentlyAvailable) {
+  const formData = new FormData();
+  formData.append('available', !currentlyAvailable);
+  await fetch(`${API}/cars/${id}`, {
+    method: 'PUT',
+    headers: { 'Authorization': `Bearer ${token}` },
+    body: formData
+  });
+  loadCars();
+}
+
+async function deleteCar(id) {
+  if (!confirm('Delete this car permanently?')) return;
+  await fetch(`${API}/cars/${id}`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+  loadCars();
+}
+</script>
+</body>
+</html>
