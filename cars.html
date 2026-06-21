@@ -58,17 +58,36 @@
 <div class="page-hero"><div class="container"><div class="sec-label"><div class="sec-label-line"></div><span class="sec-label-text">Inventory</span></div><h1>Our <em class="serif" style="font-style:italic;color:var(--gold)">Vehicles</em></h1><p>All vehicles are verified, tokunbo, accident-free. Pay 40% and drive today.</p></div></div>
 
 <section class="inventory-page"><div class="container">
-  <div class="inv-controls">
-    <div class="filter-bar">
-      <button class="f-btn active" onclick="filterCars('all',this)">All</button>
-      <button class="f-btn" onclick="filterCars('luxury',this)">Luxury</button>
-      <button class="f-btn" onclick="filterCars('hiace',this)">Hiace</button>
-      <button class="f-btn" onclick="filterCars('suv',this)">SUVs</button>
-      <button class="f-btn" onclick="filterCars('truck',this)">Trucks</button>
-    </div>
-    <span class="inv-count" id="invCount">Showing all vehicles</span>
+ <div class="inv-controls">
+  <div class="filter-row">
+    <select id="brandFilter" class="filter-select" onchange="applyFilters()">
+      <option value="all">All Brands</option>
+      <option value="Toyota">Toyota</option><option value="Hyundai">Hyundai</option>
+      <option value="Lexus">Lexus</option><option value="Mercedes-Benz">Mercedes-Benz</option>
+      <option value="Acura">Acura</option><option value="Ford">Ford</option>
+      <option value="BMW">BMW</option><option value="Chevrolet">Chevrolet</option>
+      <option value="Dodge">Dodge</option><option value="Jeep">Jeep</option>
+      <option value="Land Rover">Land Rover</option><option value="Mazda">Mazda</option>
+      <option value="Nissan">Nissan</option><option value="Peugeot">Peugeot</option>
+      <option value="Pontiac">Pontiac</option><option value="Volkswagen">Volkswagen</option>
+    </select>
+    <select id="categoryFilter" class="filter-select" onchange="applyFilters()">
+      <option value="all">All Categories</option>
+      <option value="regular">Regular</option><option value="luxury">Luxury</option>
+      <option value="cars">Cars</option><option value="suv">SUVs</option>
+      <option value="bus">Bus</option><option value="truck">Trucks</option>
+    </select>
+    <select id="sortFilter" class="filter-select" onchange="applyFilters()">
+      <option value="default">Sort: Default</option>
+      <option value="price-low">Price: Low to High</option>
+      <option value="price-high">Price: High to Low</option>
+      <option value="year-new">Year: Newest First</option>
+      <option value="year-old">Year: Oldest First</option>
+    </select>
   </div>
-  <div class="cars.grid" id="carsGrid"></div>
+  <span class="inv-count" id="invCount">Showing all vehicles</span>
+</div>
+<div class="cars-grid" id="carsGrid"></div>
 </div></section>
 
 <footer class="footer"><div class="container">
