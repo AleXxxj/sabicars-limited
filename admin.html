@@ -84,9 +84,38 @@
         <input type="text" id="price" placeholder="Price (e.g. ₦25,000,000)" />
         <input type="text" id="mileage" placeholder="Mileage" />
       </div>
-      <div class="row2">
+           <div class="row2">
         <input type="text" id="fuel" placeholder="Fuel" />
         <input type="text" id="colour" placeholder="Colour" />
+      </div>
+      <div class="row2">
+        <input type="text" id="engine" placeholder="Engine (e.g. 3.5L V6)" />
+        <input type="text" id="horsepower" placeholder="Horsepower (e.g. 295hp)" />
+      </div>
+      <div class="row2">
+        <input type="text" id="transmission" placeholder="Transmission (e.g. Automatic)" />
+        <input type="text" id="drivetrain" placeholder="Drivetrain (e.g. AWD)" />
+      </div>
+      <div class="row2">
+        <input type="text" id="interiorColor" placeholder="Interior Colour" />
+        <input type="text" id="seats" placeholder="Seats (e.g. 7)" />
+      </div>
+      <div style="margin-bottom:14px;">
+        <p style="font-size:.8rem;color:#999;margin-bottom:8px;">Features</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;" id="featuresBox">
+          <label style="font-size:.82rem;display:flex;align-items:center;gap:6px;"><input type="checkbox" value="Air Conditioning" style="width:auto;margin:0;"> Air Conditioning</label>
+          <label style="font-size:.82rem;display:flex;align-items:center;gap:6px;"><input type="checkbox" value="Leather Seats" style="width:auto;margin:0;"> Leather Seats</label>
+          <label style="font-size:.82rem;display:flex;align-items:center;gap:6px;"><input type="checkbox" value="Sunroof" style="width:auto;margin:0;"> Sunroof</label>
+          <label style="font-size:.82rem;display:flex;align-items:center;gap:6px;"><input type="checkbox" value="Navigation System" style="width:auto;margin:0;"> Navigation System</label>
+          <label style="font-size:.82rem;display:flex;align-items:center;gap:6px;"><input type="checkbox" value="Reverse Camera" style="width:auto;margin:0;"> Reverse Camera</label>
+          <label style="font-size:.82rem;display:flex;align-items:center;gap:6px;"><input type="checkbox" value="Bluetooth" style="width:auto;margin:0;"> Bluetooth</label>
+          <label style="font-size:.82rem;display:flex;align-items:center;gap:6px;"><input type="checkbox" value="Cruise Control" style="width:auto;margin:0;"> Cruise Control</label>
+          <label style="font-size:.82rem;display:flex;align-items:center;gap:6px;"><input type="checkbox" value="Keyless Entry" style="width:auto;margin:0;"> Keyless Entry</label>
+          <label style="font-size:.82rem;display:flex;align-items:center;gap:6px;"><input type="checkbox" value="Heated Seats" style="width:auto;margin:0;"> Heated Seats</label>
+          <label style="font-size:.82rem;display:flex;align-items:center;gap:6px;"><input type="checkbox" value="Third Row Seating" style="width:auto;margin:0;"> Third Row Seating</label>
+          <label style="font-size:.82rem;display:flex;align-items:center;gap:6px;"><input type="checkbox" value="Alloy Wheels" style="width:auto;margin:0;"> Alloy Wheels</label>
+          <label style="font-size:.82rem;display:flex;align-items:center;gap:6px;"><input type="checkbox" value="Parking Sensors" style="width:auto;margin:0;"> Parking Sensors</label>
+        </div>
       </div>
       <select id="tag">
         <option value="new">New</option>
@@ -192,7 +221,17 @@ async function addCar() {
   formData.append('fuel', document.getElementById('fuel').value);
   formData.append('colour', document.getElementById('colour').value);
   formData.append('tag', document.getElementById('tag').value);
-  formData.append('description', document.getElementById('description').value);
+  formData.append('description',    document.getElementById('description').value);
+    formData.append('engine', document.getElementById('engine').value);
+    formData.append('horsepower', document.getElementById('horsepower').value);
+    formData.append('transmission', document.getElementById('transmission').value);
+    formData.append('drivetrain', document.getElementById('drivetrain').value);
+    formData.append('interiorColor', document.getElementById('interiorColor').value);
+    formData.append('seats', document.getElementById('seats').value);
+
+    document.querySelectorAll('#featuresBox input[type="checkbox"]:checked').forEach(cb => {
+      formData.append('features', cb.value);
+  });
 
   const imgInput = document.getElementById('images');
   for (let file of imgInput.files) {
