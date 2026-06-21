@@ -132,7 +132,7 @@ function renderCarCard(car){
   const price = parsePrice(car.price);
   const downPayment = Math.round(price * 0.4);
   return `
-    <div class="car-card" data-cat="${car.category}" data-make="${car.make}">
+    <div class="car-card" data-cat="${car.category}" data-make="${car.make}" onclick="window.location.href='car-detail.html?id=${car._id}'" style="cursor:pointer;">
       <div class="car-img">
         <span class="car-tag tag-${car.tag}">${tagLabel(car.tag)}</span>
         <div class="car-img-bg" style="background-image:url('${(car.images && car.images[0]) ? car.images[0] : 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=600&q=70'}')"></div>
@@ -152,7 +152,7 @@ function renderCarCard(car){
             <div class="price-val">${formatPrice(price)}</div>
             <div class="price-40">40% Down: ${formatPrice(downPayment)}</div>
           </div>
-        <div class="inquire-wrap">
+        <div class="inquire-wrap" oneclick="event.stopPropagation()">
           <button class="car-cta" onclick="toggleInquireMenu(event)"><i class="fab fa-whatsapp"></i> Inquire</button>
           <div class="inquire-menu">
             <a href="tel:+2348101885558" class="inquire-menu-item"><i class="fas fa-phone"></i> Call Us</a>
