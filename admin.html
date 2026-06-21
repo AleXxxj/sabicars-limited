@@ -249,9 +249,10 @@ async function addCar() {
     if (data.success) {
       msgEl.className = 'msg success';
       msgEl.textContent = '✅ Car added successfully!';
-      document.querySelectorAll('#dashboard input, #dashboard textarea').forEach(el => el.value = '');
-      loadCars();
-    } else {
+    document.querySelectorAll('#dashboard input[type="text"], #dashboard textarea').forEach(el => el.value = '');
+    document.querySelectorAll('#featuresBox input[type="checkbox"]').forEach(cb => cb.checked = false);
+    loadCars();
+  } else {
       msgEl.className = 'msg error';
       msgEl.textContent = '❌ ' + data.message;
     }
