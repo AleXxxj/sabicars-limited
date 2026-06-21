@@ -112,10 +112,13 @@ let allCars = [];
 function tagLabel(tag){
   return { hot: '🔥 Hot', new: 'New In', premium: 'Premium', supply: 'Fleet Supply' }[tag] || tag;
 }
+function parsePrice(val){
+  return Number(String(val).replace(/[^0-9.]/g, '')) || 0;
+}
 function formatPrice(n){ return '₦' + Number(n).toLocaleString('en-NG'); }
 
 function renderCarCard(car){
-  const price = Number(car.price) || 0;
+  const price = parsePrice(car.price);
   const downPayment = Math.round(price * 0.4);
   return `
     <div class="car-card" data-cat="${car.category}" data-make="${car.make}">
@@ -126,10 +129,10 @@ function renderCarCard(car){
       <div class="car-body">
         <div class="car-make">${car.make}</div>
         <h3 class="car-model">${car.model}</h3>
-        <div class="car-year">${car.year} · ${car.condition || 'Tokunbo'}${car.mileage ? ' · ' + car.mileage : ''}</div>
+        <div class="car-year">${car.year} · ${conditionLabel(car.condition)}</div>
         <div class="car-specs">
           ${car.fuel ? `<div class="cs"><i class="fas fa-gas-pump"></i> ${car.fuel}</div>` : ''}
-          ${car.mileage ? `<div class="cs"><i class="fas fa-road"></i> ${car.mileage}</div>` : ''}
+          ${car.mileage ? `<div class="cs"><i class="fas fa-road"></i> ${Number(String(car.mileage).replace(/[^0-9.]/g,'')).toLocaleString()} km</div>` : ''}
           ${car.colour ? `<div class="cs"><i class="fas fa-palette"></i> ${car.colour}</div>` : ''}
         </div>
         <div class="car-footer">
@@ -180,8 +183,8 @@ function applyFilters(){
     return brandMatch && catMatch;
   });
 
-  if (sort === 'price-low') filtered.sort((a,b) => Number(a.price) - Number(b.price));
-  if (sort === 'price-high') filtered.sort((a,b) => Number(b.price) - Number(a.price));
+  if (sort === 'price-low') filtered.sort((a,b) => parsePrice(a.price) - parsePrice(b.price));
+  if (sort === 'price-high') filtered.sort((a,b) => parsePrice(b.price) - parsePrice(a.price));
   if (sort === 'year-new') filtered.sort((a,b) => Number(b.year) - Number(a.year));
   if (sort === 'year-old') filtered.sort((a,b) => Number(a.year) - Number(b.year));
 
