@@ -46,6 +46,12 @@
 .filter-select{background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:9px 14px;border-radius:6px;font-size:.78rem;font-weight:600;}
 .reset-btn{background:transparent;border:1px solid var(--gold-border);color:var(--gold);padding:9px 18px;border-radius:6px;font-size:.78rem;font-weight:600;cursor:pointer;}
 .reset-btn:hover{background:var(--gold-dim);}
+.inquire-wrap{position:relative;}
+.inquire-menu{display:none;position:absolute;bottom:42px;right:0;background:var(--card);border:1px solid var(--border2);border-radius:8px;overflow:hidden;min-width:150px;box-shadow:0 8px 20px rgba(0,0,0,.4);z-index:10;}
+.inquire-menu.open{display:block;}
+.inquire-menu-item{display:flex;align-items:center;gap:8px;padding:10px 14px;font-size:.78rem;color:var(--text);text-decoration:none;border-bottom:1px solid var(--border2);}
+.inquire-menu-item:last-child{border-bottom:none;}
+.inquire-menu-item:hover{background:var(--bg3);}
 </style>
 </head>
 <body>
@@ -64,7 +70,7 @@
 <div class="page-hero"><div class="container"><div class="sec-label"><div class="sec-label-line"></div><span class="sec-label-text">Inventory</span></div><h1>Our <em class="serif" style="font-style:italic;color:var(--gold)">Vehicles</em></h1><p>All vehicles are verified, tokunbo, accident-free. Pay 40% and drive today.</p></div></div>
 
 <section class="inventory-page"><div class="container">
- <div class="inv-controls">
+<div class="inv-controls">
   <div class="filter-row">
     <select id="brandFilter" class="filter-select" onchange="applyFilters()">
       <option value="all">All Brands</option>
@@ -90,12 +96,7 @@
       <option value="year-new">Year: Newest First</option>
       <option value="year-old">Year: Oldest First</option>
     </select>
-    <div class="filter-row">
-      <select id="brandFilter" class="filter-select" onchange="applyFilters()">...</select>
-      <select id="categoryFilter" class="filter-select" onchange="applyFilters()">...</select>
-      <select id="sortFilter" class="filter-select" onchange="applyFilters()">...</select>
-      <button class="reset-btn" oneclick="resetFilters()">Reset</button>
-    </div>
+    <button class="reset-btn" onclick="resetFilters()">Reset</button>
   </div>
   <span class="inv-count" id="invCount">Showing all vehicles</span>
 </div>
@@ -151,7 +152,13 @@ function renderCarCard(car){
             <div class="price-val">${formatPrice(price)}</div>
             <div class="price-40">40% Down: ${formatPrice(downPayment)}</div>
           </div>
-          <a href="https://wa.me/2348055065825?text=${encodeURIComponent("I'm interested in the " + car.make + ' ' + car.model)}" class="car-cta" target="_blank"><i class="fab fa-whatsapp"></i> Inquire</a>
+        <div class="inquire-wrap">
+          <button class="car-cta" onclick="toggleInquireMenu(event)"><i class="fab fa-whatsapp"></i> Inquire</button>
+          <div class="inquire-menu">
+            <a href="tel:+2348101885558" class="inquire-menu-item"><i class="fas fa-phone"></i> Call Us</a>
+            <a href="https://wa.me/2348055065825?text=${encodeURIComponent("I'm interested in the " + car.make + ' ' + car.model)}" target="_blank" class="inquire-menu-item"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+          </div>
+        </div>
         </div>
       </div>
     </div>`;
@@ -208,7 +215,17 @@ function resetFilters(){
   document.getElementById('brandFilter').value = 'all';
   document.getElementById('categoryFilter').value = 'all';
   document.getElementById('sortFilter').value = 'default';
+  applyFilters();
 }
+function toggleInquireMenu(e){
+  e.stopPropagation();
+  const menu = e.currentTarget.nextElementSibling;
+  document.querySelectorAll('.inquire-menu.open').forEach(m => { if(m !== menu) m.classList.remove('open'); });
+  menu.classList.toggle('open');
+}
+document.addEventListener('click', function(){
+  document.querySelectorAll('.inquire-menu.open').forEach(m => m.classList.remove('open'));
+});
   
 loadInventory();
 </script>
