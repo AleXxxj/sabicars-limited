@@ -111,6 +111,9 @@ let allCars = [];
 
 function tagLabel(tag){
   return { hot: '🔥 Hot', new: 'New In', premium: 'Premium', supply: 'Fleet Supply' }[tag] || tag;
+
+function conditionLabel(c){
+  return c === 'nigeria-used' ? 'Nigeria Used' : 'Foreign Used';
 }
 function parsePrice(val){
   return Number(String(val).replace(/[^0-9.]/g, '')) || 0;
