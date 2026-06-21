@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
+<title id="pageTitle">Vehicle Details — Sabicars Limited</title>
+<meta name="description" content="View full specifications, features and gallery for this verified vehicle from Sabicars Limited, Lagos."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="theme.css"/>
+<style>
+.detail-page{padding:40px 0 88px;background:var(--bg);}
+.back-link{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:.82rem;text-decoration:none;margin-bottom:24px;}
+.back-link:hover{color:var(--gold);}
+#loadingMsg,#errorMsg{text-align:center;color:var(--muted);padding:80px 0;font-size:.9rem;}
+.detail-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:40px;}
+@media(max-width:880px){.detail-grid{grid-template-columns:1fr;}}
+
+.main-img-wrap{position:relative;height:380px;border-radius:10px;overflow:hidden;background:var(--bg3);border:1px solid var(--border2);}
+.main-img{position:absolute;inset:0;background-size:cover;background-position:center;transition:opacity .25s;}
+.gallery-arrow{position:absolute;top:50%;transform:translateY(-50%);width:38px;height:38px;border-radius:50%;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.2);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;font-size:.85rem;}
+.gallery-arrow.left{left:14px;} .gallery-arrow.right{right:14px;}
+.gallery-arrow:hover{background:var(--gold);}
+.thumb-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+.thumb{width:64px;height:48px;border-radius:6px;background-size:cover;background-position:center;cursor:pointer;border:2px solid transparent;opacity:.6;transition:all .2s;}
+.thumb.active{border-color:var(--gold);opacity:1;}
+
+.detail-make{font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:4px;}
+.detail-model{font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,4vw,2.6rem);font-weight:700;color:var(--text);line-height:1.1;margin-bottom:6px;}
+.detail-sub{font-size:.85rem;color:var(--muted);margin-bottom:20px;}
+.detail-price-box{background:var(--card);border:1px solid var(--border2);border-radius:10px;padding:18px 20px;margin-bottom:18px;}
+.detail-price{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:700;color:var(--gold);}
+.detail-cta-row{margin-bottom:28px;}
+.detail-cta-btn{font-size:.78rem;padding:12px 20px;}
+
+.tabs{display:flex;gap:4px;background:var(--bg3);padding:4px;border-radius:8px;margin-bottom:20px;}
+.tab-btn{flex:1;padding:10px;border:none;background:transparent;color:var(--muted);font-size:.74rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-radius:6px;cursor:pointer;transition:all .2s;}
+.tab-btn.active{background:var(--gold);color:#fff;}
+.tab-panel{font-size:.88rem;color:var(--text);line-height:1.7;}
+.spec-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.spec-item{border-bottom:1px solid var(--border2);padding-bottom:10px;}
+.spec-item .lbl{font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted2);margin-bottom:3px;}
+.spec-item .val{font-size:.88rem;color:var(--text);font-weight:500;}
+.feature-list{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.feature-item{display:flex;align-items:center;gap:8px;font-size:.84rem;color:var(--text);}
+.feature-item i{color:var(--gold);font-size:.78rem;}
+</style>
+</head>
+<body>
+<a href="https://wa.me/2348055065825" class="float-wa" target="_blank"><i class="fab fa-whatsapp"></i></a>
+<nav class="mobile-nav" id="mobileNav">
+  <a href="index.html" onclick="closeNav()">Home</a><a href="cars.html" onclick="closeNav()">Buy Cars</a><a href="financing.html" onclick="closeNav()">Financing</a><a href="about.html" onclick="closeNav()">About</a><a href="blog.html" onclick="closeNav()">Blog</a><a href="contact.html" onclick="closeNav()">Contact</a>
+  <a href="https://wa.me/2348055065825" class="mob-wa-btn" target="_blank"><i class="fab fa-whatsapp"></i> Chat on WhatsApp</a>
+</nav>
+<div class="topbar"><div class="topbar-inner"><span class="topbar-pill"><span class="topbar-dot"></span><a href="tel:+2348101885558">📞 0810 188 5558</a></span><span class="topbar-sep">·</span><span class="topbar-pill"><span class="topbar-dot"></span>Verified Dealer · RC 1560100</span><span class="topbar-sep">·</span><span class="topbar-pill"><span class="topbar-dot"></span>Pay <strong>40%</strong> &amp; Drive Today</span></div></div>
+<header class="header"><div class="container"><div class="header-inner">
+  <a href="index.html" class="logo"><img data-logo alt="Sabicars"/><div style="display:flex;flex-direction:column;line-height:1;margin-left:10px"><span class="logo-name">Sabicars</span><span class="logo-sub">Luxury Auto · Lagos</span></div></a>
+  <nav class="nav"><a href="index.html">Home</a><a href="cars.html" class="active">Buy Cars</a><a href="financing.html">Financing</a><a href="about.html">About</a><a href="blog.html">Blog</a><a href="contact.html">Contact</a></nav>
+  <div class="header-right"><button class="theme-btn" data-theme-toggle><i data-theme-icon class="fas fa-moon"></i></button><a href="https://wa.me/2348055065825" class="btn-wa" target="_blank"><i class="fab fa-whatsapp"></i><span class="wa-label">WhatsApp</span></a><button class="hamburger" id="hamburger" onclick="toggleNav()"><span></span><span></span><span></span></button></div>
+</div></div></header>
+
+<section class="detail-page"><div class="container">
+  <a href="cars.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to Inventory</a>
+  <div id="loadingMsg">Loading vehicle...</div>
+  <div id="errorMsg" style="display:none;">Sorry, we couldn't find this vehicle. It may have been sold or removed.</div>
+
+  <div class="detail-grid" id="detailGrid" style="display:none;">
+    <div class="gallery">
+      <div class="main-img-wrap">
+        <span class="car-tag" id="detailTag"></span>
+        <button class="gallery-arrow left" onclick="prevImage()"><i class="fas fa-chevron-left"></i></button>
+        <div class="main-img" id="mainImg"></div>
+        <button class="gallery-arrow right" onclick="nextImage()"><i class="fas fa-chevron-right"></i></button>
+      </div>
+      <div class="thumb-row" id="thumbRow"></div>
+    </div>
+
+    <div class="detail-info">
+      <div class="detail-make" id="detailMake"></div>
+      <h1 class="detail-model" id="detailModel"></h1>
+      <div class="detail-sub" id="detailSub"></div>
+
+      <div class="detail-price-box">
+        <div class="price-lbl">Price</div>
+        <div class="detail-price" id="detailPrice"></div>
+        <div class="price-40" id="detailDown"></div>
+      </div>
+
+      <div class="detail-cta-row">
+        <div class="inquire-wrap" onclick="event.stopPropagation()">
+          <button class="car-cta detail-cta-btn" onclick="toggleInquireMenu(event)"><i class="fab fa-whatsapp"></i> Inquire Now</button>
+          <div class="inquire-menu" id="detailInquireMenu"></div>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <button class="tab-btn active" id="tabBtn-overview" onclick="switchTab('overview')">Overview</button>
+        <button class="tab-btn" id="tabBtn-specs" onclick="switchTab('specs')">Specifications</button>
+        <button class="tab-btn" id="tabBtn-features" onclick="switchTab('features')">Features</button>
+      </div>
+      <div class="tab-panel" id="tab-overview"></div>
+      <div class="tab-panel" id="tab-specs" style="display:none;"></div>
+      <div class="tab-panel" id="tab-features" style="display:none;"></div>
+    </div>
+  </div>
+</div></section>
+
+<footer class="footer"><div class="container">
+  <div class="footer-grid">
+    <div class="footer-brand"><a href="index.html" class="logo"><img data-logo alt="Sabicars" style="height:40px;width:40px;border-radius:8px;"/><div style="display:flex;flex-direction:column;line-height:1;margin-left:10px"><span class="logo-name">Sabicars</span><span class="logo-sub">Luxury Auto · Lagos</span></div></a><p>Nigeria's premier verified dealer. Pay 40%, drive today.</p><div class="socials"><a href="https://instagram.com/sabicarsltd" class="soc" target="_blank"><i class="fab fa-instagram"></i></a><a href="#" class="soc"><i class="fab fa-facebook-f"></i></a><a href="https://wa.me/2348055065825" class="soc" target="_blank"><i class="fab fa-whatsapp"></i></a><a href="#" class="soc"><i class="fab fa-tiktok"></i></a></div></div>
+    <div class="footer-col"><h5>Quick Links</h5><ul><li><a href="index.html">Home</a></li><li><a href="cars.html">Buy Cars</a></li><li><a href="financing.html">Financing</a></li><li><a href="about.html">About</a></li><li><a href="blog.html">Blog</a></li><li><a href="contact.html">Contact</a></li></ul></div>
+    <div class="footer-col"><h5>Vehicles</h5><ul><li><a href="cars.html">Luxury Cars</a></li><li><a href="cars.html">Toyota Hiace</a></li><li><a href="cars.html">Trucks</a></li><li><a href="cars.html">SUVs</a></li></ul></div>
+    <div class="footer-col"><h5>Contact</h5><ul><li><a href="tel:+2348101885558">0810 188 5558</a></li><li><a href="https://wa.me/2348055065825" target="_blank">WhatsApp Us</a></li><li><a href="mailto:info@sabicars.ng">info@sabicars.ng</a></li></ul></div>
+  </div>
+  <div class="footer-bottom"><p>© 2025 Sabicars Limited. RC 1560100.</p><span class="rc-pill"><i class="fas fa-building"></i> RC 1560100</span></div>
+</div></footer>
+
+<script src="theme.js"></script>
+<script>
+const API = 'https://sabicars-api.onrender.com/api';
+const params = new URLSearchParams(window.location.search);
+const carId = params.get('id');
+let car = null;
+let imgIndex = 0;
+
+function tagLabel(tag){
+  return { hot: '🔥 Hot', new: 'New In', premium: 'Premium', supply: 'Fleet Supply' }[tag] || tag;
+}
+function conditionLabel(c){
+  return c === 'nigeria-used' ? 'Nigeria Used' : 'Foreign Used';
+}
+function parsePrice(val){
+  return Number(String(val).replace(/[^0-9.]/g, '')) || 0;
+}
+function formatPrice(n){ return '₦' + Number(n).toLocaleString('en-NG'); }
+
+async function loadCar(){
+  if(!carId){ showError(); return; }
+  try {
+    const res = await fetch(`${API}/cars/${carId}`);
+    const data = await res.json();
+    if(!data.success){ showError(); return; }
+    car = data.car;
+    renderCar();
+  } catch(err){
+    console.error(err);
+    showError();
+  }
+}
+
+function showError(){
+  document.getElementById('loadingMsg').style.display = 'none';
+  document.getElementById('errorMsg').style.display = 'block';
+}
+
+function renderCar(){
+  document.getElementById('loadingMsg').style.display = 'none';
+  document.getElementById('detailGrid').style.display = 'grid';
+  document.getElementById('pageTitle').textContent = `${car.make} ${car.model} — Sabicars Limited`;
+
+  const images = (car.images && car.images.length > 0) ? car.images : ['https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=900&q=70'];
+
+  document.getElementById('detailTag').className = `car-tag tag-${car.tag}`;
+  document.getElementById('detailTag').textContent = tagLabel(car.tag);
+  document.getElementById('mainImg').style.backgroundImage = `url('${images[0]}')`;
+
+  document.getElementById('thumbRow').innerHTML = images.map((img, i) =>
+    `<div class="thumb ${i===0?'active':''}" style="background-image:url('${img}')" onclick="selectImage(${i})"></div>`
+  ).join('');
+
+  document.getElementById('detailMake').textContent = car.make;
+  document.getElementById('detailModel').textContent = car.model;
+  document.getElementById('detailSub').textContent = `${car.year} · ${conditionLabel(car.condition)}`;
+
+  const price = parsePrice(car.price);
+  const downPayment = Math.round(price * 0.4);
+  document.getElementById('detailPrice').textContent = formatPrice(price);
+  document.getElementById('detailDown').textContent = `40% Down: ${formatPrice(downPayment)}`;
+
+  document.getElementById('detailInquireMenu').innerHTML = `
+    <a href="tel:+2348101885558" class="inquire-menu-item"><i class="fas fa-phone"></i> Call Us</a>
+    <a href="https://wa.me/2348055065825?text=${encodeURIComponent("I'm interested in the " + car.make + ' ' + car.model)}" target="_blank" class="inquire-menu-item"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+  `;
+
+  document.getElementById('tab-overview').innerHTML = `<p>${car.description || 'No description provided for this vehicle yet. Contact us for more details.'}</p>`;
+
+  const specs = [
+    { lbl: 'Make', val: car.make },
+    { lbl: 'Model', val: car.model },
+    { lbl: 'Year', val: car.year },
+    { lbl: 'Condition', val: conditionLabel(car.condition) },
+    { lbl: 'Category', val: car.category },
+    { lbl: 'Mileage', val: car.mileage ? Number(String(car.mileage).replace(/[^0-9.]/g,'')).toLocaleString() + ' km' : null },
+    { lbl: 'Fuel Type', val: car.fuel },
+    { lbl: 'Exterior Colour', val: car.colour },
+    { lbl: 'Engine', val: car.engine },
+    { lbl: 'Horsepower', val: car.horsepower },
+    { lbl: 'Transmission', val: car.transmission },
+    { lbl: 'Drivetrain', val: car.drivetrain },
+    { lbl: 'Interior Colour', val: car.interiorColor },
+    { lbl: 'Seats', val: car.seats }
+  ].filter(s => s.val);
+
+  document.getElementById('tab-specs').innerHTML = `<div class="spec-grid">${
+    specs.map(s => `<div class="spec-item"><div class="lbl">${s.lbl}</div><div class="val">${s.val}</div></div>`).join('')
+  }</div>`;
+
+  document.getElementById('tab-features').innerHTML = (car.features && car.features.length > 0)
+    ? `<div class="feature-list">${car.features.map(f => `<div class="feature-item"><i class="fas fa-check-circle"></i> ${f}</div>`).join('')}</div>`
+    : `<p style="color:var(--muted)">No additional features listed for this vehicle.</p>`;
+}
+
+function selectImage(i){
+  imgIndex = i;
+  const images = (car.images && car.images.length > 0) ? car.images : [];
+  if(images.length === 0) return;
+  document.getElementById('mainImg').style.backgroundImage = `url('${images[i]}')`;
+  document.querySelectorAll('.thumb').forEach((t, idx) => t.classList.toggle('active', idx === i));
+}
+function nextImage(){
+  const images = (car.images && car.images.length > 0) ? car.images : [];
+  if(images.length === 0) return;
+  imgIndex = (imgIndex + 1) % images.length;
+  selectImage(imgIndex);
+}
+function prevImage(){
+  const images = (car.images && car.images.length > 0) ? car.images : [];
+  if(images.length === 0) return;
+  imgIndex = (imgIndex - 1 + images.length) % images.length;
+  selectImage(imgIndex);
+}
+
+function switchTab(tab){
+  ['overview','specs','features'].forEach(t => {
+    document.getElementById(`tab-${t}`).style.display = (t === tab) ? 'block' : 'none';
+    document.getElementById(`tabBtn-${t}`).classList.toggle('active', t === tab);
+  });
+}
+
+function toggleInquireMenu(e){
+  e.stopPropagation();
+  const menu = e.currentTarget.nextElementSibling;
+  menu.classList.toggle('open');
+}
+document.addEventListener('click', function(){
+  document.querySelectorAll('.inquire-menu.open').forEach(m => m.classList.remove('open'));
+});
+
+loadCar();
+</script>
+</body></html>
