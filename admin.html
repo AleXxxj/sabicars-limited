@@ -33,16 +33,16 @@
   .sold-btn { background:#1d4ed8; color:#fff; }
   .row2 { display:flex; gap:10px; }
   .row2 > * { flex:1; }
-  .msg { font-size:.8rem; padding:10px 12px; border-radius:5px; margin-bottom:10px; display:none; line-height:1.5; }
-  .msg.success { background:#1e3a24; color:#7ee08a; }
-  .msg.error { background:#3a1e1e; color:#ff6b6b; }
+  .msg { font-size:.85rem; padding:12px; border-radius:6px; margin-bottom:12px; display:none; line-height:1.5; font-weight:600; }
+  .msg.success { background:#1e3a24; color:#7ee08a; border:1px solid #2e5e2e; }
+  .msg.error { background:#3a1e1e; color:#ff6b6b; border:1px solid #5e2e2e; }
   .editing-banner { background:#1a2e1a; border:1px solid #2e5e2e; border-radius:6px; padding:8px 12px; margin-bottom:12px; font-size:.8rem; color:#7ee08a; display:none; }
   .photo-thumb { position:relative; width:72px; height:56px; }
   .photo-thumb img { width:100%; height:100%; object-fit:cover; border-radius:4px; border:2px solid #3a3a3a; }
   .photo-thumb.removed img { border-color:#c0392b; opacity:.35; }
   .photo-thumb .rm-btn { position:absolute; top:-6px; right:-6px; width:18px; height:18px; border-radius:50%; background:#c0392b; color:#fff; border:none; font-size:11px; cursor:pointer; padding:0; line-height:18px; text-align:center; }
   .section-label { font-size:.8rem; color:#999; margin-bottom:8px; }
-  .uploading { opacity:.6; pointer-events:none; }
+  .btn-loading { opacity:.65; pointer-events:none; }
 </style>
 </head>
 <body>
@@ -67,7 +67,6 @@
   </div>
 
   <div class="grid">
-    <!-- ADD / EDIT FORM -->
     <div class="panel">
       <h3 id="formTitle">Add New Car</h3>
       <div class="editing-banner" id="editingBanner">✏️ Editing existing car — update fields then click "Update Car"</div>
@@ -88,7 +87,7 @@
         </select>
       </div>
       <div class="row2">
-        <select id="condition" name="condition">
+        <select id="condition">
           <option value="foreign-used" selected>Foreign Used</option>
           <option value="nigeria-used">Nigeria Used</option>
           <option value="brand-new">Brand New</option>
@@ -107,7 +106,7 @@
       </div>
       <div class="row2">
         <input type="text" id="price" placeholder="Price (e.g. ₦25,000,000)"/>
-        <input type="text" id="mileage" placeholder="Mileage"/>
+        <input type="text" id="mileage" placeholder="Mileage (e.g. 45,000)"/>
       </div>
       <div class="row2">
         <input type="text" id="fuel" placeholder="Fuel (e.g. Petrol)"/>
@@ -152,7 +151,6 @@
       </select>
       <textarea id="description" placeholder="Description" rows="3"></textarea>
 
-      <!-- CURRENT PHOTOS (edit mode only) -->
       <div id="currentPhotosSection" style="display:none;margin-bottom:14px;">
         <p class="section-label">Current Photos <span style="font-size:.72rem;color:#666;">— tap × to remove</span></p>
         <div id="currentPhotoGrid" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
@@ -165,7 +163,6 @@
       <button id="cancelEditBtn" onclick="cancelEdit()" style="display:none;background:#3a3a3a;color:#eee;margin-top:8px;">✕ Cancel Edit</button>
     </div>
 
-    <!-- CAR LIST -->
     <div class="panel">
       <h3>Current Inventory (<span id="carCount">0</span>)</h3>
       <div id="carList"></div>
@@ -184,10 +181,15 @@ let allCarImages = [];
 if (token) showDashboard();
 
 async function login() {
-  const username = document.getElementById('username').value;
+  const username = document.getElementById('username').value.trim();
   const password = document.getElementById('password').value;
   const errEl = document.getElementById('loginError');
   errEl.style.display = 'none';
+  if (!username || !password) {
+    errEl.textContent = 'Please enter username and password.';
+    errEl.style.display = 'block';
+    return;
+  }
   try {
     const res = await fetch(`${API}/auth/login`, {
       method: 'POST',
@@ -200,11 +202,11 @@ async function login() {
       localStorage.setItem('sabicars_token', token);
       showDashboard();
     } else {
-      errEl.textContent = data.message || 'Login failed';
+      errEl.textContent = data.message || 'Login failed. Check credentials.';
       errEl.style.display = 'block';
     }
   } catch (err) {
-    errEl.textContent = 'Connection error. Is the server running?';
+    errEl.textContent = 'Connection error. Server may be sleeping — try again in 30 seconds.';
     errEl.style.display = 'block';
   }
 }
@@ -236,11 +238,11 @@ async function loadCars() {
       <div class="car-row">
         <div class="car-info">
           <strong>${car.make} ${car.model}</strong> (${car.year})<br/>
-          <span style="color:#999;font-size:.8rem;">${car.price} · ${car.category}${car.bodyType ? ' · '+car.bodyType : ''} ${car.available ? '' : '· <span style="color:#c0392b">SOLD</span>'}</span>
+          <span style="color:#999;font-size:.8rem;">${car.price} · ${car.category}${car.bodyType ? ' / '+car.bodyType : ''} ${car.available ? '' : '· <span style="color:#c0392b">SOLD</span>'}</span>
         </div>
         <div class="car-actions">
           <button class="edit-btn" onclick="editCar('${car._id}')">Edit</button>
-          <button class="${car.available ? 'sold-btn' : 'edit-btn'}" onclick="toggleAvailable('${car._id}', ${car.available})">${car.available ? 'Mark Sold' : 'Mark Available'}</button>
+          <button class="${car.available ? 'sold-btn' : 'edit-btn'}" onclick="toggleAvailable('${car._id}', ${car.available})">${car.available ? 'Mark Sold' : 'Available'}</button>
           <button class="del-btn" onclick="deleteCar('${car._id}')">Delete</button>
         </div>
       </div>
@@ -297,7 +299,7 @@ function editCar(id) {
   });
 
   document.getElementById('images').value = '';
-  document.getElementById('imgHint').textContent = 'Leave empty to keep remaining photos, or choose new ones to add';
+  document.getElementById('imgHint').textContent = 'Leave empty to keep remaining photos, or pick new ones to add';
   document.getElementById('currentPhotosSection').style.display = 'block';
   renderCurrentPhotos(car.images || []);
 
@@ -315,17 +317,16 @@ async function saveCar() {
   const saveBtn = document.getElementById('saveBtn');
   const isEditing = !!editingCarId;
 
-  // Basic validation
+  // Validation
   const make = document.getElementById('make').value.trim();
   const model = document.getElementById('model').value.trim();
   const year = document.getElementById('year').value.trim();
   const price = document.getElementById('price').value.trim();
-  if (!make || !model || !year || !price) {
-    msgEl.style.display = 'block';
-    msgEl.className = 'msg error';
-    msgEl.textContent = '❌ Make, Model, Year and Price are required.';
-    return;
-  }
+
+  if (!make) { showMsg('error', '❌ Make is required (e.g. Toyota)'); return; }
+  if (!model) { showMsg('error', '❌ Model is required (e.g. Highlander)'); return; }
+  if (!year) { showMsg('error', '❌ Year is required'); return; }
+  if (!price) { showMsg('error', '❌ Price is required'); return; }
 
   const formData = new FormData();
   formData.append('make', make);
@@ -347,7 +348,7 @@ async function saveCar() {
   formData.append('interiorColor', document.getElementById('interiorColor').value);
   formData.append('seats', document.getElementById('seats').value);
 
-  // Features as JSON — reliable across all multer versions
+  // Features as JSON — most reliable approach across multer versions
   const selectedFeatures = [...document.querySelectorAll('#featuresBox input[type="checkbox"]:checked')].map(cb => cb.value);
   formData.append('featuresJSON', JSON.stringify(selectedFeatures));
 
@@ -356,44 +357,49 @@ async function saveCar() {
     keptImages.forEach(url => formData.append('keepImages', url));
   }
 
-  const imgInput = document.getElementById('images');
-  for (let file of imgInput.files) {
+  for (let file of document.getElementById('images').files) {
     formData.append('images', file);
   }
 
-  // Show uploading state
-  saveBtn.textContent = isEditing ? '⏳ Updating...' : '⏳ Uploading...';
-  saveBtn.classList.add('uploading');
+  // Show loading state
+  const originalBtnText = saveBtn.textContent;
+  saveBtn.textContent = isEditing ? '⏳ Updating...' : '⏳ Uploading photos...';
+  saveBtn.classList.add('btn-loading');
   msgEl.style.display = 'none';
 
-  const url = isEditing ? `${API}/cars/${editingCarId}` : `${API}/cars`;
-  const method = isEditing ? 'PUT' : 'POST';
-
   try {
-    const res = await fetch(url, {
-      method,
+    const res = await fetch(isEditing ? `${API}/cars/${editingCarId}` : `${API}/cars`, {
+      method: isEditing ? 'PUT' : 'POST',
       headers: { 'Authorization': `Bearer ${token}` },
       body: formData
     });
     const data = await res.json();
-    msgEl.style.display = 'block';
+
     if (data.success) {
-      msgEl.className = 'msg success';
-      msgEl.textContent = isEditing ? '✅ Car updated successfully!' : '✅ Car added to inventory!';
+      const successText = isEditing ? '✅ Car updated successfully!' : '✅ Car added to inventory!';
       cancelEdit();
+      // Re-show AFTER cancelEdit (which hides it), with auto-dismiss
+      showMsg('success', successText, 6000);
       loadCars();
     } else {
-      msgEl.className = 'msg error';
-      msgEl.textContent = '❌ ' + (data.message || 'Something went wrong.');
-      saveBtn.textContent = isEditing ? 'Update Car' : 'Add Car';
-      saveBtn.classList.remove('uploading');
+      saveBtn.textContent = originalBtnText;
+      saveBtn.classList.remove('btn-loading');
+      showMsg('error', '❌ ' + (data.message || 'Something went wrong. Try again.'));
     }
   } catch (err) {
-    msgEl.style.display = 'block';
-    msgEl.className = 'msg error';
-    msgEl.textContent = '❌ Network error — check your internet connection and try again.';
-    saveBtn.textContent = isEditing ? 'Update Car' : 'Add Car';
-    saveBtn.classList.remove('uploading');
+    saveBtn.textContent = originalBtnText;
+    saveBtn.classList.remove('btn-loading');
+    showMsg('error', '❌ Network error — check your connection and try again. If photos are large, reduce size and retry.');
+  }
+}
+
+function showMsg(type, text, autoDismissMs) {
+  const msgEl = document.getElementById('formMsg');
+  msgEl.className = `msg ${type}`;
+  msgEl.textContent = text;
+  msgEl.style.display = 'block';
+  if (autoDismissMs) {
+    setTimeout(() => { msgEl.style.display = 'none'; }, autoDismissMs);
   }
 }
 
@@ -410,7 +416,7 @@ function cancelEdit() {
   document.getElementById('bodyType').value = '';
   document.getElementById('tag').value = 'new';
   document.getElementById('saveBtn').textContent = 'Add Car';
-  document.getElementById('saveBtn').classList.remove('uploading');
+  document.getElementById('saveBtn').classList.remove('btn-loading');
   document.getElementById('cancelEditBtn').style.display = 'none';
   document.getElementById('formTitle').textContent = 'Add New Car';
   document.getElementById('editingBanner').style.display = 'none';
@@ -420,13 +426,11 @@ function cancelEdit() {
 }
 
 async function toggleAvailable(id, currentlyAvailable) {
+  const car = currentCars.find(c => c._id === id);
   const formData = new FormData();
   formData.append('available', !currentlyAvailable);
   formData.append('imagesManaged', 'true');
-  const car = currentCars.find(c => c._id === id);
-  if (car && car.images) {
-    car.images.forEach(url => formData.append('keepImages', url));
-  }
+  if (car && car.images) car.images.forEach(url => formData.append('keepImages', url));
   formData.append('featuresJSON', JSON.stringify(car?.features || []));
   await fetch(`${API}/cars/${id}`, {
     method: 'PUT',
