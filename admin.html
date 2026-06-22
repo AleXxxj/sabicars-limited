@@ -34,6 +34,7 @@
   .msg { font-size:.8rem; padding:8px; border-radius:5px; margin-bottom:10px; display:none; }
   .msg.success { background:#1e3a24; color:#7ee08a; }
   .msg.error { background:#3a1e1e; color:#ff6b6b; }
+  .editing-banner { background:#1a2e1a; border:1px solid #2e5e2e; border-radius:6px; padding:8px 12px; margin-bottom:12px; font-size:.8rem; color:#7ee08a; display:none; }
 </style>
 </head>
 <body>
@@ -58,9 +59,10 @@
   </div>
 
   <div class="grid">
-    <!-- ADD CAR FORM -->
+    <!-- ADD / EDIT CAR FORM -->
     <div class="panel">
       <h3 id="formTitle">Add New Car</h3>
+      <div class="editing-banner" id="editingBanner">✏️ Editing existing car — update fields and click "Update Car"</div>
       <div class="msg" id="formMsg"></div>
       <div class="row2">
         <input type="text" id="make" placeholder="Make (e.g. Toyota)" />
@@ -75,16 +77,16 @@
           <option value="bus">Bus / Hiace</option>
           <option value="truck">Truck</option>
         </select>
-        <select id="condition" name="condition" class="your-existing-select-class">
-         <option value="foreign-used" selected>Foreign Used</option>
-         <option value="nigeria-used">Nigeria Used</option>
+        <select id="condition" name="condition">
+          <option value="foreign-used" selected>Foreign Used</option>
+          <option value="nigeria-used">Nigeria Used</option>
         </select>
       </div>
       <div class="row2">
         <input type="text" id="price" placeholder="Price (e.g. ₦25,000,000)" />
         <input type="text" id="mileage" placeholder="Mileage" />
       </div>
-           <div class="row2">
+      <div class="row2">
         <input type="text" id="fuel" placeholder="Fuel" />
         <input type="text" id="colour" placeholder="Colour" />
       </div>
@@ -125,7 +127,9 @@
       </select>
       <textarea id="description" placeholder="Description" rows="3"></textarea>
       <input type="file" id="images" multiple accept="image/*" style="padding:8px;" />
-      <button onclick="addCar()">Add Car</button>
+      <p style="font-size:.75rem;color:#666;margin-bottom:12px;" id="imgHint">Choose images to upload</p>
+      <button id="saveBtn" onclick="saveCar()">Add Car</button>
+      <button id="cancelEditBtn" onclick="cancelEdit()" style="display:none;background:#3a3a3a;color:#eee;margin-top:8px;">Cancel Edit</button>
     </div>
 
     <!-- CAR LIST -->
@@ -139,6 +143,8 @@
 <script>
 const API = 'https://sabicars-api.onrender.com/api';
 let token = localStorage.getItem('sabicars_token');
+let currentCars = [];
+let editingCarId = null;
 
 if (token) showDashboard();
 
@@ -147,7 +153,6 @@ async function login() {
   const password = document.getElementById('password').value;
   const errEl = document.getElementById('loginError');
   errEl.style.display = 'none';
-
   try {
     const res = await fetch(`${API}/auth/login`, {
       method: 'POST',
@@ -190,6 +195,7 @@ async function loadCars() {
     const data = await res.json();
     if (!data.success) { logout(); return; }
 
+    currentCars = data.cars;
     document.getElementById('carCount').textContent = data.count;
     const list = document.getElementById('carList');
     list.innerHTML = data.cars.map(car => `
@@ -199,6 +205,7 @@ async function loadCars() {
           <span style="color:#999">${car.price} · ${car.category} ${car.available ? '' : '· SOLD'}</span>
         </div>
         <div class="car-actions">
+          <button class="edit-btn" onclick="editCar('${car._id}')">Edit</button>
           <button class="edit-btn" onclick="toggleAvailable('${car._id}', ${car.available})">${car.available ? 'Mark Sold' : 'Mark Available'}</button>
           <button class="del-btn" onclick="deleteCar('${car._id}')">Delete</button>
         </div>
@@ -209,28 +216,29 @@ async function loadCars() {
   }
 }
 
-async function addCar() {
+async function saveCar() {
   const msgEl = document.getElementById('formMsg');
   const formData = new FormData();
   formData.append('make', document.getElementById('make').value);
   formData.append('model', document.getElementById('model').value);
   formData.append('year', document.getElementById('year').value);
   formData.append('category', document.getElementById('category').value);
+  formData.append('condition', document.getElementById('condition').value);
   formData.append('price', document.getElementById('price').value);
   formData.append('mileage', document.getElementById('mileage').value);
   formData.append('fuel', document.getElementById('fuel').value);
   formData.append('colour', document.getElementById('colour').value);
   formData.append('tag', document.getElementById('tag').value);
-  formData.append('description',    document.getElementById('description').value);
-    formData.append('engine', document.getElementById('engine').value);
-    formData.append('horsepower', document.getElementById('horsepower').value);
-    formData.append('transmission', document.getElementById('transmission').value);
-    formData.append('drivetrain', document.getElementById('drivetrain').value);
-    formData.append('interiorColor', document.getElementById('interiorColor').value);
-    formData.append('seats', document.getElementById('seats').value);
+  formData.append('description', document.getElementById('description').value);
+  formData.append('engine', document.getElementById('engine').value);
+  formData.append('horsepower', document.getElementById('horsepower').value);
+  formData.append('transmission', document.getElementById('transmission').value);
+  formData.append('drivetrain', document.getElementById('drivetrain').value);
+  formData.append('interiorColor', document.getElementById('interiorColor').value);
+  formData.append('seats', document.getElementById('seats').value);
 
-    document.querySelectorAll('#featuresBox input[type="checkbox"]:checked').forEach(cb => {
-      formData.append('features', cb.value);
+  document.querySelectorAll('#featuresBox input[type="checkbox"]:checked').forEach(cb => {
+    formData.append('features', cb.value);
   });
 
   const imgInput = document.getElementById('images');
@@ -238,9 +246,13 @@ async function addCar() {
     formData.append('images', file);
   }
 
+  const isEditing = !!editingCarId;
+  const url = isEditing ? `${API}/cars/${editingCarId}` : `${API}/cars`;
+  const method = isEditing ? 'PUT' : 'POST';
+
   try {
-    const res = await fetch(`${API}/cars`, {
-      method: 'POST',
+    const res = await fetch(url, {
+      method,
       headers: { 'Authorization': `Bearer ${token}` },
       body: formData
     });
@@ -248,11 +260,10 @@ async function addCar() {
     msgEl.style.display = 'block';
     if (data.success) {
       msgEl.className = 'msg success';
-      msgEl.textContent = '✅ Car added successfully!';
-    document.querySelectorAll('#dashboard input[type="text"], #dashboard textarea').forEach(el => el.value = '');
-    document.querySelectorAll('#featuresBox input[type="checkbox"]').forEach(cb => cb.checked = false);
-    loadCars();
-  } else {
+      msgEl.textContent = isEditing ? '✅ Car updated successfully!' : '✅ Car added successfully!';
+      cancelEdit();
+      loadCars();
+    } else {
       msgEl.className = 'msg error';
       msgEl.textContent = '❌ ' + data.message;
     }
@@ -261,6 +272,59 @@ async function addCar() {
     msgEl.className = 'msg error';
     msgEl.textContent = '❌ Connection error';
   }
+}
+
+function editCar(id) {
+  const car = currentCars.find(c => c._id === id);
+  if (!car) return;
+
+  document.getElementById('make').value = car.make || '';
+  document.getElementById('model').value = car.model || '';
+  document.getElementById('year').value = car.year || '';
+  document.getElementById('category').value = car.category || 'regular';
+  document.getElementById('condition').value = car.condition === 'nigeria-used' ? 'nigeria-used' : 'foreign-used';
+  document.getElementById('price').value = car.price || '';
+  document.getElementById('mileage').value = car.mileage || '';
+  document.getElementById('fuel').value = car.fuel || '';
+  document.getElementById('colour').value = car.colour || '';
+  document.getElementById('tag').value = car.tag || 'new';
+  document.getElementById('description').value = car.description || '';
+  document.getElementById('engine').value = car.engine || '';
+  document.getElementById('horsepower').value = car.horsepower || '';
+  document.getElementById('transmission').value = car.transmission || '';
+  document.getElementById('drivetrain').value = car.drivetrain || '';
+  document.getElementById('interiorColor').value = car.interiorColor || '';
+  document.getElementById('seats').value = car.seats || '';
+
+  document.querySelectorAll('#featuresBox input[type="checkbox"]').forEach(cb => {
+    cb.checked = (car.features || []).includes(cb.value);
+  });
+
+  document.getElementById('images').value = '';
+  document.getElementById('imgHint').textContent = 'Leave empty to keep existing photos, or choose new ones to replace them';
+
+  editingCarId = id;
+  document.getElementById('saveBtn').textContent = 'Update Car';
+  document.getElementById('cancelEditBtn').style.display = 'block';
+  document.getElementById('formTitle').textContent = 'Edit Car';
+  document.getElementById('editingBanner').style.display = 'block';
+  document.getElementById('formMsg').style.display = 'none';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function cancelEdit() {
+  editingCarId = null;
+  document.querySelectorAll('#dashboard input[type="text"], #dashboard textarea').forEach(el => el.value = '');
+  document.querySelectorAll('#featuresBox input[type="checkbox"]').forEach(cb => cb.checked = false);
+  document.getElementById('images').value = '';
+  document.getElementById('imgHint').textContent = 'Choose images to upload';
+  document.getElementById('category').value = 'regular';
+  document.getElementById('condition').value = 'foreign-used';
+  document.getElementById('tag').value = 'new';
+  document.getElementById('saveBtn').textContent = 'Add Car';
+  document.getElementById('cancelEditBtn').style.display = 'none';
+  document.getElementById('formTitle').textContent = 'Add New Car';
+  document.getElementById('editingBanner').style.display = 'none';
 }
 
 async function toggleAvailable(id, currentlyAvailable) {
