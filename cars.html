@@ -120,14 +120,17 @@ let allCars = [];
 function tagLabel(tag){
   return { hot: '🔥 Hot', new: 'New In', premium: 'Premium', supply: 'Fleet Supply' }[tag] || tag;
 }
+
 function conditionLabel(c){
   if (c === 'nigeria-used') return 'Nigeria Used';
   if (c === 'brand-new') return 'Brand New';
   return 'Foreign Used';
 }
+
 function parsePrice(val){
   return Number(String(val).replace(/[^0-9.]/g, '')) || 0;
 }
+
 function formatPrice(n){ return '₦' + Number(n).toLocaleString('en-NG'); }
 
 function renderCarCard(car){
@@ -154,13 +157,13 @@ function renderCarCard(car){
             <div class="price-val">${formatPrice(price)}</div>
             <div class="price-40">40% Down: ${formatPrice(downPayment)}</div>
           </div>
-        <div class="inquire-wrap" oneclick="event.stopPropagation()">
-          <button class="car-cta" onclick="toggleInquireMenu(event)"><i class="fab fa-whatsapp"></i> Inquire</button>
-          <div class="inquire-menu">
-            <a href="tel:+2348101885558" class="inquire-menu-item"><i class="fas fa-phone"></i> Call Us</a>
-            <a href="https://wa.me/2348055065825?text=${encodeURIComponent("I'm interested in the " + car.make + ' ' + car.model)}" target="_blank" class="inquire-menu-item"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+          <div class="inquire-wrap" onclick="event.stopPropagation()">
+            <button class="car-cta" onclick="toggleInquireMenu(event)"><i class="fab fa-whatsapp"></i> Inquire</button>
+            <div class="inquire-menu">
+              <a href="tel:+2348101885558" class="inquire-menu-item"><i class="fas fa-phone"></i> Call Us</a>
+              <a href="https://wa.me/2348055065825?text=${encodeURIComponent("I'm interested in the " + car.make + ' ' + car.model)}" target="_blank" class="inquire-menu-item"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+            </div>
           </div>
-        </div>
         </div>
       </div>
     </div>`;
@@ -193,6 +196,7 @@ function applyFilters(){
 
   let filtered = allCars.filter(car => {
     const brandMatch = brand === 'all' || car.make === brand;
+
     let catMatch = true;
     if (category !== 'all') {
       if (category === 'cars') {
@@ -202,11 +206,12 @@ function applyFilters(){
       } else if (category === 'bus') {
         catMatch = car.category === 'bus' || car.bodyType === 'bus';
       } else if (category === 'truck') {
-        catMatch = car.category ==='truck' || car.bodyType === 'truck';
+        catMatch = car.category === 'truck' || car.bodyType === 'truck';
       } else {
         catMatch = car.category === category;
       }
     }
+
     return brandMatch && catMatch;
   });
 
@@ -221,22 +226,26 @@ function applyFilters(){
     : filtered.map(renderCarCard).join('');
   document.getElementById('invCount').textContent = 'Showing ' + filtered.length + ' vehicle' + (filtered.length !== 1 ? 's' : '');
 }
+
 function resetFilters(){
   document.getElementById('brandFilter').value = 'all';
   document.getElementById('categoryFilter').value = 'all';
   document.getElementById('sortFilter').value = 'default';
   applyFilters();
 }
+
 function toggleInquireMenu(e){
   e.stopPropagation();
   const menu = e.currentTarget.nextElementSibling;
   document.querySelectorAll('.inquire-menu.open').forEach(m => { if(m !== menu) m.classList.remove('open'); });
   menu.classList.toggle('open');
 }
+
 document.addEventListener('click', function(){
   document.querySelectorAll('.inquire-menu.open').forEach(m => m.classList.remove('open'));
 });
-  
+
 loadInventory();
 </script>
-</body></html>
+</body>
+</html>
