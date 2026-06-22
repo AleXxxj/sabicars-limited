@@ -49,6 +49,7 @@
 .about-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:60px;align-items:center;}
 @media(max-width:860px){.about-grid{grid-template-columns:1fr;}}
 .founder-frame{background:var(--bg3);border:1px solid var(--gold-border);border-radius:8px;aspect-ratio:3/4;max-height:460px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.founder-placeholder img{width:100%;height:100%;object-fit:cover;boder-radius:8px;}
 .founder-placeholder{text-align:center;padding:32px;}
 .founder-placeholder i{font-size:4rem;color:var(--gold);opacity:.25;margin-bottom:16px;display:block;}
 .founder-placeholder small{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;}
@@ -92,7 +93,7 @@
   <div class="about-grid" style="margin-bottom:72px">
     <div class="founder-frame reveal">
       <div class="founder-placeholder">
-        <i class="fas fa-user"></i>
+        <img src="images/founder.jpg" alt="Cchristian Dee" class="founder-photo">
         <small>Ccristian Dee — Add Photo Here</small>
       </div>
       <div class="founder-corner"></div>
