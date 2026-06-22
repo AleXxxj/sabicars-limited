@@ -121,7 +121,9 @@ function tagLabel(tag){
   return { hot: '🔥 Hot', new: 'New In', premium: 'Premium', supply: 'Fleet Supply' }[tag] || tag;
 }
 function conditionLabel(c){
-  return c === 'nigeria-used' ? 'Nigeria Used' : 'Foreign Used';
+  if (c === 'nigeria-used') return 'Nigeria Used';
+  if (c === 'brand-new') return 'Brand New';
+  return 'Foreign Used';
 }
 function parsePrice(val){
   return Number(String(val).replace(/[^0-9.]/g, '')) || 0;
@@ -193,9 +195,17 @@ function applyFilters(){
     const brandMatch = brand === 'all' || car.make === brand;
     let catMatch = true;
     if (category !== 'all') {
-      catMatch = category === 'cars'
-        ? (car.category === 'regular' || car.category === 'luxury')
-        : car.category === category;
+      if (category === 'cars') {
+        catMatch = car.category === 'regular' || car.category === 'luxury';
+      } else if (category === 'suv') {
+        catMatch = car.category === 'suv' || car.bodyType === 'suv';
+      } else if (category === 'bus') {
+        catMatch = car.category === 'bus' || car.bodyType === 'bus';
+      } else if (category === 'truck') {
+        catMatch = car.category ==='truck' || car.bodyType === 'truck';
+      } else {
+        catMatch = car.category === category;
+      }
     }
     return brandMatch && catMatch;
   });
