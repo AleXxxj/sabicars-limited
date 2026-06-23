@@ -382,20 +382,30 @@ async function saveCar() {
       return;
     }
 
-    // Step 2 — save features via pure JSON (bypasses multer completely)
+    // Step 2 — save features via pure JSON
     const carId = isEditing ? editingCarId : data.car._id;
-    await fetch(`${API}/cars/${carId}/features`, {
-      method: 'PATCH',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ features: selectedFeatures })
-    });
-
-    cancelEdit();
-    showMsg('success', isEditing ? '✅ Car updated successfully!' : '✅ Car added to inventory!', 6000);
+    try {
+      const featRes = await fetch(`${API}/cars/${carId}/features`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ features: selectedFeatures })
+      });
+      const featData = await featRes.json();
+      cancelEdit();
+      if (featData.success) {
+        showMsg('success', isEditing ? '✅ Car updated successfully!' : '✅ Car added to inventory!', 6000);
+      } else {
+        showMsg('success', '✅ Car saved — but features failed to save. Try editing again.', 8000);
+      }
+    } catch (featErr) {
+      cancelEdit();
+      showMsg('success', '✅ Car saved — but features failed to save. Try editing again.', 8000);
+    }
     loadCars();
+
 
   } catch (err) {
     saveBtn.textContent = originalBtnText;
