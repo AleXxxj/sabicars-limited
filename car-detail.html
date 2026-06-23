@@ -9,6 +9,12 @@
 <meta property="og:type" content="product"/>
 <meta property="og:site_name" content="Sabicars Limited"/>
 <meta name="twitter:card" content="summary_large_image"/>
+<meta property="og:title" id="ogTitle" content="Vehicle Details — Sabicars Limited"/>
+<meta property="og:description" id="ogDesc" content="Verified tokunbo vehicles from Sabicars Limited, Lagos. Pay 40% and drive today."/>
+<meta property="og:image" id="ogImage" content=""/>
+<meta property="og:type" content="product"/>
+<meta property="og:site_name" content="Sabicars Limited"/>
+<meta name="twitter:card" content="summary_large_image"/>
 <meta name="description" content="View full specifications, features and gallery for this verified vehicle from Sabicars Limited, Lagos."/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
@@ -178,7 +184,11 @@ function renderCar(){
   document.getElementById('loadingMsg').style.display = 'none';
   document.getElementById('detailGrid').style.display = 'grid';
   const pageTitle = `${car.year} ${car.make} ${car.model} — Sabicars Limited`;
+  const pageTitle = `${car.year} ${car.make} ${car.model} — Sabicars Limited`;
   document.getElementById('pageTitle').textContent = pageTitle;
+  document.getElementById('ogTitle').setAttribute('content', pageTitle);
+  document.getElementById('ogDesc').setAttribute('content', `${car.year} ${car.make} ${car.model}. ${conditionLabel(car.condition)}. ${formatPrice(parsePrice(car.price))}. Pay 40% and drive today. Sabicars Limited, Lagos.`);
+  if (car.images && car.images[0]) document.getElementById('ogImage').setAttribute('content', car.images[0]);
   document.getElementById('ogTitle').setAttribute('content', pageTitle);
   document.getElementById('ogDesc').setAttribute('content', `${car.year} ${car.make} ${car.model}. ${conditionLabel(car.condition)}. ${formatPrice(parsePrice(car.price))}. Pay 40% and drive today. Sabicars Limited, Lagos.`);
   if (car.images && car.images[0]) document.getElementById('ogImage').setAttribute('content', car.images[0]);
@@ -204,7 +214,8 @@ function renderCar(){
 
   document.getElementById('detailInquireMenu').innerHTML = `
     <a href="tel:+2348101885558" class="inquire-menu-item"><i class="fas fa-phone"></i> Call Us</a>
-    <a href="https://wa.me/2348055065825?text=${encodeURIComponent("I'm interested in the " + car.make + ' ' + car.model)}" target="_blank" class="inquire-menu-item"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+    <a href="https://wa.me/2348055065825?text=${encodeURIComponent(`Hello Sabicars! I'm interested in buying the ${car.year} ${car.make} ${car.model} listed for ${formatPrice(parsePrice(car.price))}. Please provide more details.`
+)}" target="_blank" class="inquire-menu-item"><i class="fab fa-whatsapp"></i> WhatsApp</a>
   `;
 
   document.getElementById('tab-overview').innerHTML = `<p>${car.description || 'No description provided for this vehicle yet. Contact us for more details.'}</p>`;
