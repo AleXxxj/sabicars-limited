@@ -351,7 +351,8 @@ async function saveCar() {
 
   // Features as JSON — most reliable approach across multer versions
   const selectedFeatures = [...document.querySelectorAll('#featuresBox input[type="checkbox"]:checked')].map(cb => cb.value);
-  formData.append('featuresJSON', JSON.stringify(selectedFeatures));
+  formData.append('featuresCSV', selectedFeatures.join(','));
+
 
   if (isEditing) {
     formData.append('imagesManaged', 'true');
@@ -432,7 +433,7 @@ async function toggleAvailable(id, currentlyAvailable) {
   formData.append('available', !currentlyAvailable);
   formData.append('imagesManaged', 'true');
   if (car && car.images) car.images.forEach(url => formData.append('keepImages', url));
-  formData.append('featuresJSON', JSON.stringify(car?.features || []));
+  formData.append('featuresCSV', (car?.features || []).join(','));
   await fetch(`${API}/cars/${id}`, {
     method: 'PUT',
     headers: { 'Authorization': `Bearer ${token}` },
