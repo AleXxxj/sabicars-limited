@@ -102,7 +102,14 @@
 </div>
 <div class="cars-grid" id="carsGrid"></div>
 </div></section>
-
+<section class="sold-section" id="soldSection" style="display:none;">
+  <div class="container">
+    <div class="sec-label"><div class="sec-label-line"></div><span class="sec-label-text">Recently Sold</span></div>
+    <h2 style="font-size:clamp(1.4rem,3vw,2rem);font-weight:600;color:var(--text);margin-bottom:8px;">Vehicles That Found New Homes</h2>
+    <p style="color:var(--muted);font-size:.88rem;margin-bottom:32px;">These went fast — don't miss out on what's still available.</p>
+    <div class="cars-grid" id="soldGrid"></div>
+  </div>
+</section>
 <footer class="footer"><div class="container">
   <div class="footer-grid">
     <div class="footer-brand"><a href="index.html" class="logo"><img data-logo alt="Sabicars" style="height:40px;width:40px;border-radius:8px;"/><div style="display:flex;flex-direction:column;line-height:1;margin-left:10px"><span class="logo-name">Sabicars</span><span class="logo-sub">Luxury Auto · Lagos</span></div></a><p>Nigeria's premier verified dealer. Pay 40%, drive today.</p><div class="socials"><a href="https://instagram.com/sabicarsltd" class="soc" target="_blank"><i class="fab fa-instagram"></i></a><a href="#" class="soc"><i class="fab fa-facebook-f"></i></a><a href="https://wa.me/2348055065825" class="soc" target="_blank"><i class="fab fa-whatsapp"></i></a><a href="#" class="soc"><i class="fab fa-tiktok"></i></a></div></div>
@@ -113,6 +120,7 @@
   <div class="footer-bottom"><p>© 2025 Sabicars Limited. RC 1560100.</p><span class="rc-pill"><i class="fas fa-building"></i> RC 1560100</span></div>
 </div></footer>
 <script src="theme.js"></script>
+<script src="theme.js"></script>
 <script>
 const SABICARS_API = 'https://sabicars-api.onrender.com/api';
 let allCars = [];
@@ -120,24 +128,22 @@ let allCars = [];
 function tagLabel(tag){
   return { hot: '🔥 Hot', new: 'New In', premium: 'Premium', supply: 'Fleet Supply' }[tag] || tag;
 }
-
 function conditionLabel(c){
   if (c === 'nigeria-used') return 'Nigeria Used';
   if (c === 'brand-new') return 'Brand New';
   return 'Foreign Used';
 }
-
 function parsePrice(val){
   return Number(String(val).replace(/[^0-9.]/g, '')) || 0;
 }
-
 function formatPrice(n){ return '₦' + Number(n).toLocaleString('en-NG'); }
 
 function renderCarCard(car){
   const price = parsePrice(car.price);
   const downPayment = Math.round(price * 0.4);
+  const waMsg = encodeURIComponent(`Hello Sabicars! I'm interested in buying the ${car.year} ${car.make} ${car.model} listed for ${formatPrice(price)}. Please provide more details.`);
   return `
-    <div class="car-card" data-cat="${car.category}" data-make="${car.make}" onclick="window.location.href='car-detail.html?id=${car._id}'" style="cursor:pointer;">
+    <div class="car-card" onclick="window.location.href='car-detail.html?id=${car._id}'" style="cursor:pointer;">
       <div class="car-img">
         <span class="car-tag tag-${car.tag}">${tagLabel(car.tag)}</span>
         <div class="car-img-bg" style="background-image:url('${(car.images && car.images[0]) ? car.images[0] : 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=600&q=70'}')"></div>
@@ -158,12 +164,35 @@ function renderCarCard(car){
             <div class="price-40">40% Down: ${formatPrice(downPayment)}</div>
           </div>
           <div class="inquire-wrap" onclick="event.stopPropagation()">
-            <button class="car-cta" onclick="toggleInquireMenu(event)"><i class="fab fa-whatsapp"></i> Inquire</button>
+            <button class="car-cta" onclick="toggleInquireMenu(event)"><i class="fab fa-whatsapp"></i> Buy Now</button>
             <div class="inquire-menu">
               <a href="tel:+2348101885558" class="inquire-menu-item"><i class="fas fa-phone"></i> Call Us</a>
-              <a href="https://wa.me/2348055065825?text=${encodeURIComponent("I'm interested in the " + car.make + ' ' + car.model)}" target="_blank" class="inquire-menu-item"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+              <a href="https://wa.me/2348055065825?text=${waMsg}" target="_blank" class="inquire-menu-item"><i class="fab fa-whatsapp"></i> WhatsApp</a>
             </div>
           </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderSoldCard(car){
+  const price = parsePrice(car.price);
+  return `
+    <div class="car-card sold-card">
+      <div class="car-img">
+        <div class="car-img-bg" style="background-image:url('${(car.images && car.images[0]) ? car.images[0] : 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=600&q=70'}')"></div>
+        <div class="sold-overlay"><span class="sold-badge">Sold</span></div>
+      </div>
+      <div class="car-body">
+        <div class="car-make">${car.make}</div>
+        <h3 class="car-model">${car.model}</h3>
+        <div class="car-year">${car.year} · ${conditionLabel(car.condition)}</div>
+        <div class="car-footer" style="padding-top:10px;border-top:1px solid var(--border2);">
+          <div>
+            <div class="price-lbl">Sold For</div>
+            <div class="price-val" style="font-size:.95rem;">${formatPrice(price)}</div>
+          </div>
+          <span style="font-size:.7rem;color:#c0392b;font-weight:800;letter-spacing:.1em;">SOLD</span>
         </div>
       </div>
     </div>`;
@@ -189,6 +218,16 @@ async function loadInventory(){
   }
 }
 
+async function loadRecentlySold(){
+  try {
+    const res = await fetch(SABICARS_API + '/cars/sold/recent');
+    const data = await res.json();
+    if (!data.success || data.cars.length === 0) return;
+    document.getElementById('soldSection').style.display = 'block';
+    document.getElementById('soldGrid').innerHTML = data.cars.map(renderSoldCard).join('');
+  } catch (err) { console.error(err); }
+}
+
 function applyFilters(){
   const brand = document.getElementById('brandFilter').value;
   const category = document.getElementById('categoryFilter').value;
@@ -196,7 +235,6 @@ function applyFilters(){
 
   let filtered = allCars.filter(car => {
     const brandMatch = brand === 'all' || car.make === brand;
-
     let catMatch = true;
     if (category !== 'all') {
       if (category === 'cars') {
@@ -211,7 +249,6 @@ function applyFilters(){
         catMatch = car.category === category;
       }
     }
-
     return brandMatch && catMatch;
   });
 
@@ -246,6 +283,7 @@ document.addEventListener('click', function(){
 });
 
 loadInventory();
+loadRecentlySold();
 </script>
 </body>
 </html>
