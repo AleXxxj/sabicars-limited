@@ -203,7 +203,7 @@ async function login() {
       localStorage.setItem('sabicars_token', token);
       showDashboard();
     } else {
-      errEl.textContent = data.message || 'Login failed. Check credentials.';
+      errEl.textContent = data.message || 'Login failed.';
       errEl.style.display = 'block';
     }
   } catch (err) {
@@ -300,7 +300,7 @@ function editCar(id) {
   });
 
   document.getElementById('images').value = '';
-  document.getElementById('imgHint').textContent = 'Leave empty to keep remaining photos, or pick new ones to add';
+  document.getElementById('imgHint').textContent = 'Leave empty to keep existing photos, or pick new ones to add';
   document.getElementById('currentPhotosSection').style.display = 'block';
   renderCurrentPhotos(car.images || []);
 
@@ -313,8 +313,45 @@ function editCar(id) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-async function saveCar() {
+// Resets the form WITHOUT hiding the message — used after successful save
+function resetForm() {
+  editingCarId = null;
+  keptImages = [];
+  allCarImages = [];
+  document.querySelectorAll('#dashboard input[type="text"], #dashboard textarea').forEach(el => el.value = '');
+  document.querySelectorAll('#featuresBox input[type="checkbox"]').forEach(cb => cb.checked = false);
+  document.getElementById('images').value = '';
+  document.getElementById('imgHint').textContent = 'Choose up to 12 photos';
+  document.getElementById('category').value = 'regular';
+  document.getElementById('condition').value = 'foreign-used';
+  document.getElementById('bodyType').value = '';
+  document.getElementById('tag').value = 'new';
+  document.getElementById('saveBtn').textContent = 'Add Car';
+  document.getElementById('saveBtn').classList.remove('btn-loading');
+  document.getElementById('cancelEditBtn').style.display = 'none';
+  document.getElementById('formTitle').textContent = 'Add New Car';
+  document.getElementById('editingBanner').style.display = 'none';
+  document.getElementById('currentPhotosSection').style.display = 'none';
+  document.getElementById('currentPhotoGrid').innerHTML = '';
+}
+
+// Cancel button — resets AND hides message
+function cancelEdit() {
+  resetForm();
+  document.getElementById('formMsg').style.display = 'none';
+}
+
+function showMsg(type, text, autoDismissMs) {
   const msgEl = document.getElementById('formMsg');
+  msgEl.className = `msg ${type}`;
+  msgEl.textContent = text;
+  msgEl.style.display = 'block';
+  if (autoDismissMs) {
+    setTimeout(() => { msgEl.style.display = 'none'; }, autoDismissMs);
+  }
+}
+
+async function saveCar() {
   const saveBtn = document.getElementById('saveBtn');
   const isEditing = !!editingCarId;
 
@@ -328,7 +365,7 @@ async function saveCar() {
   if (!year) { showMsg('error', '❌ Year is required'); return; }
   if (!price) { showMsg('error', '❌ Price is required'); return; }
 
-  // Collect features NOW before anything resets
+  // Collect features before anything resets
   const selectedFeatures = [...document.querySelectorAll('#featuresBox input[type="checkbox"]:checked')].map(cb => cb.value);
 
   const formData = new FormData();
@@ -350,7 +387,6 @@ async function saveCar() {
   formData.append('drivetrain', document.getElementById('drivetrain').value);
   formData.append('interiorColor', document.getElementById('interiorColor').value);
   formData.append('seats', document.getElementById('seats').value);
-  // NOTE: features are NOT in FormData — sent via separate JSON call below
 
   if (isEditing) {
     formData.append('imagesManaged', 'true');
@@ -364,10 +400,9 @@ async function saveCar() {
   const originalBtnText = saveBtn.textContent;
   saveBtn.textContent = isEditing ? '⏳ Updating...' : '⏳ Uploading...';
   saveBtn.classList.add('btn-loading');
-  msgEl.style.display = 'none';
 
   try {
-    // Step 1 — save car + images via FormData
+    // Step 1 — save car + images
     const res = await fetch(isEditing ? `${API}/cars/${editingCarId}` : `${API}/cars`, {
       method: isEditing ? 'PUT' : 'POST',
       headers: { 'Authorization': `Bearer ${token}` },
@@ -382,28 +417,21 @@ async function saveCar() {
       return;
     }
 
-    // Step 2 — save features via pure JSON
+    // Step 2 — save features via clean JSON request
     const carId = isEditing ? editingCarId : data.car._id;
-       try {
-      await fetch(`${API}/cars/${carId}/features`, {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ features: selectedFeatures })
-      });
-    } catch (featErr) {
-      console.error('Features save error:', featErr);
-    }
+    await fetch(`${API}/cars/${carId}/features`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ features: selectedFeatures })
+    });
 
-    // Show message FIRST, reset form AFTER — so user sees feedback
-    saveBtn.textContent = originalBtnText;
-    saveBtn.classList.remove('btn-loading');
-    showMsg('success', isEditing ? '✅ Car updated successfully!' : '✅ Car added to inventory!', 5000);
+    // Reset form first, then show message — message won't be hidden by reset
+    resetForm();
+    showMsg('success', isEditing ? '✅ Car updated successfully!' : '✅ Car added to inventory!', 6000);
     loadCars();
-    setTimeout(() => cancelEdit(), 1500);
-
 
   } catch (err) {
     saveBtn.textContent = originalBtnText;
@@ -418,7 +446,6 @@ async function toggleAvailable(id, currentlyAvailable) {
   formData.append('available', !currentlyAvailable);
   formData.append('imagesManaged', 'true');
   if (car && car.images) car.images.forEach(url => formData.append('keepImages', url));
-  // features NOT sent — PUT route doesn't touch them so they stay intact
   await fetch(`${API}/cars/${id}`, {
     method: 'PUT',
     headers: { 'Authorization': `Bearer ${token}` },
