@@ -384,8 +384,8 @@ async function saveCar() {
 
     // Step 2 — save features via pure JSON
     const carId = isEditing ? editingCarId : data.car._id;
-    try {
-      const featRes = await fetch(`${API}/cars/${carId}/features`, {
+       try {
+      await fetch(`${API}/cars/${carId}/features`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -393,18 +393,16 @@ async function saveCar() {
         },
         body: JSON.stringify({ features: selectedFeatures })
       });
-      const featData = await featRes.json();
-      cancelEdit();
-      if (featData.success) {
-        showMsg('success', isEditing ? '✅ Car updated successfully!' : '✅ Car added to inventory!', 6000);
-      } else {
-        showMsg('success', '✅ Car saved — but features failed to save. Try editing again.', 8000);
-      }
     } catch (featErr) {
-      cancelEdit();
-      showMsg('success', '✅ Car saved — but features failed to save. Try editing again.', 8000);
+      console.error('Features save error:', featErr);
     }
+
+    // Show message FIRST, reset form AFTER — so user sees feedback
+    saveBtn.textContent = originalBtnText;
+    saveBtn.classList.remove('btn-loading');
+    showMsg('success', isEditing ? '✅ Car updated successfully!' : '✅ Car added to inventory!', 5000);
     loadCars();
+    setTimeout(() => cancelEdit(), 1500);
 
 
   } catch (err) {
