@@ -123,7 +123,7 @@
           <div class="inquire-menu" id="detailInquireMenu"></div>
         </div>
       </div>
-
+      <a id="detailFinanceBtn" href="#" target="_blank" style="display:none;align-items:center;justify-content:center;gap:8px;background:transparent;border:1px solid var(--gold-border);color:var(--gold);padding:12px;border-radius:6px;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;margin-bottom:20px;transition:all .25s;" onmouseover="this.style.background='var(--gold-dim)'" onmouseout="this.style.background='transparent'"><i class="fas fa-file-invoice-dollar"></i> Apply Finance via AutoCheck</a>
       <div class="tabs">
         <button class="tab-btn active" id="tabBtn-overview" onclick="switchTab('overview')">Overview</button>
         <button class="tab-btn" id="tabBtn-specs" onclick="switchTab('specs')">Specifications</button>
@@ -232,6 +232,15 @@ function renderCar(){
   document.getElementById('detailInquireMenu').innerHTML =
     '<a href="tel:+2348101885558" class="inquire-menu-item"><i class="fas fa-phone"></i> Call Us</a>' +
     '<a href="https://wa.me/2348055065825?text=' + waMsg + '" target="_blank" class="inquire-menu-item"><i class="fab fa-whatsapp"></i> WhatsApp</a>';
+  const financeSection = document.getElementById('detailFinanceBtn');
+  if (financeSection) {
+    if (car.financeUrl) {
+      financeSection.href = car.financeUrl;
+      financeSection.style.display = 'flex';
+    } else {
+      financeSection.style.display = 'none';
+    }
+  }
 
   document.getElementById('tab-overview').innerHTML = '<p>' + (car.description || 'No description provided. Contact us for more details.') + '</p>';
 
