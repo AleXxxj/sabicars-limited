@@ -6,7 +6,7 @@
 <title>Sabicars Admin Dashboard</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family: -apple-system, sans-serif; background:#0d0d0d; color:#eee; min-height:100vh; }
+  body { font-family:-apple-system,sans-serif; background:#0d0d0d; color:#eee; min-height:100vh; }
   .center { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:20px; }
   .card { background:#1a1a1a; border:1px solid #333; border-radius:10px; padding:36px; width:100%; max-width:380px; }
   .card h1 { font-size:1.4rem; margin-bottom:6px; color:#d4af37; }
@@ -16,9 +16,12 @@
   button:hover { background:#c19b2e; }
   .error { color:#ff6b6b; font-size:.8rem; margin-bottom:10px; display:none; }
   #dashboard { display:none; padding:24px; max-width:1100px; margin:0 auto; }
-  .topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; flex-wrap:wrap; gap:10px; }
+  .topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px; }
   .topbar h2 { color:#d4af37; }
   .logout-btn { width:auto; padding:8px 16px; background:#333; color:#eee; }
+  .dash-tabs { display:flex; gap:8px; margin-bottom:24px; }
+  .dash-tab { padding:10px 24px; border-radius:6px; border:1px solid #333; background:transparent; color:#999; font-size:.82rem; font-weight:700; cursor:pointer; transition:all .2s; width:auto; }
+  .dash-tab.active { background:#d4af37; color:#000; border-color:#d4af37; }
   .grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
   @media(max-width:800px){ .grid { grid-template-columns:1fr; } }
   .panel { background:#1a1a1a; border:1px solid #333; border-radius:10px; padding:20px; }
@@ -31,6 +34,7 @@
   .del-btn { background:#c0392b; color:#fff; }
   .edit-btn { background:#3a3a3a; color:#eee; }
   .sold-btn { background:#1d4ed8; color:#fff; }
+  .pub-btn { background:#1d4ed8; color:#fff; }
   .row2 { display:flex; gap:10px; }
   .row2 > * { flex:1; }
   .msg { font-size:.85rem; padding:12px; border-radius:6px; margin-bottom:12px; display:none; line-height:1.5; font-weight:600; }
@@ -43,6 +47,17 @@
   .photo-thumb .rm-btn { position:absolute; top:-6px; right:-6px; width:18px; height:18px; border-radius:50%; background:#c0392b; color:#fff; border:none; font-size:11px; cursor:pointer; padding:0; line-height:18px; text-align:center; }
   .section-label { font-size:.8rem; color:#999; margin-bottom:8px; }
   .btn-loading { opacity:.65; pointer-events:none; }
+  /* Blog */
+  .content-helpers { display:flex; gap:5px; flex-wrap:wrap; margin-bottom:8px; }
+  .ch-btn { padding:5px 10px; background:#252525; border:1px solid #3a3a3a; color:#eee; border-radius:4px; font-size:.72rem; cursor:pointer; width:auto; }
+  .ch-btn:hover { background:#3a3a3a; }
+  .blog-row { display:flex; justify-content:space-between; align-items:flex-start; padding:10px; border-bottom:1px solid #2a2a2a; font-size:.85rem; gap:8px; flex-wrap:wrap; }
+  .blog-row:last-child { border-bottom:none; }
+  .post-status { font-size:.7rem; padding:3px 8px; border-radius:50px; font-weight:700; display:inline-block; margin-top:3px; }
+  .status-published { background:#1e3a24; color:#7ee08a; }
+  .status-draft { background:#3a2a1a; color:#d4a843; }
+  .blog-actions { display:flex; flex-wrap:wrap; gap:4px; }
+  .blog-actions button { width:auto; padding:6px 10px; font-size:.75rem; }
 </style>
 </head>
 <body>
@@ -62,116 +77,168 @@
 <!-- DASHBOARD -->
 <div id="dashboard">
   <div class="topbar">
-    <h2>Sabicars Inventory Manager</h2>
+    <h2>Sabicars Admin</h2>
     <button class="logout-btn" onclick="logout()">Logout</button>
   </div>
 
-  <div class="grid">
-    <div class="panel">
-      <h3 id="formTitle">Add New Car</h3>
-      <div class="editing-banner" id="editingBanner">✏️ Editing existing car — update fields then click "Update Car"</div>
-      <div class="msg" id="formMsg"></div>
+  <div class="dash-tabs">
+    <button class="dash-tab active" id="tabInventory" onclick="switchDashTab('inventory')">🚗 Inventory</button>
+    <button class="dash-tab" id="tabBlog" onclick="switchDashTab('blog')">✍️ Blog Posts</button>
+  </div>
 
-      <div class="row2">
-        <input type="text" id="make" placeholder="Make (e.g. Toyota)"/>
-        <input type="text" id="model" placeholder="Model (e.g. Highlander)"/>
-      </div>
-      <div class="row2">
-        <input type="text" id="year" placeholder="Year"/>
-        <select id="category">
-          <option value="regular">Regular</option>
-          <option value="luxury">Luxury</option>
-          <option value="suv">SUV</option>
-          <option value="bus">Bus / Hiace</option>
-          <option value="truck">Truck</option>
-        </select>
-      </div>
-      <div class="row2">
-        <select id="condition">
-          <option value="foreign-used" selected>Foreign Used</option>
-          <option value="nigeria-used">Nigeria Used</option>
-          <option value="brand-new">Brand New</option>
-        </select>
-        <select id="bodyType">
-          <option value="">Body Type (optional)</option>
-          <option value="suv">SUV</option>
-          <option value="sedan">Sedan</option>
-          <option value="coupe">Coupe</option>
-          <option value="truck">Truck</option>
-          <option value="bus">Bus / Van</option>
-          <option value="pickup">Pickup</option>
-          <option value="convertible">Convertible</option>
-          <option value="hatchback">Hatchback</option>
-        </select>
-      </div>
-      <div class="row2">
-        <input type="text" id="price" placeholder="Price (e.g. ₦25,000,000)"/>
-        <input type="text" id="mileage" placeholder="Mileage (e.g. 45,000)"/>
-      </div>
-      <div class="row2">
-        <input type="text" id="fuel" placeholder="Fuel (e.g. Petrol)"/>
-        <input type="text" id="colour" placeholder="Exterior Colour"/>
-      </div>
-      <div class="row2">
-        <input type="text" id="engine" placeholder="Engine (e.g. 3.5L V6)"/>
-        <input type="text" id="horsepower" placeholder="Horsepower (e.g. 295hp)"/>
-      </div>
-      <div class="row2">
-        <input type="text" id="transmission" placeholder="Transmission (e.g. Automatic)"/>
-        <input type="text" id="drivetrain" placeholder="Drivetrain (e.g. AWD)"/>
-      </div>
-      <div class="row2">
-        <input type="text" id="interiorColor" placeholder="Interior Colour"/>
-        <input type="text" id="seats" placeholder="Seats (e.g. 7)"/>
-      </div>
-      <input type="text" id="financeUrl" placeholder="AutoCheck Finance URL (optional)"/>
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;padding:10px;background:#1a1a1a;border:1px solid #3a3a3a;border-radius:6px;">
-        <input type="checkbox" id="featured" style="width:auto;margin:0;"/>
-        <label for="featured" style="font-size:.85rem;color:#eee;cursor:pointer;">⭐ Feature on homepage</label>
-      </div>
-
-      <div style="margin-bottom:14px;">
-        <p class="section-label">Features</p>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;" id="featuresBox">
-          <label style="font-size:.82rem;display:flex;align-items:center;gap:6px;"><input type="checkbox" value="Air Conditioning" style="width:auto;margin:0;"> Air Conditioning</label>
-          <label style="font-size:.82rem;display:flex;align-items:center;gap:6px;"><input type="checkbox" value="Leather Seats" style="width:auto;margin:0;"> Leather Seats</label>
-          <label style="font-size:.82rem;display:flex;align-items:center;gap:6px;"><input type="checkbox" value="Sunroof" style="width:auto;margin:0;"> Sunroof</label>
-          <label style="font-size:.82rem;display:flex;align-items:center;gap:6px;"><input type="checkbox" value="Navigation System" style="width:auto;margin:0;"> Navigation System</label>
-          <label style="font-size:.82rem;display:flex;align-items:center;gap:6px;"><input type="checkbox" value="Reverse Camera" style="width:auto;margin:0;"> Reverse Camera</label>
-          <label style="font-size:.82rem;display:flex;align-items:center;gap:6px;"><input type="checkbox" value="Bluetooth" style="width:auto;margin:0;"> Bluetooth</label>
-          <label style="font-size:.82rem;display:flex;align-items:center;gap:6px;"><input type="checkbox" value="Cruise Control" style="width:auto;margin:0;"> Cruise Control</label>
-          <label style="font-size:.82rem;display:flex;align-items:center;gap:6px;"><input type="checkbox" value="Keyless Entry" style="width:auto;margin:0;"> Keyless Entry</label>
-          <label style="font-size:.82rem;display:flex;align-items:center;gap:6px;"><input type="checkbox" value="Heated Seats" style="width:auto;margin:0;"> Heated Seats</label>
-          <label style="font-size:.82rem;display:flex;align-items:center;gap:6px;"><input type="checkbox" value="Third Row Seating" style="width:auto;margin:0;"> Third Row Seating</label>
-          <label style="font-size:.82rem;display:flex;align-items:center;gap:6px;"><input type="checkbox" value="Alloy Wheels" style="width:auto;margin:0;"> Alloy Wheels</label>
-          <label style="font-size:.82rem;display:flex;align-items:center;gap:6px;"><input type="checkbox" value="Parking Sensors" style="width:auto;margin:0;"> Parking Sensors</label>
+  <!-- INVENTORY SECTION -->
+  <div id="inventorySection">
+    <div class="grid">
+      <div class="panel">
+        <h3 id="formTitle">Add New Car</h3>
+        <div class="editing-banner" id="editingBanner">✏️ Editing existing car — update fields then click "Update Car"</div>
+        <div class="msg" id="formMsg"></div>
+        <div class="row2">
+          <input type="text" id="make" placeholder="Make (e.g. Toyota)"/>
+          <input type="text" id="model" placeholder="Model (e.g. Highlander)"/>
         </div>
+        <div class="row2">
+          <input type="text" id="year" placeholder="Year"/>
+          <select id="category">
+            <option value="regular">Regular</option>
+            <option value="luxury">Luxury</option>
+            <option value="suv">SUV</option>
+            <option value="bus">Bus / Hiace</option>
+            <option value="truck">Truck</option>
+          </select>
+        </div>
+        <div class="row2">
+          <select id="condition">
+            <option value="foreign-used" selected>Foreign Used</option>
+            <option value="nigeria-used">Nigeria Used</option>
+            <option value="brand-new">Brand New</option>
+          </select>
+          <select id="bodyType">
+            <option value="">Body Type (optional)</option>
+            <option value="suv">SUV</option>
+            <option value="sedan">Sedan</option>
+            <option value="coupe">Coupe</option>
+            <option value="truck">Truck</option>
+            <option value="bus">Bus / Van</option>
+            <option value="pickup">Pickup</option>
+            <option value="convertible">Convertible</option>
+            <option value="hatchback">Hatchback</option>
+          </select>
+        </div>
+        <div class="row2">
+          <input type="text" id="price" placeholder="Price (e.g. ₦25,000,000)"/>
+          <input type="text" id="mileage" placeholder="Mileage (e.g. 45,000)"/>
+        </div>
+        <div class="row2">
+          <input type="text" id="fuel" placeholder="Fuel (e.g. Petrol)"/>
+          <input type="text" id="colour" placeholder="Exterior Colour"/>
+        </div>
+        <div class="row2">
+          <input type="text" id="engine" placeholder="Engine (e.g. 3.5L V6)"/>
+          <input type="text" id="horsepower" placeholder="Horsepower (e.g. 295hp)"/>
+        </div>
+        <div class="row2">
+          <input type="text" id="transmission" placeholder="Transmission (e.g. Automatic)"/>
+          <input type="text" id="drivetrain" placeholder="Drivetrain (e.g. AWD)"/>
+        </div>
+        <div class="row2">
+          <input type="text" id="interiorColor" placeholder="Interior Colour"/>
+          <input type="text" id="seats" placeholder="Seats (e.g. 7)"/>
+        </div>
+        <input type="text" id="financeUrl" placeholder="AutoCheck Finance URL (optional)"/>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;padding:10px;background:#111;border:1px solid #3a3a3a;border-radius:6px;">
+          <input type="checkbox" id="featured" style="width:auto;margin:0;"/>
+          <label for="featured" style="font-size:.85rem;color:#eee;cursor:pointer;">⭐ Feature on homepage</label>
+        </div>
+        <div style="margin-bottom:14px;">
+          <p class="section-label">Features</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;" id="featuresBox">
+            <label style="font-size:.82rem;display:flex;align-items:center;gap:6px;"><input type="checkbox" value="Air Conditioning" style="width:auto;margin:0;"> Air Conditioning</label>
+            <label style="font-size:.82rem;display:flex;align-items:center;gap:6px;"><input type="checkbox" value="Leather Seats" style="width:auto;margin:0;"> Leather Seats</label>
+            <label style="font-size:.82rem;display:flex;align-items:center;gap:6px;"><input type="checkbox" value="Sunroof" style="width:auto;margin:0;"> Sunroof</label>
+            <label style="font-size:.82rem;display:flex;align-items:center;gap:6px;"><input type="checkbox" value="Navigation System" style="width:auto;margin:0;"> Navigation System</label>
+            <label style="font-size:.82rem;display:flex;align-items:center;gap:6px;"><input type="checkbox" value="Reverse Camera" style="width:auto;margin:0;"> Reverse Camera</label>
+            <label style="font-size:.82rem;display:flex;align-items:center;gap:6px;"><input type="checkbox" value="Bluetooth" style="width:auto;margin:0;"> Bluetooth</label>
+            <label style="font-size:.82rem;display:flex;align-items:center;gap:6px;"><input type="checkbox" value="Cruise Control" style="width:auto;margin:0;"> Cruise Control</label>
+            <label style="font-size:.82rem;display:flex;align-items:center;gap:6px;"><input type="checkbox" value="Keyless Entry" style="width:auto;margin:0;"> Keyless Entry</label>
+            <label style="font-size:.82rem;display:flex;align-items:center;gap:6px;"><input type="checkbox" value="Heated Seats" style="width:auto;margin:0;"> Heated Seats</label>
+            <label style="font-size:.82rem;display:flex;align-items:center;gap:6px;"><input type="checkbox" value="Third Row Seating" style="width:auto;margin:0;"> Third Row Seating</label>
+            <label style="font-size:.82rem;display:flex;align-items:center;gap:6px;"><input type="checkbox" value="Alloy Wheels" style="width:auto;margin:0;"> Alloy Wheels</label>
+            <label style="font-size:.82rem;display:flex;align-items:center;gap:6px;"><input type="checkbox" value="Parking Sensors" style="width:auto;margin:0;"> Parking Sensors</label>
+          </div>
+        </div>
+        <select id="tag">
+          <option value="new">New In</option>
+          <option value="hot">Hot</option>
+          <option value="premium">Premium</option>
+          <option value="supply">Fleet Supply</option>
+        </select>
+        <textarea id="description" placeholder="Description" rows="3"></textarea>
+        <div id="currentPhotosSection" style="display:none;margin-bottom:14px;">
+          <p class="section-label">Current Photos <span style="font-size:.72rem;color:#666;">— tap × to remove</span></p>
+          <div id="currentPhotoGrid" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+        </div>
+        <input type="file" id="images" multiple accept="image/*" style="padding:8px;"/>
+        <p style="font-size:.75rem;color:#666;margin-bottom:12px;" id="imgHint">Choose up to 12 photos</p>
+        <button id="saveBtn" onclick="saveCar()">Add Car</button>
+        <button id="cancelEditBtn" onclick="cancelEdit()" style="display:none;background:#3a3a3a;color:#eee;margin-top:8px;">✕ Cancel Edit</button>
       </div>
 
-      <select id="tag">
-        <option value="new">New In</option>
-        <option value="hot">Hot</option>
-        <option value="premium">Premium</option>
-        <option value="supply">Fleet Supply</option>
-        <option value="sold">Sold</option>
-      </select>
-      <textarea id="description" placeholder="Description" rows="3"></textarea>
-
-      <div id="currentPhotosSection" style="display:none;margin-bottom:14px;">
-        <p class="section-label">Current Photos <span style="font-size:.72rem;color:#666;">— tap × to remove</span></p>
-        <div id="currentPhotoGrid" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+      <div class="panel">
+        <h3>Current Inventory (<span id="carCount">0</span>)</h3>
+        <div id="carList"></div>
       </div>
-
-      <input type="file" id="images" multiple accept="image/*" style="padding:8px;"/>
-      <p style="font-size:.75rem;color:#666;margin-bottom:12px;" id="imgHint">Choose up to 12 photos</p>
-
-      <button id="saveBtn" onclick="saveCar()">Add Car</button>
-      <button id="cancelEditBtn" onclick="cancelEdit()" style="display:none;background:#3a3a3a;color:#eee;margin-top:8px;">✕ Cancel Edit</button>
     </div>
+  </div>
 
-    <div class="panel">
-      <h3>Current Inventory (<span id="carCount">0</span>)</h3>
-      <div id="carList"></div>
+  <!-- BLOG SECTION -->
+  <div id="blogSection" style="display:none;">
+    <div class="grid">
+      <div class="panel">
+        <h3 id="blogFormTitle">New Blog Post</h3>
+        <div class="msg" id="blogMsg"></div>
+
+        <input type="text" id="postTitle" placeholder="Post Title" oninput="autoSlug()"/>
+        <input type="text" id="postSlug" placeholder="URL Slug (auto-filled — edit if needed)" style="font-size:.78rem;"/>
+        <div class="row2">
+          <select id="postCategory">
+            <option value="Industry News">Industry News</option>
+            <option value="Buying Guide">Buying Guide</option>
+            <option value="Financing">Financing</option>
+            <option value="Fleet Guide">Fleet Guide</option>
+            <option value="Tips & Maintenance">Tips & Maintenance</option>
+          </select>
+          <input type="text" id="postReadTime" placeholder="Read time (e.g. 5 min read)"/>
+        </div>
+        <input type="text" id="postAuthor" placeholder="Author" value="Sabicars Team"/>
+        <input type="text" id="postCover" placeholder="Cover image URL (from Unsplash, Cloudinary etc.)"/>
+        <textarea id="postExcerpt" placeholder="Short excerpt shown in blog list (1–2 sentences)" rows="2"></textarea>
+
+        <p class="section-label">Post Content <span style="font-size:.7rem;color:#666;">— write in HTML</span></p>
+        <div class="content-helpers">
+          <button class="ch-btn" onclick="insertTag('p')">¶ Para</button>
+          <button class="ch-btn" onclick="insertTag('h2')">H2</button>
+          <button class="ch-btn" onclick="insertTag('h3')">H3</button>
+          <button class="ch-btn" onclick="insertTag('strong')"><b>Bold</b></button>
+          <button class="ch-btn" onclick="insertTag('em')"><i>Italic</i></button>
+          <button class="ch-btn" onclick="insertList()">• List</button>
+          <button class="ch-btn" onclick="insertLink()">🔗 Link</button>
+        </div>
+        <textarea id="postContent" placeholder="Write your full post content here using the helpers above..." rows="14" style="font-family:monospace;font-size:.8rem;line-height:1.6;"></textarea>
+
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;padding:10px;background:#111;border:1px solid #3a3a3a;border-radius:6px;">
+          <input type="checkbox" id="postPublished" style="width:auto;margin:0;"/>
+          <label for="postPublished" style="font-size:.85rem;color:#eee;cursor:pointer;">📢 Publish immediately (uncheck to save as draft)</label>
+        </div>
+
+        <button id="savePostBtn" onclick="savePost()">Save Post</button>
+        <button id="cancelPostBtn" onclick="cancelPostEdit()" style="display:none;background:#3a3a3a;color:#eee;margin-top:8px;">✕ Cancel Edit</button>
+      </div>
+
+      <div class="panel">
+        <h3>All Posts (<span id="postCount">0</span>)</h3>
+        <div id="postList"><p style="color:#666;font-size:.85rem;">Click "Blog Posts" tab to load</p></div>
+      </div>
     </div>
   </div>
 </div>
@@ -183,43 +250,28 @@ let currentCars = [];
 let editingCarId = null;
 let keptImages = [];
 let allCarImages = [];
+let currentPosts = [];
+let editingPostId = null;
 
 if (token) showDashboard();
 
+// ── AUTH ──
 async function login() {
   const username = document.getElementById('username').value.trim();
   const password = document.getElementById('password').value;
   const errEl = document.getElementById('loginError');
   errEl.style.display = 'none';
-  if (!username || !password) {
-    errEl.textContent = 'Please enter username and password.';
-    errEl.style.display = 'block';
-    return;
-  }
+  if (!username || !password) { errEl.textContent = 'Please enter username and password.'; errEl.style.display = 'block'; return; }
   try {
-    const res = await fetch(`${API}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password })
-    });
+    const res = await fetch(`${API}/auth/login`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username,password}) });
     const data = await res.json();
-    if (data.success) {
-      token = data.token;
-      localStorage.setItem('sabicars_token', token);
-      showDashboard();
-    } else {
-      errEl.textContent = data.message || 'Login failed.';
-      errEl.style.display = 'block';
-    }
-  } catch (err) {
-    errEl.textContent = 'Connection error. Server may be sleeping — try again in 30 seconds.';
-    errEl.style.display = 'block';
-  }
+    if (data.success) { token = data.token; localStorage.setItem('sabicars_token', token); showDashboard(); }
+    else { errEl.textContent = data.message || 'Login failed.'; errEl.style.display = 'block'; }
+  } catch (err) { errEl.textContent = 'Connection error — server may be sleeping. Try again in 30 seconds.'; errEl.style.display = 'block'; }
 }
 
 function logout() {
-  localStorage.removeItem('sabicars_token');
-  token = null;
+  localStorage.removeItem('sabicars_token'); token = null;
   document.getElementById('dashboard').style.display = 'none';
   document.getElementById('loginScreen').style.display = 'flex';
 }
@@ -230,103 +282,89 @@ function showDashboard() {
   loadCars();
 }
 
+function switchDashTab(tab) {
+  document.getElementById('inventorySection').style.display = tab === 'inventory' ? 'block' : 'none';
+  document.getElementById('blogSection').style.display = tab === 'blog' ? 'block' : 'none';
+  document.getElementById('tabInventory').classList.toggle('active', tab === 'inventory');
+  document.getElementById('tabBlog').classList.toggle('active', tab === 'blog');
+  if (tab === 'blog') loadPosts();
+}
+
+// ── INVENTORY ──
 async function loadCars() {
   try {
-    const res = await fetch(`${API}/cars/admin/all`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
+    const res = await fetch(`${API}/cars/admin/all`, { headers:{'Authorization':`Bearer ${token}`} });
     const data = await res.json();
     if (!data.success) { logout(); return; }
     currentCars = data.cars;
     document.getElementById('carCount').textContent = data.count;
-    const list = document.getElementById('carList');
-    list.innerHTML = data.cars.map(car => `
+    document.getElementById('carList').innerHTML = data.cars.map(car => `
       <div class="car-row">
         <div class="car-info">
-          <strong>${car.make} ${car.model}</strong> (${car.year})<br/>
-          <span style="color:#999;font-size:.8rem;">${car.featured ? '⭐ ' : ''}${car.price} · ${car.category}${car.bodyType ? ' / '+car.bodyType : ''} ${car.available ? '' : '· <span style="color:#c0392b">SOLD</span>'}</span>
+          <strong>${car.featured?'⭐ ':''}${car.make} ${car.model}</strong> (${car.year})<br/>
+          <span style="color:#999;font-size:.8rem;">${car.price} · ${car.category}${car.bodyType?' / '+car.bodyType:''} ${car.available?'':'· <span style="color:#c0392b">SOLD</span>'}</span>
         </div>
         <div class="car-actions">
           <button class="edit-btn" onclick="editCar('${car._id}')">Edit</button>
-          <button class="${car.available ? 'sold-btn' : 'edit-btn'}" onclick="toggleAvailable('${car._id}', ${car.available})">${car.available ? 'Mark Sold' : 'Available'}</button>
+          <button class="${car.available?'sold-btn':'edit-btn'}" onclick="toggleAvailable('${car._id}',${car.available})">${car.available?'Mark Sold':'Available'}</button>
           <button class="del-btn" onclick="deleteCar('${car._id}')">Delete</button>
         </div>
       </div>
-    `).join('') || '<p style="color:#666">No cars yet. Add one!</p>';
-  } catch (err) {
-    console.error(err);
-  }
+    `).join('') || '<p style="color:#666">No cars yet.</p>';
+  } catch (err) { console.error(err); }
 }
 
 function renderCurrentPhotos(images) {
-  allCarImages = [...images];
-  keptImages = [...images];
-  const grid = document.getElementById('currentPhotoGrid');
-  grid.innerHTML = images.map((url, i) => `
-    <div class="photo-thumb" id="pthumb-${i}">
-      <img src="${url}"/>
-      <button class="rm-btn" onclick="removePhoto(${i})">×</button>
-    </div>
-  `).join('');
+  allCarImages = [...images]; keptImages = [...images];
+  document.getElementById('currentPhotoGrid').innerHTML = images.map((url,i) =>
+    `<div class="photo-thumb" id="pthumb-${i}"><img src="${url}"/><button class="rm-btn" onclick="removePhoto(${i})">×</button></div>`
+  ).join('');
 }
 
 function removePhoto(i) {
-  const url = allCarImages[i];
-  keptImages = keptImages.filter(u => u !== url);
-  const thumb = document.getElementById(`pthumb-${i}`);
-  if (thumb) thumb.classList.add('removed');
+  keptImages = keptImages.filter(u => u !== allCarImages[i]);
+  const t = document.getElementById(`pthumb-${i}`); if(t) t.classList.add('removed');
 }
 
 function editCar(id) {
-  const car = currentCars.find(c => c._id === id);
-  if (!car) return;
-
-  document.getElementById('make').value = car.make || '';
-  document.getElementById('model').value = car.model || '';
-  document.getElementById('year').value = car.year || '';
-  document.getElementById('category').value = car.category || 'regular';
-  document.getElementById('condition').value = car.condition || 'foreign-used';
-  document.getElementById('bodyType').value = car.bodyType || '';
-  document.getElementById('price').value = car.price || '';
-  document.getElementById('mileage').value = car.mileage || '';
-  document.getElementById('fuel').value = car.fuel || '';
-  document.getElementById('colour').value = car.colour || '';
-  document.getElementById('tag').value = car.tag || 'new';
-  document.getElementById('description').value = car.description || '';
-  document.getElementById('engine').value = car.engine || '';
-  document.getElementById('horsepower').value = car.horsepower || '';
-  document.getElementById('transmission').value = car.transmission || '';
-  document.getElementById('drivetrain').value = car.drivetrain || '';
-  document.getElementById('interiorColor').value = car.interiorColor || '';
-  document.getElementById('seats').value = car.seats || '';
-  document.getElementById('financeUrl').value = car.financeUrl || '';
-  document.getElementById('featured').checked = car.featured || false;
-
-
-  document.querySelectorAll('#featuresBox input[type="checkbox"]').forEach(cb => {
-    cb.checked = (car.features || []).includes(cb.value);
-  });
-
+  const car = currentCars.find(c => c._id === id); if(!car) return;
+  document.getElementById('make').value = car.make||'';
+  document.getElementById('model').value = car.model||'';
+  document.getElementById('year').value = car.year||'';
+  document.getElementById('category').value = car.category||'regular';
+  document.getElementById('condition').value = car.condition||'foreign-used';
+  document.getElementById('bodyType').value = car.bodyType||'';
+  document.getElementById('price').value = car.price||'';
+  document.getElementById('mileage').value = car.mileage||'';
+  document.getElementById('fuel').value = car.fuel||'';
+  document.getElementById('colour').value = car.colour||'';
+  document.getElementById('tag').value = car.tag||'new';
+  document.getElementById('description').value = car.description||'';
+  document.getElementById('engine').value = car.engine||'';
+  document.getElementById('horsepower').value = car.horsepower||'';
+  document.getElementById('transmission').value = car.transmission||'';
+  document.getElementById('drivetrain').value = car.drivetrain||'';
+  document.getElementById('interiorColor').value = car.interiorColor||'';
+  document.getElementById('seats').value = car.seats||'';
+  document.getElementById('financeUrl').value = car.financeUrl||'';
+  document.getElementById('featured').checked = car.featured||false;
+  document.querySelectorAll('#featuresBox input[type="checkbox"]').forEach(cb => { cb.checked = (car.features||[]).includes(cb.value); });
   document.getElementById('images').value = '';
-  document.getElementById('imgHint').textContent = 'Leave empty to keep existing photos, or pick new ones to add';
+  document.getElementById('imgHint').textContent = 'Leave empty to keep photos, or pick new ones to add';
   document.getElementById('currentPhotosSection').style.display = 'block';
-  renderCurrentPhotos(car.images || []);
-
+  renderCurrentPhotos(car.images||[]);
   editingCarId = id;
   document.getElementById('saveBtn').textContent = 'Update Car';
   document.getElementById('cancelEditBtn').style.display = 'block';
   document.getElementById('formTitle').textContent = 'Edit Car';
   document.getElementById('editingBanner').style.display = 'block';
   document.getElementById('formMsg').style.display = 'none';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
-// Resets the form WITHOUT hiding the message — used after successful save
 function resetForm() {
-  editingCarId = null;
-  keptImages = [];
-  allCarImages = [];
-  document.querySelectorAll('#dashboard input[type="text"], #dashboard textarea').forEach(el => el.value = '');
+  editingCarId = null; keptImages = []; allCarImages = [];
+  document.querySelectorAll('#inventorySection input[type="text"], #inventorySection textarea').forEach(el => el.value = '');
   document.querySelectorAll('#featuresBox input[type="checkbox"]').forEach(cb => cb.checked = false);
   document.getElementById('images').value = '';
   document.getElementById('imgHint').textContent = 'Choose up to 12 photos';
@@ -334,7 +372,6 @@ function resetForm() {
   document.getElementById('condition').value = 'foreign-used';
   document.getElementById('bodyType').value = '';
   document.getElementById('tag').value = 'new';
-  document.getElementById('financeUrl').value = '';
   document.getElementById('featured').checked = false;
   document.getElementById('saveBtn').textContent = 'Add Car';
   document.getElementById('saveBtn').classList.remove('btn-loading');
@@ -345,137 +382,246 @@ function resetForm() {
   document.getElementById('currentPhotoGrid').innerHTML = '';
 }
 
-// Cancel button — resets AND hides message
-function cancelEdit() {
-  resetForm();
-  document.getElementById('formMsg').style.display = 'none';
-}
+function cancelEdit() { resetForm(); document.getElementById('formMsg').style.display = 'none'; }
 
-function showMsg(type, text, autoDismissMs) {
-  const msgEl = document.getElementById('formMsg');
-  msgEl.className = `msg ${type}`;
-  msgEl.textContent = text;
-  msgEl.style.display = 'block';
-  if (autoDismissMs) {
-    setTimeout(() => { msgEl.style.display = 'none'; }, autoDismissMs);
-  }
+function showMsg(type, text, ms) {
+  const el = document.getElementById('formMsg');
+  el.className = `msg ${type}`; el.textContent = text; el.style.display = 'block';
+  if(ms) setTimeout(()=>{ el.style.display='none'; }, ms);
 }
 
 async function saveCar() {
   const saveBtn = document.getElementById('saveBtn');
   const isEditing = !!editingCarId;
-
   const make = document.getElementById('make').value.trim();
   const model = document.getElementById('model').value.trim();
   const year = document.getElementById('year').value.trim();
   const price = document.getElementById('price').value.trim();
+  if(!make){showMsg('error','❌ Make is required');return;}
+  if(!model){showMsg('error','❌ Model is required');return;}
+  if(!year){showMsg('error','❌ Year is required');return;}
+  if(!price){showMsg('error','❌ Price is required');return;}
 
-  if (!make) { showMsg('error', '❌ Make is required (e.g. Toyota)'); return; }
-  if (!model) { showMsg('error', '❌ Model is required (e.g. Highlander)'); return; }
-  if (!year) { showMsg('error', '❌ Year is required'); return; }
-  if (!price) { showMsg('error', '❌ Price is required'); return; }
-
-  // Collect features before anything resets
-  const selectedFeatures = [...document.querySelectorAll('#featuresBox input[type="checkbox"]:checked')].map(cb => cb.value);
-
+  const selectedFeatures = [...document.querySelectorAll('#featuresBox input[type="checkbox"]:checked')].map(cb=>cb.value);
   const formData = new FormData();
-  formData.append('make', make);
-  formData.append('model', model);
-  formData.append('year', year);
-  formData.append('category', document.getElementById('category').value);
-  formData.append('condition', document.getElementById('condition').value);
-  formData.append('bodyType', document.getElementById('bodyType').value);
-  formData.append('price', price);
-  formData.append('mileage', document.getElementById('mileage').value);
-  formData.append('fuel', document.getElementById('fuel').value);
-  formData.append('colour', document.getElementById('colour').value);
-  formData.append('tag', document.getElementById('tag').value);
-  formData.append('description', document.getElementById('description').value);
-  formData.append('engine', document.getElementById('engine').value);
-  formData.append('horsepower', document.getElementById('horsepower').value);
-  formData.append('transmission', document.getElementById('transmission').value);
-  formData.append('drivetrain', document.getElementById('drivetrain').value);
-  formData.append('interiorColor', document.getElementById('interiorColor').value);
-  formData.append('seats', document.getElementById('seats').value);
-  formData.append('financeUrl', document.getElementById('financeUrl').value);
-  formData.append('featured', document.getElementById('featured').checked ? 'true' : 'false');
+  formData.append('make',make); formData.append('model',model); formData.append('year',year);
+  formData.append('category',document.getElementById('category').value);
+  formData.append('condition',document.getElementById('condition').value);
+  formData.append('bodyType',document.getElementById('bodyType').value);
+  formData.append('price',price);
+  formData.append('mileage',document.getElementById('mileage').value);
+  formData.append('fuel',document.getElementById('fuel').value);
+  formData.append('colour',document.getElementById('colour').value);
+  formData.append('tag',document.getElementById('tag').value);
+  formData.append('description',document.getElementById('description').value);
+  formData.append('engine',document.getElementById('engine').value);
+  formData.append('horsepower',document.getElementById('horsepower').value);
+  formData.append('transmission',document.getElementById('transmission').value);
+  formData.append('drivetrain',document.getElementById('drivetrain').value);
+  formData.append('interiorColor',document.getElementById('interiorColor').value);
+  formData.append('seats',document.getElementById('seats').value);
+  formData.append('financeUrl',document.getElementById('financeUrl').value);
+  formData.append('featured',document.getElementById('featured').checked?'true':'false');
 
+  if(isEditing){ formData.append('imagesManaged','true'); keptImages.forEach(url=>formData.append('keepImages',url)); }
+  for(let file of document.getElementById('images').files) formData.append('images',file);
 
-  if (isEditing) {
-    formData.append('imagesManaged', 'true');
-    keptImages.forEach(url => formData.append('keepImages', url));
-  }
-
-  for (let file of document.getElementById('images').files) {
-    formData.append('images', file);
-  }
-
-  const originalBtnText = saveBtn.textContent;
-  saveBtn.textContent = isEditing ? '⏳ Updating...' : '⏳ Uploading...';
+  const orig = saveBtn.textContent;
+  saveBtn.textContent = isEditing?'⏳ Updating...':'⏳ Uploading...';
   saveBtn.classList.add('btn-loading');
 
   try {
-    // Step 1 — save car + images
-    const res = await fetch(isEditing ? `${API}/cars/${editingCarId}` : `${API}/cars`, {
-      method: isEditing ? 'PUT' : 'POST',
-      headers: { 'Authorization': `Bearer ${token}` },
-      body: formData
+    const res = await fetch(isEditing?`${API}/cars/${editingCarId}`:`${API}/cars`, {
+      method:isEditing?'PUT':'POST', headers:{'Authorization':`Bearer ${token}`}, body:formData
     });
     const data = await res.json();
+    if(!data.success){ saveBtn.textContent=orig; saveBtn.classList.remove('btn-loading'); showMsg('error','❌ '+(data.message||'Something went wrong.')); return; }
 
-    if (!data.success) {
-      saveBtn.textContent = originalBtnText;
-      saveBtn.classList.remove('btn-loading');
-      showMsg('error', '❌ ' + (data.message || 'Something went wrong.'));
-      return;
-    }
-
-    // Step 2 — save features via clean JSON request
-    const carId = isEditing ? editingCarId : data.car._id;
+    const carId = isEditing?editingCarId:data.car._id;
     await fetch(`${API}/cars/${carId}/features`, {
-      method: 'PATCH',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ features: selectedFeatures })
+      method:'PATCH', headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},
+      body:JSON.stringify({features:selectedFeatures})
     });
 
-    // Reset form first, then show message — message won't be hidden by reset
     resetForm();
-    showMsg('success', isEditing ? '✅ Car updated successfully!' : '✅ Car added to inventory!', 6000);
+    showMsg('success',isEditing?'✅ Car updated successfully!':'✅ Car added to inventory!',6000);
     loadCars();
-
-  } catch (err) {
-    saveBtn.textContent = originalBtnText;
-    saveBtn.classList.remove('btn-loading');
-    showMsg('error', '❌ Network error — check your connection and try again.');
-  }
+  } catch(err){ saveBtn.textContent=orig; saveBtn.classList.remove('btn-loading'); showMsg('error','❌ Network error — try again.'); }
 }
 
-async function toggleAvailable(id, currentlyAvailable) {
-  const car = currentCars.find(c => c._id === id);
-  const formData = new FormData();
-  formData.append('available', !currentlyAvailable);
-  formData.append('imagesManaged', 'true');
-  if (car && car.images) car.images.forEach(url => formData.append('keepImages', url));
-  await fetch(`${API}/cars/${id}`, {
-    method: 'PUT',
-    headers: { 'Authorization': `Bearer ${token}` },
-    body: formData
-  });
+async function toggleAvailable(id, current) {
+  const car = currentCars.find(c=>c._id===id);
+  const fd = new FormData();
+  fd.append('available',!current);
+  fd.append('imagesManaged','true');
+  if(car&&car.images) car.images.forEach(url=>fd.append('keepImages',url));
+  await fetch(`${API}/cars/${id}`,{method:'PUT',headers:{'Authorization':`Bearer ${token}`},body:fd});
   loadCars();
 }
 
 async function deleteCar(id) {
-  if (!confirm('Delete this car permanently? This cannot be undone.')) return;
-  const res = await fetch(`${API}/cars/${id}`, {
-    method: 'DELETE',
-    headers: { 'Authorization': `Bearer ${token}` }
-  });
+  if(!confirm('Delete this car permanently?')) return;
+  const res = await fetch(`${API}/cars/${id}`,{method:'DELETE',headers:{'Authorization':`Bearer ${token}`}});
   const data = await res.json();
-  if (data.success) loadCars();
-  else alert('Delete failed: ' + data.message);
+  if(data.success) loadCars(); else alert('Delete failed: '+data.message);
+}
+
+// ── BLOG ──
+function showBlogMsg(type, text, ms) {
+  const el = document.getElementById('blogMsg');
+  el.className = `msg ${type}`; el.textContent = text; el.style.display = 'block';
+  if(ms) setTimeout(()=>{ el.style.display='none'; }, ms);
+}
+
+function autoSlug() {
+  const slug = document.getElementById('postTitle').value.toLowerCase()
+    .replace(/[^a-z0-9\s-]/g,'').trim().replace(/\s+/g,'-').replace(/-+/g,'-');
+  document.getElementById('postSlug').value = slug;
+}
+
+function insertTag(tag) {
+  const ta = document.getElementById('postContent');
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  const sel = ta.value.substring(s,e) || 'text here';
+  const rep = `<${tag}>${sel}</${tag}>`;
+  ta.value = ta.value.substring(0,s)+rep+ta.value.substring(e);
+  ta.focus(); ta.setSelectionRange(s+tag.length+2, s+tag.length+2+sel.length);
+}
+
+function insertList() {
+  const ta = document.getElementById('postContent');
+  const pos = ta.selectionStart;
+  const html = '\n<ul>\n  <li>First item</li>\n  <li>Second item</li>\n  <li>Third item</li>\n</ul>\n';
+  ta.value = ta.value.substring(0,pos)+html+ta.value.substring(pos); ta.focus();
+}
+
+function insertLink() {
+  const url = prompt('Enter URL:'); if(!url) return;
+  const ta = document.getElementById('postContent');
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  const sel = ta.value.substring(s,e)||'link text';
+  const link = `<a href="${url}" target="_blank">${sel}</a>`;
+  ta.value = ta.value.substring(0,s)+link+ta.value.substring(e);
+}
+
+async function loadPosts() {
+  try {
+    const res = await fetch(`${API}/blog/admin/all`,{headers:{'Authorization':`Bearer ${token}`}});
+    const data = await res.json();
+    if(!data.success) return;
+    currentPosts = data.posts;
+    document.getElementById('postCount').textContent = data.count;
+    document.getElementById('postList').innerHTML = data.posts.map(post=>`
+      <div class="blog-row">
+        <div style="flex:1;min-width:0;">
+          <strong style="font-size:.85rem;">${post.title}</strong><br/>
+          <span style="font-size:.75rem;color:#999;">${post.category}</span>
+          <span class="post-status ${post.published?'status-published':'status-draft'}">${post.published?'● Live':'○ Draft'}</span>
+        </div>
+        <div class="blog-actions">
+          <button class="edit-btn" onclick="editPost('${post._id}')">Edit</button>
+          <button class="${post.published?'edit-btn':'pub-btn'}" onclick="togglePublish('${post._id}',${post.published})">${post.published?'Unpublish':'Publish'}</button>
+          <button class="del-btn" onclick="deletePost('${post._id}')">Delete</button>
+        </div>
+      </div>
+    `).join('')||'<p style="color:#666;font-size:.85rem;">No posts yet. Write your first one!</p>';
+  } catch(err){ console.error(err); }
+}
+
+async function savePost() {
+  const saveBtn = document.getElementById('savePostBtn');
+  const isEditing = !!editingPostId;
+  const title = document.getElementById('postTitle').value.trim();
+  const slug = document.getElementById('postSlug').value.trim();
+  const excerpt = document.getElementById('postExcerpt').value.trim();
+  const content = document.getElementById('postContent').value.trim();
+
+  if(!title){showBlogMsg('error','❌ Title is required');return;}
+  if(!slug){showBlogMsg('error','❌ Slug is required');return;}
+  if(!excerpt){showBlogMsg('error','❌ Excerpt is required');return;}
+  if(!content){showBlogMsg('error','❌ Content is required');return;}
+
+  const body = {
+    title, slug, excerpt, content,
+    category: document.getElementById('postCategory').value,
+    author: document.getElementById('postAuthor').value||'Sabicars Team',
+    readTime: document.getElementById('postReadTime').value||'3 min read',
+    coverImage: document.getElementById('postCover').value,
+    published: document.getElementById('postPublished').checked
+  };
+
+  const orig = saveBtn.textContent;
+  saveBtn.textContent='⏳ Saving...'; saveBtn.classList.add('btn-loading');
+
+  try {
+    const res = await fetch(isEditing?`${API}/blog/${editingPostId}`:`${API}/blog`,{
+      method:isEditing?'PUT':'POST',
+      headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},
+      body:JSON.stringify(body)
+    });
+    const data = await res.json();
+    if(data.success){
+      cancelPostEdit();
+      showBlogMsg('success', isEditing?'✅ Post updated!':(body.published?'✅ Post published and live!':'✅ Draft saved!'), 6000);
+      loadPosts();
+    } else {
+      saveBtn.textContent=orig; saveBtn.classList.remove('btn-loading');
+      showBlogMsg('error','❌ '+(data.message||'Something went wrong.'));
+    }
+  } catch(err){ saveBtn.textContent=orig; saveBtn.classList.remove('btn-loading'); showBlogMsg('error','❌ Network error. Try again.'); }
+}
+
+async function editPost(id) {
+  try {
+    const res = await fetch(`${API}/blog/admin/${id}`,{headers:{'Authorization':`Bearer ${token}`}});
+    const data = await res.json();
+    if(!data.success) return;
+    const post = data.post;
+    document.getElementById('postTitle').value = post.title||'';
+    document.getElementById('postSlug').value = post.slug||'';
+    document.getElementById('postCategory').value = post.category||'Industry News';
+    document.getElementById('postAuthor').value = post.author||'Sabicars Team';
+    document.getElementById('postReadTime').value = post.readTime||'';
+    document.getElementById('postCover').value = post.coverImage||'';
+    document.getElementById('postExcerpt').value = post.excerpt||'';
+    document.getElementById('postContent').value = post.content||'';
+    document.getElementById('postPublished').checked = post.published||false;
+    editingPostId = id;
+    document.getElementById('savePostBtn').textContent = 'Update Post';
+    document.getElementById('cancelPostBtn').style.display = 'block';
+    document.getElementById('blogFormTitle').textContent = 'Edit Post';
+    document.getElementById('blogMsg').style.display = 'none';
+    window.scrollTo({top:0,behavior:'smooth'});
+  } catch(err){ console.error(err); }
+}
+
+function cancelPostEdit() {
+  editingPostId = null;
+  ['postTitle','postSlug','postAuthor','postReadTime','postCover','postExcerpt','postContent'].forEach(id=>{ document.getElementById(id).value=''; });
+  document.getElementById('postAuthor').value = 'Sabicars Team';
+  document.getElementById('postCategory').value = 'Industry News';
+  document.getElementById('postPublished').checked = false;
+  document.getElementById('savePostBtn').textContent = 'Save Post';
+  document.getElementById('savePostBtn').classList.remove('btn-loading');
+  document.getElementById('cancelPostBtn').style.display = 'none';
+  document.getElementById('blogFormTitle').textContent = 'New Blog Post';
+  document.getElementById('blogMsg').style.display = 'none';
+}
+
+async function togglePublish(id, current) {
+  await fetch(`${API}/blog/${id}`,{
+    method:'PUT',
+    headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},
+    body:JSON.stringify({published:!current})
+  });
+  loadPosts();
+}
+
+async function deletePost(id) {
+  if(!confirm('Delete this post permanently?')) return;
+  const res = await fetch(`${API}/blog/${id}`,{method:'DELETE',headers:{'Authorization':`Bearer ${token}`}});
+  const data = await res.json();
+  if(data.success) loadPosts(); else alert('Delete failed: '+data.message);
 }
 </script>
 </body>
