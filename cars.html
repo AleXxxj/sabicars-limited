@@ -58,6 +58,8 @@
 .sk-img{height:200px;border-radius:0;}
 .sk-body{padding:18px 20px 20px;}
 .sk-line{height:11px;margin-bottom:10px;}
+.finance-btn{display:flex;align-items:center;justify-content:center;gap:6px;background:transparent;border:1px solid var(--gold-border);color:var(--gold);padding:8px;border-radius:6px;font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;margin-top:10px;transition:all .25s;}
+.finance-btn:hover{background:var(--gold-dim);}
 </style>
 </head>
 <body>
@@ -202,6 +204,7 @@ function renderCarCard(car){
           </div>
         </div>
       </div>
+      ${car.financeUrl ? `<a href="${car.financeUrl}" target="_blank" class="finance-btn" onclick="event.stopPropagation()"><i class="fas fa-file-invoice-dollar"></i> Apply Finance</a>` : ''}
     </div>
   </div>`;
 }
