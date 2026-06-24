@@ -4,6 +4,12 @@
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
 <title id="pageTitle">Vehicle Details — Sabicars Limited</title>
 <meta property="og:title" id="ogTitle" content="Vehicle Details — Sabicars Limited"/>
+<meta property="og:description" id="ogDesc" content="Verified tokunbo vehicles. Pay 40% and drive today."/>
+<meta property="og:image" id="ogImage" content=""/>
+<meta property="og:type" content="product"/>
+<meta property="og:site_name" content="Sabicars Limited"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta property="og:title" id="ogTitle" content="Vehicle Details — Sabicars Limited"/>
 <meta property="og:description" id="ogDesc" content="Verified tokunbo vehicles from Sabicars Limited, Lagos. Pay 40% and drive today."/>
 <meta property="og:image" id="ogImage" content=""/>
 <meta property="og:type" content="product"/>
@@ -129,6 +135,13 @@
     </div>
   </div>
 </div></section>
+<section id="similarSection" style="display:none;padding:48px 0 80px;background:var(--bg2);border-top:1px solid var(--border);">
+  <div class="container">
+    <div class="sec-label"><div class="sec-label-line"></div><span class="sec-label-text">You May Also Like</span></div>
+    <h2 style="font-size:clamp(1.3rem,3vw,1.8rem);font-weight:600;color:var(--text);margin-bottom:32px;">Similar Vehicles</h2>
+    <div class="cars-grid" id="similarGrid"></div>
+  </div>
+</section>
 
 <footer class="footer"><div class="container">
   <div class="footer-grid">
@@ -154,7 +167,7 @@ function tagLabel(tag){
 function conditionLabel(c){
   if (c === 'nigeria-used') return 'Nigeria Used';
   if (c === 'brand-new') return 'Brand New';
-  return c === 'Foreign Used';
+  return 'Foreign Used';
 }
 function parsePrice(val){
   return Number(String(val).replace(/[^0-9.]/g, '')) || 0;
@@ -169,6 +182,7 @@ async function loadCar(){
     if(!data.success){ showError(); return; }
     car = data.car;
     renderCar();
+    loadSimilar();
   } catch(err){
     console.error(err);
     showError();
@@ -183,42 +197,43 @@ function showError(){
 function renderCar(){
   document.getElementById('loadingMsg').style.display = 'none';
   document.getElementById('detailGrid').style.display = 'grid';
-  const pageTitle = `${car.year} ${car.make} ${car.model} — Sabicars Limited`;
-  const pageTitle = `${car.year} ${car.make} ${car.model} — Sabicars Limited`;
+
+  const pageTitle = car.year + ' ' + car.make + ' ' + car.model + ' — Sabicars Limited';
   document.getElementById('pageTitle').textContent = pageTitle;
-  document.getElementById('ogTitle').setAttribute('content', pageTitle);
-  document.getElementById('ogDesc').setAttribute('content', `${car.year} ${car.make} ${car.model}. ${conditionLabel(car.condition)}. ${formatPrice(parsePrice(car.price))}. Pay 40% and drive today. Sabicars Limited, Lagos.`);
-  if (car.images && car.images[0]) document.getElementById('ogImage').setAttribute('content', car.images[0]);
-  document.getElementById('ogTitle').setAttribute('content', pageTitle);
-  document.getElementById('ogDesc').setAttribute('content', `${car.year} ${car.make} ${car.model}. ${conditionLabel(car.condition)}. ${formatPrice(parsePrice(car.price))}. Pay 40% and drive today. Sabicars Limited, Lagos.`);
-  if (car.images && car.images[0]) document.getElementById('ogImage').setAttribute('content', car.images[0]);
+
+  const ogTitle = document.getElementById('ogTitle');
+  const ogDesc = document.getElementById('ogDesc');
+  const ogImage = document.getElementById('ogImage');
+  if(ogTitle) ogTitle.setAttribute('content', pageTitle);
+  if(ogDesc) ogDesc.setAttribute('content', car.year + ' ' + car.make + ' ' + car.model + '. ' + conditionLabel(car.condition) + '. ' + formatPrice(parsePrice(car.price)) + '. Pay 40% and drive today. Sabicars Limited, Lagos.');
+  if(ogImage && car.images && car.images[0]) ogImage.setAttribute('content', car.images[0]);
 
   const images = (car.images && car.images.length > 0) ? car.images : ['https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=900&q=70'];
 
-  document.getElementById('detailTag').className = `car-tag tag-${car.tag}`;
-  document.getElementById('detailTag').textContent = tagLabel(car.tag);
-  document.getElementById('mainImg').style.backgroundImage = `url('${images[0]}')`;
+  const tagEl = document.getElementById('detailTag');
+  tagEl.className = 'car-tag tag-' + car.tag;
+  tagEl.textContent = tagLabel(car.tag);
 
-  document.getElementById('thumbRow').innerHTML = images.map((img, i) =>
-    `<div class="thumb ${i===0?'active':''}" style="background-image:url('${img}')" onclick="selectImage(${i})"></div>`
-  ).join('');
+  document.getElementById('mainImg').style.backgroundImage = "url('" + images[0] + "')";
+  document.getElementById('thumbRow').innerHTML = images.map(function(img, i){
+    return '<div class="thumb ' + (i===0?'active':'') + '" style="background-image:url(\'' + img + '\')" onclick="selectImage(' + i + ')"></div>';
+  }).join('');
 
   document.getElementById('detailMake').textContent = car.make;
   document.getElementById('detailModel').textContent = car.model;
-  document.getElementById('detailSub').textContent = `${car.year} · ${conditionLabel(car.condition)}`;
+  document.getElementById('detailSub').textContent = car.year + ' · ' + conditionLabel(car.condition);
 
   const price = parsePrice(car.price);
   const downPayment = Math.round(price * 0.4);
   document.getElementById('detailPrice').textContent = formatPrice(price);
-  document.getElementById('detailDown').textContent = `40% Down: ${formatPrice(downPayment)}`;
+  document.getElementById('detailDown').textContent = '40% Down: ' + formatPrice(downPayment);
 
-  document.getElementById('detailInquireMenu').innerHTML = `
-    <a href="tel:+2348101885558" class="inquire-menu-item"><i class="fas fa-phone"></i> Call Us</a>
-    <a href="https://wa.me/2348055065825?text=${encodeURIComponent(`Hello Sabicars! I'm interested in buying the ${car.year} ${car.make} ${car.model} listed for ${formatPrice(parsePrice(car.price))}. Please provide more details.`
-)}" target="_blank" class="inquire-menu-item"><i class="fab fa-whatsapp"></i> WhatsApp</a>
-  `;
+  const waMsg = encodeURIComponent('Hello Sabicars! I\'m interested in buying the ' + car.year + ' ' + car.make + ' ' + car.model + ' listed for ' + formatPrice(price) + '. Please provide more details.');
+  document.getElementById('detailInquireMenu').innerHTML =
+    '<a href="tel:+2348101885558" class="inquire-menu-item"><i class="fas fa-phone"></i> Call Us</a>' +
+    '<a href="https://wa.me/2348055065825?text=' + waMsg + '" target="_blank" class="inquire-menu-item"><i class="fab fa-whatsapp"></i> WhatsApp</a>';
 
-  document.getElementById('tab-overview').innerHTML = `<p>${car.description || 'No description provided for this vehicle yet. Contact us for more details.'}</p>`;
+  document.getElementById('tab-overview').innerHTML = '<p>' + (car.description || 'No description provided. Contact us for more details.') + '</p>';
 
   const specs = [
     { lbl: 'Make', val: car.make },
@@ -235,23 +250,56 @@ function renderCar(){
     { lbl: 'Drivetrain', val: car.drivetrain },
     { lbl: 'Interior Colour', val: car.interiorColor },
     { lbl: 'Seats', val: car.seats }
-  ].filter(s => s.val);
+  ].filter(function(s){ return s.val; });
 
-  document.getElementById('tab-specs').innerHTML = `<div class="spec-grid">${
-    specs.map(s => `<div class="spec-item"><div class="lbl">${s.lbl}</div><div class="val">${s.val}</div></div>`).join('')
-  }</div>`;
+  document.getElementById('tab-specs').innerHTML = '<div class="spec-grid">' +
+    specs.map(function(s){ return '<div class="spec-item"><div class="lbl">' + s.lbl + '</div><div class="val">' + s.val + '</div></div>'; }).join('') +
+    '</div>';
 
   document.getElementById('tab-features').innerHTML = (car.features && car.features.length > 0)
-    ? `<div class="feature-list">${car.features.map(f => `<div class="feature-item"><i class="fas fa-check-circle"></i> ${f}</div>`).join('')}</div>`
-    : `<p style="color:var(--muted)">No additional features listed for this vehicle.</p>`;
+    ? '<div class="feature-list">' + car.features.map(function(f){ return '<div class="feature-item"><i class="fas fa-check-circle"></i> ' + f + '</div>'; }).join('') + '</div>'
+    : '<p style="color:var(--muted)">No additional features listed for this vehicle.</p>';
+}
+
+async function loadSimilar(){
+  if(!car) return;
+  try {
+    const res = await fetch(API + '/cars');
+    const data = await res.json();
+    if(!data.success) return;
+    const similar = data.cars.filter(function(c){
+      return c._id !== car._id && (c.category === car.category || c.make === car.make);
+    }).slice(0, 4);
+    if(similar.length === 0) return;
+    const section = document.getElementById('similarSection');
+    const grid = document.getElementById('similarGrid');
+    if(!section || !grid) return;
+    section.style.display = 'block';
+    grid.innerHTML = similar.map(function(c){
+      const p = parsePrice(c.price);
+      return '<div class="car-card" onclick="window.location.href=\'car-detail.html?id=' + c._id + '\'" style="cursor:pointer;">' +
+        '<div class="car-img">' +
+        '<span class="car-tag tag-' + c.tag + '">' + tagLabel(c.tag) + '</span>' +
+        '<div class="car-img-bg" style="background-image:url(\'' + ((c.images && c.images[0]) ? c.images[0] : 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=600&q=70') + '\')"></div>' +
+        '</div>' +
+        '<div class="car-body">' +
+        '<div class="car-make">' + c.make + '</div>' +
+        '<h3 class="car-model">' + c.model + '</h3>' +
+        '<div class="car-year">' + c.year + ' · ' + conditionLabel(c.condition) + '</div>' +
+        '<div class="car-footer" style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border2);">' +
+        '<div><div class="price-lbl">Price</div><div class="price-val" style="font-size:1rem;">' + formatPrice(p) + '</div></div>' +
+        '<a href="car-detail.html?id=' + c._id + '" class="car-cta" style="font-size:.65rem;padding:6px 10px;">View</a>' +
+        '</div></div></div>';
+    }).join('');
+  } catch(err){ console.error(err); }
 }
 
 function selectImage(i){
   imgIndex = i;
   const images = (car.images && car.images.length > 0) ? car.images : [];
   if(images.length === 0) return;
-  document.getElementById('mainImg').style.backgroundImage = `url('${images[i]}')`;
-  document.querySelectorAll('.thumb').forEach((t, idx) => t.classList.toggle('active', idx === i));
+  document.getElementById('mainImg').style.backgroundImage = "url('" + images[i] + "')";
+  document.querySelectorAll('.thumb').forEach(function(t, idx){ t.classList.toggle('active', idx === i); });
 }
 function nextImage(){
   const images = (car.images && car.images.length > 0) ? car.images : [];
@@ -267,9 +315,9 @@ function prevImage(){
 }
 
 function switchTab(tab){
-  ['overview','specs','features'].forEach(t => {
-    document.getElementById(`tab-${t}`).style.display = (t === tab) ? 'block' : 'none';
-    document.getElementById(`tabBtn-${t}`).classList.toggle('active', t === tab);
+  ['overview','specs','features'].forEach(function(t){
+    document.getElementById('tab-' + t).style.display = (t === tab) ? 'block' : 'none';
+    document.getElementById('tabBtn-' + t).classList.toggle('active', t === tab);
   });
 }
 
@@ -279,9 +327,10 @@ function toggleInquireMenu(e){
   menu.classList.toggle('open');
 }
 document.addEventListener('click', function(){
-  document.querySelectorAll('.inquire-menu.open').forEach(m => m.classList.remove('open'));
+  document.querySelectorAll('.inquire-menu.open').forEach(function(m){ m.classList.remove('open'); });
 });
 
 loadCar();
 </script>
-</body></html>
+</body>
+</html>
