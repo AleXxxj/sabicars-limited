@@ -124,6 +124,8 @@
 <script>
 const SABICARS_API = 'https://sabicars-api.onrender.com/api';
 let allCars = [];
+let displayedCount = 0;
+const PAGE_SIZE = 9;
 
 function tagLabel(tag){
   return { hot: '🔥 Hot', new: 'New In', premium: 'Premium', supply: 'Fleet Supply' }[tag] || tag;
@@ -224,11 +226,13 @@ async function loadRecentlySold(){
     const data = await res.json();
     if (!data.success || data.cars.length === 0) return;
     document.getElementById('soldSection').style.display = 'block';
+    document.getElementById('jumpSoldBtn').style.display = 'inline-flex';
     document.getElementById('soldGrid').innerHTML = data.cars.map(renderSoldCard).join('');
   } catch (err) { console.error(err); }
 }
 
 function applyFilters(){
+  displayedCount = 0;
   const brand = document.getElementById('brandFilter').value;
   const category = document.getElementById('categoryFilter').value;
   const sort = document.getElementById('sortFilter').value;
@@ -257,11 +261,30 @@ function applyFilters(){
   if (sort === 'year-new') filtered.sort((a,b) => Number(b.year) - Number(a.year));
   if (sort === 'year-old') filtered.sort((a,b) => Number(a.year) - Number(b.year));
 
+  window._filteredCars = filtered;
+  renderPage();
+}
+
+function renderPage(){
+  const filtered = window._filteredCars || [];
   const grid = document.getElementById('carsGrid');
-  grid.innerHTML = filtered.length === 0
-    ? '<p style="grid-column:1/-1;text-align:center;color:var(--muted);padding:60px 0;">No vehicles match these filters.</p>'
-    : filtered.map(renderCarCard).join('');
-  document.getElementById('invCount').textContent = 'Showing ' + filtered.length + ' vehicle' + (filtered.length !== 1 ? 's' : '');
+  const loadMoreBtn = document.getElementById('loadMoreBtn');
+  const nextBatch = filtered.slice(displayedCount, displayedCount + PAGE_SIZE);
+
+  if (displayedCount === 0) {
+    grid.innerHTML = filtered.length === 0
+      ? '<p style="grid-column:1/-1;text-align:center;color:var(--muted);padding:60px 0;">No vehicles match these filters.</p>'
+      : nextBatch.map(renderCarCard).join('');
+  } else {
+    grid.insertAdjacentHTML('beforeend', nextBatch.map(renderCarCard).join(''));
+  }
+
+  displayedCount += nextBatch.length;
+  document.getElementById('invCount').textContent = `Showing ${displayedCount} of ${filtered.length} vehicle${filtered.length !== 1 ? 's' : ''}`;
+
+  if (loadMoreBtn) {
+    loadMoreBtn.style.display = displayedCount < filtered.length ? 'block' : 'none';
+  }
 }
 
 function resetFilters(){
