@@ -11,266 +11,218 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 <link rel="stylesheet" href="theme.css"/>
 <style>
-/* ── INDEX-SPECIFIC ── */
-
 /* HERO */
-.hero {
-  position: relative; min-height: 100vh;
-  display: flex; align-items: center; overflow: hidden;
-}
-.hero-slides { position: absolute; inset: 0; z-index: 0; }
-.hero-slide {
-  position: absolute; inset: 0;
-  background-size: cover; background-position: center;
-  opacity: 0; transition: opacity 1.2s ease;
-}
-.hero-slide.active { opacity: 1; animation: kenburns 9s ease-out forwards; }
-@keyframes kenburns { from{transform:scale(1.07) translateX(0);} to{transform:scale(1.0) translateX(-1%);} }
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;overflow:hidden;}
+.hero-slides{position:absolute;inset:0;z-index:0;transition:opacity .6s;}
+.hero-slide{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 1.2s ease;}
+.hero-slide.active{opacity:1;animation:kenburns 9s ease-out forwards;}
+@keyframes kenburns{from{transform:scale(1.07) translateX(0);}to{transform:scale(1.0) translateX(-1%);}}
+/* Static fallback slides */
 .slide-1{background-image:url('images/hero-slide1.JPG');}
 .slide-2{background-image:url('images/hero-slide2.PNG');}
 .slide-3{background-image:url('images/hero-slide3.JPG');}
 .slide-4{background-image:url('images/hero-slide4.JPG');}
 .slide-5{background-image:url('images/hero-slide5.JPG');}
 .slide-6{background-image:url('images/hero-slide6.JPG');}
-.slide-8{background-image:url('https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=1800&q=80');}
 .slide-7{background-image:url('images/hero-slide7.jpg');}
+.slide-8{background-image:url('https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=1800&q=80');}
 .slide-9{background-image:url('https://images.unsplash.com/photo-1563720223185-11003d516935?w=1800&q=80');}
 .slide-10{background-image:url('images/hero-slide10.JPG');}
-.hero-overlay { position: absolute; inset: 0; background: var(--hero-grad); z-index: 1; }
-@media(max-width:768px){ .hero-overlay { background: var(--hero-mob); } }
+/* Mobile hero fix */
+@media(max-width:768px){
+  .hero-slide{background-position:center 60%;}
+  .hero{min-height:100svh;}
+}
+.hero-overlay{position:absolute;inset:0;background:var(--hero-grad);z-index:1;}
+@media(max-width:768px){.hero-overlay{background:var(--hero-mob);}}
+.hero-body{position:relative;z-index:2;padding:110px 0 80px;width:100%;}
+@media(max-width:768px){.hero-body{padding:80px 0 60px;}}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:50px;padding:5px 14px;font-size:.67rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:22px;}
+.hero-dot{width:5px;height:5px;background:var(--gold);border-radius:50%;animation:blink 1.8s infinite;}
+.hero h1{font-size:clamp(2.8rem,7vw,6rem);font-weight:600;line-height:.95;color:var(--text);margin-bottom:24px;}
+.hero h1 em{font-style:italic;color:var(--gold);display:block;}
+.hero-sub{font-size:1rem;color:var(--muted);font-weight:300;line-height:1.8;max-width:460px;margin-bottom:36px;}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:52px;}
+.hero-stats{display:flex;gap:40px;flex-wrap:wrap;}
+.hs-num{font-family:'Cormorant Garamond',serif;font-size:2.6rem;font-weight:700;color:var(--gold);line-height:1;}
+.hs-lbl{font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-top:4px;}
+.hero-dots{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);z-index:3;display:flex;gap:8px;}
+.hero-dot-btn{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.3);border:none;cursor:pointer;transition:all .3s;padding:0;}
+.hero-dot-btn.active{background:var(--gold);width:24px;border-radius:4px;}
 
-.hero-body {
-  position: relative; z-index: 2;
-  padding: 110px 0 80px; width: 100%;
-}
-@media(max-width:768px){ .hero-body { padding: 80px 0 60px; } }
-
-.hero-eyebrow {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: var(--gold-dim); border: 1px solid var(--gold-border);
-  border-radius: 50px; padding: 5px 14px;
-  font-size: 0.67rem; font-weight: 700;
-  letter-spacing: 0.2em; text-transform: uppercase;
-  color: var(--gold); margin-bottom: 22px;
-}
-.hero-dot { width: 5px; height: 5px; background: var(--gold); border-radius: 50%; animation: blink 1.8s infinite; }
-
-.hero h1 {
-  font-size: clamp(2.8rem, 7vw, 6rem);
-  font-weight: 600; line-height: 0.95;
-  color: var(--text); margin-bottom: 24px;
-}
-.hero h1 em { font-style: italic; color: var(--gold); display: block; }
-.hero-sub {
-  font-size: 1rem; color: var(--muted); font-weight: 300;
-  line-height: 1.8; max-width: 460px; margin-bottom: 36px;
-}
-.hero-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 52px; }
-
-.hero-stats { display: flex; gap: 40px; flex-wrap: wrap; }
-.hs { }
-.hs-num { font-family: 'Cormorant Garamond', serif; font-size: 2.6rem; font-weight: 700; color: var(--gold); line-height: 1; }
-.hs-lbl { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
-
-/* Hero slide dots */
-.hero-dots {
-  position: absolute; bottom: 32px; left: 50%;
-  transform: translateX(-50%); z-index: 3;
-  display: flex; gap: 8px;
-}
-.hero-dot-btn {
-  width: 8px; height: 8px; border-radius: 50%;
-  background: rgba(255,255,255,0.3); border: none; cursor: pointer;
-  transition: all 0.3s; padding: 0;
-}
-.hero-dot-btn.active { background: var(--gold); width: 24px; border-radius: 4px; }
-
-/* SERVICES STRIP */
-.services-strip { padding: 60px 0; background: var(--bg2); }
-.services-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
-@media(max-width:768px){ .services-grid { grid-template-columns: 1fr; } }
-.service-card {
-  background: var(--card); border: 1px solid var(--border2);
-  border-radius: 8px; padding: 32px;
-  display: flex; align-items: flex-start; gap: 18px;
-  transition: all 0.3s;
-}
-.service-card:hover { border-color: var(--gold-border); box-shadow: var(--shadow-lg); transform: translateY(-3px); }
-.svc-icon {
-  width: 52px; height: 52px; flex-shrink: 0;
-  background: var(--gold-dim); border: 1px solid var(--gold-border);
-  border-radius: 8px; display: flex; align-items: center;
-  justify-content: center; color: var(--gold); font-size: 1.3rem;
-}
-.svc-body h4 { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
-.svc-body p { font-size: 0.83rem; color: var(--muted); font-weight: 300; line-height: 1.6; margin-bottom: 14px; }
-.svc-link { display: inline-flex; align-items: center; gap: 6px; color: var(--gold); font-size: 0.74rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; }
-.svc-link i { font-size: 0.65rem; transition: transform 0.25s; }
-.svc-link:hover i { transform: translateX(4px); }
+/* SERVICES */
+.services-strip{padding:60px 0;background:var(--bg2);}
+.services-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+@media(max-width:768px){.services-grid{grid-template-columns:1fr;}}
+.service-card{background:var(--card);border:1px solid var(--border2);border-radius:8px;padding:32px;display:flex;align-items:flex-start;gap:18px;transition:all .3s;}
+.service-card:hover{border-color:var(--gold-border);box-shadow:var(--shadow-lg);transform:translateY(-3px);}
+.svc-icon{width:52px;height:52px;flex-shrink:0;background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:1.3rem;}
+.svc-body h4{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:6px;}
+.svc-body p{font-size:.83rem;color:var(--muted);font-weight:300;line-height:1.6;margin-bottom:14px;}
+.svc-link{display:inline-flex;align-items:center;gap:6px;color:var(--gold);font-size:.74rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;}
+.svc-link i{font-size:.65rem;transition:transform .25s;}
+.svc-link:hover i{transform:translateX(4px);}
 
 /* FEATURED VEHICLES */
-.featured { padding: 88px 0; background: var(--bg); }
-.featured-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 48px; flex-wrap: wrap; gap: 16px; }
+.featured{padding:88px 0;background:var(--bg);}
+.featured-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:48px;flex-wrap:wrap;gap:16px;}
+.cars-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+@media(max-width:960px){.cars-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:560px){.cars-grid{grid-template-columns:1fr;}}
+.car-card{background:var(--card);border:1px solid var(--border2);border-radius:8px;overflow:hidden;transition:all .3s;}
+.car-card:hover{border-color:var(--gold-border);transform:translateY(-4px);box-shadow:var(--shadow-lg);}
+.car-img{height:200px;position:relative;overflow:hidden;}
+.car-img-slide{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 1.4s ease;}
+.car-img-slide.active{opacity:1;}
+.car-tag{position:absolute;top:12px;left:12px;padding:4px 10px;border-radius:50px;font-size:.57rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;z-index:2;}
+.tag-hot{background:#DC2626;color:#fff;}.tag-new{background:var(--gold);color:#fff;}.tag-supply{background:#1d4ed8;color:#fff;}.tag-premium{background:transparent;border:1px solid var(--gold);color:var(--gold);}
+.car-body{padding:18px 20px 20px;}
+.car-make{font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:3px;}
+.car-model{font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:700;color:var(--text);line-height:1.1;margin-bottom:3px;}
+.car-year{font-size:.76rem;color:var(--muted);margin-bottom:12px;}
+.car-specs{display:flex;gap:12px;flex-wrap:wrap;padding-bottom:13px;border-bottom:1px solid var(--border2);margin-bottom:13px;}
+.cs{display:flex;align-items:center;gap:4px;font-size:.72rem;color:var(--muted);}
+.cs i{color:var(--gold);font-size:.62rem;}
+.car-footer{display:flex;align-items:center;justify-content:space-between;}
+.price-lbl{font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted2);}
+.price-val{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:700;color:var(--gold);}
+.price-40{font-size:.68rem;color:var(--muted);margin-top:3px;}
+.car-cta{display:inline-flex;align-items:center;gap:6px;background:var(--gold);color:#fff;padding:8px 14px;border-radius:6px;font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;border:none;cursor:pointer;transition:all .25s;}
+.car-cta:hover{background:var(--gold-lt);}
+.featured-footer{text-align:center;margin-top:44px;}
+.inquire-wrap{position:relative;}
+.inquire-menu{display:none;position:absolute;bottom:46px;right:0;background:var(--card);border:1px solid var(--border2);border-radius:8px;overflow:hidden;min-width:150px;box-shadow:0 8px 20px rgba(0,0,0,.4);z-index:10;}
+.inquire-menu.open{display:block;}
+.inquire-menu-item{display:flex;align-items:center;gap:8px;padding:10px 14px;font-size:.78rem;color:var(--text);text-decoration:none;border-bottom:1px solid var(--border2);}
+.inquire-menu-item:last-child{border-bottom:none;}
+.inquire-menu-item:hover{background:var(--bg3);}
+.finance-btn{display:flex;align-items:center;justify-content:center;gap:6px;background:transparent;border:1px solid var(--gold-border);color:var(--gold);padding:8px;border-radius:6px;font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;margin-top:10px;transition:all .25s;}
+.finance-btn:hover{background:var(--gold-dim);}
 
-.cars-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
-@media(max-width:960px){ .cars-grid { grid-template-columns: repeat(2,1fr); } }
-@media(max-width:560px){ .cars-grid { grid-template-columns: 1fr; } }
+/* SKELETON */
+@keyframes shimmer{0%{background-position:-600px 0}100%{background-position:600px 0}}
+.skeleton-card{background:var(--card);border:1px solid var(--border2);border-radius:8px;overflow:hidden;}
+.sk{background:linear-gradient(90deg,var(--bg3) 0%,var(--bg2) 50%,var(--bg3) 100%);background-size:600px 100%;animation:shimmer 1.5s ease-in-out infinite;border-radius:4px;}
+.sk-img{height:200px;border-radius:0;}
+.sk-body{padding:18px 20px 20px;}
+.sk-line{height:11px;margin-bottom:10px;}
 
-.car-card { background: var(--card); border: 1px solid var(--border2); border-radius: 8px; overflow: hidden; transition: all 0.3s; }
-.car-card:hover { border-color: var(--gold-border); transform: translateY(-4px); box-shadow: var(--shadow-lg); }
-.car-img { height: 200px; position: relative; overflow: hidden; }
-.car-img-slide { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 1.2s ease; }
-.car-img-slide.active { opacity: 1; }
-.ci-gle1{background-image:url('https://images.unsplash.com/photo-1563720223185-11003d516935?w=600&q=70');}
-.ci-gle2{background-image:url('https://images.unsplash.com/photo-1571987502227-9231b837d92a?w=600&q=70');}
-.ci-h1{background-image:url('https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=600&q=70');}
-.ci-h2{background-image:url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=70');}
-.ci-hl1{background-image:url('https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=600&q=70');}
-.ci-hl2{background-image:url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=600&q=70');}
-.ci-gx1{background-image:url('https://images.unsplash.com/photo-1555215695-3004980ad54e?w=600&q=70');}
-.ci-gx2{background-image:url('https://images.unsplash.com/photo-1525609004556-c46c7d6cf023?w=600&q=70');}
-.ci-tr1{background-image:url('https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=600&q=70');}
-.ci-tr2{background-image:url('https://images.unsplash.com/photo-1519003722824-194d4455a60c?w=600&q=70');}
-.ci-hm1{background-image:url('https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=600&q=70');}
-.ci-rr1{background-image:url('https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=600&q=70');}
+/* FLEET BANNER */
+.fleet-banner{padding:72px 0;background:var(--text);position:relative;overflow:hidden;}
+[data-theme="dark"] .fleet-banner{background:var(--gold);}
+.fleet-banner::before{content:'';position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=1400&q=60') center/cover;opacity:.1;}
+.fleet-inner{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;}
+@media(max-width:800px){.fleet-inner{grid-template-columns:1fr;gap:32px;}}
+.fleet-text h2{font-size:clamp(2rem,4vw,3rem);font-weight:600;color:#fff;line-height:1.1;margin-bottom:14px;}
+[data-theme="dark"] .fleet-text h2{color:#0C0C0A;}
+.fleet-text h2 em{font-style:italic;color:var(--gold-lt);}
+[data-theme="dark"] .fleet-text h2 em{color:rgba(0,0,0,.6);}
+.fleet-text p{font-size:.95rem;color:rgba(255,255,255,.75);font-weight:300;line-height:1.8;margin-bottom:28px;}
+[data-theme="dark"] .fleet-text p{color:rgba(0,0,0,.65);}
+.fleet-btn{display:inline-flex;align-items:center;gap:8px;background:var(--gold);color:#fff;padding:13px 28px;border-radius:6px;font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;transition:all .3s;}
+[data-theme="dark"] .fleet-btn{background:#0C0C0A;color:var(--gold);}
+.fleet-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3);}
+.fleet-stats{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.fleet-stat{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:20px;}
+[data-theme="dark"] .fleet-stat{background:rgba(0,0,0,.1);border-color:rgba(0,0,0,.15);}
+.fleet-stat-num{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:700;color:var(--gold-lt);line-height:1;margin-bottom:4px;}
+[data-theme="dark"] .fleet-stat-num{color:rgba(0,0,0,.7);}
+.fleet-stat-lbl{font-size:.72rem;color:rgba(255,255,255,.65);letter-spacing:.1em;text-transform:uppercase;}
+[data-theme="dark"] .fleet-stat-lbl{color:rgba(0,0,0,.55);}
 
-.car-tag { position: absolute; top: 12px; left: 12px; padding: 4px 10px; border-radius: 50px; font-size: 0.57rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; z-index: 2; }
-.tag-hot { background: #DC2626; color: #fff; }
-.tag-new { background: var(--gold); color: #fff; }
-.tag-supply { background: #1d4ed8; color: #fff; }
-.tag-premium { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
+/* WHY */
+.why{padding:88px 0;background:var(--bg2);}
+.why-header{text-align:center;margin-bottom:52px;}
+.why-header .section-sub{margin:0 auto;text-align:center;}
+.why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+@media(max-width:860px){.why-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:480px){.why-grid{grid-template-columns:1fr;}}
+.why-card{background:var(--card);border:1px solid var(--border2);border-radius:8px;padding:32px 28px;transition:all .3s;position:relative;overflow:hidden;}
+.why-card:hover{border-color:var(--gold-border);transform:translateY(-3px);box-shadow:var(--shadow-lg);}
+.why-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--gold);transform:scaleX(0);transition:transform .4s;transform-origin:left;}
+.why-card:hover::after{transform:scaleX(1);}
+.why-icon{width:52px;height:52px;background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:1.2rem;margin-bottom:18px;}
+.why-card h4{font-size:1.05rem;font-weight:700;color:var(--text);margin-bottom:8px;}
+.why-card p{font-size:.83rem;color:var(--muted);font-weight:300;line-height:1.7;}
 
-.car-body { padding: 18px 20px 20px; }
-.car-make { font-size: 0.62rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); font-weight: 700; margin-bottom: 3px; }
-.car-model { font-family: 'Cormorant Garamond', serif; font-size: 1.35rem; font-weight: 700; color: var(--text); line-height: 1.1; margin-bottom: 3px; }
-.car-year { font-size: 0.76rem; color: var(--muted); margin-bottom: 12px; }
-.car-specs { display: flex; gap: 12px; flex-wrap: wrap; padding-bottom: 13px; border-bottom: 1px solid var(--border2); margin-bottom: 13px; }
-.cs { display: flex; align-items: center; gap: 4px; font-size: 0.72rem; color: var(--muted); }
-.cs i { color: var(--gold); font-size: 0.62rem; }
-.car-footer { display: flex; align-items: center; justify-content: space-between; }
-.price-lbl { font-size: 0.58rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted2); }
-.price-val { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 700; color: var(--gold); }
-.car-cta { display: inline-flex; align-items: center; gap: 6px; background: var(--gold); color: #fff; padding: 8px 14px; border-radius: 6px; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none; transition: all 0.25s; }
-.car-cta:hover { background: var(--gold-lt); }
-.featured-footer { text-align: center; margin-top: 44px; }
+/* SUPPLY */
+.supply{padding:88px 0;background:var(--bg);}
+.supply-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:48px;flex-wrap:wrap;gap:16px;}
+.supply-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+@media(max-width:860px){.supply-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:560px){.supply-grid{grid-template-columns:1fr;}}
+.supply-card{background:var(--card);border:1px solid var(--border2);border-radius:8px;overflow:hidden;transition:all .3s;}
+.supply-card:hover{border-color:var(--gold-border);transform:translateY(-3px);box-shadow:var(--shadow-lg);}
+.supply-img{height:180px;background-size:cover;background-position:center;position:relative;}
+.supply-img::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.5),transparent);}
+.supply-qty{position:absolute;bottom:12px;left:12px;z-index:1;background:var(--gold);color:#fff;font-size:.62rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:4px 10px;border-radius:50px;}
+.supply-body{padding:18px 20px;}
+.supply-body h4{font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:700;color:var(--text);margin-bottom:5px;}
+.supply-body p{font-size:.8rem;color:var(--muted);font-weight:300;}
 
-/* FLEET SUPPLY BANNER */
-.fleet-banner { padding: 72px 0; background: var(--text); position: relative; overflow: hidden; }
-[data-theme="dark"] .fleet-banner { background: var(--gold); }
-.fleet-banner::before { content: ''; position: absolute; inset: 0; background: url('https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=1400&q=60') center/cover; opacity: 0.1; }
-.fleet-inner { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
-@media(max-width:800px){ .fleet-inner { grid-template-columns: 1fr; gap: 32px; } }
-.fleet-text h2 { font-size: clamp(2rem,4vw,3rem); font-weight: 600; color: #fff; line-height: 1.1; margin-bottom: 14px; }
-[data-theme="dark"] .fleet-text h2 { color: #0C0C0A; }
-.fleet-text h2 em { font-style: italic; color: var(--gold-lt); }
-[data-theme="dark"] .fleet-text h2 em { color: rgba(0,0,0,0.6); }
-.fleet-text p { font-size: 0.95rem; color: rgba(255,255,255,0.75); font-weight: 300; line-height: 1.8; margin-bottom: 28px; }
-[data-theme="dark"] .fleet-text p { color: rgba(0,0,0,0.65); }
-.fleet-btn { display: inline-flex; align-items: center; gap: 8px; background: var(--gold); color: #fff; padding: 13px 28px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; transition: all 0.3s; }
-[data-theme="dark"] .fleet-btn { background: #0C0C0A; color: var(--gold); }
-.fleet-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
-.fleet-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.fleet-stat { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 20px; }
-[data-theme="dark"] .fleet-stat { background: rgba(0,0,0,0.1); border-color: rgba(0,0,0,0.15); }
-.fleet-stat-num { font-family: 'Cormorant Garamond', serif; font-size: 2.4rem; font-weight: 700; color: var(--gold-lt); line-height: 1; margin-bottom: 4px; }
-[data-theme="dark"] .fleet-stat-num { color: rgba(0,0,0,0.7); }
-.fleet-stat-lbl { font-size: 0.72rem; color: rgba(255,255,255,0.65); letter-spacing: 0.1em; text-transform: uppercase; }
-[data-theme="dark"] .fleet-stat-lbl { color: rgba(0,0,0,0.55); }
-
-/* WHY US */
-.why { padding: 88px 0; background: var(--bg2); }
-.why-header { text-align: center; margin-bottom: 52px; }
-.why-header .section-sub { margin: 0 auto; text-align: center; }
-.why-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
-@media(max-width:860px){ .why-grid { grid-template-columns: 1fr 1fr; } }
-@media(max-width:480px){ .why-grid { grid-template-columns: 1fr; } }
-.why-card { background: var(--card); border: 1px solid var(--border2); border-radius: 8px; padding: 32px 28px; transition: all 0.3s; position: relative; overflow: hidden; }
-.why-card:hover { border-color: var(--gold-border); transform: translateY(-3px); box-shadow: var(--shadow-lg); }
-.why-card::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: var(--gold); transform: scaleX(0); transition: transform 0.4s; transform-origin: left; }
-.why-card:hover::after { transform: scaleX(1); }
-.why-icon { width: 52px; height: 52px; background: var(--gold-dim); border: 1px solid var(--gold-border); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--gold); font-size: 1.2rem; margin-bottom: 18px; }
-.why-card h4 { font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 8px; }
-.why-card p { font-size: 0.83rem; color: var(--muted); font-weight: 300; line-height: 1.7; }
-
-/* RECENT SUPPLY */
-.supply { padding: 88px 0; background: var(--bg); }
-.supply-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 48px; flex-wrap: wrap; gap: 16px; }
-.supply-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
-@media(max-width:860px){ .supply-grid { grid-template-columns: 1fr 1fr; } }
-@media(max-width:560px){ .supply-grid { grid-template-columns: 1fr; } }
-.supply-card { background: var(--card); border: 1px solid var(--border2); border-radius: 8px; overflow: hidden; transition: all 0.3s; }
-.supply-card:hover { border-color: var(--gold-border); transform: translateY(-3px); box-shadow: var(--shadow-lg); }
-.supply-img { height: 180px; background-size: cover; background-position: center; position: relative; }
-.supply-img::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top,rgba(0,0,0,0.5),transparent); }
-.supply-qty { position: absolute; bottom: 12px; left: 12px; z-index: 1; background: var(--gold); color: #fff; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; padding: 4px 10px; border-radius: 50px; }
-.supply-body { padding: 18px 20px; }
-.supply-body h4 { font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; font-weight: 700; color: var(--text); margin-bottom: 5px; }
-.supply-body p { font-size: 0.8rem; color: var(--muted); font-weight: 300; }
-
-/* BLOG PREVIEW */
-.blog-section { padding: 88px 0; background: var(--bg2); }
-.blog-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 48px; flex-wrap: wrap; gap: 16px; }
-.blog-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
-@media(max-width:860px){ .blog-grid { grid-template-columns: 1fr 1fr; } }
-@media(max-width:560px){ .blog-grid { grid-template-columns: 1fr; } }
-.blog-card { background: var(--card); border: 1px solid var(--border2); border-radius: 8px; overflow: hidden; transition: all 0.3s; text-decoration: none; display: block; }
-.blog-card:hover { border-color: var(--gold-border); transform: translateY(-3px); box-shadow: var(--shadow-lg); }
-.blog-img { height: 190px; background-size: cover; background-position: center; }
-.blog-body { padding: 20px; }
-.blog-cat { display: inline-block; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
-.blog-body h4 { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 700; color: var(--text); line-height: 1.3; margin-bottom: 8px; }
-.blog-body p { font-size: 0.8rem; color: var(--muted); font-weight: 300; line-height: 1.6; margin-bottom: 14px; }
-.blog-meta { display: flex; align-items: center; gap: 12px; font-size: 0.72rem; color: var(--muted2); }
-.blog-read { display: inline-flex; align-items: center; gap: 5px; color: var(--gold); font-size: 0.72rem; font-weight: 700; }
+/* BLOG */
+.blog-section{padding:88px 0;background:var(--bg2);}
+.blog-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:48px;flex-wrap:wrap;gap:16px;}
+.blog-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+@media(max-width:860px){.blog-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:560px){.blog-grid{grid-template-columns:1fr;}}
+.blog-card{background:var(--card);border:1px solid var(--border2);border-radius:8px;overflow:hidden;transition:all .3s;text-decoration:none;display:block;}
+.blog-card:hover{border-color:var(--gold-border);transform:translateY(-3px);box-shadow:var(--shadow-lg);}
+.blog-img{height:190px;background-size:cover;background-position:center;}
+.blog-body{padding:20px;}
+.blog-cat{display:inline-block;font-size:.6rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
+.blog-body h4{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:700;color:var(--text);line-height:1.3;margin-bottom:8px;}
+.blog-body p{font-size:.8rem;color:var(--muted);font-weight:300;line-height:1.6;margin-bottom:14px;}
+.blog-meta{display:flex;align-items:center;gap:12px;font-size:.72rem;color:var(--muted2);}
+.blog-read{display:inline-flex;align-items:center;gap:5px;color:var(--gold);font-size:.72rem;font-weight:700;}
 
 /* REFERRAL */
-.referral { padding: 72px 0; background: var(--bg); }
-.ref-inner { background: var(--bg2); border: 1px solid var(--gold-border); border-radius: 12px; padding: 52px; display: grid; grid-template-columns: 1.2fr 1fr; gap: 60px; align-items: center; }
-@media(max-width:800px){ .ref-inner { grid-template-columns: 1fr; gap: 32px; padding: 32px; } }
-.ref-text h2 { font-size: clamp(1.8rem,3.5vw,2.8rem); font-weight: 600; color: var(--text); margin-bottom: 14px; }
-.ref-text h2 em { font-style: italic; color: var(--gold); }
-.ref-text p { font-size: 0.93rem; color: var(--muted); font-weight: 300; line-height: 1.8; margin-bottom: 24px; }
-.ref-perks { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
-.ref-perks li { display: flex; align-items: center; gap: 10px; font-size: 0.86rem; color: var(--text2); }
-.ref-perks li i { color: var(--gold); font-size: 0.75rem; }
-.ref-card { background: var(--card); border: 1px solid var(--border2); border-radius: 10px; padding: 32px; text-align: center; }
-.ref-pct { font-family: 'Cormorant Garamond', serif; font-size: 5rem; font-weight: 700; color: var(--gold); line-height: 1; }
-.ref-pct sup { font-size: 2rem; vertical-align: super; }
-.ref-card p { font-size: 0.9rem; color: var(--muted); margin-bottom: 8px; font-weight: 300; }
-.ref-example { background: var(--gold-dim); border: 1px solid var(--gold-border); border-radius: 6px; padding: 12px; font-size: 0.82rem; color: var(--text2); margin-bottom: 20px; }
-.ref-example strong { color: var(--gold); }
+.referral{padding:72px 0;background:var(--bg);}
+.ref-inner{background:var(--bg2);border:1px solid var(--gold-border);border-radius:12px;padding:52px;display:grid;grid-template-columns:1.2fr 1fr;gap:60px;align-items:center;}
+@media(max-width:800px){.ref-inner{grid-template-columns:1fr;gap:32px;padding:32px;}}
+.ref-text h2{font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:600;color:var(--text);margin-bottom:14px;}
+.ref-text h2 em{font-style:italic;color:var(--gold);}
+.ref-text p{font-size:.93rem;color:var(--muted);font-weight:300;line-height:1.8;margin-bottom:24px;}
+.ref-perks{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:28px;}
+.ref-perks li{display:flex;align-items:center;gap:10px;font-size:.86rem;color:var(--text2);}
+.ref-perks li i{color:var(--gold);font-size:.75rem;}
+.ref-card{background:var(--card);border:1px solid var(--border2);border-radius:10px;padding:32px;text-align:center;}
+.ref-pct{font-family:'Cormorant Garamond',serif;font-size:5rem;font-weight:700;color:var(--gold);line-height:1;}
+.ref-pct sup{font-size:2rem;vertical-align:super;}
+.ref-card p{font-size:.9rem;color:var(--muted);margin-bottom:8px;font-weight:300;}
+.ref-example{background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:6px;padding:12px;font-size:.82rem;color:var(--text2);margin-bottom:20px;}
+.ref-example strong{color:var(--gold);}
 
 /* TESTIMONIALS */
-.testimonials { padding: 88px 0; background: var(--bg2); }
-.testi-hdr { text-align: center; margin-bottom: 48px; }
-.testi-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
-@media(max-width:860px){ .testi-grid { grid-template-columns: 1fr; } }
-.testi-card { background: var(--card); border: 1px solid var(--border2); border-radius: 8px; padding: 28px; transition: border-color 0.3s; }
-.testi-card:hover { border-color: var(--gold-border); }
-.testi-stars { color: var(--gold); font-size: 0.68rem; letter-spacing: 3px; margin-bottom: 12px; }
-.testi-q { font-family: 'Cormorant Garamond', serif; font-size: 2.4rem; color: var(--gold); opacity: 0.2; line-height: 1; margin-bottom: 10px; }
-.testi-txt { font-size: 0.86rem; color: var(--muted); font-weight: 300; line-height: 1.8; margin-bottom: 18px; }
-.testi-name { font-weight: 700; font-size: 0.86rem; color: var(--text); }
-.testi-loc { font-size: 0.72rem; color: var(--muted2); }
+.testimonials{padding:88px 0;background:var(--bg2);}
+.testi-hdr{text-align:center;margin-bottom:48px;}
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+@media(max-width:860px){.testi-grid{grid-template-columns:1fr;}}
+.testi-card{background:var(--card);border:1px solid var(--border2);border-radius:8px;padding:28px;transition:border-color .3s;}
+.testi-card:hover{border-color:var(--gold-border);}
+.testi-stars{color:var(--gold);font-size:.68rem;letter-spacing:3px;margin-bottom:12px;}
+.testi-q{font-family:'Cormorant Garamond',serif;font-size:2.4rem;color:var(--gold);opacity:.2;line-height:1;margin-bottom:10px;}
+.testi-txt{font-size:.86rem;color:var(--muted);font-weight:300;line-height:1.8;margin-bottom:18px;}
+.testi-name{font-weight:700;font-size:.86rem;color:var(--text);}
+.testi-loc{font-size:.72rem;color:var(--muted2);}
 
-/* CTA STRIP */
-.cta-strip { padding: 72px 0; background: var(--bg); }
-.cta-inner { background: var(--gold); border-radius: 12px; padding: 52px 60px; display: flex; align-items: center; justify-content: space-between; gap: 32px; flex-wrap: wrap; }
-@media(max-width:768px){ .cta-inner { padding: 36px 28px; } }
-.cta-text h2 { font-size: clamp(1.8rem,3.5vw,2.8rem); font-weight: 600; color: #fff; margin-bottom: 8px; }
-.cta-text p { font-size: 0.93rem; color: rgba(255,255,255,0.8); font-weight: 300; }
-.cta-btns { display: flex; gap: 12px; flex-wrap: wrap; }
-.cta-btn-wh { display: inline-flex; align-items: center; gap: 8px; background: #fff; color: var(--gold); padding: 13px 28px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; transition: all 0.3s; }
-.cta-btn-wh:hover { background: #f5f5f5; transform: translateY(-2px); }
-.cta-btn-dk { display: inline-flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.2); color: #fff; border: 1.5px solid rgba(255,255,255,0.5); padding: 12px 26px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; transition: all 0.3s; }
-.cta-btn-dk:hover { background: rgba(0,0,0,0.35); }
+/* CTA */
+.cta-strip{padding:72px 0;background:var(--bg);}
+.cta-inner{background:var(--gold);border-radius:12px;padding:52px 60px;display:flex;align-items:center;justify-content:space-between;gap:32px;flex-wrap:wrap;}
+@media(max-width:768px){.cta-inner{padding:36px 28px;}}
+.cta-text h2{font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:600;color:#fff;margin-bottom:8px;}
+.cta-text p{font-size:.93rem;color:rgba(255,255,255,.8);font-weight:300;}
+.cta-btns{display:flex;gap:12px;flex-wrap:wrap;}
+.cta-btn-wh{display:inline-flex;align-items:center;gap:8px;background:#fff;color:var(--gold);padding:13px 28px;border-radius:6px;font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;transition:all .3s;}
+.cta-btn-wh:hover{background:#f5f5f5;transform:translateY(-2px);}
+.cta-btn-dk{display:inline-flex;align-items:center;gap:8px;background:rgba(0,0,0,.2);color:#fff;border:1.5px solid rgba(255,255,255,.5);padding:12px 26px;border-radius:6px;font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;transition:all .3s;}
+.cta-btn-dk:hover{background:rgba(0,0,0,.35);}
 </style>
 </head>
 <body>
 
 <a href="https://wa.me/2348055065825?text=Hello%20Sabicars!" class="float-wa" target="_blank"><i class="fab fa-whatsapp"></i></a>
 
-<!-- MOBILE NAV -->
 <nav class="mobile-nav" id="mobileNav">
   <a href="index.html" onclick="closeNav()">Home</a>
   <a href="cars.html" onclick="closeNav()">Buy Cars</a>
@@ -281,7 +233,6 @@
   <a href="https://wa.me/2348055065825" class="mob-wa-btn" target="_blank"><i class="fab fa-whatsapp"></i> Chat on WhatsApp</a>
 </nav>
 
-<!-- TOPBAR -->
 <div class="topbar">
   <div class="topbar-inner">
     <span class="topbar-pill"><span class="topbar-dot"></span><a href="tel:+2348101885558">📞 0810 188 5558</a></span>
@@ -292,7 +243,6 @@
   </div>
 </div>
 
-<!-- HEADER -->
 <header class="header">
   <div class="container">
     <div class="header-inner">
@@ -409,7 +359,7 @@
   </div>
 </section>
 
-<!-- FEATURED VEHICLES -->
+<!-- FEATURED VEHICLES — dynamic from API -->
 <section class="featured" id="inventory">
   <div class="container">
     <div class="featured-header">
@@ -419,91 +369,11 @@
       </div>
       <a href="cars.html" class="btn-outline">View All <i class="fas fa-arrow-right"></i></a>
     </div>
-    <div class="cars-grid">
-      <div class="car-card reveal">
-        <div class="car-img">
-          <span class="car-tag tag-supply">Fleet Supply</span>
-          <div class="car-img-slide ci-hl1 active"></div>
-          <div class="car-img-slide ci-hl2"></div>
-        </div>
-        <div class="car-body">
-          <div class="car-make">Toyota</div>
-          <h3 class="car-model">Highlander</h3>
-          <div class="car-year">2021 · Tokunbo · Super Clean</div>
-          <div class="car-specs"><div class="cs"><i class="fas fa-gas-pump"></i> V6</div><div class="cs"><i class="fas fa-road"></i> Low km</div><div class="cs"><i class="fas fa-star"></i> Full Opt</div></div>
-          <div class="car-footer"><div><div class="price-lbl">Fleet Available</div><div class="price-val">Call Us</div></div><a href="https://wa.me/2348055065825?text=Highlander%202021" class="car-cta" target="_blank"><i class="fab fa-whatsapp"></i> Inquire</a></div>
-        </div>
-      </div>
-      <div class="car-card reveal">
-        <div class="car-img">
-          <span class="car-tag tag-supply">Fleet Supply</span>
-          <div class="car-img-slide ci-gx1 active"></div>
-          <div class="car-img-slide ci-gx2"></div>
-        </div>
-        <div class="car-body">
-          <div class="car-make">Lexus</div>
-          <h3 class="car-model">GX 460</h3>
-          <div class="car-year">2020 · Tokunbo · Premium</div>
-          <div class="car-specs"><div class="cs"><i class="fas fa-gas-pump"></i> V8</div><div class="cs"><i class="fas fa-road"></i> 38k km</div><div class="cs"><i class="fas fa-star"></i> Full Opt</div></div>
-          <div class="car-footer"><div><div class="price-lbl">Price</div><div class="price-val">Call Us</div></div><a href="https://wa.me/2348055065825?text=Lexus%20GX%20460" class="car-cta" target="_blank"><i class="fab fa-whatsapp"></i> Inquire</a></div>
-        </div>
-      </div>
-      <div class="car-card reveal">
-        <div class="car-img">
-          <span class="car-tag tag-hot">🔥 Hot</span>
-          <div class="car-img-slide ci-h1 active"></div>
-          <div class="car-img-slide ci-h2"></div>
-        </div>
-        <div class="car-body">
-          <div class="car-make">Toyota</div>
-          <h3 class="car-model">Hiace Bus</h3>
-          <div class="car-year">2020/2021 · Low Mileage</div>
-          <div class="car-specs"><div class="cs"><i class="fas fa-gas-pump"></i> Diesel</div><div class="cs"><i class="fas fa-road"></i> Low km</div><div class="cs"><i class="fas fa-shield-alt"></i> Warranty</div></div>
-          <div class="car-footer"><div><div class="price-lbl">40% Plan</div><div class="price-val">Available</div></div><a href="https://wa.me/2348055065825?text=Hiace%202020" class="car-cta" target="_blank"><i class="fab fa-whatsapp"></i> Inquire</a></div>
-        </div>
-      </div>
-      <div class="car-card reveal">
-        <div class="car-img">
-          <span class="car-tag tag-new">New In</span>
-          <div class="car-img-slide ci-gle1 active"></div>
-          <div class="car-img-slide ci-gle2"></div>
-        </div>
-        <div class="car-body">
-          <div class="car-make">Mercedes-Benz</div>
-          <h3 class="car-model">GLE 450</h3>
-          <div class="car-year">2021 · Tokunbo · Super Clean</div>
-          <div class="car-specs"><div class="cs"><i class="fas fa-gas-pump"></i> Petrol</div><div class="cs"><i class="fas fa-road"></i> 28k km</div><div class="cs"><i class="fas fa-palette"></i> Black</div></div>
-          <div class="car-footer"><div><div class="price-lbl">Price</div><div class="price-val">Call Us</div></div><a href="https://wa.me/2348055065825?text=GLE%20450" class="car-cta" target="_blank"><i class="fab fa-whatsapp"></i> Inquire</a></div>
-        </div>
-      </div>
-      <div class="car-card reveal">
-        <div class="car-img">
-          <span class="car-tag tag-supply">Recent Supply</span>
-          <div class="car-img-slide ci-hm1 active"></div>
-          <div class="car-img-slide ci-rr1"></div>
-        </div>
-        <div class="car-body">
-          <div class="car-make">Hummer</div>
-          <h3 class="car-model">Hummer Bus</h3>
-          <div class="car-year">Tokunbo · Event &amp; VIP Use</div>
-          <div class="car-specs"><div class="cs"><i class="fas fa-gas-pump"></i> Petrol</div><div class="cs"><i class="fas fa-users"></i> 14 Seater</div><div class="cs"><i class="fas fa-star"></i> VIP</div></div>
-          <div class="car-footer"><div><div class="price-lbl">Price</div><div class="price-val">Call Us</div></div><a href="https://wa.me/2348055065825?text=Hummer%20Bus" class="car-cta" target="_blank"><i class="fab fa-whatsapp"></i> Inquire</a></div>
-        </div>
-      </div>
-      <div class="car-card reveal">
-        <div class="car-img">
-          <span class="car-tag tag-new">Just In</span>
-          <div class="car-img-slide ci-tr1 active"></div>
-          <div class="car-img-slide ci-tr2"></div>
-        </div>
-        <div class="car-body">
-          <div class="car-make">Mack Trucks</div>
-          <h3 class="car-model">Granite Tipper</h3>
-          <div class="car-year">2018 · Serviced · Tokunbo</div>
-          <div class="car-specs"><div class="cs"><i class="fas fa-gas-pump"></i> Diesel</div><div class="cs"><i class="fas fa-weight-hanging"></i> 30T</div><div class="cs"><i class="fas fa-wrench"></i> Serviced</div></div>
-          <div class="car-footer"><div><div class="price-lbl">Price</div><div class="price-val">Call Us</div></div><a href="https://wa.me/2348055065825?text=Mack%20Granite" class="car-cta" target="_blank"><i class="fab fa-whatsapp"></i> Inquire</a></div>
-        </div>
-      </div>
+    <div class="cars-grid" id="featuredGrid">
+      <!-- Skeleton cards shown while API loads -->
+      <div class="skeleton-card"><div class="sk sk-img"></div><div class="sk-body"><div class="sk sk-line" style="width:40%;"></div><div class="sk sk-line" style="width:70%;height:18px;margin-bottom:12px;"></div><div class="sk sk-line" style="width:55%;"></div></div></div>
+      <div class="skeleton-card"><div class="sk sk-img"></div><div class="sk-body"><div class="sk sk-line" style="width:40%;"></div><div class="sk sk-line" style="width:70%;height:18px;margin-bottom:12px;"></div><div class="sk sk-line" style="width:55%;"></div></div></div>
+      <div class="skeleton-card"><div class="sk sk-img"></div><div class="sk-body"><div class="sk sk-line" style="width:40%;"></div><div class="sk sk-line" style="width:70%;height:18px;margin-bottom:12px;"></div><div class="sk sk-line" style="width:55%;"></div></div></div>
     </div>
     <div class="featured-footer">
       <a href="cars.html" class="btn-primary">See Full Inventory <i class="fas fa-arrow-right"></i></a>
@@ -516,7 +386,7 @@
   <div class="container">
     <div class="fleet-inner">
       <div class="fleet-text reveal">
-        <div class="sec-label" style="margin-bottom:14px"><div class="sec-label-line" style="background:rgba(255,255,255,0.5)"></div><span class="sec-label-text" style="color:rgba(255,255,255,0.7)">Fleet &amp; Corporate Supply</span></div>
+        <div class="sec-label" style="margin-bottom:14px"><div class="sec-label-line" style="background:rgba(255,255,255,.5)"></div><span class="sec-label-text" style="color:rgba(255,255,255,.7)">Fleet &amp; Corporate Supply</span></div>
         <h2>We Supply <em>Fleets</em><br>for Corporates &amp; Government</h2>
         <p>Need multiple vehicles at once? Sabicars handles large-scale supply — from 5 to 50+ units. We recently delivered 13 Highlanders, 3 Lexus GX and a Hummer bus to a single client.</p>
         <a href="contact.html" class="fleet-btn">Request Fleet Quote <i class="fas fa-arrow-right"></i></a>
@@ -543,14 +413,14 @@
       <div class="why-card reveal"><div class="why-icon"><i class="fas fa-building"></i></div><h4>CAC Registered</h4><p>RC 1560100. A fully registered Nigerian company — not a roadside dealer. We're accountable.</p></div>
       <div class="why-card reveal"><div class="why-icon"><i class="fas fa-shield-halved"></i></div><h4>Warranty on Every Car</h4><p>All our vehicles are inspected, certified, and come with warranty coverage for your peace of mind.</p></div>
       <div class="why-card reveal"><div class="why-icon"><i class="fas fa-magnifying-glass"></i></div><h4>Accident-Free Stock</h4><p>We verify the full history of every vehicle. Clean, low-mileage, accident-free — no surprises.</p></div>
-      <div class="why-card reveal"><div class="why-icon"><i class="fas fa-hand-holding-dollar"></i></div><h4>Pay 40% & Drive</h4><p>Nigeria's most flexible payment plan. Pay 40% today, drive home, and complete the balance on agreed terms.</p></div>
+      <div class="why-card reveal"><div class="why-icon"><i class="fas fa-hand-holding-dollar"></i></div><h4>Pay 40% &amp; Drive</h4><p>Nigeria's most flexible payment plan. Pay 40% today, drive home, and complete the balance on agreed terms.</p></div>
       <div class="why-card reveal"><div class="why-icon"><i class="fas fa-truck-fast"></i></div><h4>Nationwide Delivery</h4><p>Based in Lagos but we deliver to all 36 states. Your car arrives safe, fast, and fully insured in transit.</p></div>
       <div class="why-card reveal"><div class="why-icon"><i class="fas fa-headset"></i></div><h4>After-Sales Support</h4><p>We don't disappear after the sale. Our team is always available for support, advice, and servicing referrals.</p></div>
     </div>
   </div>
 </section>
 
-<!-- RECENT SUPPLY SHOWCASE -->
+<!-- RECENT SUPPLY -->
 <section class="supply">
   <div class="container">
     <div class="supply-header">
@@ -561,21 +431,15 @@
     </div>
     <div class="supply-grid">
       <div class="supply-card reveal">
-        <div class="supply-img" style="background-image:url('https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=600&q=70')">
-          <span class="supply-qty">13 Units Supplied</span>
-        </div>
+        <div class="supply-img" style="background-image:url('https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=600&q=70')"><span class="supply-qty">13 Units Supplied</span></div>
         <div class="supply-body"><h4>Toyota Highlander</h4><p>Corporate fleet supply — 13 units delivered to a single client. 2021 models, Tokunbo, fully documented.</p></div>
       </div>
       <div class="supply-card reveal">
-        <div class="supply-img" style="background-image:url('https://images.unsplash.com/photo-1555215695-3004980ad54e?w=600&q=70')">
-          <span class="supply-qty">3 Units Supplied</span>
-        </div>
+        <div class="supply-img" style="background-image:url('https://images.unsplash.com/photo-1555215695-3004980ad54e?w=600&q=70')"><span class="supply-qty">3 Units Supplied</span></div>
         <div class="supply-body"><h4>Lexus GX 460</h4><p>Premium SUV fleet order — 3 units. Full options, low mileage, warranty-secured delivery.</p></div>
       </div>
       <div class="supply-card reveal">
-        <div class="supply-img" style="background-image:url('https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=600&q=70')">
-          <span class="supply-qty">1 Unit — VIP</span>
-        </div>
+        <div class="supply-img" style="background-image:url('https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=600&q=70')"><span class="supply-qty">1 Unit — VIP</span></div>
         <div class="supply-body"><h4>Hummer Bus</h4><p>14-seater VIP Hummer bus — supplied for executive and event transportation use. Immaculate condition.</p></div>
       </div>
     </div>
@@ -708,40 +572,186 @@
 
 <script src="theme.js"></script>
 <script>
-// Hero slideshow with dots
-const slides = document.querySelectorAll('.hero-slide');
+const API = 'https://sabicars-api.onrender.com/api';
+
+// ─── HERO SLIDESHOW ───
+let heroSlides = document.querySelectorAll('.hero-slide');
 const dotsWrap = document.getElementById('heroDots');
-let cur = 0, timer;
+let cur = 0, heroTimer;
 
-slides.forEach((_,i)=>{
-  const d = document.createElement('button');
-  d.className = 'hero-dot-btn' + (i===0?' active':'');
-  d.onclick = ()=>goSlide(i);
-  dotsWrap.appendChild(d);
-});
-
-function goSlide(n){
-  slides[cur].classList.remove('active');
-  dotsWrap.children[cur].classList.remove('active');
-  cur = n;
-  slides[cur].classList.add('active');
-  dotsWrap.children[cur].classList.add('active');
-  clearInterval(timer);
-  timer = setInterval(()=>goSlide((cur+1)%slides.length), 5000);
+function buildDots() {
+  heroSlides = document.querySelectorAll('.hero-slide');
+  dotsWrap.innerHTML = '';
+  heroSlides.forEach((_, i) => {
+    const d = document.createElement('button');
+    d.className = 'hero-dot-btn' + (i === 0 ? ' active' : '');
+    d.onclick = () => goSlide(i);
+    dotsWrap.appendChild(d);
+  });
 }
-timer = setInterval(()=>goSlide((cur+1)%slides.length), 5000);
 
-// Car image slideshows
-document.querySelectorAll('.car-card').forEach(card=>{
-  const imgs = card.querySelectorAll('.car-img-slide');
-  if(imgs.length < 2) return;
-  let i = 0;
-  setInterval(()=>{
-    imgs[i].classList.remove('active');
-    i = (i+1)%imgs.length;
-    imgs[i].classList.add('active');
-  }, 3500 + Math.random()*1500);
+function goSlide(n) {
+  if (!heroSlides.length) return;
+  heroSlides[cur].classList.remove('active');
+  if (dotsWrap.children[cur]) dotsWrap.children[cur].classList.remove('active');
+  cur = ((n % heroSlides.length) + heroSlides.length) % heroSlides.length;
+  heroSlides[cur].classList.add('active');
+  if (dotsWrap.children[cur]) dotsWrap.children[cur].classList.add('active');
+  clearInterval(heroTimer);
+  heroTimer = setInterval(() => goSlide(cur + 1), 5000);
+}
+
+buildDots();
+heroTimer = setInterval(() => goSlide(cur + 1), 5000);
+
+// Upgrade hero with real inventory photos after API loads
+async function upgradeHero() {
+  try {
+    const res = await fetch(API + '/cars?limit=12');
+    const data = await res.json();
+    if (!data.success) return;
+    const cars = data.cars.filter(c => c.images && c.images[0]);
+    if (cars.length < 3) return;
+
+    clearInterval(heroTimer);
+    const container = document.getElementById('heroSlides');
+
+    // Smooth fade out
+    container.style.transition = 'opacity .6s';
+    container.style.opacity = '0';
+
+    setTimeout(() => {
+      container.innerHTML = '';
+      cars.slice(0, 10).forEach((car, i) => {
+        const slide = document.createElement('div');
+        slide.className = 'hero-slide' + (i === 0 ? ' active' : '');
+        slide.style.backgroundImage = 'url(\'' + car.images[0] + '\')';
+        container.appendChild(slide);
+      });
+      container.style.opacity = '1';
+      cur = 0;
+      buildDots();
+      heroTimer = setInterval(() => goSlide(cur + 1), 5000);
+    }, 600);
+  } catch (e) { /* keep static slides on error */ }
+}
+
+upgradeHero();
+
+// ─── FEATURED VEHICLES ───
+function parsePrice(val) { return Number(String(val).replace(/[^0-9.]/g, '')) || 0; }
+function formatPrice(n) { return '₦' + Number(n).toLocaleString('en-NG'); }
+function tagLabel(tag) { return { hot: '🔥 Hot', new: 'New In', premium: 'Premium', supply: 'Fleet Supply' }[tag] || tag; }
+function conditionLabel(c) {
+  if (c === 'nigeria-used') return 'Nigeria Used';
+  if (c === 'brand-new') return 'Brand New';
+  return 'Foreign Used';
+}
+
+function renderFeaturedCard(car) {
+  const price = parsePrice(car.price);
+  const down = Math.round(price * 0.4);
+  const waMsg = encodeURIComponent('Hello Sabicars! I\'m interested in buying the ' + car.year + ' ' + car.make + ' ' + car.model + ' listed for ' + formatPrice(price) + '. Please provide more details.');
+
+  const imgSlides = (car.images && car.images.length > 0)
+    ? car.images.map((img, i) => '<div class="car-img-slide' + (i === 0 ? ' active' : '') + '" style="background-image:url(\'' + img + '\')"></div>').join('')
+    : '<div class="car-img-slide active" style="background-image:url(\'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=600&q=70\')"></div>';
+
+  const financeBtn = car.financeUrl
+    ? '<a href="' + car.financeUrl + '" target="_blank" class="finance-btn" onclick="event.stopPropagation()"><i class="fas fa-file-invoice-dollar"></i> Apply Finance</a>'
+    : '';
+
+  return '<div class="car-card" onclick="window.location.href=\'car-detail.html?id=' + car._id + '\'" style="cursor:pointer;">' +
+    '<div class="car-img">' +
+    '<span class="car-tag tag-' + car.tag + '">' + tagLabel(car.tag) + '</span>' +
+    imgSlides +
+    '</div>' +
+    '<div class="car-body">' +
+    '<div class="car-make">' + car.make + '</div>' +
+    '<h3 class="car-model">' + car.model + '</h3>' +
+    '<div class="car-year">' + car.year + ' · ' + conditionLabel(car.condition) + '</div>' +
+    '<div class="car-specs">' +
+    (car.fuel ? '<div class="cs"><i class="fas fa-gas-pump"></i> ' + car.fuel + '</div>' : '') +
+    (car.mileage ? '<div class="cs"><i class="fas fa-road"></i> ' + Number(String(car.mileage).replace(/[^0-9.]/g, '')).toLocaleString() + ' km</div>' : '') +
+    (car.colour ? '<div class="cs"><i class="fas fa-palette"></i> ' + car.colour + '</div>' : '') +
+    '</div>' +
+    '<div class="car-footer">' +
+    '<div>' +
+    '<div class="price-lbl">Price</div>' +
+    '<div class="price-val">' + formatPrice(price) + '</div>' +
+    '<div class="price-40">40% Down: ' + formatPrice(down) + '</div>' +
+    '</div>' +
+    '<div class="inquire-wrap" onclick="event.stopPropagation()">' +
+    '<button class="car-cta" onclick="toggleInquireMenu(event)"><i class="fab fa-whatsapp"></i> Buy Now</button>' +
+    '<div class="inquire-menu">' +
+    '<a href="tel:+2348101885558" class="inquire-menu-item"><i class="fas fa-phone"></i> Call Us</a>' +
+    '<a href="https://wa.me/2348055065825?text=' + waMsg + '" target="_blank" class="inquire-menu-item"><i class="fab fa-whatsapp"></i> WhatsApp</a>' +
+    '</div>' +
+    '</div>' +
+    '</div>' +
+    financeBtn +
+    '</div>' +
+    '</div>';
+}
+
+async function loadFeatured() {
+  const grid = document.getElementById('featuredGrid');
+  if (!grid) return;
+
+  try {
+    // Try featured=true first
+    let res = await fetch(API + '/cars?featured=true&limit=6');
+    let data = await res.json();
+    let cars = (data.success && data.cars.length >= 2) ? data.cars : [];
+
+    // Fall back to latest 6 if not enough featured
+    if (cars.length < 2) {
+      res = await fetch(API + '/cars?limit=6');
+      data = await res.json();
+      cars = data.success ? data.cars : [];
+    }
+
+    if (!cars.length) {
+      grid.innerHTML = '';
+      return;
+    }
+
+    grid.innerHTML = cars.map(renderFeaturedCard).join('');
+
+    // Per-card photo cycling — each card cycles through ITS OWN car's photos
+    grid.querySelectorAll('.car-card').forEach(card => {
+      const imgs = card.querySelectorAll('.car-img-slide');
+      if (imgs.length < 2) return;
+      let i = 0;
+      // Stagger start times so cards don't all switch simultaneously
+      const delay = 2000 + Math.random() * 2000;
+      setTimeout(() => {
+        setInterval(() => {
+          imgs[i].classList.remove('active');
+          i = (i + 1) % imgs.length;
+          imgs[i].classList.add('active');
+        }, 4500); // 4.5 seconds per photo — noticeably slower
+      }, delay);
+    });
+
+  } catch (err) {
+    grid.innerHTML = '';
+    console.error('Featured load error:', err);
+  }
+}
+
+function toggleInquireMenu(e) {
+  e.stopPropagation();
+  const menu = e.currentTarget.nextElementSibling;
+  document.querySelectorAll('.inquire-menu.open').forEach(m => { if (m !== menu) m.classList.remove('open'); });
+  menu.classList.toggle('open');
+}
+
+document.addEventListener('click', () => {
+  document.querySelectorAll('.inquire-menu.open').forEach(m => m.classList.remove('open'));
 });
+
+loadFeatured();
 </script>
 </body>
 </html>
