@@ -99,8 +99,12 @@
     <button class="reset-btn" onclick="resetFilters()">Reset</button>
   </div>
   <span class="inv-count" id="invCount">Showing all vehicles</span>
+  <button id="jumpSoldBtn" onclick="document.getElementById('soldSection').scrollIntoView({behavior:'smooth'})" style="display:none;background:transparent;border:1px solid #c0392b;color:#c0392b;padding:7px 14px;border-radius:6px;font-size:.75rem;font-weight:700;cursor:pointer;width:auto;">🔴 See Sold Vehicles</button>
 </div>
 <div class="cars-grid" id="carsGrid"></div>
+<div style="text-align:center;margin-top:32px;">
+  <button id="loadMoreBtn" onclick="renderPage()" style="display:none;background:transparent;border:1px solid var(--gold-border);color:var(--gold);padding:12px 36px;border-radius:6px;font-size:.82rem;font-weight:700;cursor:pointer;width:auto;">Load More Vehicles</button>
+</div>
 </div></section>
 <section class="sold-section" id="soldSection" style="display:none;">
   <div class="container">
