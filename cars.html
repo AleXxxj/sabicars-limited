@@ -52,6 +52,12 @@
 .inquire-menu-item{display:flex;align-items:center;gap:8px;padding:10px 14px;font-size:.78rem;color:var(--text);text-decoration:none;border-bottom:1px solid var(--border2);}
 .inquire-menu-item:last-child{border-bottom:none;}
 .inquire-menu-item:hover{background:var(--bg3);}
+@keyframes shimmer{0%{background-position:-600px 0}100%{background-position:600px 0}}
+.skeleton-card{background:var(--card);border:1px solid var(--border2);border-radius:8px;overflow:hidden;}
+.sk{background:linear-gradient(90deg,var(--bg3) 0%,var(--bg2) 50%,var(--bg3) 100%);background-size:600px 100%;animation:shimmer 1.5s ease-in-out infinite;border-radius:4px;}
+.sk-img{height:200px;border-radius:0;}
+.sk-body{padding:18px 20px 20px;}
+.sk-line{height:11px;margin-bottom:10px;}
 </style>
 </head>
 <body>
@@ -102,6 +108,7 @@
   <button id="jumpSoldBtn" onclick="document.getElementById('soldSection').scrollIntoView({behavior:'smooth'})" style="display:none;background:transparent;border:1px solid #c0392b;color:#c0392b;padding:7px 14px;border-radius:6px;font-size:.75rem;font-weight:700;cursor:pointer;width:auto;">🔴 See Sold Vehicles</button>
 </div>
 <div class="cars-grid" id="carsGrid"></div>
+<div id="sentinel" style="height:2px;margin-top:20px;"></div>
 <div style="text-align:center;margin-top:32px;">
   <button id="loadMoreBtn" onclick="renderPage()" style="display:none;background:transparent;border:1px solid var(--gold-border);color:var(--gold);padding:12px 36px;border-radius:6px;font-size:.82rem;font-weight:700;cursor:pointer;width:auto;">Load More Vehicles</button>
 </div>
@@ -128,9 +135,12 @@
 <script src="theme.js"></script>
 <script>
 const SABICARS_API = 'https://sabicars-api.onrender.com/api';
-let allCars = [];
-let displayedCount = 0;
-const PAGE_SIZE = 9;
+
+// Scroll state
+let currentPage = 0;
+let isLoading = false;
+let hasMore = true;
+let activeFilters = { brand: 'all', category: 'all', sort: 'default' };
 
 function tagLabel(tag){
   return { hot: '🔥 Hot', new: 'New In', premium: 'Premium', supply: 'Fleet Supply' }[tag] || tag;
@@ -141,155 +151,170 @@ function conditionLabel(c){
   return 'Foreign Used';
 }
 function parsePrice(val){
-  return Number(String(val).replace(/[^0-9.]/g, '')) || 0;
+  return Number(String(val).replace(/[^0-9.]/g,'')) || 0;
 }
 function formatPrice(n){ return '₦' + Number(n).toLocaleString('en-NG'); }
+
+function skeletonCard(){
+  return `<div class="skeleton-card">
+    <div class="sk sk-img"></div>
+    <div class="sk-body">
+      <div class="sk sk-line" style="width:38%;"></div>
+      <div class="sk sk-line" style="width:72%;height:18px;margin-bottom:12px;"></div>
+      <div class="sk sk-line" style="width:55%;"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding-top:12px;border-top:1px solid var(--border2);">
+        <div><div class="sk sk-line" style="width:80px;height:20px;margin-bottom:5px;"></div><div class="sk sk-line" style="width:60px;margin:0;"></div></div>
+        <div class="sk" style="width:90px;height:36px;border-radius:6px;"></div>
+      </div>
+    </div>
+  </div>`;
+}
 
 function renderCarCard(car){
   const price = parsePrice(car.price);
   const downPayment = Math.round(price * 0.4);
-  const waMsg = encodeURIComponent(`Hello Sabicars! I'm interested in buying the ${car.year} ${car.make} ${car.model} listed for ${formatPrice(price)}. Please provide more details.`);
-  return `
-    <div class="car-card" onclick="window.location.href='car-detail.html?id=${car._id}'" style="cursor:pointer;">
-      <div class="car-img">
-        <span class="car-tag tag-${car.tag}">${tagLabel(car.tag)}</span>
-        <div class="car-img-bg" style="background-image:url('${(car.images && car.images[0]) ? car.images[0] : 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=600&q=70'}')"></div>
+  const waMsg = encodeURIComponent('Hello Sabicars! I\'m interested in buying the ' + car.year + ' ' + car.make + ' ' + car.model + ' listed for ' + formatPrice(price) + '. Please provide more details.');
+  return `<div class="car-card" onclick="window.location.href='car-detail.html?id=${car._id}'" style="cursor:pointer;">
+    <div class="car-img">
+      <span class="car-tag tag-${car.tag}">${tagLabel(car.tag)}</span>
+      <div class="car-img-bg" style="background-image:url('${(car.images&&car.images[0])?car.images[0]:'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=600&q=70'}')"></div>
+    </div>
+    <div class="car-body">
+      <div class="car-make">${car.make}</div>
+      <h3 class="car-model">${car.model}</h3>
+      <div class="car-year">${car.year} · ${conditionLabel(car.condition)}</div>
+      <div class="car-specs">
+        ${car.fuel?`<div class="cs"><i class="fas fa-gas-pump"></i> ${car.fuel}</div>`:''}
+        ${car.mileage?`<div class="cs"><i class="fas fa-road"></i> ${Number(String(car.mileage).replace(/[^0-9.]/g,'')).toLocaleString()} km</div>`:''}
+        ${car.colour?`<div class="cs"><i class="fas fa-palette"></i> ${car.colour}</div>`:''}
       </div>
-      <div class="car-body">
-        <div class="car-make">${car.make}</div>
-        <h3 class="car-model">${car.model}</h3>
-        <div class="car-year">${car.year} · ${conditionLabel(car.condition)}</div>
-        <div class="car-specs">
-          ${car.fuel ? `<div class="cs"><i class="fas fa-gas-pump"></i> ${car.fuel}</div>` : ''}
-          ${car.mileage ? `<div class="cs"><i class="fas fa-road"></i> ${Number(String(car.mileage).replace(/[^0-9.]/g,'')).toLocaleString()} km</div>` : ''}
-          ${car.colour ? `<div class="cs"><i class="fas fa-palette"></i> ${car.colour}</div>` : ''}
+      <div class="car-footer">
+        <div>
+          <div class="price-lbl">Price</div>
+          <div class="price-val">${formatPrice(price)}</div>
+          <div class="price-40">40% Down: ${formatPrice(downPayment)}</div>
         </div>
-        <div class="car-footer">
-          <div>
-            <div class="price-lbl">Price</div>
-            <div class="price-val">${formatPrice(price)}</div>
-            <div class="price-40">40% Down: ${formatPrice(downPayment)}</div>
-          </div>
-          <div class="inquire-wrap" onclick="event.stopPropagation()">
-            <button class="car-cta" onclick="toggleInquireMenu(event)"><i class="fab fa-whatsapp"></i> Buy Now</button>
-            <div class="inquire-menu">
-              <a href="tel:+2348101885558" class="inquire-menu-item"><i class="fas fa-phone"></i> Call Us</a>
-              <a href="https://wa.me/2348055065825?text=${waMsg}" target="_blank" class="inquire-menu-item"><i class="fab fa-whatsapp"></i> WhatsApp</a>
-            </div>
+        <div class="inquire-wrap" onclick="event.stopPropagation()">
+          <button class="car-cta" onclick="toggleInquireMenu(event)"><i class="fab fa-whatsapp"></i> Buy Now</button>
+          <div class="inquire-menu">
+            <a href="tel:+2348101885558" class="inquire-menu-item"><i class="fas fa-phone"></i> Call Us</a>
+            <a href="https://wa.me/2348055065825?text=${waMsg}" target="_blank" class="inquire-menu-item"><i class="fab fa-whatsapp"></i> WhatsApp</a>
           </div>
         </div>
       </div>
-    </div>`;
+    </div>
+  </div>`;
 }
 
 function renderSoldCard(car){
   const price = parsePrice(car.price);
-  return `
-    <div class="car-card sold-card">
-      <div class="car-img">
-        <div class="car-img-bg" style="background-image:url('${(car.images && car.images[0]) ? car.images[0] : 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=600&q=70'}')"></div>
-        <div class="sold-overlay"><span class="sold-badge">Sold</span></div>
+  return `<div class="car-card sold-card">
+    <div class="car-img">
+      <div class="car-img-bg" style="background-image:url('${(car.images&&car.images[0])?car.images[0]:'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=600&q=70'}')"></div>
+      <div class="sold-overlay"><span class="sold-badge">Sold</span></div>
+    </div>
+    <div class="car-body">
+      <div class="car-make">${car.make}</div>
+      <h3 class="car-model">${car.model}</h3>
+      <div class="car-year">${car.year} · ${conditionLabel(car.condition)}</div>
+      <div class="car-footer" style="padding-top:10px;border-top:1px solid var(--border2);">
+        <div><div class="price-lbl">Sold For</div><div class="price-val" style="font-size:.95rem;">${formatPrice(price)}</div></div>
+        <span style="font-size:.7rem;color:#c0392b;font-weight:800;letter-spacing:.1em;">SOLD</span>
       </div>
-      <div class="car-body">
-        <div class="car-make">${car.make}</div>
-        <h3 class="car-model">${car.model}</h3>
-        <div class="car-year">${car.year} · ${conditionLabel(car.condition)}</div>
-        <div class="car-footer" style="padding-top:10px;border-top:1px solid var(--border2);">
-          <div>
-            <div class="price-lbl">Sold For</div>
-            <div class="price-val" style="font-size:.95rem;">${formatPrice(price)}</div>
-          </div>
-          <span style="font-size:.7rem;color:#c0392b;font-weight:800;letter-spacing:.1em;">SOLD</span>
-        </div>
-      </div>
-    </div>`;
+    </div>
+  </div>`;
 }
 
-async function loadInventory(){
+function sortCars(cars){
+  const s = activeFilters.sort;
+  if(s==='price-low') return [...cars].sort((a,b)=>parsePrice(a.price)-parsePrice(b.price));
+  if(s==='price-high') return [...cars].sort((a,b)=>parsePrice(b.price)-parsePrice(a.price));
+  if(s==='year-new') return [...cars].sort((a,b)=>Number(b.year)-Number(a.year));
+  if(s==='year-old') return [...cars].sort((a,b)=>Number(a.year)-Number(b.year));
+  return cars;
+}
+
+function updateCount(shown, total){
+  document.getElementById('invCount').textContent = shown >= total
+    ? 'Showing all ' + total + ' vehicle' + (total!==1?'s':'')
+    : 'Showing ' + shown + ' of ' + total + ' vehicles — scroll for more';
+}
+
+async function fetchPage(){
+  if(isLoading || !hasMore) return;
+  isLoading = true;
+
+  const isPriceSort = activeFilters.sort==='price-low' || activeFilters.sort==='price-high';
+  const nextPage = currentPage + 1;
   const grid = document.getElementById('carsGrid');
-  grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--muted);padding:60px 0;">Loading inventory...</p>';
+
+  // Show skeletons
+  if(currentPage === 0){
+    grid.innerHTML = Array(9).fill(0).map(skeletonCard).join('');
+  } else {
+    const appendEl = document.createElement('div');
+    appendEl.id = 'sk-append';
+    appendEl.style.display = 'contents';
+    appendEl.innerHTML = Array(3).fill(0).map(skeletonCard).join('');
+    grid.appendChild(appendEl);
+  }
+
   try {
-    const res = await fetch(SABICARS_API + '/cars');
+    const params = new URLSearchParams({ limit: 12 });
+    if(isPriceSort) params.set('all','true');
+    else params.set('page', nextPage);
+    if(activeFilters.brand !== 'all') params.set('make', activeFilters.brand);
+    if(activeFilters.category !== 'all') params.set('category', activeFilters.category);
+
+    const res = await fetch(SABICARS_API + '/cars?' + params.toString());
     const data = await res.json();
-    if (!data.success || data.cars.length === 0) {
-      allCars = [];
-      grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--muted);padding:60px 0;">No vehicles available right now.</p>';
-      document.getElementById('invCount').textContent = 'Showing 0 vehicles';
+
+    // Remove appended skeletons
+    const sk = document.getElementById('sk-append');
+    if(sk) sk.remove();
+
+    if(!data.success){
+      if(currentPage === 0) grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#ff6b6b;padding:60px 0;">Couldn\'t load inventory. Please refresh.</p>';
+      isLoading = false;
       return;
     }
-    allCars = data.cars;
-    applyFilters();
-  } catch (err) {
-    grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#ff6b6b;padding:60px 0;">Couldn\'t load inventory. Please refresh.</p>';
+
+    let cars = sortCars(data.cars);
+
+    if(currentPage === 0){
+      grid.innerHTML = cars.length === 0
+        ? '<p style="grid-column:1/-1;text-align:center;color:var(--muted);padding:60px 0;">No vehicles match these filters.</p>'
+        : cars.map(renderCarCard).join('');
+    } else {
+      grid.insertAdjacentHTML('beforeend', cars.map(renderCarCard).join(''));
+    }
+
+    hasMore = isPriceSort ? false : data.hasMore;
+    currentPage = isPriceSort ? 1 : nextPage;
+
+    const shown = grid.querySelectorAll('.car-card').length;
+    updateCount(shown, data.total);
+
+  } catch(err){
+    const sk = document.getElementById('sk-append');
+    if(sk) sk.remove();
+    if(currentPage === 0) grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#ff6b6b;padding:60px 0;">Couldn\'t load inventory. Please refresh.</p>';
     console.error(err);
   }
-}
 
-async function loadRecentlySold(){
-  try {
-    const res = await fetch(SABICARS_API + '/cars/sold/recent');
-    const data = await res.json();
-    if (!data.success || data.cars.length === 0) return;
-    document.getElementById('soldSection').style.display = 'block';
-    document.getElementById('jumpSoldBtn').style.display = 'inline-flex';
-    document.getElementById('soldGrid').innerHTML = data.cars.map(renderSoldCard).join('');
-  } catch (err) { console.error(err); }
+  isLoading = false;
 }
 
 function applyFilters(){
-  displayedCount = 0;
-  const brand = document.getElementById('brandFilter').value;
-  const category = document.getElementById('categoryFilter').value;
-  const sort = document.getElementById('sortFilter').value;
-
-  let filtered = allCars.filter(car => {
-    const brandMatch = brand === 'all' || car.make === brand;
-    let catMatch = true;
-    if (category !== 'all') {
-      if (category === 'cars') {
-        catMatch = car.category === 'regular' || car.category === 'luxury';
-      } else if (category === 'suv') {
-        catMatch = car.category === 'suv' || car.bodyType === 'suv';
-      } else if (category === 'bus') {
-        catMatch = car.category === 'bus' || car.bodyType === 'bus';
-      } else if (category === 'truck') {
-        catMatch = car.category === 'truck' || car.bodyType === 'truck';
-      } else {
-        catMatch = car.category === category;
-      }
-    }
-    return brandMatch && catMatch;
-  });
-
-  if (sort === 'price-low') filtered.sort((a,b) => parsePrice(a.price) - parsePrice(b.price));
-  if (sort === 'price-high') filtered.sort((a,b) => parsePrice(b.price) - parsePrice(a.price));
-  if (sort === 'year-new') filtered.sort((a,b) => Number(b.year) - Number(a.year));
-  if (sort === 'year-old') filtered.sort((a,b) => Number(a.year) - Number(b.year));
-
-  window._filteredCars = filtered;
-  renderPage();
-}
-
-function renderPage(){
-  const filtered = window._filteredCars || [];
-  const grid = document.getElementById('carsGrid');
-  const loadMoreBtn = document.getElementById('loadMoreBtn');
-  const nextBatch = filtered.slice(displayedCount, displayedCount + PAGE_SIZE);
-
-  if (displayedCount === 0) {
-    grid.innerHTML = filtered.length === 0
-      ? '<p style="grid-column:1/-1;text-align:center;color:var(--muted);padding:60px 0;">No vehicles match these filters.</p>'
-      : nextBatch.map(renderCarCard).join('');
-  } else {
-    grid.insertAdjacentHTML('beforeend', nextBatch.map(renderCarCard).join(''));
-  }
-
-  displayedCount += nextBatch.length;
-  document.getElementById('invCount').textContent = `Showing ${displayedCount} of ${filtered.length} vehicle${filtered.length !== 1 ? 's' : ''}`;
-
-  if (loadMoreBtn) {
-    loadMoreBtn.style.display = displayedCount < filtered.length ? 'block' : 'none';
-  }
+  activeFilters = {
+    brand: document.getElementById('brandFilter').value,
+    category: document.getElementById('categoryFilter').value,
+    sort: document.getElementById('sortFilter').value
+  };
+  currentPage = 0;
+  hasMore = true;
+  isLoading = false;
+  fetchPage();
 }
 
 function resetFilters(){
@@ -302,15 +327,35 @@ function resetFilters(){
 function toggleInquireMenu(e){
   e.stopPropagation();
   const menu = e.currentTarget.nextElementSibling;
-  document.querySelectorAll('.inquire-menu.open').forEach(m => { if(m !== menu) m.classList.remove('open'); });
+  document.querySelectorAll('.inquire-menu.open').forEach(m=>{ if(m!==menu) m.classList.remove('open'); });
   menu.classList.toggle('open');
 }
-
-document.addEventListener('click', function(){
-  document.querySelectorAll('.inquire-menu.open').forEach(m => m.classList.remove('open'));
+document.addEventListener('click', ()=>{
+  document.querySelectorAll('.inquire-menu.open').forEach(m=>m.classList.remove('open'));
 });
 
-loadInventory();
+// Infinite scroll — fires 400px before sentinel reaches viewport
+const sentinel = document.getElementById('sentinel');
+if(sentinel){
+  new IntersectionObserver(entries=>{
+    if(entries[0].isIntersecting) fetchPage();
+  }, { rootMargin: '400px' }).observe(sentinel);
+}
+
+async function loadRecentlySold(){
+  try {
+    const res = await fetch(SABICARS_API + '/cars/sold/recent');
+    const data = await res.json();
+    if(!data.success || data.cars.length === 0) return;
+    document.getElementById('soldSection').style.display = 'block';
+    const jumpBtn = document.getElementById('jumpSoldBtn');
+    if(jumpBtn) jumpBtn.style.display = 'inline-flex';
+    document.getElementById('soldGrid').innerHTML = data.cars.map(renderSoldCard).join('');
+  } catch(err){ console.error(err); }
+}
+
+// Boot
+fetchPage();
 loadRecentlySold();
 </script>
 </body>
