@@ -1,78 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
-<title>Blog — Automotive Insights | Sabicars Limited</title>
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
+<title>Blog — Sabicars Limited | Automotive Insights Lagos</title>
+<meta name="description" content="Automotive insights, buying guides, financing tips and fleet news from Sabicars Limited — Nigeria's premier verified auto dealer."/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-<link rel="stylesheet" href="theme.css"/><style>
-.page-hero{background:var(--bg2);padding:60px 0 48px;border-bottom:1px solid var(--border);}
-.page-hero h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:600;color:var(--text);margin-bottom:10px;}
-.page-hero p{font-size:1rem;color:var(--muted);font-weight:300;}
-.page-body{padding:72px 0 88px;background:var(--bg);}
-.content-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start;}
-@media(max-width:860px){.content-grid{grid-template-columns:1fr;gap:40px;}}
-.info-card{background:var(--card);border:1px solid var(--border2);border-radius:10px;padding:36px;}
-.info-card h3{font-family:"Cormorant Garamond",serif;font-size:1.8rem;font-weight:600;color:var(--text);margin-bottom:20px;}
-.step-list{list-style:none;display:flex;flex-direction:column;gap:16px;}
-.step-item{display:flex;align-items:flex-start;gap:14px;}
-.step-n{width:32px;height:32px;border-radius:50%;border:1px solid var(--gold);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;}
-.step-t h5{font-size:.9rem;font-weight:600;color:var(--text);margin-bottom:2px;}
-.step-t p{font-size:.8rem;color:var(--muted);font-weight:300;}
-.big-pct{font-family:"Cormorant Garamond",serif;font-size:6rem;font-weight:700;color:var(--gold);line-height:1;margin-bottom:8px;}
-.big-pct sup{font-size:2.2rem;vertical-align:super;}
-.faq{margin-top:40px;}
-.faq-item{border-bottom:1px solid var(--border2);padding:16px 0;}
-.faq-q{font-size:.95rem;font-weight:600;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
-.faq-a{font-size:.85rem;color:var(--muted);font-weight:300;line-height:1.7;margin-top:10px;display:none;}
-.faq-a.open{display:block;}
-.contact-list-pg{list-style:none;display:flex;flex-direction:column;gap:18px;}
-.c-item{display:flex;align-items:flex-start;gap:14px;}
-.c-icon{width:40px;height:40px;background:var(--gold-dim);border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:.85rem;flex-shrink:0;border-radius:6px;}
-.c-text strong{display:block;font-size:.78rem;color:var(--text);font-weight:600;margin-bottom:2px;}
-.c-text span,.c-text a{font-size:.88rem;color:var(--muted);text-decoration:none;font-weight:300;}
-.c-text a:hover{color:var(--gold);}
-.hours-box{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:22px;margin-top:24px;}
-.hours-title{font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:12px;}
-.h-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);font-size:.82rem;}
-.h-row:last-child{border:none;}
-.h-row span:first-child{color:var(--muted);}
-.h-row span:last-child{color:var(--text);font-weight:500;}
-.h-closed{color:#DC2626!important;}
-.map-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;min-height:340px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
-.map-card::before{content:"";position:absolute;inset:0;background:linear-gradient(var(--border2) 1px,transparent 1px),linear-gradient(90deg,var(--border2) 1px,transparent 1px);background-size:26px 26px;}
-.map-inner{text-align:center;position:relative;z-index:1;}
-.map-pin{width:52px;height:52px;background:var(--gold);border-radius:50% 50% 50% 0;transform:rotate(-45deg);margin:0 auto 18px;display:flex;align-items:center;justify-content:center;}
-.map-pin i{transform:rotate(45deg);color:#fff;font-size:.95rem;}
-.map-inner p{font-size:.88rem;color:var(--muted);margin-bottom:16px;}
-.map-link{display:inline-flex;align-items:center;gap:6px;color:var(--gold);font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;border-bottom:1px solid var(--gold-border);padding-bottom:2px;}
-.about-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:60px;align-items:center;}
-@media(max-width:860px){.about-grid{grid-template-columns:1fr;}}
-.founder-frame{background:var(--bg3);border:1px solid var(--gold-border);border-radius:8px;aspect-ratio:3/4;max-height:460px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
-.founder-placeholder{text-align:center;padding:32px;}
-.founder-placeholder i{font-size:4rem;color:var(--gold);opacity:.25;margin-bottom:16px;display:block;}
-.founder-placeholder small{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;}
-.founder-corner{position:absolute;top:-8px;right:-8px;width:60px;height:60px;border-top:2px solid var(--gold);border-right:2px solid var(--gold);}
-.founder-corner-bl{position:absolute;bottom:-8px;left:-8px;width:60px;height:60px;border-bottom:2px solid var(--gold);border-left:2px solid var(--gold);}
-.about-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px;}
-.about-stat{background:var(--bg2);border:1px solid var(--border2);border-radius:6px;padding:18px;text-align:center;}
-.about-stat-n{font-family:"Cormorant Garamond",serif;font-size:2.2rem;font-weight:700;color:var(--gold);line-height:1;}
-.about-stat-l{font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:4px;}
+<link rel="stylesheet" href="theme.css"/>
+<style>
+.blog-hero{background:var(--bg2);padding:60px 0 48px;border-bottom:1px solid var(--border);}
+.blog-hero h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:600;color:var(--text);margin-bottom:10px;}
+.blog-hero p{font-size:1rem;color:var(--muted);font-weight:300;}
+.blog-page{padding:60px 0 88px;background:var(--bg);}
+.cat-filter{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:40px;}
+.cat-btn{padding:8px 18px;border-radius:50px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .2s;}
+.cat-btn.active,.cat-btn:hover{background:var(--gold);color:#fff;border-color:var(--gold);}
 .blog-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
-@media(max-width:900px){.blog-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:860px){.blog-grid{grid-template-columns:1fr 1fr;}}
 @media(max-width:560px){.blog-grid{grid-template-columns:1fr;}}
-.blog-card{background:var(--card);border:1px solid var(--border2);border-radius:8px;overflow:hidden;transition:all .3s;text-decoration:none;display:block;color:inherit;}
+.blog-card{background:var(--card);border:1px solid var(--border2);border-radius:8px;overflow:hidden;transition:all .3s;text-decoration:none;display:block;cursor:pointer;}
 .blog-card:hover{border-color:var(--gold-border);transform:translateY(-3px);box-shadow:var(--shadow-lg);}
-.blog-img{height:190px;background-size:cover;background-position:center;}
+.blog-img{height:200px;background-size:cover;background-position:center;background-color:var(--bg3);}
 .blog-body{padding:20px;}
 .blog-cat{display:inline-block;font-size:.6rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
-.blog-body h4{font-family:"Cormorant Garamond",serif;font-size:1.2rem;font-weight:700;color:var(--text);line-height:1.3;margin-bottom:8px;}
+.blog-body h4{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:700;color:var(--text);line-height:1.3;margin-bottom:8px;}
 .blog-body p{font-size:.8rem;color:var(--muted);font-weight:300;line-height:1.6;margin-bottom:14px;}
-.blog-meta{display:flex;align-items:center;gap:10px;font-size:.72rem;color:var(--muted2);}
+.blog-meta{display:flex;align-items:center;gap:10px;font-size:.72rem;color:var(--muted2);flex-wrap:wrap;}
+.blog-read{display:inline-flex;align-items:center;gap:5px;color:var(--gold);font-size:.72rem;font-weight:700;margin-left:auto;}
+/* Skeleton */
+@keyframes shimmer{0%{background-position:-600px 0}100%{background-position:600px 0}}
+.sk{background:linear-gradient(90deg,var(--bg3) 0%,var(--bg2) 50%,var(--bg3) 100%);background-size:600px 100%;animation:shimmer 1.5s ease-in-out infinite;border-radius:4px;}
+.sk-img{height:200px;border-radius:0;}
+.sk-body{padding:20px;}
+.sk-line{height:11px;margin-bottom:10px;}
+.empty-msg{grid-column:1/-1;text-align:center;color:var(--muted);padding:80px 0;font-size:.9rem;}
 </style>
 </head>
 <body>
-<a href="https://wa.me/2348055065825" class="float-wa" target="_blank"><i class="fab fa-whatsapp"></i></a>
+<a href="https://wa.me/2348055065825?text=Hello%20Sabicars!" class="float-wa" target="_blank"><i class="fab fa-whatsapp"></i></a>
 <nav class="mobile-nav" id="mobileNav">
   <a href="index.html" onclick="closeNav()">Home</a><a href="cars.html" onclick="closeNav()">Buy Cars</a><a href="financing.html" onclick="closeNav()">Financing</a><a href="about.html" onclick="closeNav()">About</a><a href="blog.html" onclick="closeNav()">Blog</a><a href="contact.html" onclick="closeNav()">Contact</a>
   <a href="https://wa.me/2348055065825" class="mob-wa-btn" target="_blank"><i class="fab fa-whatsapp"></i> Chat on WhatsApp</a>
@@ -83,21 +49,29 @@
   <nav class="nav"><a href="index.html">Home</a><a href="cars.html">Buy Cars</a><a href="financing.html">Financing</a><a href="about.html">About</a><a href="blog.html" class="active">Blog</a><a href="contact.html">Contact</a></nav>
   <div class="header-right"><button class="theme-btn" data-theme-toggle><i data-theme-icon class="fas fa-moon"></i></button><a href="https://wa.me/2348055065825" class="btn-wa" target="_blank"><i class="fab fa-whatsapp"></i><span class="wa-label">WhatsApp</span></a><button class="hamburger" id="hamburger" onclick="toggleNav()"><span></span><span></span><span></span></button></div>
 </div></div></header>
-<div class="page-hero"><div class="container">
+
+<div class="blog-hero"><div class="container">
   <div class="sec-label"><div class="sec-label-line"></div><span class="sec-label-text">Automotive Insights</span></div>
-  <h1>The Sabicars <em class="serif" style="font-style:italic;color:var(--gold)">Blog</em></h1>
-  <p>Expert advice, buying guides, and automotive news for Nigerian car buyers.</p>
+  <h1>Sabicars <em class="serif" style="font-style:italic;color:var(--gold)">Blog</em></h1>
+  <p>Buying guides, financing tips, fleet news and automotive insights for Nigerian drivers.</p>
 </div></div>
-<section class="page-body"><div class="container">
-  <div class="blog-grid">
-    <a href="#" class="blog-card reveal"><div class="blog-img" style="background-image:url('https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=600&q=70')"></div><div class="blog-body"><span class="blog-cat">Buying Guide</span><h4>Top 5 SUVs for Nigerian Roads in 2025</h4><p>Discover the best SUVs built to handle Nigerian terrain — rugged roads to city driving. Durability, fuel efficiency and value.</p><div class="blog-meta"><span>Mar 2025</span><span>·</span><span>5 min read</span></div></div></a>
-    <a href="#" class="blog-card reveal"><div class="blog-img" style="background-image:url('https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=600&q=70')"></div><div class="blog-body"><span class="blog-cat">Financing</span><h4>How the 40% Drive Plan Works — Explained</h4><p>A complete breakdown of how to get behind the wheel today with just 40% down payment at Sabicars.</p><div class="blog-meta"><span>Feb 2025</span><span>·</span><span>6 min read</span></div></div></a>
-    <a href="#" class="blog-card reveal"><div class="blog-img" style="background-image:url('https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=600&q=70')"></div><div class="blog-body"><span class="blog-cat">Fleet Guide</span><h4>Why Businesses Choose Sabicars for Fleet Supply</h4><p>Corporate buyers reveal why Sabicars is their #1 choice for bulk vehicle procurement across Nigeria.</p><div class="blog-meta"><span>Jan 2025</span><span>·</span><span>7 min read</span></div></div></a>
-    <a href="#" class="blog-card reveal"><div class="blog-img" style="background-image:url('https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=600&q=70')"></div><div class="blog-body"><span class="blog-cat">Model Guide</span><h4>Toyota Highlander vs Lexus GX: Which Should You Buy?</h4><p>Both are premium, both are reliable. We break down the key differences to help you choose right.</p><div class="blog-meta"><span>Dec 2024</span><span>·</span><span>6 min read</span></div></div></a>
-    <a href="#" class="blog-card reveal"><div class="blog-img" style="background-image:url('https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=600&q=70')"></div><div class="blog-body"><span class="blog-cat">Trucks</span><h4>A Complete Guide to Buying a Tokunbo Truck in Nigeria</h4><p>Everything you need to know before buying a used truck — inspection checklist, documentation, and what to avoid.</p><div class="blog-meta"><span>Nov 2024</span><span>·</span><span>8 min read</span></div></div></a>
-    <a href="#" class="blog-card reveal"><div class="blog-img" style="background-image:url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=70')"></div><div class="blog-body"><span class="blog-cat">Toyota Hiace</span><h4>Why the Toyota Hiace Is Nigeria's Most Reliable Bus</h4><p>Decades of proof on Nigerian roads. We explain why the Hiace dominates commercial transportation and why it keeps its value.</p><div class="blog-meta"><span>Oct 2024</span><span>·</span><span>5 min read</span></div></div></a>
+
+<section class="blog-page"><div class="container">
+  <div class="cat-filter">
+    <button class="cat-btn active" onclick="filterCat('all',this)">All</button>
+    <button class="cat-btn" onclick="filterCat('Industry News',this)">Industry News</button>
+    <button class="cat-btn" onclick="filterCat('Buying Guide',this)">Buying Guide</button>
+    <button class="cat-btn" onclick="filterCat('Financing',this)">Financing</button>
+    <button class="cat-btn" onclick="filterCat('Fleet Guide',this)">Fleet Guide</button>
+    <button class="cat-btn" onclick="filterCat('Tips & Maintenance',this)">Tips & Maintenance</button>
+  </div>
+  <div class="blog-grid" id="blogGrid">
+    <div class="blog-card"><div class="sk sk-img"></div><div class="sk-body"><div class="sk sk-line" style="width:30%;"></div><div class="sk sk-line" style="width:80%;height:16px;margin-bottom:10px;"></div><div class="sk sk-line" style="width:90%;"></div><div class="sk sk-line" style="width:60%;"></div></div></div>
+    <div class="blog-card"><div class="sk sk-img"></div><div class="sk-body"><div class="sk sk-line" style="width:30%;"></div><div class="sk sk-line" style="width:80%;height:16px;margin-bottom:10px;"></div><div class="sk sk-line" style="width:90%;"></div><div class="sk sk-line" style="width:60%;"></div></div></div>
+    <div class="blog-card"><div class="sk sk-img"></div><div class="sk-body"><div class="sk sk-line" style="width:30%;"></div><div class="sk sk-line" style="width:80%;height:16px;margin-bottom:10px;"></div><div class="sk sk-line" style="width:90%;"></div><div class="sk sk-line" style="width:60%;"></div></div></div>
   </div>
 </div></section>
+
 <footer class="footer"><div class="container">
   <div class="footer-grid">
     <div class="footer-brand"><a href="index.html" class="logo"><img data-logo alt="Sabicars" style="height:40px;width:40px;border-radius:8px;"/><div style="display:flex;flex-direction:column;line-height:1;margin-left:10px"><span class="logo-name">Sabicars</span><span class="logo-sub">Luxury Auto · Lagos</span></div></a><p>Nigeria's premier verified dealer. Pay 40%, drive today.</p><div class="socials"><a href="https://instagram.com/sabicarsltd" class="soc" target="_blank"><i class="fab fa-instagram"></i></a><a href="#" class="soc"><i class="fab fa-facebook-f"></i></a><a href="https://wa.me/2348055065825" class="soc" target="_blank"><i class="fab fa-whatsapp"></i></a><a href="#" class="soc"><i class="fab fa-tiktok"></i></a></div></div>
@@ -107,5 +81,66 @@
   </div>
   <div class="footer-bottom"><p>© 2025 Sabicars Limited. RC 1560100.</p><span class="rc-pill"><i class="fas fa-building"></i> RC 1560100</span></div>
 </div></footer>
+
 <script src="theme.js"></script>
-</body></html>
+<script>
+const API = 'https://sabicars-api.onrender.com/api';
+let allPosts = [];
+
+function formatDate(d){
+  return new Date(d).toLocaleDateString('en-NG',{year:'numeric',month:'short',day:'numeric'});
+}
+
+function skeletonCard(){
+  return `<div class="blog-card"><div class="sk sk-img"></div><div class="sk-body"><div class="sk sk-line" style="width:30%;"></div><div class="sk sk-line" style="width:80%;height:16px;margin-bottom:10px;"></div><div class="sk sk-line" style="width:90%;"></div><div class="sk sk-line" style="width:60%;"></div></div></div>`;
+}
+
+function renderCard(post){
+  const fallback = 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=600&q=70';
+  return `<div class="blog-card" onclick="window.location.href='blog-post.html?slug=${post.slug}'">
+    <div class="blog-img" style="background-image:url('${post.coverImage||fallback}')"></div>
+    <div class="blog-body">
+      <span class="blog-cat">${post.category}</span>
+      <h4>${post.title}</h4>
+      <p>${post.excerpt}</p>
+      <div class="blog-meta">
+        <span>${post.publishedAt?formatDate(post.publishedAt):''}</span>
+        <span>·</span>
+        <span>${post.readTime}</span>
+        <span class="blog-read">Read <i class="fas fa-arrow-right" style="font-size:.6rem"></i></span>
+      </div>
+    </div>
+  </div>`;
+}
+
+async function loadPosts(category){
+  const grid = document.getElementById('blogGrid');
+  grid.innerHTML = Array(3).fill(0).map(skeletonCard).join('');
+  try {
+    const url = category && category !== 'all'
+      ? `${API}/blog?limit=30&category=${encodeURIComponent(category)}`
+      : `${API}/blog?limit=30`;
+    const res = await fetch(url);
+    const data = await res.json();
+    allPosts = data.success ? data.posts : [];
+    if(!allPosts.length){
+      grid.innerHTML = '<div class="empty-msg"><i class="fas fa-pen" style="font-size:2rem;margin-bottom:12px;color:var(--muted);display:block;"></i>No posts published yet.<br><span style="font-size:.8rem;">Check back soon for automotive insights.</span></div>';
+      return;
+    }
+    grid.innerHTML = allPosts.map(renderCard).join('');
+  } catch(err){
+    grid.innerHTML = '<div class="empty-msg">Couldn\'t load posts. Please refresh.</div>';
+    console.error(err);
+  }
+}
+
+function filterCat(cat, btn){
+  document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  loadPosts(cat);
+}
+
+loadPosts();
+</script>
+</body>
+</html>
