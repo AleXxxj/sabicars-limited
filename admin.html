@@ -124,6 +124,11 @@
         <input type="text" id="interiorColor" placeholder="Interior Colour"/>
         <input type="text" id="seats" placeholder="Seats (e.g. 7)"/>
       </div>
+      <input type="text" id="financeUrl" placeholder="AutoCheck Finance URL (optional)"/>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;padding:10px;background:#1a1a1a;border:1px solid #3a3a3a;border-radius:6px;">
+        <input type="checkbox" id="featured" style="width:auto;margin:0;"/>
+        <label for="featured" style="font-size:.85rem;color:#eee;cursor:pointer;">⭐ Feature on homepage</label>
+      </div>
 
       <div style="margin-bottom:14px;">
         <p class="section-label">Features</p>
@@ -239,7 +244,7 @@ async function loadCars() {
       <div class="car-row">
         <div class="car-info">
           <strong>${car.make} ${car.model}</strong> (${car.year})<br/>
-          <span style="color:#999;font-size:.8rem;">${car.price} · ${car.category}${car.bodyType ? ' / '+car.bodyType : ''} ${car.available ? '' : '· <span style="color:#c0392b">SOLD</span>'}</span>
+          <span style="color:#999;font-size:.8rem;">${car.featured ? '⭐ ' : ''}${car.price} · ${car.category}${car.bodyType ? ' / '+car.bodyType : ''} ${car.available ? '' : '· <span style="color:#c0392b">SOLD</span>'}</span>
         </div>
         <div class="car-actions">
           <button class="edit-btn" onclick="editCar('${car._id}')">Edit</button>
@@ -294,6 +299,9 @@ function editCar(id) {
   document.getElementById('drivetrain').value = car.drivetrain || '';
   document.getElementById('interiorColor').value = car.interiorColor || '';
   document.getElementById('seats').value = car.seats || '';
+  document.getElementById('financeUrl').value = car.financeUrl || '';
+  document.getElementById('featured').checked = car.featured || false;
+
 
   document.querySelectorAll('#featuresBox input[type="checkbox"]').forEach(cb => {
     cb.checked = (car.features || []).includes(cb.value);
@@ -326,6 +334,8 @@ function resetForm() {
   document.getElementById('condition').value = 'foreign-used';
   document.getElementById('bodyType').value = '';
   document.getElementById('tag').value = 'new';
+  document.getElementById('financeUrl').value = '';
+  document.getElementById('featured').checked = false;
   document.getElementById('saveBtn').textContent = 'Add Car';
   document.getElementById('saveBtn').classList.remove('btn-loading');
   document.getElementById('cancelEditBtn').style.display = 'none';
@@ -387,6 +397,9 @@ async function saveCar() {
   formData.append('drivetrain', document.getElementById('drivetrain').value);
   formData.append('interiorColor', document.getElementById('interiorColor').value);
   formData.append('seats', document.getElementById('seats').value);
+  formData.append('financeUrl', document.getElementById('financeUrl').value);
+  formData.append('featured', document.getElementById('featured').checked ? 'true' : 'false');
+
 
   if (isEditing) {
     formData.append('imagesManaged', 'true');
