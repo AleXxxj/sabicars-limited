@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
+<title id="pageTitle">Blog — Sabicars Limited</title>
+<meta name="description" id="metaDesc" content="Automotive insights from Sabicars Limited, Lagos Nigeria."/>
+<meta property="og:title" id="ogTitle" content="Blog — Sabicars Limited"/>
+<meta property="og:description" id="ogDesc" content=""/>
+<meta property="og:image" id="ogImage" content=""/>
+<meta property="og:type" content="article"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="theme.css"/>
+<style>
+.post-page{padding:60px 0 88px;background:var(--bg);}
+.post-container{max-width:740px;margin:0 auto;}
+.back-link{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:.82rem;text-decoration:none;margin-bottom:28px;}
+.back-link:hover{color:var(--gold);}
+.post-cat{font-size:.65rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
+.post-title{font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,5vw,3.2rem);font-weight:700;color:var(--text);line-height:1.1;margin-bottom:16px;}
+.post-meta{display:flex;align-items:center;gap:14px;font-size:.78rem;color:var(--muted);margin-bottom:32px;flex-wrap:wrap;padding-bottom:20px;border-bottom:1px solid var(--border2);}
+.post-meta i{color:var(--gold);font-size:.7rem;}
+.post-cover{width:100%;height:420px;object-fit:cover;border-radius:10px;background-size:cover;background-position:center;margin-bottom:40px;background-color:var(--bg3);}
+@media(max-width:560px){.post-cover{height:220px;}}
+.post-content{font-size:.95rem;color:var(--text2);line-height:1.85;font-weight:300;}
+.post-content h2{font-family:'Cormorant Garamond',serif;font-size:1.9rem;font-weight:700;color:var(--text);margin:36px 0 14px;}
+.post-content h3{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:600;color:var(--text);margin:28px 0 12px;}
+.post-content p{margin-bottom:18px;}
+.post-content ul,.post-content ol{margin:0 0 18px 24px;}
+.post-content li{margin-bottom:8px;}
+.post-content strong{color:var(--text);font-weight:600;}
+.post-content em{font-style:italic;}
+.post-content a{color:var(--gold);text-decoration:underline;}
+.post-content a:hover{color:var(--gold-lt);}
+.post-content img{width:100%;border-radius:8px;margin:20px 0;}
+.post-share{display:flex;align-items:center;gap:12px;margin-top:48px;padding-top:28px;border-top:1px solid var(--border2);flex-wrap:wrap;}
+.post-share span{font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;}
+.share-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:6px;font-size:.75rem;font-weight:700;text-decoration:none;cursor:pointer;border:none;}
+.share-wa{background:#25D366;color:#fff;}
+.share-copy{background:var(--bg3);color:var(--text);border:1px solid var(--border2);}
+.related-section{padding:60px 0 80px;background:var(--bg2);border-top:1px solid var(--border);}
+.related-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+@media(max-width:860px){.related-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:560px){.related-grid{grid-template-columns:1fr;}}
+.blog-card{background:var(--card);border:1px solid var(--border2);border-radius:8px;overflow:hidden;transition:all .3s;cursor:pointer;}
+.blog-card:hover{border-color:var(--gold-border);transform:translateY(-3px);box-shadow:var(--shadow-lg);}
+.blog-img{height:180px;background-size:cover;background-position:center;}
+.blog-body{padding:16px 18px;}
+.blog-cat{font-size:.6rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:6px;}
+.blog-body h4{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700;color:var(--text);line-height:1.3;margin-bottom:6px;}
+.blog-body p{font-size:.78rem;color:var(--muted);font-weight:300;line-height:1.5;}
+#loadingMsg{text-align:center;color:var(--muted);padding:80px 0;}
+#errorMsg{text-align:center;color:var(--muted);padding:80px 0;}
+</style>
+</head>
+<body>
+<a href="https://wa.me/2348055065825?text=Hello%20Sabicars!" class="float-wa" target="_blank"><i class="fab fa-whatsapp"></i></a>
+<nav class="mobile-nav" id="mobileNav">
+  <a href="index.html" onclick="closeNav()">Home</a><a href="cars.html" onclick="closeNav()">Buy Cars</a><a href="financing.html" onclick="closeNav()">Financing</a><a href="about.html" onclick="closeNav()">About</a><a href="blog.html" onclick="closeNav()">Blog</a><a href="contact.html" onclick="closeNav()">Contact</a>
+  <a href="https://wa.me/2348055065825" class="mob-wa-btn" target="_blank"><i class="fab fa-whatsapp"></i> Chat on WhatsApp</a>
+</nav>
+<div class="topbar"><div class="topbar-inner"><span class="topbar-pill"><span class="topbar-dot"></span><a href="tel:+2348101885558">📞 0810 188 5558</a></span><span class="topbar-sep">·</span><span class="topbar-pill"><span class="topbar-dot"></span>Verified Dealer · RC 1560100</span><span class="topbar-sep">·</span><span class="topbar-pill"><span class="topbar-dot"></span>Pay <strong>40%</strong> &amp; Drive Today</span></div></div>
+<header class="header"><div class="container"><div class="header-inner">
+  <a href="index.html" class="logo"><img data-logo alt="Sabicars"/><div style="display:flex;flex-direction:column;line-height:1;margin-left:10px"><span class="logo-name">Sabicars</span><span class="logo-sub">Luxury Auto · Lagos</span></div></a>
+  <nav class="nav"><a href="index.html">Home</a><a href="cars.html">Buy Cars</a><a href="financing.html">Financing</a><a href="about.html">About</a><a href="blog.html" class="active">Blog</a><a href="contact.html">Contact</a></nav>
+  <div class="header-right"><button class="theme-btn" data-theme-toggle><i data-theme-icon class="fas fa-moon"></i></button><a href="https://wa.me/2348055065825" class="btn-wa" target="_blank"><i class="fab fa-whatsapp"></i><span class="wa-label">WhatsApp</span></a><button class="hamburger" id="hamburger" onclick="toggleNav()"><span></span><span></span><span></span></button></div>
+</div></div></header>
+
+<section class="post-page">
+  <div class="container">
+    <div id="loadingMsg">Loading article...</div>
+    <div id="errorMsg" style="display:none;">
+      <i class="fas fa-newspaper" style="font-size:2.5rem;color:var(--muted);display:block;text-align:center;margin-bottom:16px;"></i>
+      <p style="text-align:center;">This article wasn't found.<br><a href="blog.html" style="color:var(--gold);">← Back to Blog</a></p>
+    </div>
+    <div class="post-container" id="postContainer" style="display:none;">
+      <a href="blog.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to Blog</a>
+      <div class="post-cat" id="postCat"></div>
+      <h1 class="post-title" id="postTitle"></h1>
+      <div class="post-meta" id="postMeta"></div>
+      <div class="post-cover" id="postCover"></div>
+      <div class="post-content" id="postContent"></div>
+      <div class="post-share">
+        <span>Share:</span>
+        <a id="shareWa" class="share-btn share-wa" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+        <button class="share-btn share-copy" onclick="copyLink()"><i class="fas fa-link"></i> Copy Link</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="related-section" id="relatedSection" style="display:none;">
+  <div class="container">
+    <div class="sec-label"><div class="sec-label-line"></div><span class="sec-label-text">Keep Reading</span></div>
+    <h2 class="section-title" style="margin-bottom:32px;">More from the <em>Blog</em></h2>
+    <div class="related-grid" id="relatedGrid"></div>
+  </div>
+</section>
+
+<footer class="footer"><div class="container">
+  <div class="footer-grid">
+    <div class="footer-brand"><a href="index.html" class="logo"><img data-logo alt="Sabicars" style="height:40px;width:40px;border-radius:8px;"/><div style="display:flex;flex-direction:column;line-height:1;margin-left:10px"><span class="logo-name">Sabicars</span><span class="logo-sub">Luxury Auto · Lagos</span></div></a><p>Nigeria's premier verified dealer. Pay 40%, drive today.</p><div class="socials"><a href="https://instagram.com/sabicarsltd" class="soc" target="_blank"><i class="fab fa-instagram"></i></a><a href="#" class="soc"><i class="fab fa-facebook-f"></i></a><a href="https://wa.me/2348055065825" class="soc" target="_blank"><i class="fab fa-whatsapp"></i></a><a href="#" class="soc"><i class="fab fa-tiktok"></i></a></div></div>
+    <div class="footer-col"><h5>Quick Links</h5><ul><li><a href="index.html">Home</a></li><li><a href="cars.html">Buy Cars</a></li><li><a href="financing.html">Financing</a></li><li><a href="about.html">About</a></li><li><a href="blog.html">Blog</a></li><li><a href="contact.html">Contact</a></li></ul></div>
+    <div class="footer-col"><h5>Vehicles</h5><ul><li><a href="cars.html">Luxury Cars</a></li><li><a href="cars.html">Toyota Hiace</a></li><li><a href="cars.html">Trucks</a></li><li><a href="cars.html">SUVs</a></li></ul></div>
+    <div class="footer-col"><h5>Contact</h5><ul><li><a href="tel:+2348101885558">0810 188 5558</a></li><li><a href="https://wa.me/2348055065825" target="_blank">WhatsApp Us</a></li><li><a href="mailto:info@sabicars.ng">info@sabicars.ng</a></li></ul></div>
+  </div>
+  <div class="footer-bottom"><p>© 2025 Sabicars Limited. RC 1560100.</p><span class="rc-pill"><i class="fas fa-building"></i> RC 1560100</span></div>
+</div></footer>
+
+<script src="theme.js"></script>
+<script>
+const API = 'https://sabicars-api.onrender.com/api';
+const slug = new URLSearchParams(window.location.search).get('slug');
+
+function formatDate(d){ return new Date(d).toLocaleDateString('en-NG',{year:'numeric',month:'long',day:'numeric'}); }
+
+async function loadPost(){
+  if(!slug){ showError(); return; }
+  try {
+    const res = await fetch(`${API}/blog/${slug}`);
+    const data = await res.json();
+    if(!data.success){ showError(); return; }
+    renderPost(data.post);
+    loadRelated(data.post);
+  } catch(err){ showError(); console.error(err); }
+}
+
+function showError(){
+  document.getElementById('loadingMsg').style.display = 'none';
+  document.getElementById('errorMsg').style.display = 'block';
+}
+
+function renderPost(post){
+  document.getElementById('loadingMsg').style.display = 'none';
+  document.getElementById('postContainer').style.display = 'block';
+
+  const title = post.title + ' — Sabicars Blog';
+  document.getElementById('pageTitle').textContent = title;
+  document.getElementById('metaDesc').setAttribute('content', post.excerpt);
+  document.getElementById('ogTitle').setAttribute('content', title);
+  document.getElementById('ogDesc').setAttribute('content', post.excerpt);
+  if(post.coverImage) document.getElementById('ogImage').setAttribute('content', post.coverImage);
+
+  document.getElementById('postCat').textContent = post.category;
+  document.getElementById('postTitle').textContent = post.title;
+
+  document.getElementById('postMeta').innerHTML =
+    `<span><i class="fas fa-user"></i> ${post.author}</span>` +
+    (post.publishedAt ? `<span><i class="fas fa-calendar"></i> ${formatDate(post.publishedAt)}</span>` : '') +
+    `<span><i class="fas fa-clock"></i> ${post.readTime}</span>`;
+
+  const cover = document.getElementById('postCover');
+  if(post.coverImage){
+    cover.style.backgroundImage = `url('${post.coverImage}')`;
+  } else {
+    cover.style.display = 'none';
+  }
+
+  document.getElementById('postContent').innerHTML = post.content;
+
+  const waMsg = encodeURIComponent('Check out this article from Sabicars: ' + post.title + ' — ' + window.location.href);
+  document.getElementById('shareWa').href = 'https://wa.me/?text=' + waMsg;
+}
+
+async function loadRelated(post){
+  try {
+    const res = await fetch(`${API}/blog?limit=10`);
+    const data = await res.json();
+    if(!data.success) return;
+    const related = data.posts.filter(p => p.slug !== post.slug && p.category === post.category).slice(0,3);
+    const fallback = data.posts.filter(p => p.slug !== post.slug).slice(0,3);
+    const show = related.length >= 2 ? related : fallback;
+    if(!show.length) return;
+    const fallbackImg = 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=600&q=70';
+    document.getElementById('relatedSection').style.display = 'block';
+    document.getElementById('relatedGrid').innerHTML = show.map(p=>`
+      <div class="blog-card" onclick="window.location.href='blog-post.html?slug=${p.slug}'">
+        <div class="blog-img" style="background-image:url('${p.coverImage||fallbackImg}')"></div>
+        <div class="blog-body">
+          <span class="blog-cat">${p.category}</span>
+          <h4>${p.title}</h4>
+          <p>${p.excerpt}</p>
+        </div>
+      </div>
+    `).join('');
+  } catch(err){ console.error(err); }
+}
+
+function copyLink(){
+  navigator.clipboard.writeText(window.location.href).then(()=>{
+    const btn = document.querySelector('.share-copy');
+    btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+    setTimeout(()=>{ btn.innerHTML = '<i class="fas fa-link"></i> Copy Link'; }, 2000);
+  });
+}
+
+loadPost();
+</script>
+</body>
+</html>
