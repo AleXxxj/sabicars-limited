@@ -456,7 +456,7 @@
       </div>
       <a href="blog.html" class="btn-outline">All Articles <i class="fas fa-arrow-right"></i></a>
     </div>
-    <div class="blog-grid">
+    <div class="blog-grid" id="homeBlogGrid">
       <a href="blog/top-5-suvs-nigeria-2025.html" class="blog-card reveal">
         <div class="blog-img" style="background-image:url('https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=600&q=70')"></div>
         <div class="blog-body">
@@ -749,9 +749,35 @@ function toggleInquireMenu(e) {
 
 document.addEventListener('click', () => {
   document.querySelectorAll('.inquire-menu.open').forEach(m => m.classList.remove('open'));
+  
+async function loadBlogPosts(){
+  try {
+    const res = await fetch(API + '/blog?limit=3');
+    const data = await res.json();
+    if(!data.success || !data.posts.length) return;
+    const fallback = 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=600&q=70';
+    document.getElementById('homeBlogGrid').innerHTML = data.posts.map(post=>`
+      <div class="blog-card" onclick="window.location.href='blog-post.html?slug=${post.slug}'" style="cursor:pointer;">
+        <div class="blog-img" style="background-image:url('${post.coverImage||fallback}')"></div>
+        <div class="blog-body">
+          <span class="blog-cat">${post.category}</span>
+          <h4>${post.title}</h4>
+          <p>${post.excerpt}</p>
+          <div class="blog-meta">
+            <span>${post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('en-NG',{year:'numeric',month:'short'}) : ''}</span>
+            <span>·</span><span>${post.readTime}</span>
+            <span class="blog-read" style="margin-left:auto;">Read <i class="fas fa-arrow-right" style="font-size:.6rem"></i></span>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  } catch(err){ /* keep static fallback on error */ }
+}
+
 });
 
 loadFeatured();
+loadBlogPosts();
 </script>
 </body>
 </html>
