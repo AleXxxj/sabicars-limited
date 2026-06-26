@@ -221,8 +221,17 @@
           <button class="ch-btn" onclick="insertTag('h3')">H3</button>
           <button class="ch-btn" onclick="insertTag('strong')"><b>Bold</b></button>
           <button class="ch-btn" onclick="insertTag('em')"><i>Italic</i></button>
-          <button class="ch-btn" onclick="insertList()">• List</button>
+          <button class="ch-btn" onclick="insertList('ul')">• List</button>
+          <button class="ch-btn" onclick="insertList('ol')">1. Numbered</button>
           <button class="ch-btn" onclick="insertLink()">🔗 Link</button>
+          <button class="ch-btn" onclick="insertCallout('tip')">💡 Tip</button>
+          <button class="ch-btn" onclick="insertCallout('warning')">⚠️ Warning</button>
+          <button class="ch-btn" onclick="insertCallout('info')">ℹ️ Info</button>
+          <button class="ch-btn" onclick="insertQuote()">" Quote</button>
+          <button class="ch-btn" onclick="insertStats()">📊 Stats</button>
+          <button class="ch-btn" onclick="insertSteps()">🔢 Steps</button>
+          <button class="ch-btn" onclick="insertHighlight()">⭐ Highlight</button>
+          <button class="ch-btn" onclick="insertImageCaption()">🖼 Image</button>
         </div>
         <textarea id="postContent" placeholder="Write your full post content here using the helpers above..." rows="14" style="font-family:monospace;font-size:.8rem;line-height:1.6;"></textarea>
 
@@ -479,19 +488,27 @@ function autoSlug() {
   document.getElementById('postSlug').value = slug;
 }
 
+function autoSlug() {
+  const slug = document.getElementById('postTitle').value.toLowerCase()
+    .replace(/[^a-z0-9\s-]/g,'').trim().replace(/\s+/g,'-').replace(/-+/g,'-');
+  document.getElementById('postSlug').value = slug;
+}
+
 function insertTag(tag) {
   const ta = document.getElementById('postContent');
   const s = ta.selectionStart, e = ta.selectionEnd;
-  const sel = ta.value.substring(s,e) || 'text here';
+  const sel = ta.value.substring(s,e) || 'Your text here';
   const rep = `<${tag}>${sel}</${tag}>`;
   ta.value = ta.value.substring(0,s)+rep+ta.value.substring(e);
-  ta.focus(); ta.setSelectionRange(s+tag.length+2, s+tag.length+2+sel.length);
+  ta.focus();
 }
 
-function insertList() {
+function insertList(type) {
   const ta = document.getElementById('postContent');
   const pos = ta.selectionStart;
-  const html = '\n<ul>\n  <li>First item</li>\n  <li>Second item</li>\n  <li>Third item</li>\n</ul>\n';
+  const html = type === 'ol'
+    ? '\n<ol>\n  <li>First item</li>\n  <li>Second item</li>\n  <li>Third item</li>\n</ol>\n'
+    : '\n<ul>\n  <li>First item</li>\n  <li>Second item</li>\n  <li>Third item</li>\n</ul>\n';
   ta.value = ta.value.substring(0,pos)+html+ta.value.substring(pos); ta.focus();
 }
 
@@ -502,6 +519,51 @@ function insertLink() {
   const sel = ta.value.substring(s,e)||'link text';
   const link = `<a href="${url}" target="_blank">${sel}</a>`;
   ta.value = ta.value.substring(0,s)+link+ta.value.substring(e);
+}
+
+function insertCallout(type) {
+  const ta = document.getElementById('postContent');
+  const pos = ta.selectionStart;
+  const labels = { tip: '💡 PRO TIP', warning: '⚠️ IMPORTANT', info: 'ℹ️ NOTE' };
+  const html = `\n<div class="callout callout-${type}">\n  <span class="callout-title">${labels[type]}</span>\n  <p>Your callout text here.</p>\n</div>\n`;
+  ta.value = ta.value.substring(0,pos)+html+ta.value.substring(pos); ta.focus();
+}
+
+function insertQuote() {
+  const ta = document.getElementById('postContent');
+  const pos = ta.selectionStart;
+  const html = '\n<blockquote>\n  <p>Your pull quote or notable insight here.</p>\n</blockquote>\n';
+  ta.value = ta.value.substring(0,pos)+html+ta.value.substring(pos); ta.focus();
+}
+
+function insertStats() {
+  const ta = document.getElementById('postContent');
+  const pos = ta.selectionStart;
+  const html = '\n<div class="stat-row">\n  <div class="stat-box"><div class="stat-box-num">40%</div><div class="stat-box-lbl">Down Payment</div></div>\n  <div class="stat-box"><div class="stat-box-num">500+</div><div class="stat-box-lbl">Vehicles Sold</div></div>\n  <div class="stat-box"><div class="stat-box-num">36</div><div class="stat-box-lbl">States</div></div>\n</div>\n';
+  ta.value = ta.value.substring(0,pos)+html+ta.value.substring(pos); ta.focus();
+}
+
+function insertSteps() {
+  const ta = document.getElementById('postContent');
+  const pos = ta.selectionStart;
+  const html = '\n<ol class="step-list">\n  <li><div class="step-n">1</div><div class="step-b"><strong>Step One Title</strong><p>Describe this step here.</p></div></li>\n  <li><div class="step-n">2</div><div class="step-b"><strong>Step Two Title</strong><p>Describe this step here.</p></div></li>\n  <li><div class="step-n">3</div><div class="step-b"><strong>Step Three Title</strong><p>Describe this step here.</p></div></li>\n</ol>\n';
+  ta.value = ta.value.substring(0,pos)+html+ta.value.substring(pos); ta.focus();
+}
+
+function insertHighlight() {
+  const ta = document.getElementById('postContent');
+  const pos = ta.selectionStart;
+  const html = '\n<div class="highlight-box">\n  <h3>Key Takeaway</h3>\n  <p>Your highlighted message or call to action here.</p>\n</div>\n';
+  ta.value = ta.value.substring(0,pos)+html+ta.value.substring(pos); ta.focus();
+}
+
+function insertImageCaption() {
+  const url = prompt('Image URL (from Cloudinary or Unsplash):'); if(!url) return;
+  const caption = prompt('Caption (optional):') || '';
+  const ta = document.getElementById('postContent');
+  const pos = ta.selectionStart;
+  const html = `\n<img src="${url}" alt="${caption}"/>\n${caption ? `<p class="img-caption">${caption}</p>` : ''}\n`;
+  ta.value = ta.value.substring(0,pos)+html+ta.value.substring(pos); ta.focus();
 }
 
 async function loadPosts() {
