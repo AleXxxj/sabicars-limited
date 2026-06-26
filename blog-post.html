@@ -3,43 +3,160 @@
 <head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
 <title id="pageTitle">Blog — Sabicars Limited</title>
-<meta name="description" id="metaDesc" content="Automotive insights from Sabicars Limited, Lagos Nigeria."/>
-<meta property="og:title" id="ogTitle" content="Blog — Sabicars Limited"/>
-<meta property="og:description" id="ogDesc" content=""/>
-<meta property="og:image" id="ogImage" content=""/>
-<meta property="og:type" content="article"/>
+<meta name="description" id="metaDesc" content=""/>
+<meta property="og:title" id="ogTitle" content=""/><meta property="og:description" id="ogDesc" content=""/>
+<meta property="og:image" id="ogImage" content=""/><meta property="og:type" content="article"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 <link rel="stylesheet" href="theme.css"/>
 <style>
-.post-page{padding:60px 0 88px;background:var(--bg);}
-.post-container{max-width:740px;margin:0 auto;}
-.back-link{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:.82rem;text-decoration:none;margin-bottom:28px;}
-.back-link:hover{color:var(--gold);}
-.post-cat{font-size:.65rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
-.post-title{font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,5vw,3.2rem);font-weight:700;color:var(--text);line-height:1.1;margin-bottom:16px;}
-.post-meta{display:flex;align-items:center;gap:14px;font-size:.78rem;color:var(--muted);margin-bottom:32px;flex-wrap:wrap;padding-bottom:20px;border-bottom:1px solid var(--border2);}
-.post-meta i{color:var(--gold);font-size:.7rem;}
-.post-cover{width:100%;height:420px;object-fit:cover;border-radius:10px;background-size:cover;background-position:center;margin-bottom:40px;background-color:var(--bg3);}
-@media(max-width:560px){.post-cover{height:220px;}}
-.post-content{font-size:.95rem;color:var(--text2);line-height:1.85;font-weight:300;}
-.post-content h2{font-family:'Cormorant Garamond',serif;font-size:1.9rem;font-weight:700;color:var(--text);margin:36px 0 14px;}
-.post-content h3{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:600;color:var(--text);margin:28px 0 12px;}
-.post-content p{margin-bottom:18px;}
-.post-content ul,.post-content ol{margin:0 0 18px 24px;}
-.post-content li{margin-bottom:8px;}
+/* Reading progress */
+.reading-progress{position:fixed;top:0;left:0;height:3px;background:var(--gold);z-index:1001;width:0%;transition:width .08s linear;pointer-events:none;}
+
+/* Hero */
+.post-hero{position:relative;height:68vh;min-height:420px;display:flex;align-items:flex-end;overflow:hidden;}
+@media(max-width:560px){.post-hero{height:52vh;min-height:320px;}}
+.post-hero-bg{position:absolute;inset:0;background-size:cover;background-position:center;transition:transform 8s ease-out;}
+.post-hero-bg.ken{transform:scale(1.05);}
+.post-hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.9) 0%,rgba(0,0,0,.45) 55%,rgba(0,0,0,.05) 100%);}
+.post-hero-body{position:relative;z-index:2;padding:0 0 44px;width:100%;}
+.hero-back{display:inline-flex;align-items:center;gap:6px;color:rgba(255,255,255,.6);font-size:.76rem;text-decoration:none;margin-bottom:18px;transition:color .2s;}
+.hero-back:hover{color:#fff;}
+.hero-cat{display:inline-block;background:var(--gold);color:#fff;font-size:.58rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;padding:5px 14px;border-radius:50px;margin-bottom:14px;}
+.hero-title{font-family:'Cormorant Garamond',serif;font-size:clamp(1.9rem,5vw,3.8rem);font-weight:700;color:#fff;line-height:1.05;margin-bottom:18px;max-width:820px;}
+.hero-meta{display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
+.hero-meta span{font-size:.76rem;color:rgba(255,255,255,.68);display:flex;align-items:center;gap:6px;}
+.hero-meta i{color:var(--gold);font-size:.68rem;}
+
+/* Stats pill bar */
+.stats-bar{background:var(--bg2);border-bottom:1px solid var(--border);padding:11px 0;}
+.stats-inner{display:flex;align-items:center;gap:24px;flex-wrap:wrap;}
+.sp{display:flex;align-items:center;gap:6px;font-size:.74rem;color:var(--muted);}
+.sp i{color:var(--gold);font-size:.68rem;}
+.sp strong{color:var(--text);}
+
+/* Post layout */
+.post-layout{display:grid;grid-template-columns:1fr 300px;gap:56px;padding:56px 0 80px;align-items:start;}
+@media(max-width:900px){.post-layout{grid-template-columns:1fr;gap:0;padding:40px 0 60px;}}
+
+/* Sidebar */
+.sidebar-sticky{position:sticky;top:84px;}
+.sb-card{background:var(--card);border:1px solid var(--border2);border-radius:10px;padding:20px;margin-bottom:16px;}
+.sb-title{font-size:.63rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;}
+.toc-list{list-style:none;}
+.toc-item{margin-bottom:2px;}
+.toc-item a{font-size:.78rem;color:var(--muted);text-decoration:none;display:block;padding:5px 0 5px 12px;border-left:2px solid var(--border2);transition:all .2s;line-height:1.4;}
+.toc-item a:hover,.toc-item a.toc-active{color:var(--gold);border-left-color:var(--gold);padding-left:16px;}
+.toc-h3 a{padding-left:22px!important;font-size:.73rem;}
+.toc-h3 a:hover,.toc-h3 a.toc-active{padding-left:26px!important;}
+.sb-stat-row{display:flex;flex-direction:column;gap:8px;}
+.sb-stat{display:flex;justify-content:space-between;align-items:center;font-size:.8rem;color:var(--muted);}
+.sb-stat strong{color:var(--text);}
+.sb-share{display:flex;flex-direction:column;gap:8px;}
+.sb-share-btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:9px;border-radius:6px;font-size:.76rem;font-weight:700;text-decoration:none;cursor:pointer;border:none;transition:all .2s;}
+.sb-wa{background:#25D366;color:#fff;}
+.sb-copy{background:var(--bg3);color:var(--text);border:1px solid var(--border2);}
+@media(max-width:900px){.post-sidebar{display:none;}}
+
+/* Content typography */
+.post-content{font-size:.97rem;color:var(--text2);line-height:1.88;font-weight:300;}
+.post-content h2{font-family:'Cormorant Garamond',serif;font-size:1.9rem;font-weight:700;color:var(--text);margin:52px 0 16px;padding-bottom:10px;border-bottom:2px solid var(--gold-border);scroll-margin-top:90px;}
+.post-content h3{font-family:'Cormorant Garamond',serif;font-size:1.45rem;font-weight:600;color:var(--text);margin:34px 0 12px;scroll-margin-top:90px;}
+.post-content p{margin-bottom:20px;}
 .post-content strong{color:var(--text);font-weight:600;}
 .post-content em{font-style:italic;}
 .post-content a{color:var(--gold);text-decoration:underline;}
-.post-content a:hover{color:var(--gold-lt);}
-.post-content img{width:100%;border-radius:8px;margin:20px 0;}
-.post-share{display:flex;align-items:center;gap:12px;margin-top:48px;padding-top:28px;border-top:1px solid var(--border2);flex-wrap:wrap;}
-.post-share span{font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;}
-.share-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:6px;font-size:.75rem;font-weight:700;text-decoration:none;cursor:pointer;border:none;}
-.share-wa{background:#25D366;color:#fff;}
-.share-copy{background:var(--bg3);color:var(--text);border:1px solid var(--border2);}
-.related-section{padding:60px 0 80px;background:var(--bg2);border-top:1px solid var(--border);}
+.post-content img{width:100%;border-radius:10px;margin:28px 0 6px;box-shadow:0 10px 40px rgba(0,0,0,.2);}
+.post-content .img-caption{font-size:.74rem;color:var(--muted);text-align:center;margin:0 0 28px;font-style:italic;}
+/* Styled lists */
+.post-content ul{margin:0 0 22px;padding:0;list-style:none;}
+.post-content ul li{padding:8px 0 8px 26px;position:relative;font-size:.95rem;border-bottom:1px solid var(--border2);}
+.post-content ul li:last-child{border-bottom:none;}
+.post-content ul li::before{content:'';position:absolute;left:0;top:18px;width:8px;height:8px;background:var(--gold);border-radius:50%;}
+.post-content ol{margin:0 0 22px;padding:0;list-style:none;counter-reset:ol-c;}
+.post-content ol li{counter-increment:ol-c;padding:10px 0 10px 50px;position:relative;font-size:.95rem;border-bottom:1px solid var(--border2);}
+.post-content ol li:last-child{border-bottom:none;}
+.post-content ol li::before{content:counter(ol-c);position:absolute;left:0;top:8px;width:34px;height:34px;background:var(--gold);color:#fff;border-radius:50%;font-weight:700;font-size:.78rem;display:flex;align-items:center;justify-content:center;}
+/* Blockquote */
+.post-content blockquote{border-left:4px solid var(--gold);margin:36px 0;padding:22px 26px;background:var(--bg3);border-radius:0 10px 10px 0;}
+.post-content blockquote p{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-style:italic;color:var(--text);line-height:1.5;margin:0;}
+/* Callout boxes */
+.post-content .callout{border-radius:8px;padding:16px 20px;margin:26px 0;border-left:4px solid;}
+.post-content .callout-tip{background:rgba(212,175,55,.08);border-color:var(--gold);}
+.post-content .callout-warning{background:rgba(220,38,38,.08);border-color:#DC2626;}
+.post-content .callout-info{background:rgba(29,78,216,.08);border-color:#1d4ed8;}
+.post-content .callout-title{font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;display:block;}
+.post-content .callout-tip .callout-title{color:var(--gold);}
+.post-content .callout-warning .callout-title{color:#DC2626;}
+.post-content .callout-info .callout-title{color:#1d4ed8;}
+.post-content .callout p{margin:0;font-size:.87rem;line-height:1.65;}
+/* Stats row */
+.post-content .stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:14px;margin:28px 0;}
+.post-content .stat-box{background:var(--card);border:1px solid var(--border2);border-radius:8px;padding:18px;text-align:center;}
+.post-content .stat-box-num{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:700;color:var(--gold);line-height:1;}
+.post-content .stat-box-lbl{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-top:5px;}
+/* Numbered step list */
+.post-content .step-list{margin:24px 0;padding:0;list-style:none;}
+.post-content .step-list>li{display:flex;gap:16px;padding:18px 0;border-bottom:1px solid var(--border2);}
+.post-content .step-list>li:last-child{border-bottom:none;}
+.post-content .step-list>li::before{content:none;}
+.step-n{flex-shrink:0;width:40px;height:40px;border-radius:50%;background:var(--gold);color:#fff;font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.step-b strong{display:block;font-size:.95rem;color:var(--text);font-weight:600;margin-bottom:4px;}
+.step-b p{margin:0;font-size:.87rem;}
+/* Highlight box */
+.post-content .highlight-box{background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:10px;padding:26px;margin:30px 0;text-align:center;}
+.post-content .highlight-box h3{font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--gold);margin:0 0 8px;}
+.post-content .highlight-box p{margin:0;font-size:.9rem;}
+/* Comparison table */
+.post-content table{width:100%;border-collapse:collapse;margin:28px 0;font-size:.85rem;}
+.post-content th{background:var(--gold);color:#fff;padding:10px 14px;text-align:left;font-weight:700;font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;}
+.post-content td{padding:10px 14px;border-bottom:1px solid var(--border2);color:var(--text2);}
+.post-content tr:hover td{background:var(--bg3);}
+/* Post CTA */
+.post-cta{background:var(--gold);border-radius:12px;padding:32px;text-align:center;margin:48px 0 0;}
+.post-cta h3{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;color:#fff;margin-bottom:8px;}
+.post-cta p{font-size:.85rem;color:rgba(255,255,255,.85);margin-bottom:18px;font-weight:300;}
+.post-cta a{display:inline-flex;align-items:center;gap:6px;background:#fff;color:var(--gold);padding:10px 24px;border-radius:6px;font-weight:700;font-size:.78rem;text-decoration:none;letter-spacing:.06em;text-transform:uppercase;}
+
+/* Engagement */
+.engagement{background:var(--bg2);border-top:1px solid var(--border);padding:44px 0;}
+.reaction-card{background:var(--card);border:1px solid var(--border2);border-radius:12px;padding:26px;margin-bottom:28px;}
+.reaction-label{font-size:.68rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;}
+.reaction-btns{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px;}
+.reaction-btn{display:flex;align-items:center;gap:8px;padding:10px 20px;border-radius:50px;background:var(--bg3);border:1px solid var(--border2);cursor:pointer;transition:all .22s;font-size:.85rem;color:var(--text);}
+.reaction-btn:hover,.reaction-btn.reacted{background:var(--gold-dim);border-color:var(--gold-border);transform:scale(1.07);}
+.r-emoji{font-size:1.25rem;line-height:1;}
+.r-count{font-weight:700;font-size:.82rem;min-width:16px;}
+.share-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-top:18px;border-top:1px solid var(--border2);}
+.share-lbl{font-size:.68rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);}
+.share-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:6px;font-size:.76rem;font-weight:700;text-decoration:none;cursor:pointer;border:none;transition:all .2s;}
+.swa{background:#25D366;color:#fff;}
+.swa:hover{background:#1da853;}
+.scopy{background:var(--bg3);color:var(--text);border:1px solid var(--border2);}
+.scopy:hover{background:var(--bg);}
+
+/* Comments */
+.comment-section{padding-top:36px;}
+.cs-title{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;color:var(--text);margin-bottom:4px;}
+.cs-count{font-size:.8rem;color:var(--muted);margin-bottom:22px;}
+.comment-form{background:var(--card);border:1px solid var(--border2);border-radius:10px;padding:22px;margin-bottom:30px;}
+.cf-title{font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:14px;}
+.c-in{width:100%;padding:10px 12px;margin-bottom:10px;background:var(--bg);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-size:.85rem;font-family:inherit;resize:vertical;}
+.c-in:focus{outline:none;border-color:var(--gold-border);}
+.c-sub{background:var(--gold);color:#fff;border:none;padding:10px 26px;border-radius:6px;font-weight:700;cursor:pointer;font-size:.82rem;letter-spacing:.06em;text-transform:uppercase;}
+.c-msg{margin-top:10px;font-size:.8rem;display:none;}
+.comment-item{padding:18px 0;border-bottom:1px solid var(--border2);}
+.comment-item:last-child{border-bottom:none;}
+.comment-hd{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.c-avatar{width:34px;height:34px;border-radius:50%;background:var(--gold-dim);border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center;color:var(--gold);font-weight:700;font-size:.82rem;flex-shrink:0;}
+.c-name{font-weight:700;font-size:.85rem;color:var(--text);}
+.c-date{font-size:.7rem;color:var(--muted);margin-left:auto;}
+.c-text{font-size:.85rem;color:var(--text2);line-height:1.72;font-weight:300;}
+.no-comments{text-align:center;color:var(--muted);padding:32px 0;font-size:.86rem;}
+
+/* Related */
+.related-section{padding:60px 0 80px;background:var(--bg);}
 .related-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
 @media(max-width:860px){.related-grid{grid-template-columns:1fr 1fr;}}
 @media(max-width:560px){.related-grid{grid-template-columns:1fr;}}
@@ -50,11 +167,11 @@
 .blog-cat{font-size:.6rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:6px;}
 .blog-body h4{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700;color:var(--text);line-height:1.3;margin-bottom:6px;}
 .blog-body p{font-size:.78rem;color:var(--muted);font-weight:300;line-height:1.5;}
-#loadingMsg{text-align:center;color:var(--muted);padding:80px 0;}
-#errorMsg{text-align:center;color:var(--muted);padding:80px 0;}
+#loadingMsg,#errorMsg{text-align:center;color:var(--muted);padding:100px 0 80px;}
 </style>
 </head>
 <body>
+<div class="reading-progress" id="readingProgress"></div>
 <a href="https://wa.me/2348055065825?text=Hello%20Sabicars!" class="float-wa" target="_blank"><i class="fab fa-whatsapp"></i></a>
 <nav class="mobile-nav" id="mobileNav">
   <a href="index.html" onclick="closeNav()">Home</a><a href="cars.html" onclick="closeNav()">Buy Cars</a><a href="financing.html" onclick="closeNav()">Financing</a><a href="about.html" onclick="closeNav()">About</a><a href="blog.html" onclick="closeNav()">Blog</a><a href="contact.html" onclick="closeNav()">Contact</a>
@@ -67,29 +184,106 @@
   <div class="header-right"><button class="theme-btn" data-theme-toggle><i data-theme-icon class="fas fa-moon"></i></button><a href="https://wa.me/2348055065825" class="btn-wa" target="_blank"><i class="fab fa-whatsapp"></i><span class="wa-label">WhatsApp</span></a><button class="hamburger" id="hamburger" onclick="toggleNav()"><span></span><span></span><span></span></button></div>
 </div></div></header>
 
-<section class="post-page">
-  <div class="container">
-    <div id="loadingMsg">Loading article...</div>
-    <div id="errorMsg" style="display:none;">
-      <i class="fas fa-newspaper" style="font-size:2.5rem;color:var(--muted);display:block;text-align:center;margin-bottom:16px;"></i>
-      <p style="text-align:center;">This article wasn't found.<br><a href="blog.html" style="color:var(--gold);">← Back to Blog</a></p>
-    </div>
-    <div class="post-container" id="postContainer" style="display:none;">
-      <a href="blog.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to Blog</a>
-      <div class="post-cat" id="postCat"></div>
-      <h1 class="post-title" id="postTitle"></h1>
-      <div class="post-meta" id="postMeta"></div>
-      <div class="post-cover" id="postCover"></div>
-      <div class="post-content" id="postContent"></div>
-      <div class="post-share">
-        <span>Share:</span>
-        <a id="shareWa" class="share-btn share-wa" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
-        <button class="share-btn share-copy" onclick="copyLink()"><i class="fas fa-link"></i> Copy Link</button>
+<div id="loadingMsg">Loading article...</div>
+<div id="errorMsg" style="display:none;">
+  <div class="container"><i class="fas fa-newspaper" style="font-size:3rem;color:var(--muted);display:block;margin:0 auto 16px;text-align:center;"></i><p style="text-align:center;">Article not found. <a href="blog.html" style="color:var(--gold);">← Back to Blog</a></p></div>
+</div>
+
+<!-- HERO -->
+<div id="heroWrap" style="display:none;">
+  <div class="post-hero">
+    <div class="post-hero-bg" id="heroBg"></div>
+    <div class="post-hero-overlay"></div>
+    <div class="container">
+      <div class="post-hero-body">
+        <a href="blog.html" class="hero-back"><i class="fas fa-arrow-left"></i> All Articles</a>
+        <div class="hero-cat" id="heroCat"></div>
+        <h1 class="hero-title" id="heroTitle"></h1>
+        <div class="hero-meta" id="heroMeta"></div>
       </div>
     </div>
   </div>
-</section>
+  <div class="stats-bar"><div class="container"><div class="stats-inner">
+    <div class="sp"><i class="fas fa-eye"></i><strong id="svViews">—</strong> views</div>
+    <div class="sp"><i class="fas fa-heart"></i><strong id="svReactions">—</strong> reactions</div>
+    <div class="sp"><i class="fas fa-comment"></i><strong id="svComments">—</strong> comments</div>
+    <div class="sp"><i class="fas fa-share"></i><strong id="svShares">—</strong> shares</div>
+  </div></div></div>
+</div>
 
+<!-- POST BODY -->
+<div id="postBody" style="display:none;">
+  <div class="container">
+    <div class="post-layout">
+      <main>
+        <div class="post-content" id="postContent"></div>
+        <div class="post-cta">
+          <h3>Ready to Drive Your Dream Car?</h3>
+          <p>Browse Sabicars' verified inventory — luxury cars, Toyota Hiace, trucks and SUVs. Pay 40% and drive today.</p>
+          <a href="cars.html">Browse Inventory <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </main>
+      <aside class="post-sidebar">
+        <div class="sidebar-sticky">
+          <div class="sb-card" id="tocCard" style="display:none;">
+            <div class="sb-title">In This Article</div>
+            <ul class="toc-list" id="tocList"></ul>
+          </div>
+          <div class="sb-card">
+            <div class="sb-title">Article Stats</div>
+            <div class="sb-stat-row">
+              <div class="sb-stat"><span><i class="fas fa-eye" style="color:var(--gold);margin-right:6px;font-size:.7rem;"></i>Views</span><strong id="sbViews">—</strong></div>
+              <div class="sb-stat"><span><i class="fas fa-heart" style="color:var(--gold);margin-right:6px;font-size:.7rem;"></i>Reactions</span><strong id="sbReactions">—</strong></div>
+              <div class="sb-stat"><span><i class="fas fa-comment" style="color:var(--gold);margin-right:6px;font-size:.7rem;"></i>Comments</span><strong id="sbComments">—</strong></div>
+            </div>
+          </div>
+          <div class="sb-card">
+            <div class="sb-title">Share Article</div>
+            <div class="sb-share">
+              <a id="sbShareWa" class="sb-share-btn sb-wa" target="_blank" onclick="trackShare()"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+              <button class="sb-share-btn sb-copy" onclick="copyLink('sb')" id="sbCopyBtn"><i class="fas fa-link"></i> Copy Link</button>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- ENGAGEMENT -->
+  <div class="engagement">
+    <div class="container">
+      <div class="reaction-card">
+        <div class="reaction-label">How did this article make you feel?</div>
+        <div class="reaction-btns">
+          <button class="reaction-btn" id="btn-like" onclick="react('like')"><span class="r-emoji">👍</span><span class="r-count" id="rc-like">0</span><span style="font-size:.75rem;color:var(--muted);">Helpful</span></button>
+          <button class="reaction-btn" id="btn-fire" onclick="react('fire')"><span class="r-emoji">🔥</span><span class="r-count" id="rc-fire">0</span><span style="font-size:.75rem;color:var(--muted);">Fire</span></button>
+          <button class="reaction-btn" id="btn-love" onclick="react('love')"><span class="r-emoji">❤️</span><span class="r-count" id="rc-love">0</span><span style="font-size:.75rem;color:var(--muted);">Love it</span></button>
+          <button class="reaction-btn" id="btn-insightful" onclick="react('insightful')"><span class="r-emoji">💡</span><span class="r-count" id="rc-insightful">0</span><span style="font-size:.75rem;color:var(--muted);">Insightful</span></button>
+        </div>
+        <div class="share-row">
+          <span class="share-lbl">Share:</span>
+          <a id="shareWaMain" class="share-btn swa" target="_blank" onclick="trackShare()"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+          <button class="share-btn scopy" onclick="copyLink('main')" id="mainCopyBtn"><i class="fas fa-link"></i> Copy Link</button>
+        </div>
+      </div>
+
+      <div class="comment-section">
+        <h2 class="cs-title">Comments</h2>
+        <p class="cs-count" id="csCount"></p>
+        <div class="comment-form">
+          <div class="cf-title">💬 Leave a Comment</div>
+          <input class="c-in" type="text" id="cName" placeholder="Your name" maxlength="100"/>
+          <textarea class="c-in" id="cText" placeholder="Share your thoughts on this article..." rows="3" maxlength="1000"></textarea>
+          <button class="c-sub" onclick="submitComment()">Post Comment</button>
+          <p class="c-msg" id="cMsg"></p>
+        </div>
+        <div id="commentList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RELATED -->
 <section class="related-section" id="relatedSection" style="display:none;">
   <div class="container">
     <div class="sec-label"><div class="sec-label-line"></div><span class="sec-label-text">Keep Reading</span></div>
@@ -112,71 +306,281 @@
 <script>
 const API = 'https://sabicars-api.onrender.com/api';
 const slug = new URLSearchParams(window.location.search).get('slug');
+let postId = null;
+let commentCount = 0;
+const reactedKey = 'sabi_reacted_' + slug;
 
-function formatDate(d){ return new Date(d).toLocaleDateString('en-NG',{year:'numeric',month:'long',day:'numeric'}); }
+// ── READING PROGRESS ──
+window.addEventListener('scroll', () => {
+  const doc = document.documentElement;
+  const scrolled = doc.scrollTop;
+  const total = doc.scrollHeight - doc.clientHeight;
+  document.getElementById('readingProgress').style.width = (total > 0 ? (scrolled / total * 100) : 0) + '%';
+  updateTOC();
+});
 
-async function loadPost(){
-  if(!slug){ showError(); return; }
+// ── LOAD POST ──
+async function loadPost() {
+  if (!slug) { showError(); return; }
   try {
     const res = await fetch(`${API}/blog/${slug}`);
     const data = await res.json();
-    if(!data.success){ showError(); return; }
+    if (!data.success) { showError(); return; }
     renderPost(data.post);
+    loadComments();
     loadRelated(data.post);
-  } catch(err){ showError(); console.error(err); }
+  } catch (err) { showError(); console.error(err); }
 }
 
-function showError(){
+function showError() {
   document.getElementById('loadingMsg').style.display = 'none';
   document.getElementById('errorMsg').style.display = 'block';
 }
 
-function renderPost(post){
-  document.getElementById('loadingMsg').style.display = 'none';
-  document.getElementById('postContainer').style.display = 'block';
+function formatDate(d) {
+  return new Date(d).toLocaleDateString('en-NG', { year: 'numeric', month: 'long', day: 'numeric' });
+}
 
+function totalReactions(r) {
+  if (!r) return 0;
+  return (r.like||0) + (r.fire||0) + (r.love||0) + (r.insightful||0);
+}
+
+function renderPost(post) {
+  document.getElementById('loadingMsg').style.display = 'none';
+  document.getElementById('heroWrap').style.display = 'block';
+  document.getElementById('postBody').style.display = 'block';
+  postId = post._id;
+
+  // Meta tags
   const title = post.title + ' — Sabicars Blog';
   document.getElementById('pageTitle').textContent = title;
   document.getElementById('metaDesc').setAttribute('content', post.excerpt);
   document.getElementById('ogTitle').setAttribute('content', title);
   document.getElementById('ogDesc').setAttribute('content', post.excerpt);
-  if(post.coverImage) document.getElementById('ogImage').setAttribute('content', post.coverImage);
+  if (post.coverImage) document.getElementById('ogImage').setAttribute('content', post.coverImage);
 
-  document.getElementById('postCat').textContent = post.category;
-  document.getElementById('postTitle').textContent = post.title;
+  // Hero
+  document.getElementById('heroCat').textContent = post.category;
+  document.getElementById('heroTitle').textContent = post.title;
+  document.getElementById('heroMeta').innerHTML =
+    `<span><i class="fas fa-user"></i>${post.author}</span>` +
+    (post.publishedAt ? `<span><i class="fas fa-calendar"></i>${formatDate(post.publishedAt)}</span>` : '') +
+    `<span><i class="fas fa-clock"></i>${post.readTime}</span>`;
 
-  document.getElementById('postMeta').innerHTML =
-    `<span><i class="fas fa-user"></i> ${post.author}</span>` +
-    (post.publishedAt ? `<span><i class="fas fa-calendar"></i> ${formatDate(post.publishedAt)}</span>` : '') +
-    `<span><i class="fas fa-clock"></i> ${post.readTime}</span>`;
-
-  const cover = document.getElementById('postCover');
-  if(post.coverImage){
-    cover.style.backgroundImage = `url('${post.coverImage}')`;
+  const bg = document.getElementById('heroBg');
+  if (post.coverImage) {
+    bg.style.backgroundImage = `url('${post.coverImage}')`;
+    setTimeout(() => bg.classList.add('ken'), 100);
   } else {
-    cover.style.display = 'none';
+    bg.style.backgroundImage = `url('https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=1400&q=80')`;
+    setTimeout(() => bg.classList.add('ken'), 100);
   }
 
+  // Stats bar
+  const rv = post.reactions || {};
+  const tr = totalReactions(rv);
+  document.getElementById('svViews').textContent = (post.views || 0).toLocaleString();
+  document.getElementById('svReactions').textContent = tr.toLocaleString();
+  document.getElementById('svShares').textContent = (post.shares || 0).toLocaleString();
+  // comments updated after fetch
+
+  // Sidebar stats
+  document.getElementById('sbViews').textContent = (post.views || 0).toLocaleString();
+  document.getElementById('sbReactions').textContent = tr.toLocaleString();
+
+  // Reaction counts
+  ['like','fire','love','insightful'].forEach(k => {
+    document.getElementById('rc-' + k).textContent = (rv[k] || 0);
+  });
+
+  // Restore reacted state
+  const reacted = localStorage.getItem(reactedKey);
+  if (reacted) {
+    const btn = document.getElementById('btn-' + reacted);
+    if (btn) btn.classList.add('reacted');
+  }
+
+  // Content
   document.getElementById('postContent').innerHTML = post.content;
 
+  // Share links
   const waMsg = encodeURIComponent('Check out this article from Sabicars: ' + post.title + ' — ' + window.location.href);
-  document.getElementById('shareWa').href = 'https://wa.me/?text=' + waMsg;
+  document.getElementById('shareWaMain').href = 'https://wa.me/?text=' + waMsg;
+  document.getElementById('sbShareWa').href = 'https://wa.me/?text=' + waMsg;
+
+  // Build TOC
+  buildTOC();
 }
 
-async function loadRelated(post){
+// ── TABLE OF CONTENTS ──
+function buildTOC() {
+  const content = document.getElementById('postContent');
+  const headings = content.querySelectorAll('h2, h3');
+  const tocList = document.getElementById('tocList');
+  const tocCard = document.getElementById('tocCard');
+  if (headings.length < 2) return;
+
+  tocCard.style.display = 'block';
+  let html = '';
+  headings.forEach((h, i) => {
+    if (!h.id) h.id = 'heading-' + i;
+    html += `<li class="toc-item ${h.tagName === 'H3' ? 'toc-h3' : ''}"><a href="#${h.id}" onclick="scrollToHeading(event,'${h.id}')">${h.textContent}</a></li>`;
+  });
+  tocList.innerHTML = html;
+}
+
+function scrollToHeading(e, id) {
+  e.preventDefault();
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function updateTOC() {
+  const headings = document.getElementById('postContent').querySelectorAll('h2, h3');
+  let active = null;
+  headings.forEach(h => {
+    if (h.getBoundingClientRect().top < 120) active = h.id;
+  });
+  document.querySelectorAll('.toc-item a').forEach(a => {
+    a.classList.toggle('toc-active', a.getAttribute('href') === '#' + active);
+  });
+}
+
+// ── REACTIONS ──
+async function react(type) {
+  const already = localStorage.getItem(reactedKey);
+  if (already) {
+    // If clicking same reaction, allow; if different, block
+    if (already !== type) return;
+  }
+  try {
+    const res = await fetch(`${API}/blog/${postId}/react`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reaction: type })
+    });
+    const data = await res.json();
+    if (data.success) {
+      const rv = data.reactions;
+      ['like','fire','love','insightful'].forEach(k => {
+        document.getElementById('rc-' + k).textContent = rv[k] || 0;
+      });
+      localStorage.setItem(reactedKey, type);
+      document.getElementById('btn-' + type).classList.add('reacted');
+      const tr = totalReactions(rv);
+      document.getElementById('svReactions').textContent = tr.toLocaleString();
+      document.getElementById('sbReactions').textContent = tr.toLocaleString();
+    }
+  } catch (err) { console.error(err); }
+}
+
+// ── SHARE ──
+async function trackShare() {
+  try {
+    await fetch(`${API}/blog/${postId}/share`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' } });
+    const cur = parseInt(document.getElementById('svShares').textContent.replace(/,/g,'')) || 0;
+    document.getElementById('svShares').textContent = (cur + 1).toLocaleString();
+  } catch (err) {}
+}
+
+function copyLink(source) {
+  navigator.clipboard.writeText(window.location.href).then(() => {
+    trackShare();
+    const id = source === 'sb' ? 'sbCopyBtn' : 'mainCopyBtn';
+    const btn = document.getElementById(id);
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+    setTimeout(() => btn.innerHTML = orig, 2000);
+  });
+}
+
+function copyLinkSidebar() { copyLink('sb'); }
+
+// ── COMMENTS ──
+async function loadComments() {
+  try {
+    const res = await fetch(`${API}/blog/${slug}/comments`);
+    const data = await res.json();
+    if (!data.success) return;
+    commentCount = data.count;
+    renderComments(data.comments);
+    updateCommentStats(data.count);
+  } catch (err) { console.error(err); }
+}
+
+function updateCommentStats(count) {
+  document.getElementById('csCount').textContent = count + ' comment' + (count !== 1 ? 's' : '');
+  document.getElementById('svComments').textContent = count.toLocaleString();
+  document.getElementById('sbComments').textContent = count.toLocaleString();
+}
+
+function renderComments(comments) {
+  const list = document.getElementById('commentList');
+  if (!comments.length) {
+    list.innerHTML = '<div class="no-comments">No comments yet — be the first to share your thoughts!</div>';
+    return;
+  }
+  list.innerHTML = comments.map(c => `
+    <div class="comment-item">
+      <div class="comment-hd">
+        <div class="c-avatar">${c.name.charAt(0).toUpperCase()}</div>
+        <span class="c-name">${c.name}</span>
+        <span class="c-date">${new Date(c.createdAt).toLocaleDateString('en-NG',{day:'numeric',month:'short',year:'numeric'})}</span>
+      </div>
+      <div class="c-text">${c.message}</div>
+    </div>
+  `).join('');
+}
+
+async function submitComment() {
+  const name = document.getElementById('cName').value.trim();
+  const message = document.getElementById('cText').value.trim();
+  const msgEl = document.getElementById('cMsg');
+  if (!name || !message) {
+    msgEl.style.display = 'block'; msgEl.style.color = '#ff6b6b';
+    msgEl.textContent = '❌ Please enter your name and a message.'; return;
+  }
+  try {
+    const res = await fetch(`${API}/blog/${slug}/comments`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, message })
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('cName').value = '';
+      document.getElementById('cText').value = '';
+      msgEl.style.display = 'block'; msgEl.style.color = '#7ee08a';
+      msgEl.textContent = '✅ Comment posted! Thank you.';
+      setTimeout(() => msgEl.style.display = 'none', 4000);
+      commentCount++;
+      updateCommentStats(commentCount);
+      loadComments();
+    } else {
+      msgEl.style.display = 'block'; msgEl.style.color = '#ff6b6b';
+      msgEl.textContent = '❌ ' + (data.message || 'Something went wrong.');
+    }
+  } catch (err) {
+    msgEl.style.display = 'block'; msgEl.style.color = '#ff6b6b';
+    msgEl.textContent = '❌ Network error. Try again.';
+  }
+}
+
+// ── RELATED POSTS ──
+async function loadRelated(post) {
   try {
     const res = await fetch(`${API}/blog?limit=10`);
     const data = await res.json();
-    if(!data.success) return;
-    const related = data.posts.filter(p => p.slug !== post.slug && p.category === post.category).slice(0,3);
-    const fallback = data.posts.filter(p => p.slug !== post.slug).slice(0,3);
-    const show = related.length >= 2 ? related : fallback;
-    if(!show.length) return;
-    const fallbackImg = 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=600&q=70';
+    if (!data.success) return;
+    let related = data.posts.filter(p => p.slug !== slug && p.category === post.category).slice(0, 3);
+    if (related.length < 2) related = data.posts.filter(p => p.slug !== slug).slice(0, 3);
+    if (!related.length) return;
+    const fallback = 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=600&q=70';
     document.getElementById('relatedSection').style.display = 'block';
-    document.getElementById('relatedGrid').innerHTML = show.map(p=>`
+    document.getElementById('relatedGrid').innerHTML = related.map(p => `
       <div class="blog-card" onclick="window.location.href='blog-post.html?slug=${p.slug}'">
-        <div class="blog-img" style="background-image:url('${p.coverImage||fallbackImg}')"></div>
+        <div class="blog-img" style="background-image:url('${p.coverImage || fallback}')"></div>
         <div class="blog-body">
           <span class="blog-cat">${p.category}</span>
           <h4>${p.title}</h4>
@@ -184,15 +588,7 @@ async function loadRelated(post){
         </div>
       </div>
     `).join('');
-  } catch(err){ console.error(err); }
-}
-
-function copyLink(){
-  navigator.clipboard.writeText(window.location.href).then(()=>{
-    const btn = document.querySelector('.share-copy');
-    btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-    setTimeout(()=>{ btn.innerHTML = '<i class="fas fa-link"></i> Copy Link'; }, 2000);
-  });
+  } catch (err) { console.error(err); }
 }
 
 loadPost();
