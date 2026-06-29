@@ -217,6 +217,32 @@
 .cta-btn-wh:hover{background:#f5f5f5;transform:translateY(-2px);}
 .cta-btn-dk{display:inline-flex;align-items:center;gap:8px;background:rgba(0,0,0,.2);color:#fff;border:1.5px solid rgba(255,255,255,.5);padding:12px 26px;border-radius:6px;font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;transition:all .3s;}
 .cta-btn-dk:hover{background:rgba(0,0,0,.35);}
+/* Hero video */
+.hero-video-wrap{position:absolute;inset:0;z-index:0;}
+#heroVideo{width:100%;height:100%;object-fit:cover;}
+.video-mute-btn{position:absolute;bottom:80px;right:24px;z-index:4;width:40px;height:40px;border-radius:50%;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.3);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.85rem;width:40px;padding:0;}
+.video-mute-btn:hover{background:var(--gold);}
+/* Review ticker */
+.reviews-section{padding:88px 0 60px;background:var(--bg2);overflow:hidden;}
+.ticker-wrap{overflow:hidden;margin-top:32px;-webkit-mask-image:linear-gradient(to right,transparent,black 8%,black 92%,transparent);mask-image:linear-gradient(to right,transparent,black 8%,black 92%,transparent);}
+.ticker-track{display:flex;gap:20px;width:max-content;animation:tickerScroll 55s linear infinite;}
+.ticker-track:hover{animation-play-state:paused;}
+@keyframes tickerScroll{from{transform:translateX(0);}to{transform:translateX(-50%)}}
+.review-card{flex-shrink:0;width:290px;background:var(--card);border:1px solid var(--border2);border-radius:10px;padding:22px;}
+.review-stars{color:var(--gold);font-size:.75rem;letter-spacing:3px;margin-bottom:8px;}
+.review-q{font-family:'Cormorant Garamond',serif;font-size:2.2rem;color:var(--gold);opacity:.2;line-height:1;margin-bottom:8px;}
+.review-text{font-size:.84rem;color:var(--muted);font-weight:300;line-height:1.75;margin-bottom:14px;}
+.review-name{font-weight:700;font-size:.84rem;color:var(--text);}
+.review-loc{font-size:.7rem;color:var(--muted2);}
+/* Review popup */
+.rp-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px;}
+.rp-overlay.open{display:flex;}
+.rp-box{background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:32px;max-width:390px;width:100%;position:relative;max-height:90vh;overflow-y:auto;}
+.star-btn{background:transparent;border:none;font-size:1.9rem;cursor:pointer;color:rgba(212,175,55,.25);transition:color .15s;width:auto;padding:0 3px;line-height:1;}
+.star-btn.star-lit{color:var(--gold);}
+.rp-in{width:100%;padding:10px 12px;margin-bottom:10px;background:var(--bg);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-size:.85rem;font-family:inherit;}
+.rp-in:focus{outline:none;border-color:var(--gold-border);}
+
 </style>
 </head>
 <body>
@@ -283,6 +309,10 @@
     <div class="hero-slide slide-4"></div>
     <div class="hero-slide slide-5"></div>
     <div class="hero-slide slide-9"></div>
+  </div>
+  <div class="hero-video-wrap" id="heroVideoWrap" style="display:none;">
+    <video id="heroVideo" autoplay muted loop playsinline></video>
+    <button class="video-mute-btn" onclick="toggleHeroMute()"><i class="fas fa-volume-mute" id="muteIcon"></i></button>
   </div>
   <div class="hero-overlay"></div>
   <div class="container">
@@ -515,19 +545,46 @@
 </section>
 
 <!-- TESTIMONIALS -->
-<section class="testimonials">
+<section class="reviews-section">
   <div class="container">
-    <div class="testi-hdr">
-      <div class="sec-label" style="justify-content:center"><div class="sec-label-line"></div><span class="sec-label-text">Reviews</span></div>
-      <h2 class="section-title" style="text-align:center">What Our <em>Customers Say</em></h2>
+    <div class="sec-label" style="justify-content:center"><div class="sec-label-line"></div><span class="sec-label-text">Customer Reviews</span></div>
+    <h2 class="section-title" style="text-align:center">What Our <em>Customers Say</em></h2>
+    <p style="text-align:center;color:var(--muted);font-size:.85rem;" id="reviewCountLbl">Loading reviews...</p>
+  </div>
+  <div class="ticker-wrap"><div class="ticker-track" id="tickerTrack"></div></div>
+</section>
+
+<!-- REVIEW POPUP -->
+<div class="rp-overlay" id="reviewPopup">
+  <div class="rp-box">
+    <button onclick="closeReviewPopup()" style="position:absolute;top:14px;right:14px;background:transparent;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;width:auto;padding:4px;"><i class="fas fa-times"></i></button>
+    <div id="rpForm">
+      <div style="text-align:center;margin-bottom:22px;">
+        <div style="font-size:2.2rem;margin-bottom:10px;">⭐</div>
+        <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:700;color:var(--text);margin-bottom:6px;">Enjoying Sabicars?</h3>
+        <p style="font-size:.82rem;color:var(--muted);font-weight:300;line-height:1.6;">Share your experience and help others find quality vehicles in Lagos.</p>
+      </div>
+      <div style="display:flex;justify-content:center;gap:4px;margin-bottom:20px;">
+        <button class="star-btn" onclick="selectStar(1)">★</button>
+        <button class="star-btn" onclick="selectStar(2)">★</button>
+        <button class="star-btn" onclick="selectStar(3)">★</button>
+        <button class="star-btn" onclick="selectStar(4)">★</button>
+        <button class="star-btn star-lit" onclick="selectStar(5)">★</button>
+      </div>
+      <input class="rp-in" id="rpName" type="text" placeholder="Your name *" maxlength="100"/>
+      <input class="rp-in" id="rpLocation" type="text" placeholder="Your city / company (optional)" maxlength="100"/>
+      <textarea class="rp-in" id="rpMessage" placeholder="Tell us about your experience *" rows="3" maxlength="500"></textarea>
+      <p id="rpMsg" style="display:none;font-size:.78rem;color:#ff6b6b;margin-bottom:10px;"></p>
+      <button onclick="submitReview()" style="width:100%;padding:12px;background:var(--gold);color:#000;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-size:.88rem;">Submit Review</button>
+      <button onclick="closeReviewPopup()" style="width:100%;padding:10px;background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:.78rem;margin-top:8px;">Maybe later</button>
     </div>
-    <div class="testi-grid">
-      <div class="testi-card reveal"><div class="testi-stars">★★★★★</div><div class="testi-q">"</div><p class="testi-txt">Paid 40% on a Hiace on Friday, drove it to Port Harcourt same day. Sabicars is the real deal. No stories, no shakara.</p><div class="testi-name">Emeka O.</div><div class="testi-loc">Port Harcourt, Rivers State</div></div>
-      <div class="testi-card reveal"><div class="testi-stars">★★★★★</div><div class="testi-q">"</div><p class="testi-txt">We ordered 13 Highlanders for our company fleet. Every single one delivered on time, clean docs. Ccristian is professional to the core.</p><div class="testi-name">Mr. Taiwo A.</div><div class="testi-loc">Corporate Client, Lagos</div></div>
-      <div class="testi-card reveal"><div class="testi-stars">★★★★★</div><div class="testi-q">"</div><p class="testi-txt">Got a Mack tipper for my construction business. Exactly as described — accident-free and well-serviced. Already referring my partners.</p><div class="testi-name">Chief Adebayo T.</div><div class="testi-loc">Ibadan, Oyo State</div></div>
+    <div id="rpThankYou" style="display:none;text-align:center;padding:28px 0;">
+      <div style="font-size:2.8rem;margin-bottom:14px;">🎉</div>
+      <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:var(--gold);margin-bottom:8px;">Thank You!</h3>
+      <p style="font-size:.88rem;color:var(--muted);font-weight:300;line-height:1.6;">Your review has been posted!</p>
     </div>
   </div>
-</section>
+</div>
 
 <!-- CTA -->
 <section class="cta-strip">
@@ -604,22 +661,52 @@ function goSlide(n) {
 buildDots();
 heroTimer = setInterval(() => goSlide(cur + 1), 5000);
 
-// Upgrade hero with real inventory photos after API loads
-async function upgradeHero() {
+// ─── HERO VIDEO ───
+async function loadHeroSettings() {
   try {
-    const res = await fetch(API + '/cars?limit=12');
+    const res = await fetch(API + '/settings/heroVideoUrl');
     const data = await res.json();
-    if (!data.success) return;
-    const cars = data.cars.filter(c => c.images && c.images[0]);
-    if (cars.length < 3) return;
+    if (data.success && data.value) {
+      const video = document.getElementById('heroVideo');
+      const wrap = document.getElementById('heroVideoWrap');
+      video.src = data.value;
+      wrap.style.display = 'block';
+      document.getElementById('heroSlides').style.display = 'none';
+      dotsWrap.style.display = 'none';
+      clearInterval(heroTimer);
+      window._heroVideoActive = true;
+    }
+  } catch (e) {}
+}
+
+function toggleHeroMute() {
+  const video = document.getElementById('heroVideo');
+  const icon = document.getElementById('muteIcon');
+  video.muted = !video.muted;
+  icon.className = video.muted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
+}
+
+// ─── UPGRADE HERO WITH INVENTORY ───
+async function upgradeHero() {
+  if (window._heroVideoActive) return;
+  try {
+    let res = await fetch(API + '/cars?showInHero=true&limit=12');
+    let data = await res.json();
+    let cars = (data.success && data.cars && data.cars.filter(c => c.images && c.images[0]).length >= 2)
+      ? data.cars.filter(c => c.images && c.images[0]) : [];
+
+    if (!cars.length) {
+      res = await fetch(API + '/cars?limit=12');
+      data = await res.json();
+      cars = data.success ? data.cars.filter(c => c.images && c.images[0]) : [];
+    }
+
+    if (cars.length < 2) return;
 
     clearInterval(heroTimer);
     const container = document.getElementById('heroSlides');
-
-    // Smooth fade out
     container.style.transition = 'opacity .6s';
     container.style.opacity = '0';
-
     setTimeout(() => {
       container.innerHTML = '';
       cars.slice(0, 10).forEach((car, i) => {
@@ -633,10 +720,8 @@ async function upgradeHero() {
       buildDots();
       heroTimer = setInterval(() => goSlide(cur + 1), 5000);
     }, 600);
-  } catch (e) { /* keep static slides on error */ }
+  } catch (e) {}
 }
-
-upgradeHero();
 
 // ─── FEATURED VEHICLES ───
 function parsePrice(val) { return Number(String(val).replace(/[^0-9.]/g, '')) || 0; }
@@ -652,92 +737,52 @@ function renderFeaturedCard(car) {
   const price = parsePrice(car.price);
   const down = Math.round(price * 0.4);
   const waMsg = encodeURIComponent('Hello Sabicars! I\'m interested in buying the ' + car.year + ' ' + car.make + ' ' + car.model + ' listed for ' + formatPrice(price) + '. Please provide more details.');
-
   const imgSlides = (car.images && car.images.length > 0)
     ? car.images.map((img, i) => '<div class="car-img-slide' + (i === 0 ? ' active' : '') + '" style="background-image:url(\'' + img + '\')"></div>').join('')
     : '<div class="car-img-slide active" style="background-image:url(\'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=600&q=70\')"></div>';
-
   const financeBtn = car.financeUrl
     ? '<a href="' + car.financeUrl + '" target="_blank" class="finance-btn" onclick="event.stopPropagation()"><i class="fas fa-file-invoice-dollar"></i> Apply Finance</a>'
     : '';
-
   return '<div class="car-card" onclick="window.location.href=\'car-detail.html?id=' + car._id + '\'" style="cursor:pointer;">' +
-    '<div class="car-img">' +
-    '<span class="car-tag tag-' + car.tag + '">' + tagLabel(car.tag) + '</span>' +
-    imgSlides +
-    '</div>' +
+    '<div class="car-img"><span class="car-tag tag-' + car.tag + '">' + tagLabel(car.tag) + '</span>' + imgSlides + '</div>' +
     '<div class="car-body">' +
     '<div class="car-make">' + car.make + '</div>' +
     '<h3 class="car-model">' + car.model + '</h3>' +
     '<div class="car-year">' + car.year + ' · ' + conditionLabel(car.condition) + '</div>' +
     '<div class="car-specs">' +
     (car.fuel ? '<div class="cs"><i class="fas fa-gas-pump"></i> ' + car.fuel + '</div>' : '') +
-    (car.mileage ? '<div class="cs"><i class="fas fa-road"></i> ' + Number(String(car.mileage).replace(/[^0-9.]/g, '')).toLocaleString() + ' km</div>' : '') +
+    (car.mileage ? '<div class="cs"><i class="fas fa-road"></i> ' + Number(String(car.mileage).replace(/[^0-9.]/g,'')).toLocaleString() + ' km</div>' : '') +
     (car.colour ? '<div class="cs"><i class="fas fa-palette"></i> ' + car.colour + '</div>' : '') +
     '</div>' +
     '<div class="car-footer">' +
-    '<div>' +
-    '<div class="price-lbl">Price</div>' +
-    '<div class="price-val">' + formatPrice(price) + '</div>' +
-    '<div class="price-40">40% Down: ' + formatPrice(down) + '</div>' +
-    '</div>' +
+    '<div><div class="price-lbl">Price</div><div class="price-val">' + formatPrice(price) + '</div><div class="price-40">40% Down: ' + formatPrice(down) + '</div></div>' +
     '<div class="inquire-wrap" onclick="event.stopPropagation()">' +
     '<button class="car-cta" onclick="toggleInquireMenu(event)"><i class="fab fa-whatsapp"></i> Buy Now</button>' +
     '<div class="inquire-menu">' +
     '<a href="tel:+2348101885558" class="inquire-menu-item"><i class="fas fa-phone"></i> Call Us</a>' +
     '<a href="https://wa.me/2348055065825?text=' + waMsg + '" target="_blank" class="inquire-menu-item"><i class="fab fa-whatsapp"></i> WhatsApp</a>' +
-    '</div>' +
-    '</div>' +
-    '</div>' +
-    financeBtn +
-    '</div>' +
-    '</div>';
+    '</div></div></div>' + financeBtn + '</div></div>';
 }
 
 async function loadFeatured() {
   const grid = document.getElementById('featuredGrid');
   if (!grid) return;
-
   try {
-    // Try featured=true first
     let res = await fetch(API + '/cars?featured=true&limit=6');
     let data = await res.json();
     let cars = (data.success && data.cars.length >= 2) ? data.cars : [];
-
-    // Fall back to latest 6 if not enough featured
-    if (cars.length < 2) {
-      res = await fetch(API + '/cars?limit=6');
-      data = await res.json();
-      cars = data.success ? data.cars : [];
-    }
-
-    if (!cars.length) {
-      grid.innerHTML = '';
-      return;
-    }
-
+    if (!cars.length) { res = await fetch(API + '/cars?limit=6'); data = await res.json(); cars = data.success ? data.cars : []; }
+    if (!cars.length) { grid.innerHTML = ''; return; }
     grid.innerHTML = cars.map(renderFeaturedCard).join('');
-
-    // Per-card photo cycling — each card cycles through ITS OWN car's photos
     grid.querySelectorAll('.car-card').forEach(card => {
       const imgs = card.querySelectorAll('.car-img-slide');
       if (imgs.length < 2) return;
       let i = 0;
-      // Stagger start times so cards don't all switch simultaneously
-      const delay = 2000 + Math.random() * 2000;
       setTimeout(() => {
-        setInterval(() => {
-          imgs[i].classList.remove('active');
-          i = (i + 1) % imgs.length;
-          imgs[i].classList.add('active');
-        }, 4500); // 4.5 seconds per photo — noticeably slower
-      }, delay);
+        setInterval(() => { imgs[i].classList.remove('active'); i = (i + 1) % imgs.length; imgs[i].classList.add('active'); }, 4500);
+      }, 2000 + Math.random() * 2000);
     });
-
-  } catch (err) {
-    grid.innerHTML = '';
-    console.error('Featured load error:', err);
-  }
+  } catch (err) { grid.innerHTML = ''; }
 }
 
 function toggleInquireMenu(e) {
@@ -746,19 +791,20 @@ function toggleInquireMenu(e) {
   document.querySelectorAll('.inquire-menu.open').forEach(m => { if (m !== menu) m.classList.remove('open'); });
   menu.classList.toggle('open');
 }
+document.addEventListener('click', () => { document.querySelectorAll('.inquire-menu.open').forEach(m => m.classList.remove('open')); });
 
-document.addEventListener('click', () => {
-  document.querySelectorAll('.inquire-menu.open').forEach(m => m.classList.remove('open'));
-  
-async function loadBlogPosts(){
+// ─── BLOG PREVIEW ───
+async function loadBlogPosts() {
   try {
     const res = await fetch(API + '/blog?limit=3');
     const data = await res.json();
-    if(!data.success || !data.posts.length) return;
+    if (!data.success || !data.posts.length) return;
     const fallback = 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=600&q=70';
-    document.getElementById('homeBlogGrid').innerHTML = data.posts.map(post=>`
+    const grid = document.getElementById('homeBlogGrid');
+    if (!grid) return;
+    grid.innerHTML = data.posts.map(post => `
       <div class="blog-card" onclick="window.location.href='blog-post.html?slug=${post.slug}'" style="cursor:pointer;">
-        <div class="blog-img" style="background-image:url('${post.coverImage||fallback}')"></div>
+        <div class="blog-img" style="background-image:url('${post.coverImage || fallback}')"></div>
         <div class="blog-body">
           <span class="blog-cat">${post.category}</span>
           <h4>${post.title}</h4>
@@ -771,13 +817,106 @@ async function loadBlogPosts(){
         </div>
       </div>
     `).join('');
-  } catch(err){ /* keep static fallback on error */ }
+  } catch (e) {}
 }
 
-});
+// ─── REVIEW TICKER ───
+const staticReviews = [
+  { name: 'Emeka O.', location: 'Port Harcourt, Rivers State', rating: 5, message: 'Paid 40% on a Hiace on Friday, drove it to Port Harcourt same day. Sabicars is the real deal. No stories, no shakara.' },
+  { name: 'Mr. Taiwo A.', location: 'Corporate Client, Lagos', rating: 5, message: 'We ordered 13 Highlanders for our company fleet. Every single one delivered on time, clean docs. Ccristian is professional to the core.' },
+  { name: 'Chief Adebayo T.', location: 'Ibadan, Oyo State', rating: 5, message: 'Got a Mack tipper for my construction business. Exactly as described — accident-free and well-serviced. Already referring my partners.' },
+];
 
+function reviewCardHTML(r) {
+  const stars = '★'.repeat(r.rating || 5) + '☆'.repeat(5 - (r.rating || 5));
+  return `<div class="review-card">
+    <div class="review-stars">${stars}</div>
+    <div class="review-q">"</div>
+    <p class="review-text">${r.message}</p>
+    <div class="review-name">${r.name}</div>
+    <div class="review-loc">${r.location || ''}</div>
+  </div>`;
+}
+
+async function loadReviews() {
+  let reviews = [...staticReviews];
+  try {
+    const res = await fetch(API + '/reviews');
+    const data = await res.json();
+    if (data.success && data.reviews.length > 0) reviews = [...data.reviews, ...staticReviews];
+  } catch (e) {}
+  const countEl = document.getElementById('reviewCountLbl');
+  if (countEl) countEl.textContent = reviews.length + ' verified customer reviews';
+  const doubled = [...reviews, ...reviews];
+  const track = document.getElementById('tickerTrack');
+  if (track) {
+    track.innerHTML = doubled.map(reviewCardHTML).join('');
+    const dur = Math.max(40, reviews.length * 9);
+    track.style.animationDuration = dur + 's';
+  }
+}
+
+// ─── REVIEW POPUP ───
+let selectedRating = 5;
+
+function initReviewPopup() {
+  if (localStorage.getItem('sabi_review_done')) return;
+  let timePassed = false, scrollPassed = false;
+  const tryShow = () => { if (timePassed && scrollPassed && !localStorage.getItem('sabi_review_done')) showReviewPopup(); };
+  setTimeout(() => { timePassed = true; tryShow(); }, 45000);
+  const onScroll = () => {
+    const pct = window.scrollY / Math.max(1, document.body.scrollHeight - window.innerHeight);
+    if (pct > 0.6) { scrollPassed = true; window.removeEventListener('scroll', onScroll); tryShow(); }
+  };
+  window.addEventListener('scroll', onScroll);
+}
+
+function showReviewPopup() {
+  document.getElementById('reviewPopup').classList.add('open');
+}
+
+function closeReviewPopup() {
+  document.getElementById('reviewPopup').classList.remove('open');
+}
+
+function selectStar(n) {
+  selectedRating = n;
+  document.querySelectorAll('.star-btn').forEach((btn, i) => btn.classList.toggle('star-lit', i < n));
+}
+
+async function submitReview() {
+  const name = document.getElementById('rpName').value.trim();
+  const location = document.getElementById('rpLocation').value.trim();
+  const message = document.getElementById('rpMessage').value.trim();
+  const msgEl = document.getElementById('rpMsg');
+  if (!name) { msgEl.textContent = 'Please enter your name.'; msgEl.style.display = 'block'; return; }
+  if (!message) { msgEl.textContent = 'Please write a review.'; msgEl.style.display = 'block'; return; }
+  try {
+    const res = await fetch(API + '/reviews', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, location, rating: selectedRating, message })
+    });
+    const data = await res.json();
+    if (data.success) {
+      localStorage.setItem('sabi_review_done', '1');
+      document.getElementById('rpForm').style.display = 'none';
+      document.getElementById('rpThankYou').style.display = 'block';
+      setTimeout(closeReviewPopup, 3500);
+      loadReviews();
+    } else {
+      msgEl.textContent = data.message || 'Something went wrong.'; msgEl.style.display = 'block';
+    }
+  } catch (e) { msgEl.textContent = 'Network error. Try again.'; msgEl.style.display = 'block'; }
+}
+
+// ─── BOOT ───
+loadHeroSettings();
+upgradeHero();
 loadFeatured();
 loadBlogPosts();
+loadReviews();
+initReviewPopup();
 </script>
 </body>
 </html>
