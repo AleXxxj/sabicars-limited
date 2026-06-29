@@ -58,6 +58,9 @@
   .status-draft { background:#3a2a1a; color:#d4a843; }
   .blog-actions { display:flex; flex-wrap:wrap; gap:4px; }
   .blog-actions button { width:auto; padding:6px 10px; font-size:.75rem; }
+  .ci-thumb{position:relative;width:80px;height:62px;}
+  .ci-thumb img{width:100%;height:100%;object-fit:cover;border-radius:4px;border:2px solid #3a3a3a;}
+  .ci-thumb .ci-rm{position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;background:#c0392b;color:#fff;border:none;font-size:11px;cursor:pointer;padding:0;line-height:18px;text-align:center;}
 </style>
 </head>
 <body>
@@ -234,6 +237,10 @@
           <button class="ch-btn" onclick="insertImageCaption()">🖼 Image</button>
         </div>
         <textarea id="postContent" placeholder="Write your full post content here using the helpers above..." rows="14" style="font-family:monospace;font-size:.8rem;line-height:1.6;"></textarea>
+        <div id="contentImageManager" style="display:none;margin-bottom:14px;">
+          <p class="section-label">Images in Post <span style="font-size:.7rem;color:#666;">— tap × to remove from content</span></p>
+          <div id="contentImageList" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;"></div>
+        </div>
 
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;padding:10px;background:#111;border:1px solid #3a3a3a;border-radius:6px;">
           <input type="checkbox" id="postPublished" style="width:auto;margin:0;"/>
@@ -558,12 +565,65 @@ function insertHighlight() {
 }
 
 function insertImageCaption() {
-  const url = prompt('Image URL (from Cloudinary or Unsplash):'); if(!url) return;
+  const url = prompt('Image URL (from Cloudinary or Unsplash):');
+  if (!url) return;
   const caption = prompt('Caption (optional):') || '';
   const ta = document.getElementById('postContent');
   const pos = ta.selectionStart;
   const html = `\n<img src="${url}" alt="${caption}"/>\n${caption ? `<p class="img-caption">${caption}</p>` : ''}\n`;
-  ta.value = ta.value.substring(0,pos)+html+ta.value.substring(pos); ta.focus();
+  ta.value = ta.value.substring(0, pos) + html + ta.value.substring(pos);
+  ta.focus();
+  refreshImagePreview();
+}
+
+function refreshImagePreview() {
+  const ta = document.getElementById('postContent');
+  const manager = document.getElementById('contentImageManager');
+  const list = document.getElementById('contentImageList');
+
+  // Parse images out of the HTML content
+  const parser = new DOMParser();
+  const doc = parser.parseFromString('<div id="root">' + ta.value + '</div>', 'text/html');
+  const imgs = doc.querySelectorAll('img');
+
+  if (!imgs.length) {
+    manager.style.display = 'none';
+    list.innerHTML = '';
+    return;
+  }
+
+  manager.style.display = 'block';
+  list.innerHTML = Array.from(imgs).map((img, i) =>
+    `<div class="ci-thumb" id="ci-${i}">
+      <img src="${img.src}" title="${img.alt || ''}"/>
+      <button class="ci-rm" onclick="removeContentImage(${i})">×</button>
+    </div>`
+  ).join('');
+}
+
+function removeContentImage(index) {
+  const ta = document.getElementById('postContent');
+
+  // Parse content as DOM so we can remove the exact element
+  const parser = new DOMParser();
+  const doc = parser.parseFromString('<div id="root">' + ta.value + '</div>', 'text/html');
+  const root = doc.getElementById('root');
+  const imgs = root.querySelectorAll('img');
+
+  if (!imgs[index]) return;
+
+  const img = imgs[index];
+  // Remove caption paragraph immediately after the image if it exists
+  const next = img.nextElementSibling;
+  if (next && next.classList.contains('img-caption')) next.remove();
+  img.remove();
+
+  // Write cleaned HTML back to textarea
+  ta.value = root.innerHTML
+    .replace(/\n{3,}/g, '\n\n') // tidy up excess blank lines
+    .trim();
+
+  refreshImagePreview();
 }
 
 async function loadPosts() {
@@ -647,6 +707,7 @@ async function editPost(id) {
     document.getElementById('postCover').value = post.coverImage||'';
     document.getElementById('postExcerpt').value = post.excerpt||'';
     document.getElementById('postContent').value = post.content||'';
+    refreshImagePreview();
     document.getElementById('postPublished').checked = post.published||false;
     editingPostId = id;
     document.getElementById('savePostBtn').textContent = 'Update Post';
@@ -668,6 +729,8 @@ function cancelPostEdit() {
   document.getElementById('cancelPostBtn').style.display = 'none';
   document.getElementById('blogFormTitle').textContent = 'New Blog Post';
   document.getElementById('blogMsg').style.display = 'none';
+  document.getElementById('contentImageManager').style.display = 'none';
+  document.getElementById('contentImageList').innerHTML = '';
 }
 
 async function togglePublish(id, current) {
