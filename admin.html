@@ -5,62 +5,68 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Sabicars Admin Dashboard</title>
 <style>
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:-apple-system,sans-serif; background:#0d0d0d; color:#eee; min-height:100vh; }
-  .center { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:20px; }
-  .card { background:#1a1a1a; border:1px solid #333; border-radius:10px; padding:36px; width:100%; max-width:380px; }
-  .card h1 { font-size:1.4rem; margin-bottom:6px; color:#d4af37; }
-  .card p { font-size:.85rem; color:#999; margin-bottom:24px; }
-  input, select, textarea { width:100%; padding:11px; margin-bottom:14px; background:#252525; border:1px solid #3a3a3a; border-radius:6px; color:#eee; font-size:.9rem; }
-  button { width:100%; padding:12px; background:#d4af37; color:#000; border:none; border-radius:6px; font-weight:700; cursor:pointer; font-size:.9rem; }
-  button:hover { background:#c19b2e; }
-  .error { color:#ff6b6b; font-size:.8rem; margin-bottom:10px; display:none; }
-  #dashboard { display:none; padding:24px; max-width:1100px; margin:0 auto; }
-  .topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px; }
-  .topbar h2 { color:#d4af37; }
-  .logout-btn { width:auto; padding:8px 16px; background:#333; color:#eee; }
-  .dash-tabs { display:flex; gap:8px; margin-bottom:24px; }
-  .dash-tab { padding:10px 24px; border-radius:6px; border:1px solid #333; background:transparent; color:#999; font-size:.82rem; font-weight:700; cursor:pointer; transition:all .2s; width:auto; }
-  .dash-tab.active { background:#d4af37; color:#000; border-color:#d4af37; }
-  .grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
-  @media(max-width:800px){ .grid { grid-template-columns:1fr; } }
-  .panel { background:#1a1a1a; border:1px solid #333; border-radius:10px; padding:20px; }
-  .panel h3 { color:#d4af37; margin-bottom:16px; font-size:1rem; }
-  .car-row { display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #2a2a2a; font-size:.85rem; flex-wrap:wrap; gap:6px; }
-  .car-row:last-child { border-bottom:none; }
-  .car-info { flex:1; min-width:0; }
-  .car-actions { display:flex; flex-wrap:wrap; gap:4px; }
-  .car-actions button { width:auto; padding:6px 10px; font-size:.75rem; }
-  .del-btn { background:#c0392b; color:#fff; }
-  .edit-btn { background:#3a3a3a; color:#eee; }
-  .sold-btn { background:#1d4ed8; color:#fff; }
-  .pub-btn { background:#1d4ed8; color:#fff; }
-  .row2 { display:flex; gap:10px; }
-  .row2 > * { flex:1; }
-  .msg { font-size:.85rem; padding:12px; border-radius:6px; margin-bottom:12px; display:none; line-height:1.5; font-weight:600; }
-  .msg.success { background:#1e3a24; color:#7ee08a; border:1px solid #2e5e2e; }
-  .msg.error { background:#3a1e1e; color:#ff6b6b; border:1px solid #5e2e2e; }
-  .editing-banner { background:#1a2e1a; border:1px solid #2e5e2e; border-radius:6px; padding:8px 12px; margin-bottom:12px; font-size:.8rem; color:#7ee08a; display:none; }
-  .photo-thumb { position:relative; width:72px; height:56px; }
-  .photo-thumb img { width:100%; height:100%; object-fit:cover; border-radius:4px; border:2px solid #3a3a3a; }
-  .photo-thumb.removed img { border-color:#c0392b; opacity:.35; }
-  .photo-thumb .rm-btn { position:absolute; top:-6px; right:-6px; width:18px; height:18px; border-radius:50%; background:#c0392b; color:#fff; border:none; font-size:11px; cursor:pointer; padding:0; line-height:18px; text-align:center; }
-  .section-label { font-size:.8rem; color:#999; margin-bottom:8px; }
-  .btn-loading { opacity:.65; pointer-events:none; }
-  /* Blog */
-  .content-helpers { display:flex; gap:5px; flex-wrap:wrap; margin-bottom:8px; }
-  .ch-btn { padding:5px 10px; background:#252525; border:1px solid #3a3a3a; color:#eee; border-radius:4px; font-size:.72rem; cursor:pointer; width:auto; }
-  .ch-btn:hover { background:#3a3a3a; }
-  .blog-row { display:flex; justify-content:space-between; align-items:flex-start; padding:10px; border-bottom:1px solid #2a2a2a; font-size:.85rem; gap:8px; flex-wrap:wrap; }
-  .blog-row:last-child { border-bottom:none; }
-  .post-status { font-size:.7rem; padding:3px 8px; border-radius:50px; font-weight:700; display:inline-block; margin-top:3px; }
-  .status-published { background:#1e3a24; color:#7ee08a; }
-  .status-draft { background:#3a2a1a; color:#d4a843; }
-  .blog-actions { display:flex; flex-wrap:wrap; gap:4px; }
-  .blog-actions button { width:auto; padding:6px 10px; font-size:.75rem; }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:-apple-system,sans-serif;background:#0d0d0d;color:#eee;min-height:100vh;}
+  .center{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;}
+  .card{background:#1a1a1a;border:1px solid #333;border-radius:10px;padding:36px;width:100%;max-width:380px;}
+  .card h1{font-size:1.4rem;margin-bottom:6px;color:#d4af37;}
+  .card p{font-size:.85rem;color:#999;margin-bottom:24px;}
+  input,select,textarea{width:100%;padding:11px;margin-bottom:14px;background:#252525;border:1px solid #3a3a3a;border-radius:6px;color:#eee;font-size:.9rem;}
+  button{width:100%;padding:12px;background:#d4af37;color:#000;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-size:.9rem;}
+  button:hover{background:#c19b2e;}
+  .error{color:#ff6b6b;font-size:.8rem;margin-bottom:10px;display:none;}
+  #dashboard{display:none;padding:24px;max-width:1100px;margin:0 auto;}
+  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
+  .topbar h2{color:#d4af37;}
+  .logout-btn{width:auto;padding:8px 16px;background:#333;color:#eee;}
+  .dash-tabs{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap;}
+  .dash-tab{padding:10px 20px;border-radius:6px;border:1px solid #333;background:transparent;color:#999;font-size:.8rem;font-weight:700;cursor:pointer;transition:all .2s;width:auto;}
+  .dash-tab.active{background:#d4af37;color:#000;border-color:#d4af37;}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+  @media(max-width:800px){.grid{grid-template-columns:1fr;}}
+  .panel{background:#1a1a1a;border:1px solid #333;border-radius:10px;padding:20px;}
+  .panel h3{color:#d4af37;margin-bottom:16px;font-size:1rem;}
+  .car-row{display:flex;justify-content:space-between;align-items:center;padding:10px;border-bottom:1px solid #2a2a2a;font-size:.85rem;flex-wrap:wrap;gap:6px;}
+  .car-row:last-child{border-bottom:none;}
+  .car-info{flex:1;min-width:0;}
+  .car-actions{display:flex;flex-wrap:wrap;gap:4px;}
+  .car-actions button{width:auto;padding:6px 10px;font-size:.75rem;}
+  .del-btn{background:#c0392b;color:#fff;}
+  .edit-btn{background:#3a3a3a;color:#eee;}
+  .sold-btn{background:#1d4ed8;color:#fff;}
+  .pub-btn{background:#1d4ed8;color:#fff;}
+  .row2{display:flex;gap:10px;}
+  .row2>*{flex:1;}
+  .msg{font-size:.85rem;padding:12px;border-radius:6px;margin-bottom:12px;display:none;line-height:1.5;font-weight:600;}
+  .msg.success{background:#1e3a24;color:#7ee08a;border:1px solid #2e5e2e;}
+  .msg.error{background:#3a1e1e;color:#ff6b6b;border:1px solid #5e2e2e;}
+  .editing-banner{background:#1a2e1a;border:1px solid #2e5e2e;border-radius:6px;padding:8px 12px;margin-bottom:12px;font-size:.8rem;color:#7ee08a;display:none;}
+  .photo-thumb{position:relative;width:72px;height:56px;}
+  .photo-thumb img{width:100%;height:100%;object-fit:cover;border-radius:4px;border:2px solid #3a3a3a;}
+  .photo-thumb.removed img{border-color:#c0392b;opacity:.35;}
+  .photo-thumb .rm-btn{position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;background:#c0392b;color:#fff;border:none;font-size:11px;cursor:pointer;padding:0;line-height:18px;text-align:center;}
+  .section-label{font-size:.8rem;color:#999;margin-bottom:8px;}
+  .btn-loading{opacity:.65;pointer-events:none;}
+  .content-helpers{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;}
+  .ch-btn{padding:5px 10px;background:#252525;border:1px solid #3a3a3a;color:#eee;border-radius:4px;font-size:.72rem;cursor:pointer;width:auto;}
+  .ch-btn:hover{background:#3a3a3a;}
+  .blog-row{display:flex;justify-content:space-between;align-items:flex-start;padding:10px;border-bottom:1px solid #2a2a2a;font-size:.85rem;gap:8px;flex-wrap:wrap;}
+  .blog-row:last-child{border-bottom:none;}
+  .post-status{font-size:.7rem;padding:3px 8px;border-radius:50px;font-weight:700;display:inline-block;margin-top:3px;}
+  .status-published{background:#1e3a24;color:#7ee08a;}
+  .status-draft{background:#3a2a1a;color:#d4a843;}
+  .blog-actions{display:flex;flex-wrap:wrap;gap:4px;}
+  .blog-actions button{width:auto;padding:6px 10px;font-size:.75rem;}
   .ci-thumb{position:relative;width:80px;height:62px;}
   .ci-thumb img{width:100%;height:100%;object-fit:cover;border-radius:4px;border:2px solid #3a3a3a;}
   .ci-thumb .ci-rm{position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;background:#c0392b;color:#fff;border:none;font-size:11px;cursor:pointer;padding:0;line-height:18px;text-align:center;}
+  /* PIN modal */
+  .pin-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px;}
+  .pin-overlay.open{display:flex;}
+  .pin-box{background:#1a1a1a;border:1px solid #444;border-radius:12px;padding:32px;max-width:320px;width:100%;text-align:center;}
+  .pin-box h3{color:#d4af37;font-size:1.1rem;margin-bottom:6px;}
+  .pin-box p{color:#999;font-size:.82rem;margin-bottom:20px;line-height:1.5;}
+  #pinInput{text-align:center;letter-spacing:6px;font-size:1.2rem;}
 </style>
 </head>
 <body>
@@ -86,15 +92,17 @@
 
   <div class="dash-tabs">
     <button class="dash-tab active" id="tabInventory" onclick="switchDashTab('inventory')">🚗 Inventory</button>
-    <button class="dash-tab" id="tabBlog" onclick="switchDashTab('blog')">✍️ Blog Posts</button>
+    <button class="dash-tab" id="tabBlog" onclick="switchDashTab('blog')">✍️ Blog</button>
+    <button class="dash-tab" id="tabReviews" onclick="switchDashTab('reviews')">⭐ Reviews</button>
+    <button class="dash-tab" id="tabSettings" onclick="switchDashTab('settings')">⚙️ Settings</button>
   </div>
 
-  <!-- INVENTORY SECTION -->
+  <!-- INVENTORY -->
   <div id="inventorySection">
     <div class="grid">
       <div class="panel">
         <h3 id="formTitle">Add New Car</h3>
-        <div class="editing-banner" id="editingBanner">✏️ Editing existing car — update fields then click "Update Car"</div>
+        <div class="editing-banner" id="editingBanner">✏️ Editing existing car — update then click "Update Car"</div>
         <div class="msg" id="formMsg"></div>
         <div class="row2">
           <input type="text" id="make" placeholder="Make (e.g. Toyota)"/>
@@ -130,7 +138,7 @@
         </div>
         <div class="row2">
           <input type="text" id="price" placeholder="Price (e.g. ₦25,000,000)"/>
-          <input type="text" id="mileage" placeholder="Mileage (e.g. 45,000)"/>
+          <input type="text" id="mileage" placeholder="Mileage"/>
         </div>
         <div class="row2">
           <input type="text" id="fuel" placeholder="Fuel (e.g. Petrol)"/>
@@ -141,7 +149,7 @@
           <input type="text" id="horsepower" placeholder="Horsepower (e.g. 295hp)"/>
         </div>
         <div class="row2">
-          <input type="text" id="transmission" placeholder="Transmission (e.g. Automatic)"/>
+          <input type="text" id="transmission" placeholder="Transmission"/>
           <input type="text" id="drivetrain" placeholder="Drivetrain (e.g. AWD)"/>
         </div>
         <div class="row2">
@@ -149,9 +157,9 @@
           <input type="text" id="seats" placeholder="Seats (e.g. 7)"/>
         </div>
         <input type="text" id="financeUrl" placeholder="AutoCheck Finance URL (optional)"/>
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;padding:10px;background:#111;border:1px solid #3a3a3a;border-radius:6px;">
-          <input type="checkbox" id="featured" style="width:auto;margin:0;"/>
-          <label for="featured" style="font-size:.85rem;color:#eee;cursor:pointer;">⭐ Feature on homepage</label>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;padding:10px;background:#111;border:1px solid #3a3a3a;border-radius:6px;">
+          <label style="display:flex;align-items:center;gap:8px;font-size:.85rem;cursor:pointer;"><input type="checkbox" id="featured" style="width:auto;margin:0;"/> ⭐ Feature on homepage</label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:.85rem;cursor:pointer;"><input type="checkbox" id="showInHero" style="width:auto;margin:0;"/> 🖼 Show in hero slideshow</label>
         </div>
         <div style="margin-bottom:14px;">
           <p class="section-label">Features</p>
@@ -186,23 +194,21 @@
         <button id="saveBtn" onclick="saveCar()">Add Car</button>
         <button id="cancelEditBtn" onclick="cancelEdit()" style="display:none;background:#3a3a3a;color:#eee;margin-top:8px;">✕ Cancel Edit</button>
       </div>
-
       <div class="panel">
-        <h3>Current Inventory (<span id="carCount">0</span>)</h3>
+        <h3>Inventory (<span id="carCount">0</span>)</h3>
         <div id="carList"></div>
       </div>
     </div>
   </div>
 
-  <!-- BLOG SECTION -->
+  <!-- BLOG -->
   <div id="blogSection" style="display:none;">
     <div class="grid">
       <div class="panel">
         <h3 id="blogFormTitle">New Blog Post</h3>
         <div class="msg" id="blogMsg"></div>
-
         <input type="text" id="postTitle" placeholder="Post Title" oninput="autoSlug()"/>
-        <input type="text" id="postSlug" placeholder="URL Slug (auto-filled — edit if needed)" style="font-size:.78rem;"/>
+        <input type="text" id="postSlug" placeholder="URL Slug (auto-filled)" style="font-size:.78rem;"/>
         <div class="row2">
           <select id="postCategory">
             <option value="Industry News">Industry News</option>
@@ -214,10 +220,9 @@
           <input type="text" id="postReadTime" placeholder="Read time (e.g. 5 min read)"/>
         </div>
         <input type="text" id="postAuthor" placeholder="Author" value="Sabicars Team"/>
-        <input type="text" id="postCover" placeholder="Cover image URL (from Unsplash, Cloudinary etc.)"/>
-        <textarea id="postExcerpt" placeholder="Short excerpt shown in blog list (1–2 sentences)" rows="2"></textarea>
-
-        <p class="section-label">Post Content <span style="font-size:.7rem;color:#666;">— write in HTML</span></p>
+        <input type="text" id="postCover" placeholder="Cover image URL"/>
+        <textarea id="postExcerpt" placeholder="Short excerpt (1–2 sentences)" rows="2"></textarea>
+        <p class="section-label">Post Content <span style="font-size:.7rem;color:#666;">— HTML</span></p>
         <div class="content-helpers">
           <button class="ch-btn" onclick="insertTag('p')">¶ Para</button>
           <button class="ch-btn" onclick="insertTag('h2')">H2</button>
@@ -236,26 +241,75 @@
           <button class="ch-btn" onclick="insertHighlight()">⭐ Highlight</button>
           <button class="ch-btn" onclick="insertImageCaption()">🖼 Image</button>
         </div>
-        <textarea id="postContent" placeholder="Write your full post content here using the helpers above..." rows="14" style="font-family:monospace;font-size:.8rem;line-height:1.6;"></textarea>
+        <textarea id="postContent" placeholder="Write post content using helpers above..." rows="14" style="font-family:monospace;font-size:.8rem;line-height:1.6;" oninput="refreshImagePreview()"></textarea>
         <div id="contentImageManager" style="display:none;margin-bottom:14px;">
-          <p class="section-label">Images in Post <span style="font-size:.7rem;color:#666;">— tap × to remove from content</span></p>
+          <p class="section-label">Images in Post <span style="font-size:.7rem;color:#666;">— tap × to remove</span></p>
           <div id="contentImageList" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;"></div>
         </div>
-
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;padding:10px;background:#111;border:1px solid #3a3a3a;border-radius:6px;">
           <input type="checkbox" id="postPublished" style="width:auto;margin:0;"/>
-          <label for="postPublished" style="font-size:.85rem;color:#eee;cursor:pointer;">📢 Publish immediately (uncheck to save as draft)</label>
+          <label for="postPublished" style="font-size:.85rem;cursor:pointer;">📢 Publish immediately</label>
         </div>
-
         <button id="savePostBtn" onclick="savePost()">Save Post</button>
         <button id="cancelPostBtn" onclick="cancelPostEdit()" style="display:none;background:#3a3a3a;color:#eee;margin-top:8px;">✕ Cancel Edit</button>
       </div>
-
       <div class="panel">
         <h3>All Posts (<span id="postCount">0</span>)</h3>
-        <div id="postList"><p style="color:#666;font-size:.85rem;">Click "Blog Posts" tab to load</p></div>
+        <div id="postList"></div>
       </div>
     </div>
+  </div>
+
+  <!-- REVIEWS -->
+  <div id="reviewsSection" style="display:none;">
+    <div class="panel">
+      <h3>Customer Reviews (<span id="reviewAdminCount">0</span>)</h3>
+      <p style="font-size:.8rem;color:#666;margin-bottom:16px;">All reviews submitted through the site popup. Approved reviews show in the homepage ticker.</p>
+      <div id="reviewAdminList"></div>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div id="settingsSection" style="display:none;">
+    <div class="grid">
+      <div class="panel">
+        <h3>Hero Video</h3>
+        <div class="msg" id="settingsMsg"></div>
+        <p style="font-size:.8rem;color:#999;margin-bottom:12px;line-height:1.6;">Paste a video URL (YouTube embed, Cloudinary, or direct .mp4 link) to play as a cinematic background on the homepage hero. Leave empty to use the photo slideshow instead.</p>
+        <input type="text" id="heroVideoUrlInput" placeholder="https://res.cloudinary.com/.../video.mp4"/>
+        <button onclick="saveHeroVideo()">Save Hero Video</button>
+        <button onclick="clearHeroVideo()" style="background:#333;color:#eee;margin-top:8px;">Clear Video (use slideshow)</button>
+      </div>
+      <div class="panel">
+        <h3>🔐 Admin PIN Setup</h3>
+        <div style="background:#1a2030;border:1px solid #1d4ed8;border-radius:8px;padding:16px;">
+          <p style="color:#60a5fa;font-size:.8rem;font-weight:700;margin-bottom:10px;">How to set your action PINs:</p>
+          <p style="color:#93c5fd;font-size:.78rem;line-height:1.8;">
+            1. Go to <strong>Render dashboard</strong><br>
+            2. Select your <strong>Sabicars-backend</strong> service<br>
+            3. Click <strong>Environment</strong><br>
+            4. Add these variables:<br>
+            &nbsp;&nbsp;• <code style="background:#0d1117;padding:2px 6px;border-radius:3px;">INVENTORY_PIN</code> = your chosen PIN<br>
+            &nbsp;&nbsp;• <code style="background:#0d1117;padding:2px 6px;border-radius:3px;">BLOG_PIN</code> = a different PIN<br>
+            5. Click <strong>Save Changes</strong><br><br>
+            After Render redeploys, anyone clicking Edit or Delete will need to enter the correct PIN first. PINs are remembered for the current browser session.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PIN MODAL -->
+<div class="pin-overlay" id="pinModal">
+  <div class="pin-box">
+    <div style="font-size:2rem;margin-bottom:10px;">🔐</div>
+    <h3 id="pinModalTitle">Enter PIN</h3>
+    <p id="pinModalDesc">Enter your security PIN to proceed with this action.</p>
+    <input type="password" id="pinInput" placeholder="• • • •" maxlength="20" onkeydown="if(event.key==='Enter')verifyPin()"/>
+    <p id="pinError" style="color:#ff6b6b;font-size:.78rem;margin-bottom:10px;display:none;"></p>
+    <button id="pinVerifyBtn" onclick="verifyPin()">Verify PIN</button>
+    <button onclick="closePinModal()" style="background:#333;color:#eee;margin-top:8px;">Cancel</button>
   </div>
 </div>
 
@@ -268,6 +322,8 @@ let keptImages = [];
 let allCarImages = [];
 let currentPosts = [];
 let editingPostId = null;
+let pendingPinAction = null;
+let pendingPinType = 'inventory';
 
 if (token) showDashboard();
 
@@ -277,17 +333,18 @@ async function login() {
   const password = document.getElementById('password').value;
   const errEl = document.getElementById('loginError');
   errEl.style.display = 'none';
-  if (!username || !password) { errEl.textContent = 'Please enter username and password.'; errEl.style.display = 'block'; return; }
+  if (!username || !password) { errEl.textContent = 'Please enter credentials.'; errEl.style.display = 'block'; return; }
   try {
-    const res = await fetch(`${API}/auth/login`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username,password}) });
+    const res = await fetch(`${API}/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }) });
     const data = await res.json();
     if (data.success) { token = data.token; localStorage.setItem('sabicars_token', token); showDashboard(); }
     else { errEl.textContent = data.message || 'Login failed.'; errEl.style.display = 'block'; }
-  } catch (err) { errEl.textContent = 'Connection error — server may be sleeping. Try again in 30 seconds.'; errEl.style.display = 'block'; }
+  } catch (err) { errEl.textContent = 'Connection error. Server may be sleeping — try again in 30s.'; errEl.style.display = 'block'; }
 }
 
 function logout() {
   localStorage.removeItem('sabicars_token'); token = null;
+  sessionStorage.removeItem('inventoryPinOk'); sessionStorage.removeItem('blogPinOk');
   document.getElementById('dashboard').style.display = 'none';
   document.getElementById('loginScreen').style.display = 'flex';
 }
@@ -299,17 +356,64 @@ function showDashboard() {
 }
 
 function switchDashTab(tab) {
-  document.getElementById('inventorySection').style.display = tab === 'inventory' ? 'block' : 'none';
-  document.getElementById('blogSection').style.display = tab === 'blog' ? 'block' : 'none';
-  document.getElementById('tabInventory').classList.toggle('active', tab === 'inventory');
-  document.getElementById('tabBlog').classList.toggle('active', tab === 'blog');
+  ['inventory','blog','reviews','settings'].forEach(t => {
+    document.getElementById(t+'Section').style.display = t === tab ? 'block' : 'none';
+    const btn = document.getElementById('tab'+t.charAt(0).toUpperCase()+t.slice(1));
+    if (btn) btn.classList.toggle('active', t === tab);
+  });
   if (tab === 'blog') loadPosts();
+  if (tab === 'reviews') loadAdminReviews();
+  if (tab === 'settings') loadSettings();
+}
+
+// ── PIN ──
+function requirePin(type, action) {
+  const key = type === 'blog' ? 'blogPinOk' : 'inventoryPinOk';
+  if (sessionStorage.getItem(key) === '1') { action(); return; }
+  pendingPinAction = action;
+  pendingPinType = type;
+  const titles = { inventory: 'Inventory PIN Required', blog: 'Blog PIN Required' };
+  const descs = { inventory: 'Enter your inventory PIN to edit or delete vehicles.', blog: 'Enter your blog PIN to edit or delete posts.' };
+  document.getElementById('pinModalTitle').textContent = titles[type];
+  document.getElementById('pinModalDesc').textContent = descs[type];
+  document.getElementById('pinInput').value = '';
+  document.getElementById('pinError').style.display = 'none';
+  document.getElementById('pinModal').classList.add('open');
+  setTimeout(() => document.getElementById('pinInput').focus(), 150);
+}
+
+function closePinModal() {
+  document.getElementById('pinModal').classList.remove('open');
+  pendingPinAction = null;
+}
+
+async function verifyPin() {
+  const pin = document.getElementById('pinInput').value.trim();
+  const errEl = document.getElementById('pinError');
+  const btn = document.getElementById('pinVerifyBtn');
+  if (!pin) { errEl.textContent = 'Please enter your PIN.'; errEl.style.display = 'block'; return; }
+  btn.textContent = 'Verifying...'; btn.classList.add('btn-loading');
+  try {
+    const res = await fetch(`${API}/auth/verify-pin`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pin, type: pendingPinType })
+    });
+    const data = await res.json();
+    if (data.success) {
+      sessionStorage.setItem(pendingPinType === 'blog' ? 'blogPinOk' : 'inventoryPinOk', '1');
+      closePinModal();
+      if (pendingPinAction) { const fn = pendingPinAction; pendingPinAction = null; fn(); }
+    } else {
+      errEl.textContent = data.message || 'Incorrect PIN.'; errEl.style.display = 'block';
+    }
+  } catch (e) { errEl.textContent = 'Connection error. Try again.'; errEl.style.display = 'block'; }
+  btn.textContent = 'Verify PIN'; btn.classList.remove('btn-loading');
 }
 
 // ── INVENTORY ──
 async function loadCars() {
   try {
-    const res = await fetch(`${API}/cars/admin/all`, { headers:{'Authorization':`Bearer ${token}`} });
+    const res = await fetch(`${API}/cars/admin/all`, { headers: { 'Authorization': `Bearer ${token}` } });
     const data = await res.json();
     if (!data.success) { logout(); return; }
     currentCars = data.cars;
@@ -317,7 +421,7 @@ async function loadCars() {
     document.getElementById('carList').innerHTML = data.cars.map(car => `
       <div class="car-row">
         <div class="car-info">
-          <strong>${car.featured?'⭐ ':''}${car.make} ${car.model}</strong> (${car.year})<br/>
+          <strong>${car.featured?'⭐ ':''}${car.showInHero?'🖼 ':''}${car.make} ${car.model}</strong> (${car.year})<br/>
           <span style="color:#999;font-size:.8rem;">${car.price} · ${car.category}${car.bodyType?' / '+car.bodyType:''} ${car.available?'':'· <span style="color:#c0392b">SOLD</span>'}</span>
         </div>
         <div class="car-actions">
@@ -342,7 +446,10 @@ function removePhoto(i) {
   const t = document.getElementById(`pthumb-${i}`); if(t) t.classList.add('removed');
 }
 
-function editCar(id) {
+function editCar(id) { requirePin('inventory', () => _editCar(id)); }
+function deleteCar(id) { requirePin('inventory', () => _deleteCar(id)); }
+
+function _editCar(id) {
   const car = currentCars.find(c => c._id === id); if(!car) return;
   document.getElementById('make').value = car.make||'';
   document.getElementById('model').value = car.model||'';
@@ -364,6 +471,7 @@ function editCar(id) {
   document.getElementById('seats').value = car.seats||'';
   document.getElementById('financeUrl').value = car.financeUrl||'';
   document.getElementById('featured').checked = car.featured||false;
+  document.getElementById('showInHero').checked = car.showInHero||false;
   document.querySelectorAll('#featuresBox input[type="checkbox"]').forEach(cb => { cb.checked = (car.features||[]).includes(cb.value); });
   document.getElementById('images').value = '';
   document.getElementById('imgHint').textContent = 'Leave empty to keep photos, or pick new ones to add';
@@ -378,49 +486,57 @@ function editCar(id) {
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
-function resetForm() {
-  editingCarId = null; keptImages = []; allCarImages = [];
-  document.querySelectorAll('#inventorySection input[type="text"], #inventorySection textarea').forEach(el => el.value = '');
-  document.querySelectorAll('#featuresBox input[type="checkbox"]').forEach(cb => cb.checked = false);
-  document.getElementById('images').value = '';
-  document.getElementById('imgHint').textContent = 'Choose up to 12 photos';
-  document.getElementById('category').value = 'regular';
-  document.getElementById('condition').value = 'foreign-used';
-  document.getElementById('bodyType').value = '';
-  document.getElementById('tag').value = 'new';
-  document.getElementById('featured').checked = false;
-  document.getElementById('saveBtn').textContent = 'Add Car';
-  document.getElementById('saveBtn').classList.remove('btn-loading');
-  document.getElementById('cancelEditBtn').style.display = 'none';
-  document.getElementById('formTitle').textContent = 'Add New Car';
-  document.getElementById('editingBanner').style.display = 'none';
-  document.getElementById('currentPhotosSection').style.display = 'none';
-  document.getElementById('currentPhotoGrid').innerHTML = '';
+async function _deleteCar(id) {
+  if(!confirm('Delete this car permanently?')) return;
+  const res = await fetch(`${API}/cars/${id}`,{method:'DELETE',headers:{'Authorization':`Bearer ${token}`}});
+  const data = await res.json();
+  if(data.success) loadCars(); else alert('Delete failed: '+data.message);
 }
 
-function cancelEdit() { resetForm(); document.getElementById('formMsg').style.display = 'none'; }
+function resetForm() {
+  editingCarId = null; keptImages = []; allCarImages = [];
+  document.querySelectorAll('#inventorySection input[type="text"], #inventorySection textarea').forEach(el => el.value='');
+  document.querySelectorAll('#featuresBox input[type="checkbox"]').forEach(cb => cb.checked=false);
+  document.getElementById('images').value='';
+  document.getElementById('imgHint').textContent='Choose up to 12 photos';
+  document.getElementById('category').value='regular';
+  document.getElementById('condition').value='foreign-used';
+  document.getElementById('bodyType').value='';
+  document.getElementById('tag').value='new';
+  document.getElementById('featured').checked=false;
+  document.getElementById('showInHero').checked=false;
+  document.getElementById('saveBtn').textContent='Add Car';
+  document.getElementById('saveBtn').classList.remove('btn-loading');
+  document.getElementById('cancelEditBtn').style.display='none';
+  document.getElementById('formTitle').textContent='Add New Car';
+  document.getElementById('editingBanner').style.display='none';
+  document.getElementById('currentPhotosSection').style.display='none';
+  document.getElementById('currentPhotoGrid').innerHTML='';
+}
 
-function showMsg(type, text, ms) {
-  const el = document.getElementById('formMsg');
-  el.className = `msg ${type}`; el.textContent = text; el.style.display = 'block';
-  if(ms) setTimeout(()=>{ el.style.display='none'; }, ms);
+function cancelEdit() { resetForm(); document.getElementById('formMsg').style.display='none'; }
+
+function showMsg(type,text,ms) {
+  const el=document.getElementById('formMsg');
+  el.className=`msg ${type}`;el.textContent=text;el.style.display='block';
+  if(ms) setTimeout(()=>{el.style.display='none';},ms);
 }
 
 async function saveCar() {
-  const saveBtn = document.getElementById('saveBtn');
-  const isEditing = !!editingCarId;
-  const make = document.getElementById('make').value.trim();
-  const model = document.getElementById('model').value.trim();
-  const year = document.getElementById('year').value.trim();
-  const price = document.getElementById('price').value.trim();
+  const saveBtn=document.getElementById('saveBtn');
+  const isEditing=!!editingCarId;
+  const make=document.getElementById('make').value.trim();
+  const model=document.getElementById('model').value.trim();
+  const year=document.getElementById('year').value.trim();
+  const price=document.getElementById('price').value.trim();
   if(!make){showMsg('error','❌ Make is required');return;}
   if(!model){showMsg('error','❌ Model is required');return;}
   if(!year){showMsg('error','❌ Year is required');return;}
   if(!price){showMsg('error','❌ Price is required');return;}
 
-  const selectedFeatures = [...document.querySelectorAll('#featuresBox input[type="checkbox"]:checked')].map(cb=>cb.value);
-  const formData = new FormData();
-  formData.append('make',make); formData.append('model',model); formData.append('year',year);
+  const selectedFeatures=[...document.querySelectorAll('#featuresBox input[type="checkbox"]:checked')].map(cb=>cb.value);
+  const formData=new FormData();
+  formData.append('make',make);formData.append('model',model);formData.append('year',year);
   formData.append('category',document.getElementById('category').value);
   formData.append('condition',document.getElementById('condition').value);
   formData.append('bodyType',document.getElementById('bodyType').value);
@@ -438,36 +554,32 @@ async function saveCar() {
   formData.append('seats',document.getElementById('seats').value);
   formData.append('financeUrl',document.getElementById('financeUrl').value);
   formData.append('featured',document.getElementById('featured').checked?'true':'false');
+  formData.append('showInHero',document.getElementById('showInHero').checked?'true':'false');
 
-  if(isEditing){ formData.append('imagesManaged','true'); keptImages.forEach(url=>formData.append('keepImages',url)); }
+  if(isEditing){formData.append('imagesManaged','true');keptImages.forEach(url=>formData.append('keepImages',url));}
   for(let file of document.getElementById('images').files) formData.append('images',file);
 
-  const orig = saveBtn.textContent;
-  saveBtn.textContent = isEditing?'⏳ Updating...':'⏳ Uploading...';
+  const orig=saveBtn.textContent;
+  saveBtn.textContent=isEditing?'⏳ Updating...':'⏳ Uploading...';
   saveBtn.classList.add('btn-loading');
 
   try {
-    const res = await fetch(isEditing?`${API}/cars/${editingCarId}`:`${API}/cars`, {
-      method:isEditing?'PUT':'POST', headers:{'Authorization':`Bearer ${token}`}, body:formData
+    const res=await fetch(isEditing?`${API}/cars/${editingCarId}`:`${API}/cars`,{
+      method:isEditing?'PUT':'POST',headers:{'Authorization':`Bearer ${token}`},body:formData
     });
-    const data = await res.json();
-    if(!data.success){ saveBtn.textContent=orig; saveBtn.classList.remove('btn-loading'); showMsg('error','❌ '+(data.message||'Something went wrong.')); return; }
-
-    const carId = isEditing?editingCarId:data.car._id;
-    await fetch(`${API}/cars/${carId}/features`, {
-      method:'PATCH', headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},
-      body:JSON.stringify({features:selectedFeatures})
-    });
-
+    const data=await res.json();
+    if(!data.success){saveBtn.textContent=orig;saveBtn.classList.remove('btn-loading');showMsg('error','❌ '+(data.message||'Something went wrong.'));return;}
+    const carId=isEditing?editingCarId:data.car._id;
+    await fetch(`${API}/cars/${carId}/features`,{method:'PATCH',headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({features:selectedFeatures})});
     resetForm();
-    showMsg('success',isEditing?'✅ Car updated successfully!':'✅ Car added to inventory!',6000);
+    showMsg('success',isEditing?'✅ Car updated!':'✅ Car added!',6000);
     loadCars();
-  } catch(err){ saveBtn.textContent=orig; saveBtn.classList.remove('btn-loading'); showMsg('error','❌ Network error — try again.'); }
+  } catch(err){saveBtn.textContent=orig;saveBtn.classList.remove('btn-loading');showMsg('error','❌ Network error. Try again.');}
 }
 
-async function toggleAvailable(id, current) {
-  const car = currentCars.find(c=>c._id===id);
-  const fd = new FormData();
+async function toggleAvailable(id,current) {
+  const car=currentCars.find(c=>c._id===id);
+  const fd=new FormData();
   fd.append('available',!current);
   fd.append('imagesManaged','true');
   if(car&&car.images) car.images.forEach(url=>fd.append('keepImages',url));
@@ -475,165 +587,116 @@ async function toggleAvailable(id, current) {
   loadCars();
 }
 
-async function deleteCar(id) {
-  if(!confirm('Delete this car permanently?')) return;
-  const res = await fetch(`${API}/cars/${id}`,{method:'DELETE',headers:{'Authorization':`Bearer ${token}`}});
-  const data = await res.json();
-  if(data.success) loadCars(); else alert('Delete failed: '+data.message);
-}
-
 // ── BLOG ──
-function showBlogMsg(type, text, ms) {
-  const el = document.getElementById('blogMsg');
-  el.className = `msg ${type}`; el.textContent = text; el.style.display = 'block';
-  if(ms) setTimeout(()=>{ el.style.display='none'; }, ms);
+function showBlogMsg(type,text,ms) {
+  const el=document.getElementById('blogMsg');
+  el.className=`msg ${type}`;el.textContent=text;el.style.display='block';
+  if(ms) setTimeout(()=>{el.style.display='none';},ms);
 }
 
 function autoSlug() {
-  const slug = document.getElementById('postTitle').value.toLowerCase()
+  document.getElementById('postSlug').value=document.getElementById('postTitle').value.toLowerCase()
     .replace(/[^a-z0-9\s-]/g,'').trim().replace(/\s+/g,'-').replace(/-+/g,'-');
-  document.getElementById('postSlug').value = slug;
-}
-
-function autoSlug() {
-  const slug = document.getElementById('postTitle').value.toLowerCase()
-    .replace(/[^a-z0-9\s-]/g,'').trim().replace(/\s+/g,'-').replace(/-+/g,'-');
-  document.getElementById('postSlug').value = slug;
 }
 
 function insertTag(tag) {
-  const ta = document.getElementById('postContent');
-  const s = ta.selectionStart, e = ta.selectionEnd;
-  const sel = ta.value.substring(s,e) || 'Your text here';
-  const rep = `<${tag}>${sel}</${tag}>`;
-  ta.value = ta.value.substring(0,s)+rep+ta.value.substring(e);
-  ta.focus();
+  const ta=document.getElementById('postContent');
+  const s=ta.selectionStart,e=ta.selectionEnd;
+  const sel=ta.value.substring(s,e)||'Your text here';
+  ta.value=ta.value.substring(0,s)+`<${tag}>${sel}</${tag}>`+ta.value.substring(e);
+  ta.focus(); refreshImagePreview();
 }
 
 function insertList(type) {
-  const ta = document.getElementById('postContent');
-  const pos = ta.selectionStart;
-  const html = type === 'ol'
-    ? '\n<ol>\n  <li>First item</li>\n  <li>Second item</li>\n  <li>Third item</li>\n</ol>\n'
-    : '\n<ul>\n  <li>First item</li>\n  <li>Second item</li>\n  <li>Third item</li>\n</ul>\n';
-  ta.value = ta.value.substring(0,pos)+html+ta.value.substring(pos); ta.focus();
+  const ta=document.getElementById('postContent');
+  const pos=ta.selectionStart;
+  const html=type==='ol'?'\n<ol>\n  <li>First item</li>\n  <li>Second item</li>\n  <li>Third item</li>\n</ol>\n':'\n<ul>\n  <li>First item</li>\n  <li>Second item</li>\n  <li>Third item</li>\n</ul>\n';
+  ta.value=ta.value.substring(0,pos)+html+ta.value.substring(pos);ta.focus();
 }
 
 function insertLink() {
-  const url = prompt('Enter URL:'); if(!url) return;
-  const ta = document.getElementById('postContent');
-  const s = ta.selectionStart, e = ta.selectionEnd;
-  const sel = ta.value.substring(s,e)||'link text';
-  const link = `<a href="${url}" target="_blank">${sel}</a>`;
-  ta.value = ta.value.substring(0,s)+link+ta.value.substring(e);
+  const url=prompt('Enter URL:');if(!url)return;
+  const ta=document.getElementById('postContent');
+  const s=ta.selectionStart,e=ta.selectionEnd;
+  const sel=ta.value.substring(s,e)||'link text';
+  ta.value=ta.value.substring(0,s)+`<a href="${url}" target="_blank">${sel}</a>`+ta.value.substring(e);
 }
 
 function insertCallout(type) {
-  const ta = document.getElementById('postContent');
-  const pos = ta.selectionStart;
-  const labels = { tip: '💡 PRO TIP', warning: '⚠️ IMPORTANT', info: 'ℹ️ NOTE' };
-  const html = `\n<div class="callout callout-${type}">\n  <span class="callout-title">${labels[type]}</span>\n  <p>Your callout text here.</p>\n</div>\n`;
-  ta.value = ta.value.substring(0,pos)+html+ta.value.substring(pos); ta.focus();
+  const ta=document.getElementById('postContent');
+  const labels={tip:'💡 PRO TIP',warning:'⚠️ IMPORTANT',info:'ℹ️ NOTE'};
+  const html=`\n<div class="callout callout-${type}">\n  <span class="callout-title">${labels[type]}</span>\n  <p>Your callout text here.</p>\n</div>\n`;
+  ta.value=ta.value.substring(0,ta.selectionStart)+html+ta.value.substring(ta.selectionStart);ta.focus();
 }
 
 function insertQuote() {
-  const ta = document.getElementById('postContent');
-  const pos = ta.selectionStart;
-  const html = '\n<blockquote>\n  <p>Your pull quote or notable insight here.</p>\n</blockquote>\n';
-  ta.value = ta.value.substring(0,pos)+html+ta.value.substring(pos); ta.focus();
+  const ta=document.getElementById('postContent');
+  const html='\n<blockquote>\n  <p>Your pull quote or notable insight here.</p>\n</blockquote>\n';
+  ta.value=ta.value.substring(0,ta.selectionStart)+html+ta.value.substring(ta.selectionStart);ta.focus();
 }
 
 function insertStats() {
-  const ta = document.getElementById('postContent');
-  const pos = ta.selectionStart;
-  const html = '\n<div class="stat-row">\n  <div class="stat-box"><div class="stat-box-num">40%</div><div class="stat-box-lbl">Down Payment</div></div>\n  <div class="stat-box"><div class="stat-box-num">500+</div><div class="stat-box-lbl">Vehicles Sold</div></div>\n  <div class="stat-box"><div class="stat-box-num">36</div><div class="stat-box-lbl">States</div></div>\n</div>\n';
-  ta.value = ta.value.substring(0,pos)+html+ta.value.substring(pos); ta.focus();
+  const ta=document.getElementById('postContent');
+  const html='\n<div class="stat-row">\n  <div class="stat-box"><div class="stat-box-num">40%</div><div class="stat-box-lbl">Down Payment</div></div>\n  <div class="stat-box"><div class="stat-box-num">500+</div><div class="stat-box-lbl">Vehicles Sold</div></div>\n  <div class="stat-box"><div class="stat-box-num">36</div><div class="stat-box-lbl">States</div></div>\n</div>\n';
+  ta.value=ta.value.substring(0,ta.selectionStart)+html+ta.value.substring(ta.selectionStart);ta.focus();
 }
 
 function insertSteps() {
-  const ta = document.getElementById('postContent');
-  const pos = ta.selectionStart;
-  const html = '\n<ol class="step-list">\n  <li><div class="step-n">1</div><div class="step-b"><strong>Step One Title</strong><p>Describe this step here.</p></div></li>\n  <li><div class="step-n">2</div><div class="step-b"><strong>Step Two Title</strong><p>Describe this step here.</p></div></li>\n  <li><div class="step-n">3</div><div class="step-b"><strong>Step Three Title</strong><p>Describe this step here.</p></div></li>\n</ol>\n';
-  ta.value = ta.value.substring(0,pos)+html+ta.value.substring(pos); ta.focus();
+  const ta=document.getElementById('postContent');
+  const html='\n<ol class="step-list">\n  <li><div class="step-n">1</div><div class="step-b"><strong>Step Title</strong><p>Step description.</p></div></li>\n  <li><div class="step-n">2</div><div class="step-b"><strong>Step Title</strong><p>Step description.</p></div></li>\n  <li><div class="step-n">3</div><div class="step-b"><strong>Step Title</strong><p>Step description.</p></div></li>\n</ol>\n';
+  ta.value=ta.value.substring(0,ta.selectionStart)+html+ta.value.substring(ta.selectionStart);ta.focus();
 }
 
 function insertHighlight() {
-  const ta = document.getElementById('postContent');
-  const pos = ta.selectionStart;
-  const html = '\n<div class="highlight-box">\n  <h3>Key Takeaway</h3>\n  <p>Your highlighted message or call to action here.</p>\n</div>\n';
-  ta.value = ta.value.substring(0,pos)+html+ta.value.substring(pos); ta.focus();
+  const ta=document.getElementById('postContent');
+  const html='\n<div class="highlight-box">\n  <h3>Key Takeaway</h3>\n  <p>Your highlighted message here.</p>\n</div>\n';
+  ta.value=ta.value.substring(0,ta.selectionStart)+html+ta.value.substring(ta.selectionStart);ta.focus();
 }
 
 function insertImageCaption() {
-  const url = prompt('Image URL (from Cloudinary or Unsplash):');
-  if (!url) return;
-  const caption = prompt('Caption (optional):') || '';
-  const ta = document.getElementById('postContent');
-  const pos = ta.selectionStart;
-  const html = `\n<img src="${url}" alt="${caption}"/>\n${caption ? `<p class="img-caption">${caption}</p>` : ''}\n`;
-  ta.value = ta.value.substring(0, pos) + html + ta.value.substring(pos);
-  ta.focus();
-  refreshImagePreview();
+  const url=prompt('Image URL:');if(!url)return;
+  const caption=prompt('Caption (optional):')||'';
+  const ta=document.getElementById('postContent');
+  const html=`\n<img src="${url}" alt="${caption}"/>\n${caption?`<p class="img-caption">${caption}</p>`:''}\n`;
+  ta.value=ta.value.substring(0,ta.selectionStart)+html+ta.value.substring(ta.selectionStart);
+  ta.focus(); refreshImagePreview();
 }
 
 function refreshImagePreview() {
-  const ta = document.getElementById('postContent');
-  const manager = document.getElementById('contentImageManager');
-  const list = document.getElementById('contentImageList');
-
-  // Parse images out of the HTML content
-  const parser = new DOMParser();
-  const doc = parser.parseFromString('<div id="root">' + ta.value + '</div>', 'text/html');
-  const imgs = doc.querySelectorAll('img');
-
-  if (!imgs.length) {
-    manager.style.display = 'none';
-    list.innerHTML = '';
-    return;
-  }
-
-  manager.style.display = 'block';
-  list.innerHTML = Array.from(imgs).map((img, i) =>
-    `<div class="ci-thumb" id="ci-${i}">
-      <img src="${img.src}" title="${img.alt || ''}"/>
-      <button class="ci-rm" onclick="removeContentImage(${i})">×</button>
-    </div>`
+  const ta=document.getElementById('postContent');
+  const manager=document.getElementById('contentImageManager');
+  const list=document.getElementById('contentImageList');
+  const doc=(new DOMParser()).parseFromString('<div id="r">'+ta.value+'</div>','text/html');
+  const imgs=doc.querySelectorAll('img');
+  if(!imgs.length){manager.style.display='none';list.innerHTML='';return;}
+  manager.style.display='block';
+  list.innerHTML=Array.from(imgs).map((img,i)=>
+    `<div class="ci-thumb" id="ci-${i}"><img src="${img.src}" title="${img.alt||''}"/><button class="ci-rm" onclick="removeContentImage(${i})">×</button></div>`
   ).join('');
 }
 
 function removeContentImage(index) {
-  const ta = document.getElementById('postContent');
-
-  // Parse content as DOM so we can remove the exact element
-  const parser = new DOMParser();
-  const doc = parser.parseFromString('<div id="root">' + ta.value + '</div>', 'text/html');
-  const root = doc.getElementById('root');
-  const imgs = root.querySelectorAll('img');
-
-  if (!imgs[index]) return;
-
-  const img = imgs[index];
-  // Remove caption paragraph immediately after the image if it exists
-  const next = img.nextElementSibling;
-  if (next && next.classList.contains('img-caption')) next.remove();
+  const ta=document.getElementById('postContent');
+  const doc=(new DOMParser()).parseFromString('<div id="r">'+ta.value+'</div>','text/html');
+  const root=doc.getElementById('r');
+  const imgs=root.querySelectorAll('img');
+  if(!imgs[index])return;
+  const img=imgs[index];
+  const next=img.nextElementSibling;
+  if(next&&next.classList.contains('img-caption'))next.remove();
   img.remove();
-
-  // Write cleaned HTML back to textarea
-  ta.value = root.innerHTML
-    .replace(/\n{3,}/g, '\n\n') // tidy up excess blank lines
-    .trim();
-
+  ta.value=root.innerHTML.replace(/\n{3,}/g,'\n\n').trim();
   refreshImagePreview();
 }
 
 async function loadPosts() {
   try {
-    const res = await fetch(`${API}/blog/admin/all`,{headers:{'Authorization':`Bearer ${token}`}});
-    const data = await res.json();
-    if(!data.success) return;
-    currentPosts = data.posts;
-    document.getElementById('postCount').textContent = data.count;
-    document.getElementById('postList').innerHTML = data.posts.map(post=>`
+    const res=await fetch(`${API}/blog/admin/all`,{headers:{'Authorization':`Bearer ${token}`}});
+    const data=await res.json();
+    if(!data.success)return;
+    currentPosts=data.posts;
+    document.getElementById('postCount').textContent=data.count;
+    document.getElementById('postList').innerHTML=data.posts.map(post=>`
       <div class="blog-row">
         <div style="flex:1;min-width:0;">
           <strong style="font-size:.85rem;">${post.title}</strong><br/>
@@ -646,107 +709,168 @@ async function loadPosts() {
           <button class="del-btn" onclick="deletePost('${post._id}')">Delete</button>
         </div>
       </div>
-    `).join('')||'<p style="color:#666;font-size:.85rem;">No posts yet. Write your first one!</p>';
-  } catch(err){ console.error(err); }
+    `).join('')||'<p style="color:#666;font-size:.85rem;">No posts yet.</p>';
+  } catch(err){console.error(err);}
 }
 
 async function savePost() {
-  const saveBtn = document.getElementById('savePostBtn');
-  const isEditing = !!editingPostId;
-  const title = document.getElementById('postTitle').value.trim();
-  const slug = document.getElementById('postSlug').value.trim();
-  const excerpt = document.getElementById('postExcerpt').value.trim();
-  const content = document.getElementById('postContent').value.trim();
+  const saveBtn=document.getElementById('savePostBtn');
+  const isEditing=!!editingPostId;
+  const title=document.getElementById('postTitle').value.trim();
+  const slug=document.getElementById('postSlug').value.trim();
+  const excerpt=document.getElementById('postExcerpt').value.trim();
+  const content=document.getElementById('postContent').value.trim();
+  if(!title){showBlogMsg('error','❌ Title required');return;}
+  if(!slug){showBlogMsg('error','❌ Slug required');return;}
+  if(!excerpt){showBlogMsg('error','❌ Excerpt required');return;}
+  if(!content){showBlogMsg('error','❌ Content required');return;}
 
-  if(!title){showBlogMsg('error','❌ Title is required');return;}
-  if(!slug){showBlogMsg('error','❌ Slug is required');return;}
-  if(!excerpt){showBlogMsg('error','❌ Excerpt is required');return;}
-  if(!content){showBlogMsg('error','❌ Content is required');return;}
-
-  const body = {
-    title, slug, excerpt, content,
-    category: document.getElementById('postCategory').value,
-    author: document.getElementById('postAuthor').value||'Sabicars Team',
-    readTime: document.getElementById('postReadTime').value||'3 min read',
-    coverImage: document.getElementById('postCover').value,
-    published: document.getElementById('postPublished').checked
+  const body={title,slug,excerpt,content,
+    category:document.getElementById('postCategory').value,
+    author:document.getElementById('postAuthor').value||'Sabicars Team',
+    readTime:document.getElementById('postReadTime').value||'3 min read',
+    coverImage:document.getElementById('postCover').value,
+    published:document.getElementById('postPublished').checked
   };
 
-  const orig = saveBtn.textContent;
-  saveBtn.textContent='⏳ Saving...'; saveBtn.classList.add('btn-loading');
+  const orig=saveBtn.textContent;
+  saveBtn.textContent='⏳ Saving...';saveBtn.classList.add('btn-loading');
 
   try {
-    const res = await fetch(isEditing?`${API}/blog/${editingPostId}`:`${API}/blog`,{
+    const res=await fetch(isEditing?`${API}/blog/${editingPostId}`:`${API}/blog`,{
       method:isEditing?'PUT':'POST',
       headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},
       body:JSON.stringify(body)
     });
-    const data = await res.json();
+    const data=await res.json();
     if(data.success){
       cancelPostEdit();
-      showBlogMsg('success', isEditing?'✅ Post updated!':(body.published?'✅ Post published and live!':'✅ Draft saved!'), 6000);
+      showBlogMsg('success',isEditing?'✅ Post updated!':(body.published?'✅ Post published!':'✅ Draft saved!'),6000);
       loadPosts();
     } else {
-      saveBtn.textContent=orig; saveBtn.classList.remove('btn-loading');
+      saveBtn.textContent=orig;saveBtn.classList.remove('btn-loading');
       showBlogMsg('error','❌ '+(data.message||'Something went wrong.'));
     }
-  } catch(err){ saveBtn.textContent=orig; saveBtn.classList.remove('btn-loading'); showBlogMsg('error','❌ Network error. Try again.'); }
+  } catch(err){saveBtn.textContent=orig;saveBtn.classList.remove('btn-loading');showBlogMsg('error','❌ Network error.');}
 }
 
-async function editPost(id) {
+function editPost(id) { requirePin('blog', () => _editPost(id)); }
+function deletePost(id) { requirePin('blog', () => _deletePost(id)); }
+
+async function _editPost(id) {
   try {
-    const res = await fetch(`${API}/blog/admin/${id}`,{headers:{'Authorization':`Bearer ${token}`}});
-    const data = await res.json();
-    if(!data.success) return;
-    const post = data.post;
-    document.getElementById('postTitle').value = post.title||'';
-    document.getElementById('postSlug').value = post.slug||'';
-    document.getElementById('postCategory').value = post.category||'Industry News';
-    document.getElementById('postAuthor').value = post.author||'Sabicars Team';
-    document.getElementById('postReadTime').value = post.readTime||'';
-    document.getElementById('postCover').value = post.coverImage||'';
-    document.getElementById('postExcerpt').value = post.excerpt||'';
-    document.getElementById('postContent').value = post.content||'';
+    const res=await fetch(`${API}/blog/admin/${id}`,{headers:{'Authorization':`Bearer ${token}`}});
+    const data=await res.json();
+    if(!data.success)return;
+    const post=data.post;
+    document.getElementById('postTitle').value=post.title||'';
+    document.getElementById('postSlug').value=post.slug||'';
+    document.getElementById('postCategory').value=post.category||'Industry News';
+    document.getElementById('postAuthor').value=post.author||'Sabicars Team';
+    document.getElementById('postReadTime').value=post.readTime||'';
+    document.getElementById('postCover').value=post.coverImage||'';
+    document.getElementById('postExcerpt').value=post.excerpt||'';
+    document.getElementById('postContent').value=post.content||'';
+    document.getElementById('postPublished').checked=post.published||false;
     refreshImagePreview();
-    document.getElementById('postPublished').checked = post.published||false;
-    editingPostId = id;
-    document.getElementById('savePostBtn').textContent = 'Update Post';
-    document.getElementById('cancelPostBtn').style.display = 'block';
-    document.getElementById('blogFormTitle').textContent = 'Edit Post';
-    document.getElementById('blogMsg').style.display = 'none';
+    editingPostId=id;
+    document.getElementById('savePostBtn').textContent='Update Post';
+    document.getElementById('cancelPostBtn').style.display='block';
+    document.getElementById('blogFormTitle').textContent='Edit Post';
+    document.getElementById('blogMsg').style.display='none';
     window.scrollTo({top:0,behavior:'smooth'});
-  } catch(err){ console.error(err); }
+  } catch(err){console.error(err);}
+}
+
+async function _deletePost(id) {
+  if(!confirm('Delete this post permanently?'))return;
+  const res=await fetch(`${API}/blog/${id}`,{method:'DELETE',headers:{'Authorization':`Bearer ${token}`}});
+  const data=await res.json();
+  if(data.success)loadPosts();else alert('Delete failed: '+data.message);
 }
 
 function cancelPostEdit() {
-  editingPostId = null;
-  ['postTitle','postSlug','postAuthor','postReadTime','postCover','postExcerpt','postContent'].forEach(id=>{ document.getElementById(id).value=''; });
-  document.getElementById('postAuthor').value = 'Sabicars Team';
-  document.getElementById('postCategory').value = 'Industry News';
-  document.getElementById('postPublished').checked = false;
-  document.getElementById('savePostBtn').textContent = 'Save Post';
+  editingPostId=null;
+  ['postTitle','postSlug','postAuthor','postReadTime','postCover','postExcerpt','postContent'].forEach(id=>{document.getElementById(id).value='';});
+  document.getElementById('postAuthor').value='Sabicars Team';
+  document.getElementById('postCategory').value='Industry News';
+  document.getElementById('postPublished').checked=false;
+  document.getElementById('savePostBtn').textContent='Save Post';
   document.getElementById('savePostBtn').classList.remove('btn-loading');
-  document.getElementById('cancelPostBtn').style.display = 'none';
-  document.getElementById('blogFormTitle').textContent = 'New Blog Post';
-  document.getElementById('blogMsg').style.display = 'none';
-  document.getElementById('contentImageManager').style.display = 'none';
-  document.getElementById('contentImageList').innerHTML = '';
+  document.getElementById('cancelPostBtn').style.display='none';
+  document.getElementById('blogFormTitle').textContent='New Blog Post';
+  document.getElementById('blogMsg').style.display='none';
+  document.getElementById('contentImageManager').style.display='none';
+  document.getElementById('contentImageList').innerHTML='';
 }
 
-async function togglePublish(id, current) {
-  await fetch(`${API}/blog/${id}`,{
-    method:'PUT',
-    headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},
-    body:JSON.stringify({published:!current})
-  });
+async function togglePublish(id,current) {
+  await fetch(`${API}/blog/${id}`,{method:'PUT',headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({published:!current})});
   loadPosts();
 }
 
-async function deletePost(id) {
-  if(!confirm('Delete this post permanently?')) return;
-  const res = await fetch(`${API}/blog/${id}`,{method:'DELETE',headers:{'Authorization':`Bearer ${token}`}});
-  const data = await res.json();
-  if(data.success) loadPosts(); else alert('Delete failed: '+data.message);
+// ── REVIEWS ──
+async function loadAdminReviews() {
+  try {
+    const res=await fetch(`${API}/reviews/admin/all`,{headers:{'Authorization':`Bearer ${token}`}});
+    const data=await res.json();
+    if(!data.success)return;
+    document.getElementById('reviewAdminCount').textContent=data.count;
+    document.getElementById('reviewAdminList').innerHTML=data.reviews.map(r=>`
+      <div class="car-row">
+        <div class="car-info">
+          <strong>${r.name}</strong>${r.location?' · '+r.location:''}<br/>
+          <span style="color:#d4af37;font-size:.8rem;">${'★'.repeat(r.rating||5)}</span>
+          <span style="color:#999;font-size:.78rem;display:block;margin-top:3px;">${r.message.substring(0,100)}${r.message.length>100?'...':''}</span>
+          <span class="post-status ${r.approved?'status-published':'status-draft'}">${r.approved?'● Approved':'○ Hidden'}</span>
+        </div>
+        <div class="car-actions">
+          <button class="${r.approved?'edit-btn':'pub-btn'}" onclick="toggleReview('${r._id}',${r.approved})">${r.approved?'Hide':'Approve'}</button>
+          <button class="del-btn" onclick="deleteReview('${r._id}')">Delete</button>
+        </div>
+      </div>
+    `).join('')||'<p style="color:#666;font-size:.85rem;">No reviews yet.</p>';
+  } catch(err){console.error(err);}
+}
+
+async function toggleReview(id,approved) {
+  await fetch(`${API}/reviews/${id}`,{method:'PATCH',headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({approved:!approved})});
+  loadAdminReviews();
+}
+
+async function deleteReview(id) {
+  if(!confirm('Delete this review?'))return;
+  await fetch(`${API}/reviews/${id}`,{method:'DELETE',headers:{'Authorization':`Bearer ${token}`}});
+  loadAdminReviews();
+}
+
+// ── SETTINGS ──
+async function loadSettings() {
+  try {
+    const res=await fetch(`${API}/settings/heroVideoUrl`);
+    const data=await res.json();
+    document.getElementById('heroVideoUrlInput').value=data.value||'';
+  } catch(e){}
+}
+
+async function saveHeroVideo() {
+  const url=document.getElementById('heroVideoUrlInput').value.trim();
+  try {
+    const res=await fetch(`${API}/settings/heroVideoUrl`,{method:'PUT',headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({value:url})});
+    const data=await res.json();
+    showSettingsMsg(data.success?'success':'error',data.success?'✅ Hero video saved! Refresh homepage to see it.':'❌ '+data.message);
+  } catch(e){showSettingsMsg('error','❌ Network error.');}
+}
+
+async function clearHeroVideo() {
+  document.getElementById('heroVideoUrlInput').value='';
+  await saveHeroVideo();
+}
+
+function showSettingsMsg(type,text) {
+  const el=document.getElementById('settingsMsg');
+  el.className=`msg ${type}`;el.textContent=text;el.style.display='block';
+  setTimeout(()=>el.style.display='none',6000);
 }
 </script>
 </body>
