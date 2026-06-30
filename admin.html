@@ -95,6 +95,9 @@
     <button class="dash-tab" id="tabBlog" onclick="switchDashTab('blog')">✍️ Blog</button>
     <button class="dash-tab" id="tabReviews" onclick="switchDashTab('reviews')">⭐ Reviews</button>
     <button class="dash-tab" id="tabSettings" onclick="switchDashTab('settings')">⚙️ Settings</button>
+    <button class="dash-tab" id="tabNotifications" onclick="switchDashTab('notifications')">📢 Notifications</button>
+    <button class="dash-tab" id="tabSubscribers" onclick="switchDashTab('subscribers')">📧 Subscribers</button>
+    <button class="dash-tab" id="tabEnquiries" onclick="switchDashTab('enquiries')">💬 Enquiries</button>
   </div>
 
   <!-- INVENTORY -->
@@ -298,6 +301,48 @@
       </div>
     </div>
   </div>
+  <!-- NOTIFICATIONS -->
+  <div id="notificationsSection" style="display:none;">
+    <div class="grid">
+      <div class="panel">
+        <h3>Send New Notification</h3>
+        <div class="msg" id="notifMsg"></div>
+        <input type="text" id="notifTitle" placeholder="Title (e.g. 🔥 New Arrival: Mercedes GLE 53)"/>
+        <textarea id="notifMessage" placeholder="Message body..." rows="3"></textarea>
+        <div class="row2">
+          <select id="notifType">
+            <option value="car">🚗 New Vehicle</option>
+            <option value="offer">🔥 Special Offer</option>
+            <option value="blog">📝 New Blog Post</option>
+            <option value="system">📢 Announcement</option>
+          </select>
+          <input type="text" id="notifLink" placeholder="Link (e.g. cars.html or car-detail.html?id=...)"/>
+        </div>
+        <button onclick="sendNotification()">Send Notification</button>
+      </div>
+      <div class="panel">
+        <h3>Recent Notifications (<span id="notifAdminCount">0</span>)</h3>
+        <div id="notifAdminList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBSCRIBERS -->
+  <div id="subscribersSection" style="display:none;">
+    <div class="panel">
+      <h3>Email Subscribers (<span id="subAdminCount">0</span>)</h3>
+      <p style="font-size:.8rem;color:#666;margin-bottom:16px;">These users subscribed via the site popup.</p>
+      <div id="subAdminList"></div>
+    </div>
+  </div>
+
+  <!-- ENQUIRIES -->
+  <div id="enquiriesSection" style="display:none;">
+    <div class="panel">
+      <h3>Contact Enquiries (<span id="enquiryCount">0</span>)</h3>
+      <div id="enquiryList"></div>
+    </div>
+  </div>
 </div>
 
 <!-- PIN MODAL -->
@@ -356,14 +401,19 @@ function showDashboard() {
 }
 
 function switchDashTab(tab) {
-  ['inventory','blog','reviews','settings'].forEach(t => {
-    document.getElementById(t+'Section').style.display = t === tab ? 'block' : 'none';
-    const btn = document.getElementById('tab'+t.charAt(0).toUpperCase()+t.slice(1));
+  ['inventory','blog','reviews','settings','notifications','subscribers','enquiries'].forEach(t => {
+    const sec = document.getElementById(t+'Section');
+    if (sec) sec.style.display = t === tab ? 'block' : 'none';
+    const key = 'tab'+t.charAt(0).toUpperCase()+t.slice(1);
+    const btn = document.getElementById(key);
     if (btn) btn.classList.toggle('active', t === tab);
   });
   if (tab === 'blog') loadPosts();
   if (tab === 'reviews') loadAdminReviews();
   if (tab === 'settings') loadSettings();
+  if (tab === 'notifications') loadAdminNotifications();
+  if (tab === 'subscribers') loadAdminSubscribers();
+  if (tab === 'enquiries') loadEnquiries();
 }
 
 // ── PIN ──
@@ -871,6 +921,111 @@ function showSettingsMsg(type,text) {
   const el=document.getElementById('settingsMsg');
   el.className=`msg ${type}`;el.textContent=text;el.style.display='block';
   setTimeout(()=>el.style.display='none',6000);
+}
+ 
+// ── NOTIFICATIONS ──
+async function sendNotification() {
+  const title = document.getElementById('notifTitle').value.trim();
+  const message = document.getElementById('notifMessage').value.trim();
+  const type = document.getElementById('notifType').value;
+  const link = document.getElementById('notifLink').value.trim();
+  const msgEl = document.getElementById('notifMsg');
+  if (!title || !message) { msgEl.className='msg error'; msgEl.textContent='❌ Title and message required.'; msgEl.style.display='block'; return; }
+  try {
+    const res = await fetch(`${API}/notifications`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, message, type, link })
+    });
+    const data = await res.json();
+    if (data.success) {
+      msgEl.className='msg success'; msgEl.textContent='✅ Notification sent! All site visitors will see it in the bell.'; msgEl.style.display='block';
+      document.getElementById('notifTitle').value=''; document.getElementById('notifMessage').value=''; document.getElementById('notifLink').value='';
+      setTimeout(()=>msgEl.style.display='none', 5000);
+      loadAdminNotifications();
+    } else { msgEl.className='msg error'; msgEl.textContent='❌ '+data.message; msgEl.style.display='block'; }
+  } catch (e) { msgEl.className='msg error'; msgEl.textContent='❌ Network error.'; msgEl.style.display='block'; }
+}
+
+async function loadAdminNotifications() {
+  try {
+    const res = await fetch(`${API}/notifications`, { headers: { 'Authorization': `Bearer ${token}` } });
+    const data = await res.json();
+    if (!data.success) return;
+    document.getElementById('notifAdminCount').textContent = data.count;
+    const icons = { car:'🚗', blog:'📝', offer:'🔥', system:'📢' };
+    document.getElementById('notifAdminList').innerHTML = data.notifications.map(n => `
+      <div class="car-row">
+        <div class="car-info">
+          <strong>${icons[n.type]||'📢'} ${n.title}</strong><br/>
+          <span style="font-size:.78rem;color:#999;">${n.message.substring(0,80)}${n.message.length>80?'...':''}</span>
+        </div>
+        <div class="car-actions">
+          <button class="del-btn" onclick="deleteNotification('${n._id}')">Delete</button>
+        </div>
+      </div>
+    `).join('') || '<p style="color:#666;font-size:.85rem;">No notifications yet.</p>';
+  } catch (e) { console.error(e); }
+}
+
+async function deleteNotification(id) {
+  await fetch(`${API}/notifications/${id}`, { method:'DELETE', headers:{ 'Authorization':`Bearer ${token}` } });
+  loadAdminNotifications();
+}
+
+// ── SUBSCRIBERS ──
+async function loadAdminSubscribers() {
+  try {
+    const res = await fetch(`${API}/subscribers/admin/all`, { headers: { 'Authorization': `Bearer ${token}` } });
+    const data = await res.json();
+    if (!data.success) return;
+    document.getElementById('subAdminCount').textContent = data.count;
+    document.getElementById('subAdminList').innerHTML = data.subscribers.map(s => `
+      <div class="car-row">
+        <div class="car-info">
+          <strong>${s.name || 'Anonymous'}</strong><br/>
+          <span style="font-size:.8rem;color:#999;">${s.email}</span>
+        </div>
+        <div class="car-actions">
+          <button class="del-btn" onclick="deleteSubscriber('${s._id}')">Remove</button>
+        </div>
+      </div>
+    `).join('') || '<p style="color:#666;font-size:.85rem;">No subscribers yet.</p>';
+  } catch (e) { console.error(e); }
+}
+
+async function deleteSubscriber(id) {
+  await fetch(`${API}/subscribers/${id}`, { method:'DELETE', headers:{ 'Authorization':`Bearer ${token}` } });
+  loadAdminSubscribers();
+}
+
+// ── ENQUIRIES ──
+async function loadEnquiries() {
+  try {
+    const res = await fetch(`${API}/enquiries/admin/all`, { headers: { 'Authorization': `Bearer ${token}` } });
+    const data = await res.json();
+    if (!data.success) return;
+    document.getElementById('enquiryCount').textContent = data.count;
+    document.getElementById('enquiryList').innerHTML = data.enquiries.map(e => `
+      <div class="car-row" style="${e.read?'':'background:rgba(212,175,55,.04);'}">
+        <div class="car-info">
+          <strong>${e.read?'':'🔵 '}${e.name}</strong> ${e.phone?'· '+e.phone:''}<br/>
+          ${e.subject?`<span style="font-size:.74rem;color:#d4af37;">${e.subject}</span><br/>`:''}
+          <span style="font-size:.78rem;color:#999;">${e.message.substring(0,100)}${e.message.length>100?'...':''}</span>
+        </div>
+        <div class="car-actions">
+          <a href="https://wa.me/${e.phone?e.phone.replace(/\D/g,''):''}" target="_blank" class="edit-btn" style="text-decoration:none;padding:6px 10px;font-size:.75rem;border-radius:6px;display:inline-flex;align-items:center;">Reply</a>
+          <button class="del-btn" onclick="deleteEnquiry('${e._id}')">Delete</button>
+        </div>
+      </div>
+    `).join('') || '<p style="color:#666;font-size:.85rem;">No enquiries yet.</p>';
+  } catch (e) { console.error(e); }
+}
+
+async function deleteEnquiry(id) {
+  if (!confirm('Delete this enquiry?')) return;
+  await fetch(`${API}/enquiries/${id}`, { method:'DELETE', headers:{ 'Authorization':`Bearer ${token}` } });
+  loadEnquiries();
 }
 </script>
 </body>
