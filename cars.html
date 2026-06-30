@@ -40,6 +40,7 @@
 .price-val{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:700;color:var(--gold);}
 .car-cta{display:inline-flex;align-items:center;gap:6px;background:var(--gold);color:#fff;padding:8px 14px;border-radius:6px;font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;transition:all .25s;}
 .car-cta:hover{background:var(--gold-lt);}
+.recently-viewed{padding:48px 0 60px;background:var(--bg2);border-top:1px solid var(--border);}
 /*New CSS */
 .price-40{font-size:.68rem;color:var(--muted);margin-top:3px;}
 .filter-row{display:flex;gap:10px;flex-wrap:wrap;}
@@ -121,6 +122,13 @@
     <h2 style="font-size:clamp(1.4rem,3vw,2rem);font-weight:600;color:var(--text);margin-bottom:8px;">Vehicles That Found New Homes</h2>
     <p style="color:var(--muted);font-size:.88rem;margin-bottom:32px;">These went fast — don't miss out on what's still available.</p>
     <div class="cars-grid" id="soldGrid"></div>
+  </div>
+</section>
+<section class="recently-viewed" id="recentlyViewedSection" style="display:none;">
+  <div class="container">
+    <div class="sec-label"><div class="sec-label-line"></div><span class="sec-label-text">Recently Viewed</span></div>
+    <h2 style="font-size:clamp(1.3rem,3vw,1.8rem);font-weight:600;color:var(--text);margin-bottom:28px;">Your <em style="font-style:italic;color:var(--gold)">Recent Views</em></h2>
+    <div class="cars-grid" id="recentlyViewedGrid"></div>
   </div>
 </section>
 <footer class="footer"><div class="container">
@@ -356,6 +364,38 @@ async function loadRecentlySold(){
     document.getElementById('soldGrid').innerHTML = data.cars.map(renderSoldCard).join('');
   } catch(err){ console.error(err); }
 }
+
+function loadRecentlyViewed() {
+  try {
+    const viewed = JSON.parse(localStorage.getItem('sabi_recently_viewed') || '[]');
+    if (!viewed.length) return;
+    const section = document.getElementById('recentlyViewedSection');
+    const grid = document.getElementById('recentlyViewedGrid');
+    if (!section || !grid) return;
+    const filtered = viewed.filter(c => c._id !== undefined).slice(0, 4);
+    if (!filtered.length) return;
+    section.style.display = 'block';
+    grid.innerHTML = filtered.map(car => {
+      const price = parsePrice(car.price);
+      return `<div class="car-card" onclick="window.location.href='car-detail.html?id=${car._id}'" style="cursor:pointer;">
+        <div class="car-img">
+          <span class="car-tag tag-${car.tag}">${tagLabel(car.tag)}</span>
+          <div class="car-img-bg" style="background-image:url('${(car.images&&car.images[0])?car.images[0]:'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=600&q=70'}')"></div>
+        </div>
+        <div class="car-body">
+          <div class="car-make">${car.make}</div>
+          <h3 class="car-model">${car.model}</h3>
+          <div class="car-year">${car.year} · ${conditionLabel(car.condition)}</div>
+          <div class="car-footer" style="padding-top:10px;border-top:1px solid var(--border2);margin-top:10px;">
+            <div><div class="price-lbl">Price</div><div class="price-val" style="font-size:1rem;">${formatPrice(price)}</div></div>
+            <a href="car-detail.html?id=${car._id}" class="car-cta" style="font-size:.65rem;padding:7px 12px;">View</a>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  } catch (e) {}
+}
+loadRecentlyViewed();
 
 // Boot
 fetchPage();
