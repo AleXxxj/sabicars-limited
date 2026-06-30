@@ -197,12 +197,23 @@ async function loadCar(){
     const data = await res.json();
     if(!data.success){ showError(); return; }
     car = data.car;
+    trackRecentlyViewed(car);
     renderCar();
     loadSimilar();
   } catch(err){
     console.error(err);
     showError();
   }
+}
+  
+function trackRecentlyViewed(car) {
+  try {
+    let viewed = JSON.parse(localStorage.getItem('sabi_recently_viewed') || '[]');
+    viewed = viewed.filter(c => c._id !== car._id);
+    viewed.unshift({ _id: car._id, make: car.make, model: car.model, year: car.year, price: car.price, tag: car.tag, condition: car.condition, images: car.images ? [car.images[0]] : [] });
+    viewed = viewed.slice(0, 6);
+    localStorage.setItem('sabi_recently_viewed', JSON.stringify(viewed));
+  } catch (e) {}
 }
 
 function showError(){
