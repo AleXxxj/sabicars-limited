@@ -999,6 +999,14 @@ async function deleteSubscriber(id) {
   loadAdminSubscribers();
 }
 
+function formatWaPhone(phone) {
+  if (!phone) return '2348055065825';
+  let n = phone.replace(/\D/g, '');
+  if (n.startsWith('234')) return n;
+  if (n.startsWith('0')) return '234' + n.substring(1);
+  return '234' + n;
+}
+                        
 // ── ENQUIRIES ──
 async function loadEnquiries() {
   try {
@@ -1010,11 +1018,12 @@ async function loadEnquiries() {
       <div class="car-row" style="${e.read?'':'background:rgba(212,175,55,.04);'}">
         <div class="car-info">
           <strong>${e.read?'':'🔵 '}${e.name}</strong> ${e.phone?'· '+e.phone:''}<br/>
+          ${e.email?`<span style="font-size:.74rem;color:#d4af37;">${e.email}</span><br/>`:''}
           ${e.subject?`<span style="font-size:.74rem;color:#d4af37;">${e.subject}</span><br/>`:''}
           <span style="font-size:.78rem;color:#999;">${e.message.substring(0,100)}${e.message.length>100?'...':''}</span>
         </div>
         <div class="car-actions">
-          <a href="https://wa.me/${e.phone?e.phone.replace(/\D/g,''):''}" target="_blank" class="edit-btn" style="text-decoration:none;padding:6px 10px;font-size:.75rem;border-radius:6px;display:inline-flex;align-items:center;">Reply</a>
+          <a href="https://wa.me/${formatWaPhone(e.phone)}?text=${encodeURIComponent('Hello ' + e.name +', thanks for contacting Sabicars. Regarding: ' + (e.subject||'your enquiry') + ' - ')}" target="_blank" class="edit-btn" style="text-decoration:none;padding:6px 10px;font-size:.75rem;border-radius:6px;display:inline-flex;align-items:center;">Reply</a>
           <button class="del-btn" onclick="deleteEnquiry('${e._id}')">Delete</button>
         </div>
       </div>
