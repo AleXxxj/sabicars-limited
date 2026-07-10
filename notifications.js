@@ -184,7 +184,7 @@ async function submitSubscribe() {
 }
 
 // ── ONESIGNAL PUSH ──
-function iniOneSignal() {
+function initOneSignal() {
   if (!ONESIGNAL_APP_ID || ONESIGNAL_APP_ID === 'YOUR_ONESIGNAL_APP_ID') {
     console.log('OneSignal: App ID not set');
     return;
@@ -195,7 +195,7 @@ function iniOneSignal() {
       await OneSignal.init({
         appId: ONESIGNAL_APP_ID,
         allowLocalhostAsSecureOrigin: true,
-        notifyButton: { enable: true ),
+        notifyButton: { enable: true },
       });
       console.log('OneSignal: initialized successfully');
       OneSignal.Slidedown.promptPush();
