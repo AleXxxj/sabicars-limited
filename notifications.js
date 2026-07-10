@@ -184,28 +184,24 @@ async function submitSubscribe() {
 }
 
 // ── ONESIGNAL PUSH ──
-function initOneSignal() {
-  if (ONESIGNAL_APP_ID === 'YOUR_ONESIGNAL_APP_ID') return;
+function iniOneSignal() {
+  if (!ONESIGNAL_APP_ID || ONESIGNAL_APP_ID === 'YOUR_ONESIGNAL_APP_ID') {
+    console.log('OneSignal: App ID not set');
+    return;
+  }
   window.OneSignalDeferred = window.OneSignalDeferred || [];
-  OneSignalDeferred.push(async function(OneSignal) {
-    await OneSignal.init({
-      appId: ONESIGNAL_APP_ID,
-      notifyButton: { enable: false },
-      promptOptions: {
-        slidedown: {
-          prompts: [{
-            type: 'push',
-            autoPrompt: true,
-            text: {
-              actionMessage: 'Get notified about new vehicles, special offers and exclusive deals from Sabicars.',
-              acceptButton: 'Allow',
-              cancelButton: 'Later'
-            },
-            delay: { timeDelay: 30, pageViews: 2 }
-          }]
-        }
-      }
-    });
+  window.OneSignalDeferred.push(async function(OneSignal) {
+    try {
+      await OneSignal.init({
+        appId: ONESIGNAL_APP_ID,
+        allowLocalhostAsSecureOrigin: true,
+        notifyButton: { enable: true ),
+      });
+      console.log('OneSignal: initialized successfully');
+      OneSignal.Slidedown.promptPush();
+    } catch (e) {
+      console.error('OneSignal init error:', e);
+    }
   });
 }
 
