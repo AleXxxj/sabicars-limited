@@ -1,5 +1,5 @@
 const SABI_API = 'https://sabicars-api.onrender.com/api';
-const ONESIGNAL_APP_ID = 'c3c1692e-3c64-4a52-ad59-82c5195fb878'; // replace after creating account
+const ONESIGNAL_APP_ID = '6f283e9c-796d-45b1-9873-3c5116b91e61'; // replace after creating account
 
 // ── NOTIFICATION BELL ──
 function injectNotificationBell() {
