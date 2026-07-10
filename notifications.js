@@ -195,6 +195,8 @@ function initOneSignal() {
       await OneSignal.init({
         appId: ONESIGNAL_APP_ID,
         allowLocalhostAsSecureOrigin: true,
+        serviceWorkerParam: { scope: '/sabicars-limited/' },
+        serviceWorkerPath: 'OneSignalSDKWorker.js',
         notifyButton: { enable: true },
       });
       console.log('OneSignal: initialized successfully');
