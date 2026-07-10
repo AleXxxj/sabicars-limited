@@ -195,8 +195,9 @@ function initOneSignal() {
       await OneSignal.init({
         appId: ONESIGNAL_APP_ID,
         allowLocalhostAsSecureOrigin: true,
+        // Ensure the path includes your GitHub repository name
         serviceWorkerParam: { scope: '/sabicars-limited/' },
-        serviceWorkerPath: 'OneSignalSDKWorker.js',
+        serviceWorkerPath: 'sabicars-limited/OneSignalSDKWorker.js',
         notifyButton: { enable: true },
       });
       console.log('OneSignal: initialized successfully');
