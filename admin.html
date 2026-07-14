@@ -932,8 +932,8 @@ async function sendNotification() {
   const msgEl = document.getElementById('notifMsg');
   if (!title || !message) { msgEl.className='msg error'; msgEl.textContent='❌ Title and message required.'; msgEl.style.display='block'; return; }
 
-  msgEl.className='msg success'; msgEl.textContent='⏳ sending...'; msgEl.style.display='block';
-  
+  msgEl.className='msg success'; msgEl.textContent='⏳ Sending...'; msgEl.style.display='block';
+
   try {
     // 1. Save to bell
     const res = await fetch(`${API}/notifications`, {
@@ -942,20 +942,20 @@ async function sendNotification() {
       body: JSON.stringify({ title, message, type, link })
     });
     const data = await res.json();
-    if (data.success) {msgEl.className='msg error'; msgEl.textContent='❌ '+data.message; return; }
+    if (!data.success) { msgEl.className='msg error'; msgEl.textContent='❌ '+data.message; return; }
 
     // 2. Fire push
     let pushNote = '';
     try {
-      const fullUrl = link ? 'https://alexxxj.github.io/sabicars-limited/' + link.replace(/^\// ,'') : '';
+      const fullUrl = link ? 'https://alexxxj.github.io/sabicars-limited/' + link.replace(/^\//,'') : '';
       const pr = await fetch(`${API}/push/send`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer $ {token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, message, url: fullurl })
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, message, url: fullUrl })
       });
       const pd = await pr.json();
-      pushNote = pd.success ? ` · 📱 Pushed to $ {pd.recipients} device${pd.recipients!==1?'s':''}` : ' · ⚠️ Push failed: ' + pd.message; 
-    } catch (e) { pushNote = ' · ⚠️ Push failed`; }
+      pushNote = pd.success ? ` · 📱 Pushed to ${pd.recipients} device${pd.recipients!==1?'s':''}` : ' · ⚠️ Push failed: ' + pd.message;
+    } catch (e) { pushNote = ' · ⚠️ Push failed'; }
 
     msgEl.className='msg success';
     msgEl.textContent = '✅ Sent to bell' + pushNote;
