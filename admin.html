@@ -318,6 +318,15 @@
           </select>
           <input type="text" id="notifLink" placeholder="Link (e.g. cars.html or car-detail.html?id=...)"/>
         </div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin:4px 0 14px;padding:12px;background:#111;border:1px solid #3a3a3a;border-radius:6px;">
+          <label style="display:flex;align-items:center;gap:8px;font-size:.85rem;cursor:pointer;">
+            <input type="checkbox" id="notifDoPush" checked style="width:auto;margin:0;"/> 📱 Push to devices
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:.85rem;cursor:pointer;">
+            <input type="checkbox" id="notifDoEmail" style="width:auto;margin:0;"/> 📧 Email subscribers
+          </label>
+        </div>
+        <input type="text" id="notifImage" placeholder="Email cover image URL (optional)"/>
         <button onclick="sendNotification()">Send Notification</button>
       </div>
       <div class="panel">
@@ -929,42 +938,84 @@ async function sendNotification() {
   const message = document.getElementById('notifMessage').value.trim();
   const type = document.getElementById('notifType').value;
   const link = document.getElementById('notifLink').value.trim();
+  const imageUrl = document.getElementById('notifImage').value.trim();
+  const doPush = document.getElementById('notifDoPush').checked;
+  const doEmail = document.getElementById('notifDoEmail').checked;
   const msgEl = document.getElementById('notifMsg');
-  if (!title || !message) { msgEl.className='msg error'; msgEl.textContent='❌ Title and message required.'; msgEl.style.display='block'; return; }
 
-  msgEl.className='msg success'; msgEl.textContent='⏳ Sending...'; msgEl.style.display='block';
+  if (!title || !message) {
+    msgEl.className = 'msg error';
+    msgEl.textContent = '❌ Title and message required.';
+    msgEl.style.display = 'block';
+    return;
+  }
+
+  msgEl.className = 'msg success';
+  msgEl.textContent = '⏳ Sending...';
+  msgEl.style.display = 'block';
+
+  const SITE = 'https://alexxxj.github.io/sabicars-limited/';
+  const fullUrl = link ? SITE + link.replace(/^\//, '') : '';
+  const notes = [];
 
   try {
-    // 1. Save to bell
+    // 1. Bell
     const res = await fetch(`${API}/notifications`, {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ title, message, type, link })
     });
     const data = await res.json();
-    if (!data.success) { msgEl.className='msg error'; msgEl.textContent='❌ '+data.message; return; }
+    if (!data.success) {
+      msgEl.className = 'msg error';
+      msgEl.textContent = '❌ ' + data.message;
+      return;
+    }
+    notes.push('🔔 Bell');
 
-    // 2. Fire push
-    let pushNote = '';
-    try {
-      const fullUrl = link ? 'https://alexxxj.github.io/sabicars-limited/' + link.replace(/^\//,'') : '';
-      const pr = await fetch(`${API}/push/send`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, message, url: fullUrl })
-      });
-      const pd = await pr.json();
-      pushNote = pd.success ? ` · 📱 Pushed to ${pd.recipients} device${pd.recipients!==1?'s':''}` : ' · ⚠️ Push failed: ' + pd.message;
-    } catch (e) { pushNote = ' · ⚠️ Push failed'; }
+    // 2. Push
+    if (doPush) {
+      try {
+        const pr = await fetch(`${API}/push/send`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, message, url: fullUrl })
+        });
+        const pd = await pr.json();
+        notes.push(pd.success ? '📱 Push sent' : '⚠️ Push: ' + pd.message);
+      } catch (e) { notes.push('⚠️ Push failed'); }
+    }
 
-    msgEl.className='msg success';
-    msgEl.textContent = '✅ Sent to bell' + pushNote;
-    document.getElementById('notifTitle').value='';
-    document.getElementById('notifMessage').value='';
-    document.getElementById('notifLink').value='';
-    setTimeout(()=>msgEl.style.display='none', 8000);
+    // 3. Email
+    if (doEmail) {
+      try {
+        const er = await fetch(`${API}/newsletter/send`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title, message, imageUrl,
+            ctaText: type === 'blog' ? 'Read Article' : 'View Now',
+            ctaUrl: fullUrl || SITE
+          })
+        });
+        const ed = await er.json();
+        notes.push(ed.success ? `📧 Emailed ${ed.sent}/${ed.total}` : '⚠️ Email: ' + ed.message);
+      } catch (e) { notes.push('⚠️ Email failed'); }
+    }
+
+    msgEl.className = 'msg success';
+    msgEl.textContent = '✅ ' + notes.join(' · ');
+    document.getElementById('notifTitle').value = '';
+    document.getElementById('notifMessage').value = '';
+    document.getElementById('notifLink').value = '';
+    document.getElementById('notifImage').value = '';
+    setTimeout(() => msgEl.style.display = 'none', 10000);
     loadAdminNotifications();
-  } catch (e) { msgEl.className='msg error'; msgEl.textContent='❌ Network error.'; }
+
+  } catch (e) {
+    msgEl.className = 'msg error';
+    msgEl.textContent = '❌ Network error.';
+  }
 }
 
 async function loadAdminNotifications() {
