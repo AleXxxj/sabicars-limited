@@ -1,0 +1,25 @@
+{
+  "name": "Sabicars Limited — Luxury Auto Lagos",
+  "short_name": "Sabicars",
+  "description": "Nigeria's premier verified auto dealer. Luxury cars, Toyota Hiace, trucks. Pay 40% and drive today.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d0d0d",
+  "theme_color": "#d4af37",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "images/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "images/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["shopping", "business"]
+}
