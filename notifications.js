@@ -214,3 +214,73 @@ document.addEventListener('DOMContentLoaded', () => {
   initSubscribePopup();
   initOneSignal();
 });
+
+// ── PWA INSTALL PROMPT ──
+let deferredPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  if (!localStorage.getItem('sabi_install_dismissed')) {
+    setTimeout(showInstallBanner, 20000);
+  }
+});
+
+function showInstallBanner() {
+  if (document.getElementById('installBanner')) return;
+  const b = document.createElement('div');
+  b.id = 'installBanner';
+  b.style.cssText = 'position:fixed;bottom:20px;left:20px;right:20px;max-width:420px;margin:0 auto;background:#1a1a1a;border:1px solid #d4af37;border-radius:12px;padding:16px;z-index:9997;display:flex;align-items:center;gap:14px;box-shadow:0 12px 40px rgba(0,0,0,.5);';
+  b.innerHTML = `
+    <img src="/images/icon-192.png" style="width:44px;height:44px;border-radius:10px;flex-shrink:0;"/>
+    <div style="flex:1;min-width:0;">
+      <div style="font-size:.85rem;font-weight:700;color:#eee;">Install Sabicars</div>
+      <div style="font-size:.72rem;color:#888;">Quick access to new arrivals &amp; offers</div>
+    </div>
+    <button onclick="triggerInstall()" style="background:#d4af37;color:#000;border:none;padding:8px 16px;border-radius:6px;font-weight:700;font-size:.75rem;cursor:pointer;width:auto;">Install</button>
+    <button onclick="dismissInstall()" style="background:transparent;border:none;color:#666;font-size:1rem;cursor:pointer;width:auto;padding:4px;">✕</button>
+  `;
+  document.body.appendChild(b);
+}
+
+async function triggerInstall() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  dismissInstall();
+}
+
+function dismissInstall() {
+  localStorage.setItem('sabi_install_dismissed', '1');
+  const b = document.getElementById('installBanner');
+  if (b) b.remove();
+}
+
+// iOS instructions — Safari has no install API
+function initIosInstallHint() {
+  const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone = window.navigator.standalone === true;
+  if (!isIos || isStandalone || localStorage.getItem('sabi_ios_hint_seen')) return;
+  setTimeout(() => {
+    if (document.getElementById('iosHint')) return;
+    const h = document.createElement('div');
+    h.id = 'iosHint';
+    h.style.cssText = 'position:fixed;bottom:20px;left:16px;right:16px;background:#1a1a1a;border:1px solid #d4af37;border-radius:12px;padding:16px;z-index:9997;box-shadow:0 12px 40px rgba(0,0,0,.5);';
+    h.innerHTML = `
+      <button onclick="dismissIosHint()" style="position:absolute;top:8px;right:10px;background:transparent;border:none;color:#666;font-size:1rem;cursor:pointer;width:auto;">✕</button>
+      <div style="font-size:.85rem;font-weight:700;color:#d4af37;margin-bottom:6px;">📲 Add Sabicars to Home Screen</div>
+      <div style="font-size:.75rem;color:#aaa;line-height:1.6;">Tap the Share button <span style="color:#d4af37;">⬆️</span> below, then choose <strong style="color:#eee;">Add to Home Screen</strong> — get instant alerts on new arrivals.</div>
+    `;
+    document.body.appendChild(h);
+  }, 30000);
+}
+
+function dismissIosHint() {
+  localStorage.setItem('sabi_ios_hint_seen', '1');
+  const h = document.getElementById('iosHint');
+  if (h) h.remove();
+}
+
+initIosInstallHint();
+
