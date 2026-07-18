@@ -44,68 +44,11 @@
 .cf-msg.error{background:#3a1e1e;color:#ff6b6b;}
 .map-section{padding:0 0 80px;background:var(--bg);}
 .map-wrap{border-radius:12px;overflow:hidden;border:1px solid var(--border2);position:relative;height:420px;box-shadow:0 10px 40px rgba(0,0,0,.2);}
+@media(max-width:560px){.map-wrap{height:280px;}}
 .map-wrap iframe{width:100%;height:100%;border:0;}
-.map-overlay-card{
-    position:absolute;
-    top:22px;
-    right:22px;
-    width:290px;
-    background:rgba(15,15,15,.93);
-    backdrop-filter:blur(14px);
-    border:1px solid rgba(212,175,55,.25);
-    border-radius:18px;
-    padding:22px;
-    z-index:5;
-    box-shadow:0 20px 45px rgba(0,0,0,.35);
-}
-.map-overlay-card .badge{
-    display:inline-block;
-    background:#d4af37;
-    color:#000;
-    font-size:11px;
-    font-weight:700;
-    padding:4px 10px;
-    border-radius:999px;
-}
-.map-overlay-card h4{
-    font-size:.85rem;
-    font-weight:700;
-    color:var(--gold);
-    margin:10px 0 6px;
-}
-.map-overlay-card p{
-    font-size:.72rem;
-    color:var(--muted);
-    line-height:1.6;
-    font-weight:300;
-    margin-bottom:18px;
-}
-.map-overlay-card .direction-btn{
-    display:inline-flex;
-    padding:11px 18px;
-    background:#d4af37;
-    color:#000;
-    text-decoration:none;
-    border-radius:999px;
-    font-weight:700;
-    font-size:.8rem;
-}
-/* MOBILE: card drops below the map instead of covering it */
-@media(max-width:700px){
-    .map-wrap{height:auto;}
-    .map-wrap iframe{height:280px;display:block;}
-    .map-overlay-card{
-        position:static;
-        width:auto;
-        top:auto;left:auto;right:auto;
-        border-radius:0 0 12px 12px;
-        backdrop-filter:none;
-        background:var(--card);
-        box-shadow:none;
-        border:none;
-        border-top:1px solid var(--border2);
-    }
-}
+.map-overlay-card{position:absolute;top:16px;left:16px;background:var(--card);border:1px solid var(--border2);border-radius:8px;padding:14px 16px;z-index:2;max-width:220px;box-shadow:0 4px 20px rgba(0,0,0,.3);}
+.map-overlay-card h4{font-size:.85rem;font-weight:700;color:var(--gold);margin-bottom:6px;}
+.map-overlay-card p{font-size:.72rem;color:var(--muted);line-height:1.5;font-weight:300;}
 .hours-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:32px;}
 .hours-card{background:var(--card);border:1px solid var(--border2);border-radius:8px;padding:16px 18px;}
 .hours-card h5{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
@@ -154,7 +97,7 @@
       </a>
       <div class="ci-card">
         <div class="ci-icon"><i class="fas fa-location-dot"></i></div>
-        <div class="ci-body"><h4>Visit Us</h4><p>Amazing Grace Shopping Complex, Km 16<br>Alhaji Ede Bus Stop, Lasu Road<br>Igando, Lagos 100267</p></div>
+        <div class="ci-body"><h4>Visit Us</h4><p>Amazing Grace Plaza, Km 13<br>Alhaji-Ede Bus Stop, Lasu Road<br>off Isheri, Igando, Lagos 105101</p></div>
       </div>
       <div class="hours-grid" style="margin-top:0;">
         <div class="hours-card"><h5>Weekdays</h5><p>Mon – Fri</p><span>8:00am – 7:00pm</span></div>
@@ -190,34 +133,24 @@
   <div class="sec-label" style="margin-bottom:20px;"><div class="sec-label-line"></div><span class="sec-label-text">Find Us</span></div>
   <h2 class="section-title" style="margin-bottom:24px;">Our <em>Location</em></h2>
   <div class="map-wrap">
-
     <div class="map-overlay-card">
-      <span class="badge">VERIFIED LOCATION</span>
-
-      <h4>📍 Sabicars Autos</h4>
-
-      <p>
-      Amazing Grace Shopping Complex<br>
-      Alhaji Ede Bus Stop, Km 16<br>
-      Igando, Lagos 100267
-      </p>
-
-      <a class="direction-btn"
-         href="https://www.google.com/maps/search/?api=1&query=Sabicars+Autos+Amazing+Grace+Shopping+Complex+Alhaji+Ede+Bus+Stop+Km+16+Igando+Lagos+100267"
-         target="_blank">
-         Get Directions →
-      </a>
-
+      <h4>📍 Sabicars Limited</h4>
+      <p>Amazing Grace Shopping Complex <br> Alahji Ede Bus Stop, Km 16<br>Igando, Lagos 100267</p>
     </div>
-
+    <a href="https://maps.google.com/maps/search/?api=1&query=Sabicars+Autos+Amazing+Grace+Shopping+Complex+Alahji+Ede+Bus+Stop+Km+16+Igando+Lagos+100267" target="_blank" style="position:absolute;inset:0;z-index:1;" aria-label="Open Sabicars Location in Google Maps"></a>
     <iframe
-        src="https://maps.google.com/maps?q=Sabicars+Autos+Amazing+Grace+Shopping+Complex+Alhaji+Ede+Bus+Stop+Km+16+Igando+Lagos+100267&t=k&z=16&ie=UTF8&iwloc=&output=embed"
-        allowfullscreen
-        loading="lazy"
-        referrerpolicy="no-referrer-when-downgrade">
+      src="https://maps.google.com/maps?q=Sabicars+Autos+Amazing+Grace+Shopping+Complex+Alahji+Ede+Bus+Stop+Km+16+Igando+Lagos+100267&t=k&z=16&ie=UTF8&iwloc=&output=embed"
+      allowfullscreen
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade">
+      style="pointer-events:none;">
     </iframe>
-
   </div>
+  <p style="font-size:.74rem;color:var(--muted);margin-top:14px;text-align:center;">
+    <i class="fas fa-info-circle" style="color:var(--gold);"></i>
+    Amazing Grace Shopping Complex, Alhaji Ede Bus Stop, Km 16 — tap the map to open directions.
+    <a href="https://maps.google.com/maps/search/?api=1&query=Sabicars+Autos+Amazing+Grace+Shopping+Complex+Alahji+Ede+Bus+Stop+Km+16+Igando+Lagos+100267" target="_blank" style="color:var(--gold);margin-left:8px;">Open in Google Maps →</a>
+  </p>
 </div></section>
 
 <footer class="footer"><div class="container">
@@ -227,7 +160,7 @@
     <div class="footer-col"><h5>Vehicles</h5><ul><li><a href="cars.html">Luxury Cars</a></li><li><a href="cars.html">Toyota Hiace</a></li><li><a href="cars.html">Trucks</a></li><li><a href="cars.html">SUVs</a></li></ul></div>
     <div class="footer-col"><h5>Contact</h5><ul><li><a href="tel:+2348101885558">0810 188 5558</a></li><li><a href="https://wa.me/2348055065825" target="_blank">WhatsApp Us</a></li><li><a href="mailto:info@sabicars.ng">info@sabicars.ng</a></li></ul></div>
   </div>
-  <div class="footer-bottom"><p>© 2025 Sabicars Limited. RC 1560100. Igando, Lagos, Nigeria.</p><span class="rc-pill"><i class="fas fa-building"></i> RC 1560100</span></div>
+  <div class="footer-bottom"><p>©️ 2025 Sabicars Limited. RC 1560100. Igando, Lagos, Nigeria.</p><span class="rc-pill"><i class="fas fa-building"></i> RC 1560100</span></div>
 </div></footer>
 
 <script src="theme.js"></script>
