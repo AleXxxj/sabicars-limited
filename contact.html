@@ -44,7 +44,6 @@
 .cf-msg.error{background:#3a1e1e;color:#ff6b6b;}
 .map-section{padding:0 0 80px;background:var(--bg);}
 .map-wrap{border-radius:12px;overflow:hidden;border:1px solid var(--border2);position:relative;height:420px;box-shadow:0 10px 40px rgba(0,0,0,.2);}
-@media(max-width:560px){.map-wrap{height:280px;}}
 .map-wrap iframe{width:100%;height:100%;border:0;}
 .map-overlay-card{
     position:absolute;
@@ -59,16 +58,6 @@
     z-index:5;
     box-shadow:0 20px 45px rgba(0,0,0,.35);
 }
-.map-overlay-card h4{
-    color:#fff;
-    font-size:1rem;
-    margin:10px 0;
-}
-.map-overlay-card p{
-    color:#bbb;
-    line-height:1.7;
-    margin-bottom:18px;
-}
 .map-overlay-card .badge{
     display:inline-block;
     background:#d4af37;
@@ -78,6 +67,19 @@
     padding:4px 10px;
     border-radius:999px;
 }
+.map-overlay-card h4{
+    font-size:.85rem;
+    font-weight:700;
+    color:var(--gold);
+    margin:10px 0 6px;
+}
+.map-overlay-card p{
+    font-size:.72rem;
+    color:var(--muted);
+    line-height:1.6;
+    font-weight:300;
+    margin-bottom:18px;
+}
 .map-overlay-card .direction-btn{
     display:inline-flex;
     padding:11px 18px;
@@ -86,17 +88,24 @@
     text-decoration:none;
     border-radius:999px;
     font-weight:700;
+    font-size:.8rem;
 }
+/* MOBILE: card drops below the map instead of covering it */
 @media(max-width:700px){
+    .map-wrap{height:auto;}
+    .map-wrap iframe{height:280px;display:block;}
     .map-overlay-card{
-        left:16px;
-        right:16px;
-        top:16px;
+        position:static;
         width:auto;
+        top:auto;left:auto;right:auto;
+        border-radius:0 0 12px 12px;
+        backdrop-filter:none;
+        background:var(--card);
+        box-shadow:none;
+        border:none;
+        border-top:1px solid var(--border2);
     }
 }
-.map-overlay-card h4{font-size:.85rem;font-weight:700;color:var(--gold);margin-bottom:6px;}
-.map-overlay-card p{font-size:.72rem;color:var(--muted);line-height:1.5;font-weight:300;}
 .hours-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:32px;}
 .hours-card{background:var(--card);border:1px solid var(--border2);border-radius:8px;padding:16px 18px;}
 .hours-card h5{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
@@ -145,7 +154,7 @@
       </a>
       <div class="ci-card">
         <div class="ci-icon"><i class="fas fa-location-dot"></i></div>
-        <div class="ci-body"><h4>Visit Us</h4><p>Amazing Grace Plaza, Km 13<br>Alhaji-Ede Bus Stop, Lasu Road<br>off Isheri, Igando, Lagos 105101</p></div>
+        <div class="ci-body"><h4>Visit Us</h4><p>Amazing Grace Shopping Complex, Km 16<br>Alhaji Ede Bus Stop, Lasu Road<br>Igando, Lagos 100267</p></div>
       </div>
       <div class="hours-grid" style="margin-top:0;">
         <div class="hours-card"><h5>Weekdays</h5><p>Mon – Fri</p><span>8:00am – 7:00pm</span></div>
