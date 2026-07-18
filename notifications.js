@@ -14,7 +14,7 @@ function injectNotificationBell() {
       <i class="fas fa-bell"></i>
       <span id="notifBadge" style="display:none;position:absolute;top:2px;right:2px;width:16px;height:16px;background:#DC2626;border-radius:50%;font-size:.55rem;font-weight:700;color:#fff;display:none;align-items:center;justify-content:center;"></span>
     </button>
-    <div id="notifPanel" style="display:none;position:absolute;top:44px;right:0;width:310px;background:var(--card,#1a1a1a);border:1px solid var(--border2,#2a2a2a);border-radius:10px;box-shadow:0 12px 40px rgba(0,0,0,.4);z-index:999;overflow:hidden;">
+    <div id="notifPanel" style="display:none;position:fixed;top:64px;left:12px;right:12px;max-width:340px;margin-left:auto;background:var(--card,#1a1a1a);border:1px solid var(--border2,#2a2a2a);border-radius:10px;box-shadow:0 12px 40px rgba(0,0,0,.4);z-index:999;overflow:hidden;">
       <div style="padding:12px 16px;border-bottom:1px solid var(--border2,#2a2a2a);display:flex;justify-content:space-between;align-items:center;">
         <span style="font-size:.78rem;font-weight:700;color:var(--text,#eee);">🔔 Updates</span>
         <button onclick="markAllRead()" style="background:transparent;border:none;color:#d4af37;font-size:.68rem;cursor:pointer;width:auto;padding:0;">Mark all read</button>
