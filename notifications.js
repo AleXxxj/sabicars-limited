@@ -117,8 +117,18 @@ function timeAgo(dateStr) {
 // ── SUBSCRIBE POPUP ──
 function initSubscribePopup() {
   if (localStorage.getItem('sabi_subscribed')) return;
+  const dismissed = Number(localStorage.getItem('sabi_subscribe_dismissed') || 0);
+  const cooldownMs = 7 * 24 * 60 * 60 * 1000;
+  if (dismissed && (Date.now() - dismissed) < cooldownMs) return;
+  if (sessionStorage.getItem('sabi_subscribe_shown_session')) return;
+
   let scrollOk = false, timeOk = false;
-  const tryShow = () => { if (scrollOk && timeOk && !localStorage.getItem('sabi_subscribed') && !document.getElementById('subPopup')) showSubscribePopup(); };
+  const tryShow = () => {
+    if (scrollOk && timeOk && !localStorage.getItem('sabi_subscribed') && !document.getElementById('subPopup')) {
+      sessionStorage.setItem('sabi_subscribe_shown_session', '1');
+      showSubscribePopup();
+    }
+  };
   setTimeout(() => { timeOk = true; tryShow(); }, 60000);
   const onScroll = () => {
     const pct = window.scrollY / Math.max(1, document.body.scrollHeight - window.innerHeight);
@@ -155,6 +165,7 @@ function showSubscribePopup() {
 }
 
 function closeSubscribePopup() {
+  localStorage.setItem('sabi_subscribe_dismissed', Date.now().toString());
   const popup = document.getElementById('subPopup');
   if (popup) popup.remove();
 }
