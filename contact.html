@@ -44,56 +44,58 @@
 .cf-msg.error{background:#3a1e1e;color:#ff6b6b;}
 .map-section{padding:0 0 80px;background:var(--bg);}
 .map-wrap{border-radius:12px;overflow:hidden;border:1px solid var(--border2);position:relative;height:420px;box-shadow:0 10px 40px rgba(0,0,0,.2);}
-@media(max-width:560px){.map-wrap{height:280px;}}
-.map-wrap iframe{width:100%;height:100%;border:0;}
-.map-overlay-card{
-    position:absolute;
-    top:22px;
-    right:22px;
-    width:290px;
-    background:rgba(15,15,15,.93);
-    backdrop-filter:blur(14px);
-    border:1px solid rgba(212,175,55,.25);
-    border-radius:18px;
-    padding:22px;
-    z-index:5;
-    box-shadow:0 20px 45px rgba(0,0,0,.35);
-}
-.map-overlay-card h4{
-    color:#fff;
-    font-size:1rem;
-    margin:10px 0;
-}
-.map-overlay-card p{
-    color:#bbb;
-    line-height:1.7;
-    margin-bottom:18px;
-}
-.map-overlay-card .badge{
-    display:inline-block;
-    background:#d4af37;
-    color:#000;
-    font-size:11px;
-    font-weight:700;
-    padding:4px 10px;
-    border-radius:999px;
-}
-.map-overlay-card .direction-btn{
-    display:inline-flex;
-    padding:11px 18px;
-    background:#d4af37;
-    color:#000;
-    text-decoration:none;
-    border-radius:999px;
-    font-weight:700;
-}
-@media(max-width:700px){
-    .map-overlay-card{
-        left:16px;
-        right:16px;
-        top:16px;
-        width:auto;
-    }
+@media (max-width: 768px) {
+
+  .map-wrap{
+      height:320px;
+  }
+
+  .map-overlay-card{
+      position:absolute;
+
+      left:12px;
+      right:12px;
+      bottom:12px;
+
+      top:auto;
+
+      width:auto;
+
+      max-width:none;
+
+      padding:14px;
+
+      border-radius:14px;
+
+      backdrop-filter:blur(10px);
+
+      background:rgba(15,15,15,.90);
+  }
+
+  .map-overlay-card .badge{
+      font-size:10px;
+      padding:3px 8px;
+      margin-bottom:8px;
+  }
+
+  .map-overlay-card h4{
+      font-size:.9rem;
+      margin:6px 0;
+  }
+
+  .map-overlay-card p{
+      font-size:.72rem;
+      line-height:1.45;
+      margin-bottom:12px;
+  }
+
+  .map-overlay-card .direction-btn{
+      width:100%;
+      justify-content:center;
+      padding:10px 14px;
+      font-size:.82rem;
+  }
+
 }
 .map-overlay-card h4{font-size:.85rem;font-weight:700;color:var(--gold);margin-bottom:6px;}
 .map-overlay-card p{font-size:.72rem;color:var(--muted);line-height:1.5;font-weight:300;}
