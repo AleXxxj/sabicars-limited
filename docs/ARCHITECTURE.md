@@ -322,6 +322,9 @@ These block content and go-live, not architecture. Building continues without th
 10. **Address** — the contact page says Km 16, the newsletter template says Km 13. Which is right?
 11. **The logo** — two different marks are in use (the gold "S" monogram in the header; "SABICARS · Elite Auto Dealer" in a gold ring as the app icon). Which is the mark, and are there vector (SVG/PDF) originals? The monogram only exists as a 160px image.
 12. **"Humer" or "Hummer"** — six Hiace listings are named "Humer 1/2/3". The market name is usually spelled "Hummer". Which should be published?
+14. **A professional portrait of Ccristian Dee.** The homepage uses the photo from the current About page (casual, football shirt). For the institutional story, a proper portrait session is worth more than any design change.
+15. **Fleet figures.** The current About page names orders (70 Hiace buses to Hobbys Circle, 60 to House of Chi, 60 Corollas) and the current homepage different ones (13 Highlanders, 3 Lexus GX). Which are accurate, and may clients be named? The new homepage states no figures until confirmed.
+16. **Hero photography.** Of the six vehicles flagged for the homepage hero, the Hiace Humer 2's cover is an interior shot, and the 2022 GLE 350's cover looks like a manufacturer press photo rather than the actual car. Hero vehicles need a daylight exterior three-quarter view.
 13. **The import report** (`web/.data/legacy-import-report.md`) — 26 vehicles need a salesperson's attention: mostly missing descriptions and body types, one price with a stray "Z", one car with a colour in the seats field. Some cover photos are interiors (e.g. the Acura MDX); covers should be an exterior three-quarter view.
 
 ## 9. Cost shape

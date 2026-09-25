@@ -31,7 +31,32 @@
   transform: none;
 }
 
+/*
+ * Hero slides. The slow push-in runs for a slide's whole time on screen
+ * (interval + crossfade) and keeps running while it fades out, so it never
+ * snaps back mid-motion — the flaw the legacy hero had.
+ */
+@keyframes hero-drift {
+  from { transform: scale(1.08) translate3d(0, 0, 0); }
+  to   { transform: scale(1)    translate3d(-1%, 0, 0); }
+}
+[data-slide] {
+  opacity: 0;
+  transition: opacity 1400ms var(--ease-in-out);
+}
+[data-slide="active"] { opacity: 1; }
+[data-slide="active"],
+[data-slide="leaving"] {
+  animation: hero-drift 8600ms var(--ease-out) forwards;
+}
+
+/* The bar under the active slide fills over the slide's time on screen. */
+@keyframes hero-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+[data-progress="running"] { animation: hero-progress var(--hero-interval, 7000ms) linear forwards; }
+
 @media (prefers-reduced-motion: reduce) {
+  [data-slide="active"],
+  [data-slide="leaving"] { animation: none; }
   [data-reveal] {
     opacity: 1;
     transform: none;

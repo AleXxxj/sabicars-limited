@@ -80,6 +80,7 @@ const schema = z.object({
 
 /** Every public page a vehicle change can affect. */
 function refreshPublicPages(slug: string) {
+  revalidatePath("/");
   revalidatePath(`/vehicles/${slug}`);
   revalidatePath("/vehicles");
   revalidatePath("/sitemap.xml");

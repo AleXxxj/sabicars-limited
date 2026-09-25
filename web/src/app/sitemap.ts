@@ -19,6 +19,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const newest = vehicles.reduce((d, v) => (v.updatedAt > d ? v.updatedAt : d), new Date(0));
 
   return [
+    { url: `${base}/`, lastModified: newest, changeFrequency: "daily", priority: 1 },
     { url: `${base}/vehicles`, lastModified: newest, changeFrequency: "daily", priority: 1 },
     ...INVENTORY_SHORTCUTS.map((s) => ({ url: `${base}${s.href}`, lastModified: newest, changeFrequency: "daily" as const, priority: 0.8 })),
     ...vehicles.map((v) => ({

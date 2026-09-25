@@ -2,7 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { and, asc, count, desc, eq, gte, inArray, lte, ne, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
-import { dealers, locations, vehicleMedia, vehicles, type Vehicle, type VehicleMedia } from "@/db/schema";
+import { dealers, locations, settings, vehicleMedia, vehicles, type Vehicle, type VehicleMedia } from "@/db/schema";
 import type { InventoryFilters } from "@/lib/inventory-filters";
 
 /**
@@ -60,6 +60,82 @@ export async function heroVehicles(limit = 8): Promise<VehicleWithCover[]> {
     .orderBy(desc(vehicles.createdAt))
     .limit(limit);
   return withCovers(rows);
+}
+
+/* ── Homepage ──────────────────────────────────────────────────────────── */
+
+/** Figures the homepage states as fact — all live, so none can drift out of date. */
+export async function inventoryStats(): Promise<{ inStock: number; makes: number; fromMinor: number | null }> {
+  const [row] = await db
+    .select({
+      inStock: count(),
+      makes: sql<number>`count(DISTINCT ${vehicles.make})::int`,
+      fromMinor: sql<number | null>`min(${vehicles.priceMinor})`,
+    })
+    .from(vehicles)
+    .where(and(eq(vehicles.dealerId, await sabicarsId()), inArray(vehicles.status, [...LISTED])));
+  return { inStock: row.inStock, makes: row.makes, fromMinor: row.fromMinor === null ? null : Number(row.fromMinor) };
+}
+
+export interface CategoryTile {
+  label: string;
+  href: string;
+  count: number;
+  coverUrl: string | null;
+}
+
+/**
+ * The ways into the inventory, each with a real photograph and a live count.
+ * A category with nothing in stock is left out rather than shown empty.
+ */
+export async function categoryTiles(): Promise<CategoryTile[]> {
+  const dealerId = await sabicarsId();
+  const defs: { label: string; href: string; where: SQL }[] = [
+    { label: "Luxury", href: "/vehicles?segment=luxury", where: eq(vehicles.segment, "luxury") },
+    { label: "SUVs", href: "/vehicles?body=suv", where: eq(vehicles.body, "suv") },
+    { label: "Buses & Hiace", href: "/vehicles?body=bus", where: eq(vehicles.body, "bus") },
+    { label: "Trucks", href: "/vehicles?body=truck", where: eq(vehicles.body, "truck") },
+    { label: "Sedans", href: "/vehicles?body=sedan", where: eq(vehicles.body, "sedan") },
+  ];
+  const candidates = await Promise.all(
+    defs.map(async (d) => {
+      const base = and(eq(vehicles.dealerId, dealerId), inArray(vehicles.status, [...LISTED]), d.where);
+      const [[{ n }], covers] = await Promise.all([
+        db.select({ n: count() }).from(vehicles).where(base),
+        // The best-merchandised vehicles in the category: featured first, then newest.
+        db
+          .select({ vehicleId: vehicles.id, url: vehicleMedia.url })
+          .from(vehicles)
+          .innerJoin(vehicleMedia, and(eq(vehicleMedia.vehicleId, vehicles.id), eq(vehicleMedia.position, 0)))
+          .where(base)
+          .orderBy(desc(vehicles.isFeatured), desc(vehicles.createdAt))
+          .limit(8),
+      ]);
+      return { ...d, count: n, covers };
+    }),
+  );
+
+  // A luxury SUV belongs to both "Luxury" and "SUVs"; two tiles showing the
+  // same car side by side looks careless, so each tile takes the best vehicle
+  // no earlier tile has used.
+  const used = new Set<string>();
+  return candidates
+    .filter((c) => c.count > 0)
+    .map((c) => {
+      const pick = c.covers.find((cv) => !used.has(cv.vehicleId)) ?? c.covers[0];
+      if (pick) used.add(pick.vehicleId);
+      return { label: c.label, href: c.href, count: c.count, coverUrl: pick?.url ?? null };
+    });
+}
+
+/** The homepage hero video, when staff have set one (YouTube link or direct video file). */
+export async function heroVideoUrl(): Promise<string | null> {
+  const [row] = await db
+    .select({ value: settings.value })
+    .from(settings)
+    .where(and(eq(settings.dealerId, await sabicarsId()), eq(settings.key, "hero_video_url")))
+    .limit(1);
+  return typeof row?.value === "string" && row.value.trim() ? row.value.trim() : null;
 }
 
 /* ── Inventory search ──────────────────────────────────────────────────── */
