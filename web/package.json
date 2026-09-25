@@ -1,0 +1,49 @@
+{
+  "name": "sabicars-web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "npm run tokens && npm run check:contrast && npm run test:schema && npm run test:money && next build",
+    "start": "next start",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "tokens": "node scripts/build-tokens.mjs",
+    "check:contrast": "node scripts/check-contrast.mjs",
+    "db:generate": "drizzle-kit generate --config=drizzle.config.ts",
+    "db:local": "node scripts/local-db.mjs",
+    "db:migrate": "node --env-file=.env.local scripts/migrate.mjs",
+    "db:inspect": "node --env-file=.env.local scripts/inspect-db.mjs",
+    "legacy:import": "node --env-file=.env.local --import tsx scripts/import-legacy.mts",
+    "staff:create": "node --env-file=.env.local scripts/create-staff.mjs",
+    "test:schema": "node scripts/verify-schema.mjs",
+    "test:money": "tsx scripts/verify-money.ts",
+    "auth:check": "node --env-file=.env.local scripts/check-auth.mjs"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.12.4",
+    "@supabase/supabase-js": "^2.112.2",
+    "drizzle-orm": "^0.45.2",
+    "next": "16.3.0",
+    "postgres": "^3.4.9",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "server-only": "^0.0.1",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.4",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "drizzle-kit": "^0.31.10",
+    "embedded-postgres": "17.10.0-beta.17",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.0",
+    "mongodb": "^7.6.0",
+    "tailwindcss": "^4",
+    "tsx": "^4.23.11",
+    "typescript": "^5"
+  }
+}

@@ -1,0 +1,144 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   GENERATED FILE — do not edit.
+   Source: src/styles/palette.json · Regenerate: npm run tokens
+   Validated by: npm run check:contrast
+   ───────────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* Sabicars gold. 500 is the brand colour the logo already uses. */
+  --gold-50: #FBF6E9;
+  --gold-100: #F4E9C8;
+  --gold-200: #EAD9A2;
+  --gold-300: #DFC67C;
+  --gold-400: #D4B55F;
+  --gold-500: #C9A84C;
+  --gold-600: #AD8E36;
+  --gold-700: #8A7029;
+  --gold-800: #66521D;
+  --gold-900: #433512;
+
+  /* The hero is photography, and photography needs a dark scrim to carry white
+     type — in either theme. A light wash over a vehicle is what made the old
+     hero look faded, so the hero keeps this treatment regardless of theme. */
+  --hero-scrim: linear-gradient(
+    100deg,
+    rgb(11 10 9 / 0.92) 0%,
+    rgb(11 10 9 / 0.78) 36%,
+    rgb(11 10 9 / 0.38) 66%,
+    rgb(11 10 9 / 0.12) 100%
+  );
+  --hero-scrim-bottom: linear-gradient(to top, rgb(11 10 9 / 0.9) 0%, rgb(11 10 9 / 0) 45%);
+  --hero-text: #F5F2EA;
+  --hero-text-secondary: #CFC8B8;
+}
+
+/* ── Dark theme (default) ────────────────────────────────────────────── */
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --surface-0: #0B0A09;
+  --surface-1: #1F1C19;
+  --surface-2: #2C2824;
+  --surface-3: #38342E;
+  --surface-4: #48433B;
+
+  --text-primary: #F5F2EA;
+  --text-secondary: #CFC8B8;
+  --text-muted: #A39B8B;
+
+  --border-subtle: #221F1B;
+  --border-default: #3A352E;
+  --border-strong: #7A7263;
+
+  --focus: #E4CF8E;
+
+  /* Gold carries the one action that matters on each screen. */
+  --cta-bg: var(--gold-500);
+  --cta-bg-hover: var(--gold-400);
+  --cta-fg: #0B0A09;
+  --accent-text: var(--gold-400);
+  --link: var(--gold-400);
+
+  --success: #5BC794;
+  --warning: #F0B24A;
+  --danger: #FF7A6B;
+  --info: #78BDEB;
+
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.45);
+  --shadow-md: 0 6px 18px rgb(0 0 0 / 0.5);
+  --shadow-lg: 0 24px 60px rgb(0 0 0 / 0.6);
+}
+
+/* ── Light theme ─────────────────────────────────────────────────────── */
+[data-theme="light"] {
+  color-scheme: light;
+
+  --surface-0: #FFFFFF;
+  --surface-1: #F8F6F1;
+  --surface-2: #F0EDE5;
+  --surface-3: #E6E1D5;
+  --surface-4: #D8D2C3;
+
+  --text-primary: #15130F;
+  --text-secondary: #3E3930;
+  --text-muted: #6A6356;
+
+  --border-subtle: #ECE8DF;
+  --border-default: #D7D1C4;
+  --border-strong: #857D6E;
+
+  --focus: #66521D;
+
+  /* Gold text on white fails at body sizes, so on light the action is ink —
+     the convention of the marques — and gold becomes a rule, an icon, a fill. */
+  --cta-bg: #15130F;
+  --cta-bg-hover: #2A2620;
+  --cta-fg: #FFFFFF;
+  --accent-text: var(--gold-800);
+  --link: var(--gold-800);
+
+  --success: #1D6B45;
+  --warning: #855A05;
+  --danger: #B0281C;
+  --info: #135F88;
+
+  --shadow-sm: 0 1px 2px rgb(21 19 15 / 0.06);
+  --shadow-md: 0 6px 18px rgb(21 19 15 / 0.09);
+  --shadow-lg: 0 24px 60px rgb(21 19 15 / 0.14);
+}
+
+/* Expose tokens to Tailwind utilities: bg-surface-1, text-muted, bg-cta … */
+@theme inline {
+  --color-gold-50: var(--gold-50);
+  --color-gold-100: var(--gold-100);
+  --color-gold-200: var(--gold-200);
+  --color-gold-300: var(--gold-300);
+  --color-gold-400: var(--gold-400);
+  --color-gold-500: var(--gold-500);
+  --color-gold-600: var(--gold-600);
+  --color-gold-700: var(--gold-700);
+  --color-gold-800: var(--gold-800);
+  --color-gold-900: var(--gold-900);
+  --color-surface-0: var(--surface-0);
+  --color-surface-1: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-surface-4: var(--surface-4);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-border-subtle: var(--border-subtle);
+  --color-border-default: var(--border-default);
+  --color-border-strong: var(--border-strong);
+  --color-focus: var(--focus);
+  --color-cta: var(--cta-bg);
+  --color-cta-hover: var(--cta-bg-hover);
+  --color-cta-fg: var(--cta-fg);
+  --color-accent-text: var(--accent-text);
+  --color-link: var(--link);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+}

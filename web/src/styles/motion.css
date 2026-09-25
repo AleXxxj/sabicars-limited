@@ -1,0 +1,40 @@
+/*
+ * Motion.
+ *
+ * Luxury moves slowly and rarely. Every transition here uses one of two easing
+ * curves and one of three durations, so the site has a single physical
+ * character instead of a different bounce on every component.
+ */
+
+:root {
+  /* Decelerating: things arrive and settle. Used for almost everything. */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  /* Symmetric: for things that move between two resting states. */
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --duration-fast: 180ms;   /* hover, press, focus */
+  --duration-base: 420ms;   /* panels, menus, cards */
+  --duration-slow: 900ms;   /* reveals, hero, page-level */
+}
+
+/* Content that rises into place as it scrolls into view (see ScrollReveal). */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity var(--duration-slow) var(--ease-out),
+    transform var(--duration-slow) var(--ease-out);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+[data-reveal="in"] {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

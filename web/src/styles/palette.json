@@ -1,0 +1,81 @@
+{
+  "$comment": "Single source of truth for Sabicars colour. Generates tokens.css (npm run tokens) and is validated by scripts/check-contrast.mjs, which fails the build on any illegible pair. Edit here, never in CSS.",
+
+  "gold": {
+    "$comment": "The brand. 500 is the existing Sabicars gold (#C9A84C), kept exact so the logo and the site agree. On dark it is the call to action; on light it is an accent only — gold text on white fails contrast at body sizes.",
+    "50":  "#FBF6E9",
+    "100": "#F4E9C8",
+    "200": "#EAD9A2",
+    "300": "#DFC67C",
+    "400": "#D4B55F",
+    "500": "#C9A84C",
+    "600": "#AD8E36",
+    "700": "#8A7029",
+    "800": "#66521D",
+    "900": "#433512"
+  },
+
+  "darkSurface": {
+    "$comment": "Luminance ladder with a warm undertone, so black reads as lacquer rather than dead grey. Contrast compresses near black, so the steps are wider than they look — validated by the checker, not by eye.",
+    "0": "#0B0A09",
+    "1": "#1F1C19",
+    "2": "#2C2824",
+    "3": "#38342E",
+    "4": "#48433B"
+  },
+
+  "darkText": {
+    "primary":   "#F5F2EA",
+    "secondary": "#CFC8B8",
+    "muted":     "#A39B8B"
+  },
+
+  "darkBorder": {
+    "subtle":  "#221F1B",
+    "default": "#3A352E",
+    "strong":  "#7A7263"
+  },
+
+  "focus": {
+    "$comment": "A dedicated token, never a border colour. Must clear 3:1 on every surface it can land on.",
+    "dark":  "#E4CF8E",
+    "light": "#66521D"
+  },
+
+  "lightSurface": {
+    "0": "#FFFFFF",
+    "1": "#F8F6F1",
+    "2": "#F0EDE5",
+    "3": "#E6E1D5",
+    "4": "#D8D2C3"
+  },
+
+  "lightText": {
+    "primary":   "#15130F",
+    "secondary": "#3E3930",
+    "muted":     "#6A6356"
+  },
+
+  "lightBorder": {
+    "subtle":  "#ECE8DF",
+    "default": "#D7D1C4",
+    "strong":  "#857D6E"
+  },
+
+  "ink": {
+    "$comment": "Light-theme call to action: a near-black button with an ivory label, the convention of luxury marques.",
+    "base":  "#15130F",
+    "hover": "#2A2620"
+  },
+
+  "semantic": {
+    "successDark":  "#5BC794",
+    "warningDark":  "#F0B24A",
+    "dangerDark":   "#FF7A6B",
+    "infoDark":     "#78BDEB",
+    "successLight": "#1D6B45",
+    "warningLight": "#855A05",
+    "dangerLight":  "#B0281C",
+    "infoLight":    "#135F88"
+  }
+}

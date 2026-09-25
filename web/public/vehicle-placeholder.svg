@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="600" viewBox="0 0 900 600">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="46%" r="60%">
+      <stop offset="0" stop-color="#1f1d18"/>
+      <stop offset="1" stop-color="#0c0c0a"/>
+    </radialGradient>
+  </defs>
+  <rect width="900" height="600" fill="url(#glow)"/>
+  <circle cx="450" cy="262" r="58" fill="none" stroke="#C9A84C" stroke-opacity=".55" stroke-width="1.5"/>
+  <circle cx="450" cy="262" r="50" fill="none" stroke="#C9A84C" stroke-opacity=".2" stroke-width="1"/>
+  <text x="450" y="287" text-anchor="middle" font-family="'Cormorant Garamond', Georgia, 'Times New Roman', serif" font-size="68" font-weight="600" fill="#C9A84C">S</text>
+  <text x="450" y="372" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="700" letter-spacing="5" fill="#C9A84C" fill-opacity=".8">PHOTOS COMING SOON</text>
+  <text x="450" y="400" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" letter-spacing="3" fill="#8a8578">SABICARS · VERIFIED STOCK</text>
+</svg>

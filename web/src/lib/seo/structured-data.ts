@@ -1,0 +1,88 @@
+import type { Vehicle, VehicleMedia } from "@/db/schema";
+import { site, siteUrl } from "@/lib/site";
+
+/**
+ * schema.org data that tells search engines a page is a specific car, for sale,
+ * at a price, from a registered dealer — not just a page of text. Only facts
+ * that are recorded are included; an invented field is worse than a missing one.
+ */
+
+const DRIVE: Record<NonNullable<Vehicle["drivetrain"]>, string> = {
+  fwd: "https://schema.org/FrontWheelDriveConfiguration",
+  rwd: "https://schema.org/RearWheelDriveConfiguration",
+  awd: "https://schema.org/AllWheelDriveConfiguration",
+  "4wd": "https://schema.org/FourWheelDriveConfiguration",
+};
+
+const AVAILABILITY: Record<Vehicle["status"], string> = {
+  available: "https://schema.org/InStock",
+  reserved: "https://schema.org/LimitedAvailability",
+  sold: "https://schema.org/SoldOut",
+  draft: "https://schema.org/Discontinued",
+  unlisted: "https://schema.org/Discontinued",
+};
+
+export function dealerJsonLd() {
+  return {
+    "@type": "AutoDealer",
+    "@id": `${siteUrl()}/#dealer`,
+    name: site.legalName,
+    url: siteUrl(),
+    telephone: site.phones[0].e164,
+    email: site.email,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: `${site.address.line1}, ${site.address.line2}`,
+      addressLocality: site.address.city,
+      addressRegion: "Lagos",
+      addressCountry: site.address.country,
+    },
+    sameAs: [site.social.instagram],
+  };
+}
+
+export function vehicleJsonLd(v: Vehicle, media: VehicleMedia[], url: string) {
+  const photos = media.filter((m) => m.kind === "photo").map((m) => m.url);
+  const data: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "Car",
+    name: `${v.year} ${v.make} ${v.model}`,
+    url,
+    brand: { "@type": "Brand", name: v.make },
+    model: v.model,
+    vehicleModelDate: String(v.year),
+    itemCondition: v.condition === "brand_new" ? "https://schema.org/NewCondition" : "https://schema.org/UsedCondition",
+    ...(photos.length && { image: photos }),
+    ...(v.description && { description: v.description }),
+    ...(v.body && { bodyType: v.body }),
+    ...(v.mileageKm && { mileageFromOdometer: { "@type": "QuantitativeValue", value: v.mileageKm, unitCode: "KMT" } }),
+    ...(v.fuel && { fuelType: v.fuel }),
+    ...(v.transmission && { vehicleTransmission: v.transmission }),
+    ...(v.drivetrain && { driveWheelConfiguration: DRIVE[v.drivetrain] }),
+    ...(v.seats && { seatingCapacity: v.seats }),
+    ...(v.exteriorColour && { color: v.exteriorColour }),
+    ...(v.interiorColour && { vehicleInteriorColor: v.interiorColour }),
+    ...(v.engine && { vehicleEngine: { "@type": "EngineSpecification", name: v.engine } }),
+  };
+
+  // An offer only when there is a price to state; "price on request" is not ₦0.
+  if (v.priceMinor) {
+    data.offers = {
+      "@type": "Offer",
+      price: (v.priceMinor / 100).toFixed(0),
+      priceCurrency: "NGN",
+      availability: AVAILABILITY[v.status],
+      url,
+      seller: dealerJsonLd(),
+    };
+  }
+  return data;
+}
+
+/**
+ * JSON.stringify does not escape "<", so a description containing
+ * "</script>" could break out of the tag. Escaping it closes that hole.
+ */
+export function jsonLdScript(data: unknown): string {
+  return JSON.stringify(data).replace(/</g, "\\u003c");
+}

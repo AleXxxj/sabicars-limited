@@ -1,0 +1,94 @@
+@import "tailwindcss";
+@import "../styles/tokens.css";
+@import "../styles/motion.css";
+
+/*
+ * Typography scale.
+ *
+ * Display sizes are fluid between a 360px phone and a wide desktop, so a
+ * headline never wraps into a tower on Android or floats lost on a monitor.
+ * Tight leading on display, generous on body — the contrast between the two is
+ * most of what makes a page feel set rather than typed.
+ */
+@theme inline {
+  --font-display: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  --font-sans: var(--font-archivo), "Archivo", ui-sans-serif, system-ui, sans-serif;
+
+  --text-display-1: clamp(3rem, 1.9rem + 5.2vw, 6.5rem);
+  --text-display-1--line-height: 0.95;
+  --text-display-1--letter-spacing: -0.02em;
+  --text-display-2: clamp(2.4rem, 1.7rem + 3.2vw, 4.5rem);
+  --text-display-2--line-height: 1;
+  --text-display-2--letter-spacing: -0.015em;
+  --text-display-3: clamp(1.9rem, 1.5rem + 1.8vw, 3rem);
+  --text-display-3--line-height: 1.08;
+  --text-display-3--letter-spacing: -0.01em;
+}
+
+/* Wide, uppercase, tracked — the label voice. */
+@utility eyebrow {
+  font-family: var(--font-sans);
+  font-stretch: 125%;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+
+/* Numbers that must line up: prices, mileage, specifications. */
+@utility figures {
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    /* The canvas behind the page when a phone overscrolls past the end. */
+    background-color: var(--surface-0);
+  }
+
+  body {
+    background: var(--surface-0);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* One focus style, using the dedicated token proven at 3:1 on every surface. */
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  ::selection {
+    background: var(--gold-500);
+    color: var(--surface-0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
