@@ -178,6 +178,22 @@ export function shapeFromModel(model: string): Body | null {
   return MODEL_SHAPES.find(([pattern]) => pattern.test(model))?.[1] ?? null;
 }
 
+/**
+ * Covers chosen by eye where the legacy listing led with an interior or a
+ * detail shot (26 Sep 2026): the first photo is what a buyer, a link preview
+ * and Google Images see. Keyed by legacy id; the photo must still be one of
+ * the listing's own, or the correction is skipped and reported. After
+ * cutover, staff set covers in the admin and this list retires.
+ */
+const COVER_CORRECTIONS: Record<string, string> = {
+  "6a373d6a5fe9bc3f3a25d2ce": "https://res.cloudinary.com/dbmtqpex2/image/upload/v1782005097/sabicars/bqvwqfxh1bzvfwfzgmyj.jpg", // 2019 Toyota Hiace Hummer 2
+  "6ab41015e1211fc294237cf6": "https://res.cloudinary.com/dbmtqpex2/image/upload/v1790185491/sabicars/x4uotw9pdeeaaiy4khgi.jpg", // 2011 Acura MDX
+  "6a5e6c7c56bd5d2643f115f4": "https://res.cloudinary.com/dbmtqpex2/image/upload/v1784573169/sabicars/m0httpcnkxdkdwqlwcni.jpg", // 2018 Toyota Highlander XLE
+  "6ab1300cf497efd738cca05e": "https://res.cloudinary.com/dbmtqpex2/image/upload/v1789997067/sabicars/em2bpcwp5puoq3dqe3g1.jpg", // 2018 Toyota Highlander XLE (second)
+  "6a523d0ad049d1f4387d8b8e": "https://res.cloudinary.com/dbmtqpex2/image/upload/v1784574375/sabicars/by8bhugvtmazmhgj4o3e.jpg", // 2022 Lexus RX 350 F Sport
+  "6a373c015fe9bc3f3a25d2cd": "https://res.cloudinary.com/dbmtqpex2/image/upload/v1782004737/sabicars/olwmlziv3j9fjbhuudyq.jpg", // 2024 Mercedes-Benz AMG G-Class
+};
+
 /** "31,000,000Z" -> kobo, with a warning about the Z. No digits at all -> price on request. */
 export function parseNaira(raw: unknown, warnings: string[]): number | null {
   const text = tidy(String(raw ?? ""));
@@ -204,10 +220,13 @@ export function normaliseLegacyCar(car: LegacyCar): Normalised {
 
   const split = splitMake(car.make ?? "", car.model ?? "", fixes, warnings);
   const make = split.make;
-  const model = tidyModel(make, split.model);
+  let model = tidyModel(make, split.model);
   if (model !== split.model) fixes.push(`Model "${split.model}" written as "${model}".`);
+  // The owner chose the spelling buyers search for (26 Sep 2026): "Hummer".
   if (/\bhumer\b/i.test(model)) {
-    warnings.push(`Model "${model}" — the market name is usually spelled "Hummer"; confirm which Sabicars wants published.`);
+    const searched = model.replace(/\bhumer\b/gi, "Hummer");
+    fixes.push(`Model "${model}" written as "${searched}" — the spelling buyers search for.`);
+    model = searched;
   }
   if (/\b(old model|short|long)\b/i.test(model) && model.split(" ").length > 3) {
     warnings.push(`Model "${model}" reads like a description — give it a model name and move the rest to the description.`);
@@ -296,7 +315,16 @@ export function normaliseLegacyCar(car: LegacyCar): Normalised {
 
   const features = [...new Set((car.features ?? []).map(tidy).filter(Boolean))];
 
-  const images = (car.images ?? []).map(tidy).filter(Boolean).map((u) => u.replace(/^http:\/\//, "https://"));
+  let images = (car.images ?? []).map(tidy).filter(Boolean).map((u) => u.replace(/^http:\/\//, "https://"));
+  const cover = COVER_CORRECTIONS[String(car._id)];
+  if (cover && images[0] !== cover) {
+    if (images.includes(cover)) {
+      images = [cover, ...images.filter((u) => u !== cover)];
+      fixes.push(`Cover changed to an exterior photo (the listing led with an interior or detail shot).`);
+    } else {
+      warnings.push(`Cover correction skipped — the chosen photo is no longer in this listing.`);
+    }
+  }
   if (!images.length) warnings.push(`No photos — the listing will show the "photos coming soon" card.`);
 
   const priceMinor = parseNaira(car.price, warnings);

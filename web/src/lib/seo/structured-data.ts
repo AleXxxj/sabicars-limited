@@ -41,6 +41,9 @@ export function dealerJsonLd() {
     openingHours: site.hours.map((h) => h.schema),
     hasMap: site.mapsUrl,
     sameAs: [site.social.instagram],
+    logo: `${siteUrl()}/brand/icon-512.png`,
+    image: `${siteUrl()}/opengraph-image.png`,
+    priceRange: "₦₦₦",
   };
 }
 
@@ -48,9 +51,13 @@ export function vehicleJsonLd(v: Vehicle, media: VehicleMedia[], url: string) {
   const photos = media.filter((m) => m.kind === "photo").map((m) => m.url);
   const data: Record<string, unknown> = {
     "@context": "https://schema.org",
-    "@type": "Car",
+    // A Car is a Product in schema.org; naming both makes the listing eligible
+    // for product results (price and availability shown in Google) as well as
+    // being read as a vehicle.
+    "@type": ["Product", "Car"],
     name: `${v.year} ${v.make} ${v.model}`,
     url,
+    sku: v.slug,
     brand: { "@type": "Brand", name: v.make },
     model: v.model,
     vehicleModelDate: String(v.year),
@@ -75,11 +82,32 @@ export function vehicleJsonLd(v: Vehicle, media: VehicleMedia[], url: string) {
       price: (v.priceMinor / 100).toFixed(0),
       priceCurrency: "NGN",
       availability: AVAILABILITY[v.status],
+      itemCondition: data.itemCondition,
       url,
       seller: dealerJsonLd(),
     };
   }
   return data;
+}
+
+/** The trail search engines show above a result: Home › Toyota › Highlander › this car. */
+export function breadcrumbJsonLd(trail: { name: string; path: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: trail.map((t, i) => ({ "@type": "ListItem", position: i + 1, name: t.name, item: `${siteUrl()}${t.path}` })),
+  };
+}
+
+/** A page of vehicles, as a list search engines can read car by car. */
+export function itemListJsonLd(name: string, items: { name: string; path: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name,
+    numberOfItems: items.length,
+    itemListElement: items.map((it, i) => ({ "@type": "ListItem", position: i + 1, name: it.name, url: `${siteUrl()}${it.path}` })),
+  };
 }
 
 /**

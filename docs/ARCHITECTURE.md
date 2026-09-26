@@ -356,6 +356,17 @@ and navigation are to understand. What changed, site-wide:
   finances 60%): finder, four steps, a worked example on a real car,
   straight answers, and an application recorded as a Drive Plan lead.
 
+### Search visibility (2026-09-26)
+
+The owner's aim: the inventory everywhere a related search happens. Built, taking effect once the platform is live and crawled:
+
+- **A landing page per make and model family** with stock (`/buy/toyota-highlander`, `/buy/lexus-rx-350`, `/buy/toyota` …), generated from the inventory: live count, price from, 40% deposit, cars, a Sourcing Desk prompt, related models, breadcrumbs and an ItemList. A family that sells out keeps its page, noindexed, off the sitemap. The Hiace Hummer family redirects to /hummer-bus.
+- **Image sitemap:** every vehicle entry lists all its photos (~380), as large colour-corrected JPEGs, so Google Images indexes the stock; photo alt text reads "… for sale in Lagos".
+- **Structured data:** vehicles are `["Product","Car"]` with offers (price, availability, condition), sku and all images; BreadcrumbList on vehicle and landing pages; the AutoDealer carries logo, image and price range.
+- Vehicle titles read "… for sale in Lagos"; a "Popular searches" row in the footer links the busiest model pages from every page.
+
+Needs the business, not code: verify the domain in Google Search Console and submit the sitemap at launch; claim and fill the Google Business Profile for the showroom (photos, hours, link); add the site to every social bio; and consider automatic posting of new arrivals to Instagram/Facebook (Meta business account).
+
 ### What Sabicars has that Adedayo does not
 
 Consignment and custody (§2.2), youth scout and creator programmes on top of
@@ -383,7 +394,7 @@ These block content and go-live, not architecture. Building continues without th
 9. **Email address** — `info@sabicars.ng` is printed 17 times on the live site, but `sabicars.ng` has no mail server (no MX record), so every email sent to it is lost. `sabicars.com` does receive mail (Google Workspace). The platform uses `info@sabicars.com`; the live site should be corrected now.
 10. **Address** — the contact page says Km 16, the newsletter template says Km 13. Which is right?
 11. **The logo** — two different marks are in use (the gold "S" monogram in the header; "SABICARS · Elite Auto Dealer" in a gold ring as the app icon). Which is the mark, and are there vector (SVG/PDF) originals? The monogram only exists as a 160px image.
-12. **"Humer" or "Hummer"** — six Hiace listings are named "Humer 1/2/3". The public pages use "Hummer" (how the market searches), with "Humer" in the page description so both spellings find it; listing names are left as staff typed them. The owner asked (2026-09-26) for the Hummer bus to be a focus: /hummer-bus and a homepage signature section are built. **The 2019 Hiace Humer 2's cover photo is an interior** — as the newest Hummer it leads the signature section; change its cover to an exterior in the admin.
+12. **"Humer" or "Hummer"** — *Answered 2026-09-26:* "Hummer", the spelling buyers search for. The importer rewrites "Humer" in model names (logged in the import report) and "Humer" stays in the Hummer page's search description. Local slugs were aligned to what a fresh production import generates (`…-hiace-hummer-2`). Six interior or detail covers (including the 2019 Hiace Hummer 2) are corrected on every import by `COVER_CORRECTIONS` in `web/src/lib/legacy/normalise.ts` until staff own covers in the admin after cutover. The 2011 Camry has only one photo, an interior: it needs photographing.
 14. **A professional portrait of Ccristian Dee.** The homepage uses the photo from the current About page (casual, football shirt). For the institutional story, a proper portrait session is worth more than any design change.
 15. **Fleet figures.** The current About page names orders (70 Hiace buses to Hobbys Circle, 60 to House of Chi, 60 Corollas) and the current homepage different ones (13 Highlanders, 3 Lexus GX). Which are accurate, and may clients be named? The new homepage states no figures until confirmed.
 16. **Hero photography.** Of the six vehicles flagged for the homepage hero, the Hiace Humer 2's cover is an interior shot, and the 2022 GLE 350's cover looks like a manufacturer press photo rather than the actual car. Hero vehicles need a daylight exterior three-quarter view.

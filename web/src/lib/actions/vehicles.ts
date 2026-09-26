@@ -98,6 +98,8 @@ function refreshPublicPages(slug: string) {
   revalidatePath("/fleet"); // cover photo comes from the bus stock
   revalidatePath("/partners"); // commission examples use real prices
   revalidatePath("/drive-plan"); // the finder and the worked example use live stock
+  revalidatePath("/hummer-bus");
+  revalidatePath("/buy/[term]", "page"); // every make and model landing page
   revalidatePath("/sitemap.xml");
   revalidatePath("/admin/vehicles");
 }
@@ -270,7 +272,7 @@ export async function recordPhoto(vehicleId: string, asset: UploadedAsset): Prom
     position,
     width: asset.width ?? null,
     height: asset.height ?? null,
-    alt: `${v.year} ${v.make} ${v.model}${position ? ` — photo ${position + 1}` : ""}`,
+    alt: `${v.year} ${v.make} ${v.model} for sale in Lagos${position ? ` — photo ${position + 1}` : ""}`,
   });
   await audit(me, "vehicle", vehicleId, "photo_added", { publicId: asset.public_id });
   refreshPublicPages(v.slug);

@@ -2,6 +2,8 @@ import Link from "next/link";
 import { Logo } from "@/components/Logo";
 import { Address } from "@/components/site/Address";
 import { INVENTORY_SHORTCUTS, PRIMARY_NAV } from "@/lib/navigation";
+import { searchTerms } from "@/lib/repositories/vehicles";
+import { termHref } from "@/lib/seo/search-terms";
 import { site, whatsappLink } from "@/lib/site";
 
 function Column({ title, children }: { title: string; children: React.ReactNode }) {
@@ -20,8 +22,10 @@ const link = "text-text-secondary transition-colors hover:text-text-primary";
  * every way to reach Sabicars — including WhatsApp, once, as one channel among
  * several rather than the only door.
  */
-export function SiteFooter() {
+export async function SiteFooter() {
   const year = new Date().getFullYear();
+  // The models people search for most that are in stock now: a link to each from every page.
+  const popular = (await searchTerms()).filter((t) => t.family && t.inStock > 0).slice(0, 12);
   return (
     <footer className="relative border-t border-white/[0.06] bg-[linear-gradient(180deg,var(--surface-1),var(--surface-0))]">
       <div className="mx-auto grid max-w-7xl gap-12 px-5 py-16 md:grid-cols-2 md:px-10 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr]">
@@ -96,6 +100,21 @@ export function SiteFooter() {
           </li>
         </Column>
       </div>
+
+      {popular.length > 0 && (
+        <nav aria-label="Popular searches" className="mx-auto max-w-7xl px-5 pb-10 md:px-10">
+          <p className="text-sm font-semibold text-text-primary">Popular searches</p>
+          <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm">
+            {popular.map((t) => (
+              <li key={t.slug}>
+                <Link href={termHref(t.slug)} className={link}>
+                  {t.label} for sale in Lagos
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )}
 
       <div className="border-t border-border-subtle">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-4 text-xs text-text-muted md:px-10">

@@ -11,7 +11,8 @@ import { WatchForm } from "@/components/saved/WatchForm";
 import { Gallery } from "@/components/vehicle/Gallery";
 import { listedVehicleSlugs, similarVehicles, vehicleBySlug } from "@/lib/repositories/vehicles";
 import { shareImageUrl } from "@/lib/media";
-import { dealerJsonLd, jsonLdScript, vehicleJsonLd } from "@/lib/seo/structured-data";
+import { breadcrumbJsonLd, dealerJsonLd, jsonLdScript, vehicleJsonLd } from "@/lib/seo/structured-data";
+import { modelFamily, termFor, termHref } from "@/lib/seo/search-terms";
 import { site, siteUrl, whatsappLink } from "@/lib/site";
 import { drivePlanBalance, drivePlanDeposit, priceLabel, specLine, specRows, vehicleTitle } from "@/lib/vehicle";
 
@@ -42,7 +43,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .filter(Boolean)
     .join(" ");
   return {
-    title,
+    title: `${title} for sale in Lagos`,
     description,
     alternates: { canonical: `/vehicles/${v.slug}` },
     // A sold car keeps its page for anyone holding the link, but is not offered
@@ -75,7 +76,16 @@ export default async function VehiclePage({ params }: Props) {
 
   const title = vehicleTitle(v);
   const url = `${siteUrl()}/vehicles/${v.slug}`;
-  const photos = media.filter((m) => m.kind === "photo").map((m) => ({ url: m.url, alt: m.alt ?? title }));
+  // Alt text is what Google Images reads: the car, "for sale in Lagos", and which photo.
+  const photos = media.filter((m) => m.kind === "photo").map((m, i) => ({ url: m.url, alt: `${title} for sale in Lagos${i ? ` — photo ${i + 1}` : ""}` }));
+  const makeTerm = termFor(v.make, null);
+  const familyTerm = termFor(v.make, modelFamily(v.make, v.model));
+  const trail = [
+    { name: "Inventory", path: "/vehicles" },
+    { name: v.make, path: termHref(makeTerm.slug) },
+    { name: familyTerm.family!, path: termHref(familyTerm.slug) },
+    { name: title, path: `/vehicles/${v.slug}` },
+  ];
   const specs = specRows(v);
   const deposit = drivePlanDeposit(v);
   const balance = drivePlanBalance(v);
@@ -86,24 +96,27 @@ export default async function VehiclePage({ params }: Props) {
     <article className="pb-24 lg:pb-0">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: jsonLdScript(vehicleJsonLd(v, media, url)) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScript([vehicleJsonLd(v, media, url), breadcrumbJsonLd([{ name: "Home", path: "/" }, ...trail])]) }}
       />
 
       <div className="mx-auto max-w-7xl px-5 pt-6 md:px-10 md:pt-10">
-        <nav aria-label="Breadcrumb" className="text-sm text-text-muted">
-          <Link href="/vehicles" className="hover:text-text-primary">
-            Inventory
-          </Link>
-          <span aria-hidden className="px-2">
-            /
-          </span>
-          <Link href={`/vehicles?make=${encodeURIComponent(v.make)}`} className="hover:text-text-primary">
-            {v.make}
-          </Link>
-          <span aria-hidden className="px-2">
-            /
-          </span>
-          <span className="text-text-secondary">{v.model}</span>
+        <nav aria-label="Breadcrumb">
+          <ol className="flex flex-wrap items-center gap-x-2 text-sm text-text-muted">
+            {trail.map((t, i) => (
+              <li key={t.path} className="flex items-center gap-2">
+                {i > 0 && <span aria-hidden>›</span>}
+                {i === trail.length - 1 ? (
+                  <span aria-current="page" className="text-text-secondary">
+                    {v.model}
+                  </span>
+                ) : (
+                  <Link href={t.path} className="hover:text-text-primary">
+                    {t.name}
+                  </Link>
+                )}
+              </li>
+            ))}
+          </ol>
         </nav>
 
         {/* minmax(0, …) on every column: a grid track otherwise grows to its

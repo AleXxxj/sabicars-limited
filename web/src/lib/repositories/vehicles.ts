@@ -5,6 +5,7 @@ import { db } from "@/db";
 import { dealers, locations, settings, vehicleMedia, vehicles, type Vehicle, type VehicleMedia } from "@/db/schema";
 import { CAR_BODIES, type InventoryFilters } from "@/lib/inventory-filters";
 import { wantWords } from "@/lib/matching";
+import { modelFamily, termFor, type Term } from "@/lib/seo/search-terms";
 import { vehicleTitle } from "@/lib/vehicle";
 
 /**
@@ -112,7 +113,7 @@ export interface CategoryTile {
  */
 const CURATED_COVERS: Partial<Record<CategoryTile["key"], { slug: string; position: number }>> = {
   cars: { slug: "2010-lexus-is-250-awd", position: 0 },
-  buses: { slug: "2016-toyota-hiace-humer-3", position: 1 },
+  buses: { slug: "2016-toyota-hiace-hummer-3", position: 1 },
   trucks: { slug: "2000-volvo-fl7", position: 3 },
 };
 
@@ -127,7 +128,7 @@ export async function categoryTiles(): Promise<CategoryTile[]> {
   const defs: { key: CategoryTile["key"]; label: string; href: string; where: SQL; prefer?: SQL }[] = [
     { key: "cars", label: "Cars", href: "/vehicles?body=car", where: inArray(vehicles.body, [...CAR_BODIES]) },
     { key: "suvs", label: "SUVs", href: "/vehicles?body=suv", where: eq(vehicles.body, "suv") },
-    { key: "buses", label: "Buses & Humer", href: "/vehicles?body=bus", where: eq(vehicles.body, "bus"), prefer: isHummer },
+    { key: "buses", label: "Buses & Hummer", href: "/vehicles?body=bus", where: eq(vehicles.body, "bus"), prefer: isHummer },
     { key: "trucks", label: "Trucks", href: "/vehicles?body=truck", where: eq(vehicles.body, "truck") },
   ];
   const candidates = await Promise.all(
@@ -243,6 +244,65 @@ export async function vehiclesBySlugs(slugs: string[]): Promise<VehicleWithCover
     .where(and(eq(vehicles.dealerId, await sabicarsId()), inArray(vehicles.slug, slugs), inArray(vehicles.status, [...HAS_PAGE])));
   const order = new Map(slugs.map((s, i) => [s, i]));
   return withCovers(rows.sort((a, b) => (order.get(a.slug) ?? 0) - (order.get(b.slug) ?? 0)));
+}
+
+/* ── Search landing pages ─────────────────────────────────────────────── */
+
+export interface TermStock extends Term {
+  inStock: number;
+  fromMinor: number | null;
+}
+
+/**
+ * Every make and model family Sabicars has sold or is selling, with what is in
+ * stock now. A family that sells out keeps its page (people still search for
+ * it, and the Sourcing Desk can take the request) but leaves the sitemap.
+ */
+export const searchTerms = cache(async (): Promise<TermStock[]> => {
+  const rows = await db
+    .select({ make: vehicles.make, model: vehicles.model, status: vehicles.status, priceMinor: vehicles.priceMinor })
+    .from(vehicles)
+    .where(and(eq(vehicles.dealerId, await sabicarsId()), inArray(vehicles.status, [...HAS_PAGE])));
+  const terms = new Map<string, TermStock>();
+  for (const r of rows) {
+    for (const t of [termFor(r.make, null), termFor(r.make, modelFamily(r.make, r.model))]) {
+      const entry = terms.get(t.slug) ?? { ...t, inStock: 0, fromMinor: null };
+      if (r.status !== "sold") {
+        entry.inStock++;
+        if (r.priceMinor && (entry.fromMinor === null || r.priceMinor < entry.fromMinor)) entry.fromMinor = r.priceMinor;
+      }
+      terms.set(t.slug, entry);
+    }
+  }
+  return [...terms.values()].sort((a, b) => b.inStock - a.inStock || a.label.localeCompare(b.label));
+});
+
+/** The listed vehicles a search term covers, newest first. */
+export async function vehiclesForTerm(term: Term): Promise<VehicleWithCover[]> {
+  const rows = await db
+    .select()
+    .from(vehicles)
+    .where(and(eq(vehicles.dealerId, await sabicarsId()), inArray(vehicles.status, [...LISTED]), eq(vehicles.make, term.make)))
+    .orderBy(desc(vehicles.isFeatured), desc(vehicles.year), asc(vehicles.priceMinor));
+  const matching = term.family ? rows.filter((v) => modelFamily(v.make, v.model) === term.family) : rows;
+  return withCovers(matching);
+}
+
+/** Every listed vehicle with all its photographs, for the sitemap (Google Images reads them from there). */
+export async function sitemapVehicles(): Promise<{ slug: string; updatedAt: Date; photos: string[] }[]> {
+  const rows = await db
+    .select({ slug: vehicles.slug, updatedAt: vehicles.updatedAt, url: vehicleMedia.url, position: vehicleMedia.position })
+    .from(vehicles)
+    .leftJoin(vehicleMedia, and(eq(vehicleMedia.vehicleId, vehicles.id), eq(vehicleMedia.kind, "photo")))
+    .where(and(eq(vehicles.dealerId, await sabicarsId()), inArray(vehicles.status, [...LISTED])))
+    .orderBy(vehicles.slug, vehicleMedia.position);
+  const bySlug = new Map<string, { slug: string; updatedAt: Date; photos: string[] }>();
+  for (const r of rows) {
+    const entry = bySlug.get(r.slug) ?? { slug: r.slug, updatedAt: r.updatedAt, photos: [] };
+    if (r.url) entry.photos.push(r.url);
+    bySlug.set(r.slug, entry);
+  }
+  return [...bySlug.values()];
 }
 
 /** What the Drive Plan button needs about a vehicle a buyer can still buy. */

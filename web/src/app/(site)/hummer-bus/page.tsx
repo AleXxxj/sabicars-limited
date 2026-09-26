@@ -30,7 +30,7 @@ const WHY = [
  * Its one job: be the page Nigeria finds when it searches for a Hummer bus,
  * and turn that search into a viewing, a Drive Plan application or a fleet
  * quotation. The name is spelt the way the market searches ("Hummer"), with
- * the "Humer" of some listings covered in the description.
+ * "Humer" (how some listings were typed) kept in the description.
  */
 export default async function HummerBusPage() {
   const buses = await hummerBuses();
