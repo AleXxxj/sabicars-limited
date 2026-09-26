@@ -6,6 +6,7 @@ import { PRIMARY_NAV } from "@/lib/navigation";
 import { site } from "@/lib/site";
 import { MobileMenu } from "./MobileMenu";
 import { NavLink } from "./NavLink";
+import { NotificationBell } from "./NotificationBell";
 
 /**
  * The name, the sections, one action. No phone strip, no row of WhatsApp
@@ -26,6 +27,7 @@ export function SiteHeader() {
           ))}
         </nav>
         <div className="flex items-center gap-2">
+          <NotificationBell />
           <SavedLink className="!size-10 sm:!size-11" />
           <ButtonLink href="/vehicles" className="!hidden !min-h-11 !px-5 !text-[0.9rem] xl:!inline-flex">
             Browse cars

@@ -1,12 +1,15 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { Star } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { FieldError, fieldClass, Label, SpamGuard } from "@/components/forms/shared";
 import { submitBuyerReview, submitReview } from "@/lib/actions/reviews";
 
 const WORDS = ["", "Poor", "Fair", "Good", "Very good", "Excellent"];
+
+/** Set once this browser has left a review, so it is not asked again. */
+export const REVIEWED_KEY = "sabicars:reviewed";
 
 /** Five stars as a radio group: arrow keys move between them, and each says what it means. */
 function StarInput({ defaultValue, error }: { defaultValue?: number; error?: string }) {
@@ -62,6 +65,12 @@ export function ReviewForm({ token, defaultName, onDone }: { token?: string; def
   const [state, action, pending] = useActionState(token ? submitBuyerReview : submitReview, null);
   const v = state?.values ?? {};
   const err = state?.fieldErrors ?? {};
+  useEffect(() => {
+    if (!state?.ok) return;
+    try {
+      localStorage.setItem(REVIEWED_KEY, "1");
+    } catch {}
+  }, [state]);
 
   if (state?.ok) {
     return (

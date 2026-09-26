@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { VehicleCard } from "@/components/VehicleCard";
 import { AutoSubmitForm } from "@/components/inventory/AutoSubmitForm";
-import { searchInventory } from "@/lib/repositories/vehicles";
+import { RecentlyViewed } from "@/components/saved/RecentlyViewed";
+import { recentlySold, searchInventory } from "@/lib/repositories/vehicles";
 import {
   CAR_BODIES,
   customPriceLabel,
@@ -61,7 +62,7 @@ function Chip({ href, active, children }: { href: string; active: boolean; child
 
 export default async function InventoryPage({ searchParams }: Props) {
   const f = parseFilters(await searchParams);
-  const result = await searchInventory(f);
+  const [result, sold] = await Promise.all([searchInventory(f), recentlySold()]);
   const cars = result.bodies.filter((b) => (CAR_BODIES as readonly string[]).includes(b.body)).reduce((n, b) => n + b.count, 0);
 
   return (
@@ -202,6 +203,25 @@ export default async function InventoryPage({ searchParams }: Props) {
               <span />
             )}
           </nav>
+        )}
+
+        <RecentlyViewed className="mt-20 border-t border-border-subtle pt-14" />
+
+        {sold.length > 0 && (
+          <section aria-labelledby="recently-sold" className="mt-20 border-t border-border-subtle pt-14">
+            <p id="recently-sold" className="kicker">
+              Recently sold
+            </p>
+            <h2 className="mt-3 text-display-3">Vehicles that found new homes.</h2>
+            <p className="mt-3 max-w-xl text-text-secondary">
+              Missed one? Put it on the Sourcing Desk and hear the moment a similar one arrives.
+            </p>
+            <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+              {sold.map((v) => (
+                <VehicleCard key={v.id} vehicle={v} href={`/vehicles/${v.slug}`} />
+              ))}
+            </div>
+          </section>
         )}
       </section>
     </>

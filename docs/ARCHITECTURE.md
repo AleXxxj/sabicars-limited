@@ -380,6 +380,22 @@ One rule: no buyer waits. Built:
 
 At cutover: set `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` and `CRON_SECRET` in Vercel (generate fresh keys for production), and give the sweep a timer. Vercel Pro can call `/api/cron/escalate` every 5 minutes via `vercel.json`. On the Hobby plan, which allows only a daily cron, use a free external scheduler such as cron-job.org with the secret as a Bearer token. Without a timer, escalation still runs whenever an enquiry arrives or someone opens the inbox.
 
+### Parity with the live site — reviews, newsletter, notifications (2026-09-26)
+
+The owner asked, rightly, where the live site's reviews, subscribe button, notification bell and push had gone. None may be lost at cutover. Built:
+
+- **Reviews.** The 7 real reviews carry over as published. The three testimonials hard-coded into the old homepage and About page are **not** carried over: the owner confirmed they are not real customers. New reviews wait for a manager (publish anything genuine, including critical reviews; hide spam and abuse), and managers are alerted. Marking an enquiry **Bought** issues the buyer a private link. A review left through it shows as **Verified buyer** with the vehicle, the only verification the page claims. The section sits on the homepage and About page as a slow ticker. It pauses on hover and becomes a swipeable row when reduced motion is on.
+- **Newsletter.** There is a subscribe band in the footer of every page and one prompt (below). Existing subscribers carry over. Every **Friday at 9am** the week's new arrivals go out automatically; a week with none sends nothing. Managers can send a broadcast from **Admin → Audience**, which also previews this Friday's email. Every email carries a one-click unsubscribe, both a page and RFC 8058 from the mail app. The old newsletter had none.
+- **Notification bell and push.** The bell is in the header on every page and shows the latest 20 posts. **Nobody types "New arrival" any more.** Listing a car, or its first photo on a listed car, posts it once. So does a price cut on a listed car. Each post is pushed through the **same OneSignal account** the old site uses, with the same `OneSignalSDKWorker.js` at the same address, so existing subscribers keep receiving alerts without opting in again. Managers can post offers by hand. The 32 old posts carry over, linked to their cars' new pages.
+- **One prompt per visit**, instead of the old site's four popups (newsletter, review, OneSignal, install). It appears after 25 seconds plus a second page or some reading, in this order: subscribe, phone alerts, add to home screen (Android's install prompt, or the iPhone Share hint), then — from the third visit — a review. Each is skipped once done and rests after "Not now".
+- Also restored: **recently viewed** (on the device; on the inventory and every car page), **recently sold** (last 90 days; hidden while there are none), and the **any-price calculator** on /drive-plan. The calculator shows the 40% and Autochek's 60% for any price or car. It shows no monthly figure, because Autochek sets the terms.
+
+At cutover, set in Vercel:
+- `NEXT_PUBLIC_ONESIGNAL_APP_ID` (the old site's app, `6f283e9c-…`) and `ONESIGNAL_REST_API_KEY` (from the OneSignal dashboard; the owner has access)
+- `RESEND_API_KEY`, `RESEND_FROM_EMAIL` and `RESEND_FROM_NAME`, with the sabicars.com domain verified in Resend
+
+Schedule `/api/cron/digest` for Fridays at 08:00 UTC; a weekly schedule is allowed on the Hobby plan. Still to restore with the blog: "Latest from the blog" on the homepage. "Recent deliveries" waits for confirmed deliveries and photos (item 5).
+
 ### What Sabicars has that Adedayo does not
 
 Consignment and custody (§2.2), youth scout and creator programmes on top of
@@ -403,7 +419,7 @@ These block content and go-live, not architecture. Building continues without th
 5. **Real delivery photos** — the Highlander, Lexus and Hummer supplies, including the LCDA order.
 6. **Which claims are true** — "500+ vehicles sold", "8 years", "36 states", "warranty on every car". Unverifiable claims are a liability, and an institution only publishes what it can stand behind.
 7. **Accounts** (created by the business; credentials never pass through a developer's chat): Vercel, Supabase, Paystack business account, Anthropic API key, Resend domain verification for sabicars.com.
-8. **Push notifications** — keep OneSignal (preserves today's subscribers) or move to built-in push like Adedayo (subscribers would need to opt in again).
+8. **Push notifications** — *Answered 2026-09-26:* keep OneSignal for customers. The owner has access, and every existing subscriber is kept. Staff alerts use built-in Web Push (Phase 3).
 9. **Email address** — `info@sabicars.ng` is printed 17 times on the live site, but `sabicars.ng` has no mail server (no MX record), so every email sent to it is lost. `sabicars.com` does receive mail (Google Workspace). The platform uses `info@sabicars.com`; the live site should be corrected now.
 10. **Address** — the contact page says Km 16, the newsletter template says Km 13. Which is right?
 11. **The logo** — two different marks are in use (the gold "S" monogram in the header; "SABICARS · Elite Auto Dealer" in a gold ring as the app icon). Which is the mark, and are there vector (SVG/PDF) originals? The monogram only exists as a 160px image.

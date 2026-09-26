@@ -8,6 +8,7 @@ import { EnquiryForm } from "@/components/vehicle/EnquiryForm";
 import { DrivePlanApply } from "@/components/vehicle/DrivePlanApply";
 import { SaveButton } from "@/components/saved/SaveButton";
 import { WatchForm } from "@/components/saved/WatchForm";
+import { RecentlyViewed, RecordView } from "@/components/saved/RecentlyViewed";
 import { Gallery } from "@/components/vehicle/Gallery";
 import { listedVehicleSlugs, similarVehicles, vehicleBySlug } from "@/lib/repositories/vehicles";
 import { shareImageUrl } from "@/lib/media";
@@ -145,7 +146,7 @@ export default async function VehiclePage({ params }: Props) {
             </div>
 
             {deposit && balance && !sold && (
-              <div className="surface-card relative mt-6 overflow-hidden p-6">
+              <div id="drive-plan" className="surface-card relative mt-6 scroll-mt-24 overflow-hidden p-6">
                 <div aria-hidden className="pointer-events-none absolute -right-16 -top-16 size-48 rounded-full bg-gold-500/12 blur-3xl" />
                 <p className="kicker">40% Drive Plan</p>
                 <dl className="mt-4 grid grid-cols-2 gap-4">
@@ -292,6 +293,9 @@ export default async function VehiclePage({ params }: Props) {
             </div>
           </section>
         )}
+
+        <RecordView slug={v.slug} />
+        <RecentlyViewed exclude={v.slug} className="mx-auto max-w-7xl border-t border-border-subtle px-5 py-14 md:px-10 md:py-20" />
       </div>
 
       {/* Phones: the price and the next step always within thumb reach. */}

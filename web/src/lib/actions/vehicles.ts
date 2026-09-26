@@ -13,6 +13,7 @@ import { isGenuineUpload, uploadTicket, type UploadedAsset, type UploadTicket } 
 import { slugify } from "@/lib/legacy/normalise";
 import { offerVehicle } from "@/lib/sourcing-engine";
 import { announcePriceDrop } from "@/lib/watch-engine";
+import { announceArrival, announcePriceCut } from "@/lib/notifications";
 
 export interface ActionResult {
   ok: boolean;
@@ -106,12 +107,19 @@ function refreshPublicPages(slug: string) {
 
 /**
  * Everyone waiting on an available vehicle hears about it: Sourcing Desk
- * requests it now answers, and watchers whose last-known price it now beats.
- * Run after the response, so the save returns at once; safe to repeat, since
- * a buyer is offered a vehicle once and told about a given price once.
+ * requests it now answers, watchers whose last-known price it now beats, and
+ * — through the bell and a push — everyone who follows Sabicars, when it is a
+ * new arrival or its price has just fallen. Run after the response, so the
+ * save returns at once; safe to repeat, since every one of these is sent once.
  */
-function offerToWaitingBuyers(vehicleId: string) {
+function offerToWaitingBuyers(vehicleId: string, previousPriceMinor: number | null = null) {
   after(async () => {
+    try {
+      if (await announceArrival(vehicleId)) console.info(`[notify] vehicle ${vehicleId} announced as a new arrival`);
+      if (previousPriceMinor && (await announcePriceCut(vehicleId, previousPriceMinor))) console.info(`[notify] vehicle ${vehicleId} price drop announced`);
+    } catch (e) {
+      console.error("[notify] announcement failed for vehicle", vehicleId, e);
+    }
     try {
       const { offered, emailed } = await offerVehicle(vehicleId);
       if (offered) console.info(`[sourcing] vehicle ${vehicleId} offered to ${offered} request(s), ${emailed} emailed`);
@@ -241,7 +249,7 @@ export async function saveVehicle(_prev: ActionResult | null, formData: FormData
   }
 
   refreshPublicPages(slug);
-  if (f.status === "available" && id) offerToWaitingBuyers(id);
+  if (f.status === "available" && id) offerToWaitingBuyers(id, before?.status === "available" ? before.priceMinor : null);
   // A new vehicle goes straight to its own page, where photos are added.
   if (!before) redirect(`/admin/vehicles/${id}?created=1`);
   return { ok: true, savedAt: Date.now() };
@@ -277,6 +285,8 @@ export async function recordPhoto(vehicleId: string, asset: UploadedAsset): Prom
   await audit(me, "vehicle", vehicleId, "photo_added", { publicId: asset.public_id });
   refreshPublicPages(v.slug);
   revalidatePath(`/admin/vehicles/${vehicleId}`);
+  // The first photo on a listed car is the moment it can be announced.
+  if (position === 0 && v.status === "available") offerToWaitingBuyers(vehicleId);
   return { ok: true };
 }
 

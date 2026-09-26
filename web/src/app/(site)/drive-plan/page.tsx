@@ -3,6 +3,7 @@ import Link from "next/link";
 import { BadgeCheck, CarFront, FileSignature, KeyRound } from "lucide-react";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { DrivePlanFinder } from "@/components/home/DrivePlanFinder";
+import { PriceSplit } from "@/components/home/PriceSplit";
 import { ContactForm } from "@/components/forms/ContactForm";
 import { PageIntro } from "@/components/site/PageIntro";
 import { VehicleImage } from "@/components/VehicleImage";
@@ -123,6 +124,12 @@ export default async function DrivePlanPage() {
                   </dl>
                 </div>
               </Link>
+            </ScrollReveal>
+          )}
+
+          {catalogue.length > 0 && (
+            <ScrollReveal className="mt-10">
+              <PriceSplit vehicles={catalogue} />
             </ScrollReveal>
           )}
         </div>

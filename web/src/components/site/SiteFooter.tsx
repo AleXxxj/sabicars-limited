@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
 import { Address } from "@/components/site/Address";
+import { SubscribeForm } from "@/components/subscribe/SubscribeForm";
 import { INVENTORY_SHORTCUTS, PRIMARY_NAV } from "@/lib/navigation";
 import { searchTerms } from "@/lib/repositories/vehicles";
 import { termHref } from "@/lib/seo/search-terms";
@@ -28,6 +29,17 @@ export async function SiteFooter() {
   const popular = (await searchTerms()).filter((t) => t.family && t.inStock > 0).slice(0, 12);
   return (
     <footer className="relative border-t border-white/[0.06] bg-[linear-gradient(180deg,var(--surface-1),var(--surface-0))]">
+      <section aria-labelledby="newsletter-title" className="border-b border-white/[0.06]">
+        <div className="mx-auto grid max-w-7xl gap-6 px-5 py-12 md:px-10 lg:grid-cols-[1fr_minmax(0,28rem)] lg:items-center lg:gap-16">
+          <div>
+            <p id="newsletter-title" className="font-display text-[1.9rem] leading-tight text-text-primary md:text-[2.2rem]">
+              The week&rsquo;s new arrivals, every Friday.
+            </p>
+            <p className="mt-2 text-text-secondary">Photographed, priced and ready to inspect — before they are gone. Nothing else.</p>
+          </div>
+          <SubscribeForm source="footer" />
+        </div>
+      </section>
       <div className="mx-auto grid max-w-7xl gap-12 px-5 py-16 md:grid-cols-2 md:px-10 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr]">
         <div>
           <Logo />

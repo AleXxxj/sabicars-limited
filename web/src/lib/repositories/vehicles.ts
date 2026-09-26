@@ -235,6 +235,20 @@ export async function hummerBuses(): Promise<VehicleWithCover[]> {
   return withCovers(rows);
 }
 
+/**
+ * What Sabicars sold lately — proof that stock moves and that buyers trust
+ * the showroom. Only the last 90 days, so it never shows a stale list.
+ */
+export async function recentlySold(limit = 6): Promise<CardVehicle[]> {
+  const rows = await db
+    .select()
+    .from(vehicles)
+    .where(and(eq(vehicles.dealerId, await sabicarsId()), eq(vehicles.status, "sold"), gte(vehicles.soldAt, new Date(Date.now() - 90 * 86_400_000))))
+    .orderBy(desc(vehicles.soldAt))
+    .limit(limit);
+  return (await withCovers(rows)).map(toCard);
+}
+
 /** Vehicles on a visitor's shortlist, in the order they saved them. Sold cars stay, marked sold. */
 export async function vehiclesBySlugs(slugs: string[]): Promise<VehicleWithCover[]> {
   if (!slugs.length) return [];
