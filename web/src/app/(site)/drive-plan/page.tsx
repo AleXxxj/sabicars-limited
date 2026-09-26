@@ -13,20 +13,21 @@ import { drivePlanBalance, drivePlanDeposit, priceLabel, vehicleTitle } from "@/
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "The 40% Drive Plan — pay 40%, Autochek finances the rest",
+  title: "The 40% Drive Plan — pay 40% and drive today",
   description:
-    "Buy from Sabicars with 40% down. Autochek, Sabicars' financing partner, finances the remaining 60% on its own terms. See what your deposit can drive home from live stock.",
+    "Pay 40% and drive your car home the same day. Autochek, Sabicars' financing partner, finances the remaining 60% on its own terms. See what your deposit can drive home from live stock.",
   alternates: { canonical: "/drive-plan" },
 };
 
 const STEPS = [
   { icon: CarFront, title: "Choose your vehicle", text: "In the showroom or online. Every price already shows the 40% deposit and the 60% Autochek finances." },
   { icon: FileSignature, title: "Apply on Autochek", text: "From the vehicle’s page, go to its listing on Sabicars’ Autochek dealer store. Autochek profiles you there." },
-  { icon: BadgeCheck, title: "Autochek approves", text: "The loan terms — tenor and interest — are already set on the listing. Autochek processes and approves the financing." },
-  { icon: KeyRound, title: "Pay 40% and drive", text: "Once approved, you pay the 40% deposit, take the keys, and repay the 60% to Autochek in instalments." },
+  { icon: KeyRound, title: "Pay 40% and drive", text: "Pay the 40% deposit and you can take the keys the same day — the car does not wait in the showroom for the loan." },
+  { icon: BadgeCheck, title: "Autochek completes the 60%", text: "Autochek approves the financing on the terms already set on the listing, and you repay the 60% to Autochek in instalments." },
 ];
 
 const QUESTIONS = [
+  ["Can I drive it home before Autochek approves?", "Yes. Once you have paid the 40% deposit, the car can leave the showroom the same day while Autochek processes the remaining 60%."],
   ["Who finances the 60%?", "Autochek, Sabicars’ financing partner for the Drive Plan. The balance is an Autochek facility, on Autochek’s terms — Sabicars does not lend."],
   ["Can I find Sabicars cars on Autochek?", "Yes. Sabicars’ stock is also listed on its Autochek dealer store. Wherever you find the car, the loan is profiled and processed by Autochek."],
   ["What if the car I want is not on Autochek?", "Press “Apply for the Drive Plan” on its page. Sabicars lists it on its Autochek store and sends you the link."],
@@ -41,7 +42,8 @@ const QUESTIONS = [
  * Its one job: get a buyer who cannot pay all of it to a car they can apply
  * for. As the owner described it: Sabicars' stock is listed on its Autochek
  * dealer store; loan buyers are profiled and processed by Autochek, and each
- * listing already carries its loan configuration. Applications therefore
+ * listing already carries its loan configuration. The car can leave the
+ * showroom on the 40% deposit, before Autochek approves. Applications therefore
  * start from a vehicle's page (DrivePlanApply), which records the buyer and
  * sends them to that car's listing. No tenor or rate is published here —
  * Autochek sets them per listing.
@@ -52,8 +54,8 @@ export default async function DrivePlanPage() {
 
   return (
     <>
-      <PageIntro eyebrow="The 40% Drive Plan" title="Pay 40%. Autochek finances the rest." imageUrl={example?.cover?.url ?? null}>
-        <p>Choose any vehicle, put down 40% of the price, and Autochek — Sabicars’ financing partner — finances the remaining 60%.</p>
+      <PageIntro eyebrow="The 40% Drive Plan" title="Pay 40%. Drive it home today." imageUrl={example?.cover?.url ?? null}>
+        <p>Choose any vehicle and put down 40% of the price. You can drive it home the same day, while Autochek — Sabicars’ financing partner — finances the remaining 60%.</p>
       </PageIntro>
 
       {catalogue.length > 0 && (
@@ -62,7 +64,7 @@ export default async function DrivePlanPage() {
             <DrivePlanFinder vehicles={catalogue}>
               <ScrollReveal>
                 <p className="kicker">Start here</p>
-                <h2 className="mt-4 text-display-2">What can your 40% drive home?</h2>
+                <h2 className="mt-4 text-display-2">What can you drive home today?</h2>
                 <p className="mt-5 text-lg leading-relaxed text-text-secondary">
                   Type what you can put down. The answer comes from what is in the showroom right now.
                 </p>

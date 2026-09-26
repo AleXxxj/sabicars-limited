@@ -193,9 +193,9 @@ export default async function Home() {
           <div className="mx-auto max-w-7xl px-5 py-20 md:px-10 md:py-28">
             <DrivePlanFinder vehicles={catalogue}>
               <ScrollReveal>
-                <SectionHead eyebrow="The 40% Drive Plan" title="What can your 40% drive home?">
+                <SectionHead eyebrow="The 40% Drive Plan" title="What can you drive home today?">
                   <p>
-                    Pay 40% of the price. Autochek, Sabicars’ financing partner, finances the remaining 60%, subject to its approval.
+                    Pay 40% of the price and you can drive it home the same day, while Autochek, Sabicars’ financing partner, processes the remaining 60%.
                     Tell us what you can put down — the answer comes from what is in stock right now.
                   </p>
                 </SectionHead>

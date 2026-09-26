@@ -2,7 +2,7 @@
 export const PRIMARY_NAV = [
   { href: "/vehicles", label: "Inventory", hint: "Every vehicle in stock, with prices" },
   { href: "/find", label: "Find a car", hint: "Tell us what you want — hear when it arrives" },
-  { href: "/drive-plan", label: "40% Drive Plan", hint: "Pay 40% — Autochek finances the rest" },
+  { href: "/drive-plan", label: "40% Drive Plan", hint: "Pay 40%, drive today — Autochek finances the rest" },
   { href: "/fleet", label: "Fleet", hint: "Volume supply for companies and government" },
   { href: "/partners", label: "Refer & Earn", hint: "Earn 1.5% on every buyer you send" },
   { href: "/about", label: "About", hint: "The story, and the standards we keep" },

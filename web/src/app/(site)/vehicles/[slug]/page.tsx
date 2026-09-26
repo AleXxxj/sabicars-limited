@@ -145,7 +145,7 @@ export default async function VehiclePage({ params }: Props) {
                     <dd className="figures mt-1 text-lg font-semibold">{balance}</dd>
                   </div>
                 </dl>
-                <p className="mt-4 text-xs text-text-muted">Autochek profiles you and approves the financing; the loan terms are set on its listing.</p>
+                <p className="mt-4 text-xs text-text-muted">Pay 40% and you can drive it home the same day; Autochek processes the 60% on the terms set on its listing.</p>
                 <DrivePlanApply vehicleId={v.id} autochekUrl={v.autochekUrl} />
                 <Link href="/drive-plan" className="group mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-gold-300 hover:text-gold-200">
                   How the Drive Plan works <ArrowRight aria-hidden size={16} className="transition-transform group-hover:translate-x-1" />
