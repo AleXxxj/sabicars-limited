@@ -63,3 +63,29 @@
     transition: none;
   }
 }
+
+/*
+ * The review ticker: two copies of the row glide left, and the second takes
+ * the first's place, so it never visibly restarts. It stops the moment a
+ * reader rests on it, and for anyone who prefers less motion it is simply a
+ * row to swipe.
+ */
+@keyframes ticker { to { transform: translate3d(-50%, 0, 0); } }
+[data-ticker] {
+  animation: ticker var(--ticker-duration, 60s) linear infinite;
+}
+[data-ticker-frame]:hover [data-ticker],
+[data-ticker-frame]:focus-within [data-ticker] { animation-play-state: paused; }
+
+/* Floating prompts (subscribe, alerts, install, review) rise in from below. */
+@keyframes prompt-in {
+  from { opacity: 0; transform: translate3d(0, 24px, 0); }
+  to   { opacity: 1; transform: none; }
+}
+[data-prompt] { animation: prompt-in var(--duration-base) var(--ease-out) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-ticker] { animation: none; }
+  [data-ticker-frame] { overflow-x: auto; }
+  [data-ticker-copy] { display: none; }
+}

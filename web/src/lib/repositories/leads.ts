@@ -1,7 +1,18 @@
 import "server-only";
 import { aliasedTable, and, asc, count, desc, eq, gte, ilike, inArray, ne, or, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
-import { leadActivity, leads, partners, pushSubscriptions, staff, vehicleRequests, vehicles, vehicleWatches, type Lead } from "@/db/schema";
+import {
+  leadActivity,
+  leads,
+  partners,
+  pushSubscriptions,
+  reviews,
+  staff,
+  vehicleRequests,
+  vehicles,
+  vehicleWatches,
+  type Lead,
+} from "@/db/schema";
 import { RESPONSE_TARGET_MINUTES } from "@/lib/lead-labels";
 import { normalisePhone } from "@/lib/phone";
 import { referenceFor } from "@/lib/reference";
@@ -207,6 +218,8 @@ export interface LeadDetail {
   referredBy: { code: string; name: string } | null;
   /** The buyer is a registered partner: partner price, no commission. */
   buyerIsPartner: { code: string } | null;
+  /** The review they left through their private link, once they have. */
+  review: { rating: number; isApproved: boolean; reviewedAt: Date | null } | null;
 }
 
 export async function leadDetail(dealerId: string, id: string): Promise<LeadDetail | null> {
@@ -233,7 +246,7 @@ export async function leadDetail(dealerId: string, id: string): Promise<LeadDeta
   const { lead } = row;
 
   const sameBuyer = or(lead.phone ? eq(leads.phone, lead.phone) : undefined, lead.email ? eq(leads.email, lead.email) : undefined);
-  const [activity, history, [request], watching, [referrer], [asPartner]] = await Promise.all([
+  const [activity, history, [request], watching, [referrer], [asPartner], [review]] = await Promise.all([
     db
       .select({
         id: leadActivity.id,
@@ -274,6 +287,11 @@ export async function leadDetail(dealerId: string, id: string): Promise<LeadDeta
           .where(and(eq(partners.dealerId, dealerId), eq(partners.phone, lead.phone)))
           .limit(1)
       : Promise.resolve([]),
+    db
+      .select({ rating: reviews.rating, isApproved: reviews.isApproved, reviewedAt: reviews.reviewedAt })
+      .from(reviews)
+      .where(eq(reviews.leadId, id))
+      .limit(1),
   ]);
 
   const counts = lead.status === "new" || lead.firstResponseAt;
@@ -299,6 +317,7 @@ export async function leadDetail(dealerId: string, id: string): Promise<LeadDeta
     watching: watching.map((w) => ({ title: `${w.year} ${w.make} ${w.model}`, slug: w.slug })),
     referredBy: referrer ?? null,
     buyerIsPartner: asPartner ?? null,
+    review: review ?? null,
   };
 }
 

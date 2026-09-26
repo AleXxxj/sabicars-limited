@@ -1,5 +1,6 @@
 "use server";
 
+import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { and, eq, isNull } from "drizzle-orm";
@@ -111,7 +112,8 @@ export async function recordContact(leadId: string, method: keyof typeof CONTACT
 const statusSchema = z.object({
   leadId: z.uuid(),
   status: z.enum(["new", "contacted", "qualified", "won", "lost"]),
-  lostReason: z.preprocess((v) => (typeof v === "string" && v.trim() === "" ? null : v), z.string().trim().max(200).nullable()),
+  // Only sent when "Lost" is chosen; absent otherwise.
+  lostReason: z.preprocess((v) => (typeof v !== "string" || v.trim() === "" ? null : v), z.string().trim().max(200).nullable()),
 });
 
 /** Moves a lead along: contacted → serious buyer → bought, or lost (with why). */
@@ -141,6 +143,8 @@ export async function setLeadStatus(_prev: Result | null, formData: FormData): P
       updatedAt: now,
       ...(answered ? { firstResponseAt: now } : {}),
       ...(claims ? { assignedTo: me.id } : {}),
+      // A sale earns the buyer a private link to review it as a verified buyer.
+      ...(status === "won" && !lead.reviewToken ? { reviewToken: randomUUID() } : {}),
     })
     .where(eq(leads.id, leadId));
   await log(
@@ -169,6 +173,16 @@ export async function addLeadNote(_prev: Result | null, formData: FormData): Pro
   await log(lead.id, me, "note", parsed.data.note);
   await db.update(leads).set({ updatedAt: new Date() }).where(eq(leads.id, lead.id));
   refresh(lead.id);
+  return { ok: true };
+}
+
+/** Staff sent the buyer their review link (the lead page's WhatsApp or copy button). */
+export async function recordReviewRequest(leadId: string, how: "whatsapp" | "copied"): Promise<Result> {
+  const me = await requireStaff();
+  const lead = await loadLead(me, leadId);
+  if (!lead || !lead.reviewToken) return { ok: false };
+  await log(leadId, me, "review_requested", how === "whatsapp" ? "Asked for a review on WhatsApp" : "Copied the review link");
+  refresh(leadId);
   return { ok: true };
 }
 

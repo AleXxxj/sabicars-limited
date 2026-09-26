@@ -4,6 +4,8 @@ import { ScrollReveal } from "@/components/ScrollReveal";
 import { Address } from "@/components/site/Address";
 import { PageIntro } from "@/components/site/PageIntro";
 import { ButtonLink } from "@/components/ui/Button";
+import { ReviewsSection } from "@/components/reviews/ReviewsSection";
+import { publishedReviews, reviewSummary } from "@/lib/repositories/reviews";
 import { inventoryStats } from "@/lib/repositories/vehicles";
 import { site } from "@/lib/site";
 
@@ -46,7 +48,7 @@ const STANDARDS = [
 ];
 
 export default async function AboutPage() {
-  const stats = await inventoryStats();
+  const [stats, reviews, reviewStats] = await Promise.all([inventoryStats(), publishedReviews(), reviewSummary()]);
 
   return (
     <>
@@ -125,6 +127,8 @@ export default async function AboutPage() {
           </div>
         </div>
       </section>
+
+      <ReviewsSection reviews={reviews} summary={reviewStats} />
 
       <section className="border-t border-border-subtle">
         <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 md:px-10 md:py-24 lg:grid-cols-2 lg:items-end">

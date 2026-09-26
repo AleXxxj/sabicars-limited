@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ContactButtons, NoteForm, OwnerControl, StatusControl } from "@/components/admin/LeadActions";
+import { ContactButtons, NoteForm, OwnerControl, ReviewRequest, StatusControl } from "@/components/admin/LeadActions";
+import { Stars } from "@/components/reviews/Stars";
 import { LiveRefresh } from "@/components/admin/LiveRefresh";
 import { requireStaff } from "@/lib/auth";
 import { LEAD_STATUS_LABEL, LEAD_TYPE_LABEL, RESPONSE_TARGET_MINUTES } from "@/lib/lead-labels";
@@ -9,6 +10,7 @@ import { formatNaira } from "@/lib/money";
 import { displayPhone } from "@/lib/phone";
 import { assignableStaff, leadDetail, type LeadDetail } from "@/lib/repositories/leads";
 import { formatWait } from "@/lib/showroom-hours";
+import { siteUrl } from "@/lib/site";
 
 export const metadata: Metadata = { title: "Enquiry · Admin", robots: { index: false, follow: false } };
 
@@ -71,6 +73,9 @@ export default async function LeadPage({ params }: Props) {
   const whatsappText = `Hello ${buyerFirst}, this is ${myFirst} from Sabicars, about ${subject(d)} (${d.reference}).`;
   const legacy = lead.channel === "legacy_import";
   const late = d.responseMinutes !== null && d.responseMinutes >= RESPONSE_TARGET_MINUTES;
+
+  const reviewLink = lead.reviewToken ? `${siteUrl()}/review/${lead.reviewToken}` : null;
+  const reviewAsk = `Hello ${buyerFirst}, thank you for buying ${d.vehicle ? `the ${d.vehicle.title}` : "your vehicle"} from Sabicars. Would you tell others how it went? It takes a minute: ${reviewLink}`;
 
   const attribution = [
     lead.landingPath && `Sent from ${lead.landingPath}`,
@@ -135,7 +140,9 @@ export default async function LeadPage({ params }: Props) {
           </div>
         </section>
 
-        <aside className="grid content-start gap-8 lg:col-start-2 lg:row-span-3 lg:row-start-1">
+        <aside
+          className={`grid content-start gap-8 lg:col-start-2 lg:row-start-1 ${lead.status === "won" && reviewLink ? "lg:row-span-4" : "lg:row-span-3"}`}
+        >
           <section aria-label="Who is handling it" className="border border-border-subtle bg-surface-1 p-5">
             <OwnerControl
               key={lead.assignedTo ?? "none"}
@@ -176,6 +183,35 @@ export default async function LeadPage({ params }: Props) {
             </section>
           )}
         </aside>
+
+        {lead.status === "won" && reviewLink && (
+          <section aria-label="Their review" className="min-w-0 border border-gold-700 bg-surface-1 p-5 md:p-6 lg:col-start-1">
+            <p className="eyebrow !text-text-muted">Their review</p>
+            {d.review ? (
+              <p className="mt-3 text-sm text-text-secondary">
+                <Stars rating={d.review.rating} className="mr-2 align-[-2px]" />
+                {d.review.isApproved
+                  ? "Published on the site as a verified buyer."
+                  : d.review.reviewedAt
+                    ? "Hidden."
+                    : "Waiting to be read."}{" "}
+                <Link href="/admin/reviews" className="font-semibold text-accent-text hover:text-text-primary">
+                  Reviews
+                </Link>
+              </p>
+            ) : (
+              <>
+                <p className="mt-3 text-sm text-text-secondary">
+                  A sale earns the buyer a private link. A review left through it shows as{" "}
+                  <span className="text-text-primary">Verified buyer</span> — the strongest proof the site can show.
+                </p>
+                <div className="mt-4">
+                  <ReviewRequest leadId={lead.id} phone={lead.phone} whatsappText={reviewAsk} link={reviewLink} />
+                </div>
+              </>
+            )}
+          </section>
+        )}
 
         <section aria-label="What they asked" className="min-w-0 border border-border-subtle bg-surface-1 p-5 md:p-6 lg:col-start-1">
           <p className="eyebrow !text-text-muted">What they asked</p>

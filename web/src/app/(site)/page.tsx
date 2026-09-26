@@ -14,6 +14,8 @@ import { Button, ButtonAnchor, ButtonLink } from "@/components/ui/Button";
 import { fieldClass } from "@/components/forms/field";
 import { categoryTiles, drivePlanCatalogue, featuredVehicles, heroVehicles, heroVideoUrl, hummerBuses, inventoryStats } from "@/lib/repositories/vehicles";
 import { mostRequested } from "@/lib/repositories/sourcing";
+import { publishedReviews, reviewSummary } from "@/lib/repositories/reviews";
+import { ReviewsSection } from "@/components/reviews/ReviewsSection";
 import { formatNaira, money, percentOf } from "@/lib/money";
 import { dealerJsonLd, jsonLdScript } from "@/lib/seo/structured-data";
 import { site, siteUrl } from "@/lib/site";
@@ -54,7 +56,7 @@ function SectionHead({ eyebrow, title, children }: { eyebrow: string; title: str
  * built to capture the audience, not just display the lot.
  */
 export default async function Home() {
-  const [hero, featured, stats, tiles, videoUrl, catalogue, demand, buses] = await Promise.all([
+  const [hero, featured, stats, tiles, videoUrl, catalogue, demand, buses, reviews, reviewStats] = await Promise.all([
     heroVehicles(8),
     featuredVehicles(6),
     inventoryStats(),
@@ -63,6 +65,8 @@ export default async function Home() {
     drivePlanCatalogue(),
     mostRequested(),
     hummerBuses(),
+    publishedReviews(),
+    reviewSummary(),
   ]);
   // The signature: Hummer buses, newest first, those with a photograph.
   const hummers = buses.filter((b) => /hum+er/i.test(b.model) && b.cover);
@@ -365,6 +369,9 @@ export default async function Home() {
           </ScrollReveal>
         </div>
       </section>
+
+      {/* Is it true? In customers' own words, each read by a person first. */}
+      <ReviewsSection reviews={reviews} summary={reviewStats} />
 
       {/* Can I earn from this? A commission on sales, on plain terms. */}
       <section className="border-t border-border-subtle bg-surface-1">

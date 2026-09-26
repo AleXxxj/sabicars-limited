@@ -118,6 +118,18 @@ async function payloadFor(
   };
 }
 
+/** Something only the owner and managers act on — a review to approve, for instance. */
+export async function notifyManagers(dealerId: string, payload: AlertPayload): Promise<void> {
+  const managers = await db
+    .select({ id: staff.id })
+    .from(staff)
+    .where(and(eq(staff.dealerId, dealerId), eq(staff.isActive, true), inArray(staff.role, ["owner", "manager"])));
+  await pushToStaff(
+    managers.map((m) => m.id),
+    payload,
+  );
+}
+
 /** A lead was handed to someone: tell them, on their phone. */
 export async function notifyAssigned(leadId: string, staffId: string, byName: string): Promise<void> {
   const p = await payloadFor(leadId, (what) => `${byName} gave you a ${what}`);

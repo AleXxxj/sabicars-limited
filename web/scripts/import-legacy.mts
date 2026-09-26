@@ -26,6 +26,7 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import * as schema from "../src/db/schema";
 import { normaliseLegacyCar, slugify, tidy, type LegacyCar, type Normalised } from "../src/lib/legacy/normalise";
+import { newPathFor } from "../src/lib/legacy/urls";
 import { site } from "../src/lib/site";
 import { formatNaira } from "../src/lib/money";
 
@@ -147,6 +148,8 @@ try {
     const existing = await tx.select({ legacyId: schema.vehicles.legacyId, slug: schema.vehicles.slug }).from(schema.vehicles).where(eq(schema.vehicles.dealerId, D));
     const slugByLegacy = new Map(existing.map((r) => [r.legacyId, r.slug]));
     const taken = new Set(existing.map((r) => r.slug));
+    /** Legacy car id → the new vehicle, for notifications that pointed at car-detail.html?id=… */
+    const vehicleByLegacy = new Map<string, { id: string; slug: string }>();
 
     for (const { vehicle: v } of cleaned) {
       if (!v.year) continue;
@@ -195,7 +198,8 @@ try {
         .insert(schema.vehicles)
         .values({ ...fields, slug })
         .onConflictDoUpdate({ target: schema.vehicles.legacyId, set: fields })
-        .returning({ id: schema.vehicles.id });
+        .returning({ id: schema.vehicles.id, slug: schema.vehicles.slug });
+      vehicleByLegacy.set(v.legacyId, saved);
 
       // Photos are replaced wholesale: until cutover the legacy admin is the
       // source of truth for them.
@@ -252,6 +256,7 @@ try {
         message: tidy(r.message),
         // Keep what was already live; new reviews from now on wait for approval.
         isApproved: r.approved !== false,
+        reviewedAt: r.approved !== false ? new Date(r.createdAt ?? Date.now()) : null,
         createdAt: new Date(r.createdAt ?? Date.now()),
       };
       if (!values.message) continue;
@@ -320,6 +325,7 @@ try {
         name: tidy(s.name) || null,
         topics: Array.isArray(s.topics) && s.topics.length ? s.topics : ["cars", "blog", "offers"],
         isActive: s.active !== false,
+        source: "legacy",
         createdAt: new Date(s.createdAt ?? Date.now()),
       };
       await tx.insert(schema.subscribers).values(values).onConflictDoUpdate({ target: schema.subscribers.legacyId, set: values });
@@ -327,13 +333,17 @@ try {
     }
 
     for (const n of notifs) {
+      // Old-site links become the new pages; a car's notification is tied to
+      // the car, so it is never announced a second time.
+      const car = vehicleByLegacy.get(String(tidy(n.link).match(/car-detail\.html\?id=([a-f0-9]{24})/i)?.[1] ?? ""));
       const values = {
         dealerId: D,
         legacyId: idOf(n),
         title: tidy(n.title),
         message: String(n.message ?? "").trim(),
         kind: ["car", "blog", "offer", "system"].includes(n.type) ? n.type : "system",
-        link: tidy(n.link) || null,
+        link: tidy(n.link) ? (newPathFor(tidy(n.link), (id) => vehicleByLegacy.get(id)?.slug) ?? tidy(n.link)) : null,
+        vehicleId: car?.id ?? null,
         createdAt: new Date(n.createdAt ?? Date.now()),
       };
       await tx.insert(schema.notifications).values(values).onConflictDoUpdate({ target: schema.notifications.legacyId, set: values });

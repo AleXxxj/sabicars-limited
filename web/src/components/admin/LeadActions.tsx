@@ -3,7 +3,7 @@
 import { useActionState, useEffect, useRef, useState, useTransition } from "react";
 import { Mail, MessageCircle, Phone } from "lucide-react";
 import { ButtonAnchor } from "@/components/ui/Button";
-import { addLeadNote, assignLead, claimLead, recordContact, setLeadStatus } from "@/lib/actions/leads-admin";
+import { addLeadNote, assignLead, claimLead, recordContact, recordReviewRequest, setLeadStatus } from "@/lib/actions/leads-admin";
 import { LEAD_STATUS_LABEL, LOST_REASONS } from "@/lib/lead-labels";
 
 const control =
@@ -219,5 +219,56 @@ export function NoteForm({ leadId }: { leadId: string }) {
         {state?.error && <span className="text-xs text-danger">{state.error}</span>}
       </div>
     </form>
+  );
+}
+
+/**
+ * After a sale: the buyer's private review link, sent in one tap. A review
+ * left through it is published as "Verified buyer".
+ */
+export function ReviewRequest({
+  leadId,
+  phone,
+  whatsappText,
+  link,
+}: {
+  leadId: string;
+  phone: string | null;
+  whatsappText: string;
+  link: string;
+}) {
+  const [pending, start] = useTransition();
+  const [copied, setCopied] = useState(false);
+  const record = (how: "whatsapp" | "copied") => start(async () => void (await recordReviewRequest(leadId, how)));
+  return (
+    <div className="flex flex-wrap items-center gap-3">
+      {phone && (
+        <a
+          href={`https://wa.me/${phone.replace("+", "")}?text=${encodeURIComponent(whatsappText)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => record("whatsapp")}
+          className="inline-flex min-h-11 items-center bg-cta px-4 text-sm font-semibold text-cta-fg hover:bg-cta-hover"
+        >
+          Ask on WhatsApp
+        </a>
+      )}
+      <button
+        type="button"
+        disabled={pending}
+        onClick={async () => {
+          try {
+            await navigator.clipboard.writeText(link);
+            setCopied(true);
+            record("copied");
+          } catch {
+            window.prompt("Copy the review link:", link);
+          }
+        }}
+        className={quietButton}
+      >
+        {copied ? "Link copied" : "Copy the link"}
+      </button>
+    </div>
   );
 }

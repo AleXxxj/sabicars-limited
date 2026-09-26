@@ -139,6 +139,8 @@ export const leadActivityKind = pgEnum("lead_activity_kind", [
   "contacted", // detail: call | whatsapp | email
   "note",
   "escalated", // untouched too long: managers alerted
+  "review_requested", // staff sent the buyer their private review link
+  "reviewed", // the buyer left a review through it
 ]);
 
 /* ── Dealers, locations, people ────────────────────────────────────────── */
@@ -361,12 +363,20 @@ export const leads = pgTable(
     escalatedAt: timestamp("escalated_at", { withTimezone: true }),
     closedAt: timestamp("closed_at", { withTimezone: true }),
     lostReason: text("lost_reason"),
+    /**
+     * Issued when the lead becomes a sale: the buyer's private link to review
+     * the purchase. A review left through it is marked "Verified buyer",
+     * because it is tied to a sale on record — the only kind of verification
+     * a review page can honestly claim.
+     */
+    reviewToken: uuid("review_token"),
 
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
   (t) => [
     uniqueIndex("leads_legacy_idx").on(t.legacyId),
+    uniqueIndex("leads_review_token_idx").on(t.reviewToken),
     index("leads_dealer_status_idx").on(t.dealerId, t.status, t.createdAt),
     index("leads_assigned_idx").on(t.assignedTo, t.status),
     check("leads_reachable", sql`${t.phone} IS NOT NULL OR ${t.email} IS NOT NULL`),
@@ -555,14 +565,28 @@ export const reviews = pgTable(
     /**
      * The legacy API published reviews the moment they were posted. Here a
      * review waits for a person — an institution does not let strangers write
-     * on its front page unread.
+     * on its front page unread. Approval is for spam and abuse, not for
+     * rating: a genuine critical review is published like any other.
      */
     isApproved: boolean("is_approved").notNull().default(false),
+    /** When staff published or hid it. Null: still waiting to be read. */
+    reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+    reviewedBy: uuid("reviewed_by").references(() => staff.id, { onDelete: "set null" }),
+    /** Set only for reviews left through a buyer's private link: a verified buyer. */
+    leadId: uuid("lead_id").references(() => leads.id, { onDelete: "set null" }),
+    /** The vehicle a verified buyer bought. */
+    vehicleId: uuid("vehicle_id").references(() => vehicles.id, { onDelete: "set null" }),
+    /** Hashed, for rate limiting anonymous submissions; never the address itself. */
+    ipHash: text("ip_hash"),
     createdAt: createdAt(),
   },
   (t) => [
     uniqueIndex("reviews_legacy_idx").on(t.legacyId),
+    // One review per sale.
+    uniqueIndex("reviews_lead_idx").on(t.leadId),
+    index("reviews_published_idx").on(t.dealerId, t.isApproved, t.createdAt),
     check("reviews_rating_range", sql`${t.rating} BETWEEN 1 AND 5`),
+    check("reviews_message_present", sql`length(btrim(${t.message})) > 0`),
   ],
 );
 
@@ -623,6 +647,9 @@ export const subscribers = pgTable(
     isActive: boolean("is_active").notNull().default(true),
     /** Opaque token for the one-click unsubscribe link every broadcast must carry. */
     unsubscribeToken: uuid("unsubscribe_token").notNull().defaultRandom(),
+    /** Where they signed up: prompt | footer | article | legacy — tells Sabicars which asks work. */
+    source: text("source"),
+    unsubscribedAt: timestamp("unsubscribed_at", { withTimezone: true }),
     createdAt: createdAt(),
   },
   (t) => [
@@ -640,15 +667,64 @@ export const notifications = pgTable(
     legacyId: text("legacy_id"),
     title: text("title").notNull(),
     message: text("message").notNull(),
-    /** car | blog | offer | system */
+    /** arrival | price_drop | blog | offer | system (car: legacy "new arrival" posts) */
     kind: text("kind").notNull().default("system"),
     link: text("link"),
     vehicleId: uuid("vehicle_id").references(() => vehicles.id, { onDelete: "set null" }),
+    /** Large image shown with the push and in the feed. */
+    imageUrl: text("image_url"),
+    /**
+     * What caused an automatic notification — "arrival:<vehicle>",
+     * "price:<vehicle>:<kobo>". Unique, so a car is announced once and a
+     * given price cut once, however many times staff press save.
+     */
+    eventKey: text("event_key"),
+    /** Who posted it by hand; null when the platform posted it. */
+    createdBy: uuid("created_by").references(() => staff.id, { onDelete: "set null" }),
+    pushedAt: timestamp("pushed_at", { withTimezone: true }),
+    pushRecipients: integer("push_recipients"),
+    pushError: text("push_error"),
     createdAt: createdAt(),
   },
   (t) => [
     uniqueIndex("notifications_legacy_idx").on(t.legacyId),
+    uniqueIndex("notifications_event_idx").on(t.dealerId, t.eventKey),
     index("notifications_recent_idx").on(t.dealerId, t.createdAt),
+    index("notifications_vehicle_idx").on(t.vehicleId),
+  ],
+);
+
+/**
+ * Every newsletter email sent to subscribers: the weekly arrivals digest,
+ * new-article announcements and staff broadcasts. `periodKey` makes the
+ * automatic ones idempotent — a week's digest goes out once.
+ */
+export const newsletterSends = pgTable(
+  "newsletter_sends",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    dealerId: uuid("dealer_id").notNull().references(() => dealers.id),
+    /** digest | article | broadcast */
+    kind: text("kind").notNull(),
+    periodKey: text("period_key"),
+    subject: text("subject").notNull(),
+    /** What staff wrote, for a broadcast. */
+    body: text("body"),
+    vehicleIds: jsonb("vehicle_ids").$type<string[]>().notNull().default([]),
+    /** sending | sent | failed | skipped */
+    status: text("status").notNull().default("sending"),
+    recipients: integer("recipients").notNull().default(0),
+    failed: integer("failed").notNull().default(0),
+    error: text("error"),
+    createdBy: uuid("created_by").references(() => staff.id, { onDelete: "set null" }),
+    createdAt: createdAt(),
+    sentAt: timestamp("sent_at", { withTimezone: true }),
+  },
+  (t) => [
+    uniqueIndex("newsletter_sends_period_idx").on(t.dealerId, t.periodKey),
+    index("newsletter_sends_recent_idx").on(t.dealerId, t.createdAt),
+    check("newsletter_sends_kind", sql`${t.kind} IN ('digest', 'article', 'broadcast')`),
+    check("newsletter_sends_status", sql`${t.status} IN ('sending', 'sent', 'failed', 'skipped')`),
   ],
 );
 
@@ -697,3 +773,7 @@ export type Partner = typeof partners.$inferSelect;
 export type RequestMatch = typeof requestMatches.$inferSelect;
 export type VehicleWatch = typeof vehicleWatches.$inferSelect;
 export type LeadActivity = typeof leadActivity.$inferSelect;
+export type Review = typeof reviews.$inferSelect;
+export type Subscriber = typeof subscribers.$inferSelect;
+export type Notification = typeof notifications.$inferSelect;
+export type NewsletterSend = typeof newsletterSends.$inferSelect;
