@@ -394,7 +394,31 @@ At cutover, set in Vercel:
 - `NEXT_PUBLIC_ONESIGNAL_APP_ID` (the old site's app, `6f283e9c-…`) and `ONESIGNAL_REST_API_KEY` (from the OneSignal dashboard; the owner has access)
 - `RESEND_API_KEY`, `RESEND_FROM_EMAIL` and `RESEND_FROM_NAME`, with the sabicars.com domain verified in Resend
 
-Schedule `/api/cron/digest` for Fridays at 08:00 UTC; a weekly schedule is allowed on the Hobby plan. Still to restore with the blog: "Latest from the blog" on the homepage. "Recent deliveries" waits for confirmed deliveries and photos (item 5).
+Schedule `/api/cron/digest` for Fridays at 08:00 UTC; a weekly schedule is allowed on the Hobby plan. "Recent deliveries" waits for confirmed deliveries and photos (item 5).
+
+The three invented testimonials were also removed from the live site (sabicars.com, commit 97ee11c on `main`, with the owner's go-ahead). That change also fixed review text being inserted unescaped, which let anyone who posted a review inject script into the homepage.
+
+### Insights — the blog (2026-09-26)
+
+The owner's brief: magazine-grade, articles you finish once you start, with animation and video. Built:
+
+- **Articles are blocks, not HTML** (`lib/blog/blocks.ts`): paragraph, headings, list, "the short version", pull quote, callout, photo, video, illustration, live cars, table, Q&A and next-step card. Nothing stored is rendered as markup. The three old posts are converted to blocks on import (`lib/blog/from-html.ts`), keeping their views and reactions.
+- **Set like a magazine:** a reading column of about 66 characters with figures breaking wider, a gold drop-cap opening, a reading-progress line, and a contents rail that tracks the reader (a dropdown on phones).
+- **Animated illustrations, drawn in code** (`components/blog/illustrations`):
+  - the Hummer bus anatomy, which draws itself and has six tappable inspection points
+  - a live chart of every Hummer in stock by year and price
+  - the 40/60 Drive Plan split on a real bus
+  - an inspection checklist that stays ticked on the reader's phone
+  - a route calculator on the reader's own numbers
+
+  All respect reduced motion and are readable down to 360 px.
+- **Video:** YouTube, TikTok and Instagram links show a poster, and their player loads only when tapped (data-light). Sabicars' own Cloudinary clips play as silent loops when scrolled into view, with a tap for sound.
+- **Around each article:** the old site's four reactions, shares, read counts, moderated comments (managers alerted), a subscribe box, related articles, BlogPosting and FAQPage structured data, and sitemap entries.
+- **Flagship:** "The Toyota Hiace Hummer bus: the complete buyer's guide" (`src/content/articles`, `npm run blog:seed`). Every price in it is live from stock.
+- **Admin → Insights:** a block editor with direct photo upload to Cloudinary (`sabicars/blog`) and draft preview. The first publish announces the article once: bell, push, and an email to blog subscribers. Published articles cannot be deleted, only unpublished, so links never break.
+- "Insights" is in the site navigation, the latest articles are on the homepage, and the Hummer bus page links to the guide.
+
+Still open: videos. The owner has clips on Instagram, YouTube, TikTok and phones. Paste the links into a video block, and upload phone clips to Cloudinary for silent loops. The old posts are due a rewrite to the new standard. "Drive Now, Pay Monthly" in particular still says "30–40% deposit, 12–48 months", which predates the Autochek arrangement.
 
 ### What Sabicars has that Adedayo does not
 
