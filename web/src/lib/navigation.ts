@@ -5,6 +5,7 @@ export const PRIMARY_NAV = [
   { href: "/drive-plan", label: "40% Drive Plan", hint: "Pay 40% — Autochek finances the rest" },
   { href: "/fleet", label: "Fleet", hint: "Volume supply for companies and government" },
   { href: "/partners", label: "Refer & Earn", hint: "Earn 1.5% on every buyer you send" },
+  { href: "/blog", label: "Insights", hint: "Buyer's guides and straight answers" },
   { href: "/about", label: "About", hint: "The story, and the standards we keep" },
   { href: "/contact", label: "Contact", hint: "Visit, call or write — with a map" },
 ] as const;

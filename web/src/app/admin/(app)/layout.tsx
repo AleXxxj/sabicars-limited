@@ -6,6 +6,7 @@ import { signOut } from "@/lib/actions/auth";
 import { adminNavFor, ROLE_LABEL } from "@/lib/admin-nav";
 import { waitingCount } from "@/lib/repositories/leads";
 import { reviewCounts } from "@/lib/repositories/reviews";
+import { pendingCommentCount } from "@/lib/repositories/blog";
 
 /**
  * The staff workspace. Built for a phone first: most listings will be made
@@ -15,11 +16,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const me = await requireStaff();
   const nav = adminNavFor(me.role);
   // What is waiting for someone, shown on the section it is waiting in.
-  const [leadsWaiting, reviewsWaiting] = await Promise.all([
+  const [leadsWaiting, reviewsWaiting, commentsWaiting] = await Promise.all([
     waitingCount(me.dealerId),
     me.role === "sales" ? 0 : reviewCounts(me.dealerId).then((c) => c.waiting),
+    me.role === "sales" ? 0 : pendingCommentCount(me.dealerId),
   ]);
-  const badges: Record<string, number> = { "/admin/leads": leadsWaiting, "/admin/reviews": reviewsWaiting };
+  const badges: Record<string, number> = { "/admin/leads": leadsWaiting, "/admin/reviews": reviewsWaiting, "/admin/blog": commentsWaiting };
 
   return (
     <div className="min-h-svh bg-surface-0">

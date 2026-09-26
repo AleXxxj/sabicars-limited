@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { BadgeCheck, Eye, Truck, Wallet } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, BadgeCheck, Eye, Truck, Wallet } from "lucide-react";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { PageIntro } from "@/components/site/PageIntro";
 import { ButtonLink } from "@/components/ui/Button";
@@ -121,6 +122,24 @@ export default async function HummerBusPage() {
               How the Drive Plan works
             </ButtonLink>
           </div>
+        </div>
+      </section>
+
+      {/* Buying one for the first time? The guide answers what buyers ask before they call. */}
+      <section className="border-t border-white/[0.06]">
+        <div className="mx-auto max-w-7xl px-5 py-16 md:px-10 md:py-20">
+          <Link href="/blog/toyota-hiace-hummer-bus-buyers-guide" className="surface-card group flex flex-wrap items-center justify-between gap-6 p-6 md:p-10">
+            <span className="max-w-2xl">
+              <span className="kicker">The buyer&rsquo;s guide</span>
+              <span className="mt-3 block font-display text-[1.9rem] leading-tight text-text-primary group-hover:text-gold-100 md:text-[2.3rem]">
+                How to tell a good Hummer bus from a tired one — before you pay a kobo.
+              </span>
+              <span className="mt-2 block text-text-secondary">Six places to look, the papers to ask for, and whether it will pay for itself on your route.</span>
+            </span>
+            <span className="inline-flex items-center gap-2 font-semibold text-gold-300 group-hover:text-gold-200">
+              Read the guide <ArrowRight aria-hidden size={18} className="transition-transform group-hover:translate-x-1" />
+            </span>
+          </Link>
         </div>
       </section>
     </>

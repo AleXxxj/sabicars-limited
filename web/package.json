@@ -15,6 +15,7 @@
     "db:migrate": "node --env-file=.env.local scripts/migrate.mjs",
     "db:inspect": "node --env-file=.env.local scripts/inspect-db.mjs",
     "legacy:import": "node --env-file=.env.local --import tsx scripts/import-legacy.mts",
+    "blog:seed": "node --env-file=.env.local --import tsx scripts/seed-articles.mts",
     "staff:create": "node --env-file=.env.local scripts/create-staff.mjs",
     "test:schema": "node scripts/verify-schema.mjs",
     "test:money": "tsx scripts/verify-money.ts",

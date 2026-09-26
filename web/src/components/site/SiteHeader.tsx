@@ -28,7 +28,8 @@ export function SiteHeader() {
         </nav>
         <div className="flex items-center gap-2">
           <NotificationBell />
-          <SavedLink className="!size-10 sm:!size-11" />
+          {/* On the narrowest phones the shortlist lives in the menu, so the header never overflows. */}
+          <SavedLink className="!size-10 max-[419px]:!hidden sm:!size-11" />
           <ButtonLink href="/vehicles" className="!hidden !min-h-11 !px-5 !text-[0.9rem] xl:!inline-flex">
             Browse cars
           </ButtonLink>

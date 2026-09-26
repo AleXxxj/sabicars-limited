@@ -40,6 +40,7 @@ import {
   check,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
+import type { Block } from "../lib/blog/blocks";
 
 const createdAt = () => timestamp("created_at", { withTimezone: true }).notNull().defaultNow();
 const updatedAt = () => timestamp("updated_at", { withTimezone: true }).notNull().defaultNow();
@@ -600,9 +601,23 @@ export const blogPosts = pgTable(
     title: text("title").notNull(),
     category: text("category").notNull(),
     excerpt: text("excerpt").notNull(),
-    /** HTML from the legacy editor. Sanitised on render, never trusted. */
-    content: text("content").notNull(),
+    /** The line under the headline: the hook that makes the first paragraph get read. */
+    standfirst: text("standfirst"),
+    /**
+     * HTML from the legacy editor, kept as the source of old posts. Never
+     * rendered: it is converted to blocks (lib/blog/from-html.ts).
+     */
+    content: text("content").notNull().default(""),
+    /** The article itself, as blocks (lib/blog/blocks.ts). */
+    blocks: jsonb("blocks").$type<Block[]>().notNull().default([]),
     coverImageUrl: text("cover_image_url"),
+    /** A silent looping clip in place of the cover photo, where one exists. */
+    coverVideoUrl: text("cover_video_url"),
+    /** Search terms it is about ("toyota-hiace-hummer") — links it to the matching cars and landing pages. */
+    tags: jsonb("tags").$type<string[]>().notNull().default([]),
+    isFeatured: boolean("is_featured").notNull().default(false),
+    /** When subscribers and the bell were told about it — once. */
+    announcedAt: timestamp("announced_at", { withTimezone: true }),
     author: text("author").notNull().default("Sabicars Team"),
     readMinutes: integer("read_minutes"),
     isPublished: boolean("is_published").notNull().default(false),
@@ -630,9 +645,12 @@ export const blogComments = pgTable(
     name: text("name").notNull(),
     message: text("message").notNull(),
     isApproved: boolean("is_approved").notNull().default(false),
+    /** When staff published or hid it. Null: still waiting to be read. */
+    reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+    ipHash: text("ip_hash"),
     createdAt: createdAt(),
   },
-  (t) => [uniqueIndex("blog_comments_legacy_idx").on(t.legacyId)],
+  (t) => [uniqueIndex("blog_comments_legacy_idx").on(t.legacyId), index("blog_comments_post_idx").on(t.postId, t.isApproved)],
 );
 
 export const subscribers = pgTable(
@@ -777,3 +795,5 @@ export type Review = typeof reviews.$inferSelect;
 export type Subscriber = typeof subscribers.$inferSelect;
 export type Notification = typeof notifications.$inferSelect;
 export type NewsletterSend = typeof newsletterSends.$inferSelect;
+export type BlogPost = typeof blogPosts.$inferSelect;
+export type BlogComment = typeof blogComments.$inferSelect;

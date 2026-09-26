@@ -13,6 +13,7 @@ const SECTIONS: { href: string; label: string; roles: StaffMember["role"][] }[] 
   { href: "/admin/vehicles", label: "Inventory", roles: ["owner", "manager", "sales"] },
   { href: "/admin/requests", label: "Sourcing Desk", roles: ["owner", "manager", "sales"] },
   { href: "/admin/reviews", label: "Reviews", roles: ["owner", "manager"] },
+  { href: "/admin/blog", label: "Insights", roles: ["owner", "manager"] },
   { href: "/admin/audience", label: "Audience", roles: ["owner", "manager"] },
   { href: "/admin/consignors", label: "Consignors", roles: ["owner", "manager"] },
 ];

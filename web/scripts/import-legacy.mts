@@ -27,6 +27,7 @@ import { and, eq, inArray, sql } from "drizzle-orm";
 import * as schema from "../src/db/schema";
 import { normaliseLegacyCar, slugify, tidy, type LegacyCar, type Normalised } from "../src/lib/legacy/normalise";
 import { newPathFor } from "../src/lib/legacy/urls";
+import { blocksFromHtml } from "../src/lib/blog/from-html";
 import { site } from "../src/lib/site";
 import { formatNaira } from "../src/lib/money";
 
@@ -275,11 +276,15 @@ try {
         category: tidy(p.category) || "Industry News",
         excerpt: tidy(p.excerpt),
         content: String(p.content ?? ""),
+        // Rendered from blocks, never from the stored HTML.
+        blocks: blocksFromHtml(String(p.content ?? ""), (href) => newPathFor(href, (id) => vehicleByLegacy.get(id)?.slug) ?? href),
         coverImageUrl: tidy(p.coverImage) || null,
         author: tidy(p.author) || "Sabicars Team",
         readMinutes: Number(String(p.readTime ?? "").match(/\d+/)?.[0]) || null,
         isPublished: published,
         publishedAt: published ? new Date(p.publishedAt ?? p.createdAt ?? Date.now()) : null,
+        // Announced on the old site already; never re-announced to subscribers.
+        announcedAt: published ? new Date(p.publishedAt ?? p.createdAt ?? Date.now()) : null,
         views: Number(p.views) || 0,
         shares: Number(p.shares) || 0,
         reactions: p.reactions ?? {},
@@ -306,6 +311,7 @@ try {
         name: tidy(c.name) || "Reader",
         message: tidy(c.message),
         isApproved: c.approved !== false,
+        reviewedAt: c.approved !== false ? new Date(c.createdAt ?? Date.now()) : null,
         createdAt: new Date(c.createdAt ?? Date.now()),
       };
       await tx.insert(schema.blogComments).values(values).onConflictDoUpdate({ target: schema.blogComments.legacyId, set: values });

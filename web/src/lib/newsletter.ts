@@ -1,7 +1,7 @@
 import "server-only";
 import { and, desc, eq, gte, inArray, isNotNull, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { newsletterSends, subscribers, vehicleMedia, vehicles } from "@/db/schema";
+import { blogPosts, newsletterSends, subscribers, vehicleMedia, vehicles } from "@/db/schema";
 import { emailConfigured, esc, sendBatch, sendEmail, type EmailMessage } from "@/lib/email";
 import { shareImageUrl } from "@/lib/media";
 import { formatNaira } from "@/lib/money";
@@ -97,6 +97,8 @@ export interface NewsletterContent {
   intro: string;
   vehicles: EmailVehicle[];
   cta?: { label: string; url: string };
+  /** A picture above the headline — an article's cover. */
+  image?: { url: string; href: string } | null;
   /** utm_campaign on every link, so the site can tell which email sold what. */
   campaign: string;
 }
@@ -134,6 +136,7 @@ ${deposit ? `<div style="padding:2px 0 0;font-size:14px;color:#aba394">${esc(dep
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0a0908"><tr><td align="center" style="padding:32px 16px">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px">
 <tr><td style="padding:0 0 28px"><a href="${esc(tagged("/", c.campaign))}"><img src="${esc(siteUrl())}/brand/logo-email.png" width="200" alt="Sabicars" style="display:block;border:0"></a></td></tr>
+${c.image ? `<tr><td style="padding:0 0 24px"><a href="${esc(tagged(c.image.href, c.campaign))}"><img src="${esc(shareImageUrl(c.image.url))}" width="560" alt="" style="display:block;width:100%;height:auto;border:0;border-radius:14px"></a></td></tr>` : ""}
 <tr><td style="font-size:12px;letter-spacing:3px;color:#c9a84c;text-transform:uppercase">${esc(c.kicker)}</td></tr>
 <tr><td style="padding:10px 0 0;font-family:Georgia,serif;font-size:32px;line-height:1.15;color:#f5f2ea">${esc(c.headline)}</td></tr>
 ${paragraphs.map((p) => `<tr><td style="padding:14px 0 0;font-size:16px;line-height:1.65;color:#d6cfc0">${esc(p)}</td></tr>`).join("\n")}
@@ -180,6 +183,23 @@ function messageFor(sub: { email: string; unsubscribeToken: string }, subject: s
 /** The content of a recorded send, rebuilt from what was stored. */
 async function contentOf(send: typeof newsletterSends.$inferSelect): Promise<NewsletterContent> {
   const cars = await vehiclesByIds(send.dealerId, send.vehicleIds);
+  if (send.kind === "article") {
+    const [post] = await db
+      .select({ slug: blogPosts.slug, title: blogPosts.title, standfirst: blogPosts.standfirst, excerpt: blogPosts.excerpt, cover: blogPosts.coverImageUrl })
+      .from(blogPosts)
+      .where(eq(blogPosts.id, (send.periodKey ?? "").replace(/^article:/, "")))
+      .limit(1);
+    const path = post ? `/blog/${post.slug}` : "/blog";
+    return {
+      kicker: "New on Sabicars Insights",
+      headline: post?.title ?? send.subject,
+      intro: post?.standfirst || post?.excerpt || send.body || "",
+      image: post?.cover ? { url: post.cover, href: path } : null,
+      vehicles: cars,
+      cta: { label: "Read the article", url: path },
+      campaign: send.periodKey ?? "article",
+    };
+  }
   if (send.kind === "digest") {
     return {
       kicker: "New this week",
@@ -210,7 +230,7 @@ export async function deliver(sendId: string): Promise<{ recipients: number; fai
   }
 
   const content = await contentOf(send);
-  // The weekly digest is about cars; a broadcast goes to everyone subscribed.
+  // The digest goes to those who want cars, an article to those who want the blog; a broadcast to everyone.
   const audience = await db
     .select({ email: subscribers.email, unsubscribeToken: subscribers.unsubscribeToken })
     .from(subscribers)
@@ -218,7 +238,7 @@ export async function deliver(sendId: string): Promise<{ recipients: number; fai
       and(
         eq(subscribers.dealerId, send.dealerId),
         eq(subscribers.isActive, true),
-        send.kind === "digest" ? sql`${subscribers.topics} ? 'cars'` : undefined,
+        send.kind === "digest" ? sql`${subscribers.topics} ? 'cars'` : send.kind === "article" ? sql`${subscribers.topics} ? 'blog'` : undefined,
       ),
     );
 
@@ -300,6 +320,19 @@ export async function runWeeklyDigest(
   if (!arrivals.length) return { status: "skipped" };
   const r = await deliver(sendId);
   return r.recipients ? { status: "sent", recipients: r.recipients } : { status: "failed", error: r.error };
+}
+
+/**
+ * A new article, to every subscriber — once. The article's id is the send's
+ * key, so announcing twice sends once.
+ */
+export async function createArticleSend(dealerId: string, post: { id: string; title: string; standfirst: string | null }): Promise<string | null> {
+  const [send] = await db
+    .insert(newsletterSends)
+    .values({ dealerId, kind: "article", periodKey: `article:${post.id}`, subject: post.title, body: post.standfirst })
+    .onConflictDoNothing()
+    .returning({ id: newsletterSends.id });
+  return send?.id ?? null;
 }
 
 /** A staff broadcast: recorded, then sent. */

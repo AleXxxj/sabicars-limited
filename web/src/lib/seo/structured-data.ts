@@ -114,6 +114,41 @@ export function itemListJsonLd(name: string, items: { name: string; path: string
  * JSON.stringify does not escape "<", so a description containing
  * "</script>" could break out of the tag. Escaping it closes that hole.
  */
+/** An article, for Google's article and Discover results. */
+export function articleJsonLd(a: {
+  title: string;
+  description: string;
+  path: string;
+  image: string | null;
+  author: string;
+  publishedAt: Date;
+  updatedAt: Date;
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: a.title,
+    description: a.description,
+    url: `${siteUrl()}${a.path}`,
+    mainEntityOfPage: `${siteUrl()}${a.path}`,
+    image: a.image ? [a.image] : undefined,
+    datePublished: a.publishedAt.toISOString(),
+    dateModified: a.updatedAt.toISOString(),
+    author: { "@type": "Organization", name: a.author, url: siteUrl() },
+    publisher: { "@id": `${siteUrl()}/#dealer` },
+  };
+}
+
+/** Questions and answers from an article's FAQ block. */
+export function faqJsonLd(items: { q: string; a: string }[]) {
+  const plain = (s: string) => s.replace(/\*\*|\*/g, "").replace(/\[([^\]]+)\]\([^)]*\)/g, "$1");
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: items.map((i) => ({ "@type": "Question", name: i.q, acceptedAnswer: { "@type": "Answer", text: plain(i.a) } })),
+  };
+}
+
 export function jsonLdScript(data: unknown): string {
   return JSON.stringify(data).replace(/</g, "\\u003c");
 }

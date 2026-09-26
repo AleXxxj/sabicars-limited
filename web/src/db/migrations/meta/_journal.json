@@ -43,6 +43,13 @@
       "when": 1790443746544,
       "tag": "0005_reviews_audience_notifications",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790460244976,
+      "tag": "0006_blog_blocks",
+      "breakpoints": true
     }
   ]
 }

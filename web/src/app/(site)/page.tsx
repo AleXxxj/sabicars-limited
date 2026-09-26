@@ -16,6 +16,8 @@ import { categoryTiles, drivePlanCatalogue, featuredVehicles, heroVehicles, hero
 import { mostRequested } from "@/lib/repositories/sourcing";
 import { publishedReviews, reviewSummary } from "@/lib/repositories/reviews";
 import { ReviewsSection } from "@/components/reviews/ReviewsSection";
+import { PostCard } from "@/components/blog/PostCard";
+import { latestPosts } from "@/lib/repositories/blog";
 import { formatNaira, money, percentOf } from "@/lib/money";
 import { dealerJsonLd, jsonLdScript } from "@/lib/seo/structured-data";
 import { site, siteUrl } from "@/lib/site";
@@ -56,7 +58,7 @@ function SectionHead({ eyebrow, title, children }: { eyebrow: string; title: str
  * built to capture the audience, not just display the lot.
  */
 export default async function Home() {
-  const [hero, featured, stats, tiles, videoUrl, catalogue, demand, buses, reviews, reviewStats] = await Promise.all([
+  const [hero, featured, stats, tiles, videoUrl, catalogue, demand, buses, reviews, reviewStats, posts] = await Promise.all([
     heroVehicles(8),
     featuredVehicles(6),
     inventoryStats(),
@@ -67,6 +69,7 @@ export default async function Home() {
     hummerBuses(),
     publishedReviews(),
     reviewSummary(),
+    latestPosts(3),
   ]);
   // The signature: Hummer buses, newest first, those with a photograph.
   const hummers = buses.filter((b) => /hum+er/i.test(b.model) && b.cover);
@@ -402,6 +405,27 @@ export default async function Home() {
           </div>
         </div>
       </section>
+
+      {/* Know more than the seller: the latest from Insights. */}
+      {posts.length > 0 && (
+        <section className="border-t border-border-subtle">
+          <div className="mx-auto max-w-7xl px-5 py-20 md:px-10 md:py-28">
+            <ScrollReveal className="flex flex-wrap items-end justify-between gap-6">
+              <SectionHead eyebrow="Insights" title="Know more than the seller." />
+              <ButtonLink href="/blog" variant="quiet">
+                Every article
+              </ButtonLink>
+            </ScrollReveal>
+            <div className="mt-10 grid gap-6 md:mt-12 md:grid-cols-2 lg:grid-cols-3">
+              {posts.map((p, i) => (
+                <ScrollReveal key={p.slug} delay={i * 90}>
+                  <PostCard post={p} />
+                </ScrollReveal>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Come and see it. */}
       <section className="border-t border-border-subtle">
