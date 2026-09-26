@@ -21,7 +21,7 @@ const WHY = [
   { icon: BadgeCheck, title: "What Sabicars is known for", text: "Hummer buses are Sabicars’ speciality — the vehicle the business built its name on." },
   { icon: Eye, title: "See it before you pay", text: "Every bus here is in stock. Walk in, sit in it, start it, and inspect it before any money moves." },
   { icon: Truck, title: "One bus or a whole fleet", text: "Staff transport, schools, churches, hotels, routes — one quotation and one accountable team for any number." },
-  { icon: Wallet, title: "Pay 40%", text: "Put down 40% and drive it home the same day, while Autochek, Sabicars’ financing partner, finances the rest." },
+  { icon: Wallet, title: "Pay 40%", text: "Put down 40% and Autochek, Sabicars’ financing partner, finances the rest — subject to its approval." },
 ];
 
 /**
