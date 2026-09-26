@@ -4,6 +4,7 @@ import { VehicleCard } from "@/components/VehicleCard";
 import { AutoSubmitForm } from "@/components/inventory/AutoSubmitForm";
 import { searchInventory } from "@/lib/repositories/vehicles";
 import {
+  customPriceLabel,
   filtersHref,
   hasActiveFilters,
   parseFilters,
@@ -109,6 +110,10 @@ export default async function InventoryPage({ searchParams }: Props) {
                     {b.label}
                   </option>
                 ))}
+                {/* A range from a link (e.g. the Drive Plan finder's "up to ₦25m") that no band matches: show it, don't pretend it's "Any price". */}
+                {priceValue(f) && !PRICE_BANDS.some((b) => `${b.min ?? ""}-${b.max ?? ""}` === priceValue(f)) && (
+                  <option value={priceValue(f)}>{customPriceLabel(f)}</option>
+                )}
               </select>
             </label>
             <label>

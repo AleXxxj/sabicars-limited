@@ -157,12 +157,12 @@ export function HeroShowcase({ slides, videoUrl }: { slides: HeroSlide[]; videoU
           >
             View the inventory
           </Link>
-          <Link
-            href="/drive-plan"
+          <a
+            href="#drive-plan"
             className="inline-flex min-h-14 items-center border border-white/40 px-8 text-[0.78rem] font-semibold uppercase tracking-[0.18em] text-white transition-colors [font-stretch:115%] hover:border-white"
           >
-            The 40% Drive Plan
-          </Link>
+            What can I drive today?
+          </a>
         </div>
 
         {/* What is on screen, and a way to it. */}

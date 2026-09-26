@@ -13,7 +13,7 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-border-subtle bg-surface-0/85 backdrop-blur-md supports-[backdrop-filter]:bg-surface-0/70">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-6 px-5 md:h-20 md:px-10">
         <Logo />
-        <nav aria-label="Main" className="hidden items-center gap-9 lg:flex">
+        <nav aria-label="Main" className="hidden items-center gap-7 xl:flex 2xl:gap-9">
           {PRIMARY_NAV.map((item) => (
             <NavLink key={item.href} href={item.href}>
               {item.label}

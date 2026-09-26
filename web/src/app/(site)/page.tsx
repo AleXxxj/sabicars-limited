@@ -1,17 +1,23 @@
 import type { Metadata } from "next";
+import Form from "next/form";
 import Image from "next/image";
 import Link from "next/link";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { Address } from "@/components/site/Address";
 import { VehicleCard } from "@/components/VehicleCard";
 import { VehicleImage } from "@/components/VehicleImage";
+import { DrivePlanFinder } from "@/components/home/DrivePlanFinder";
 import { HeroShowcase, type HeroSlide } from "@/components/home/HeroShowcase";
-import { ButtonLink } from "@/components/ui/Button";
-import { categoryTiles, featuredVehicles, heroVehicles, heroVideoUrl, inventoryStats } from "@/lib/repositories/vehicles";
-import { formatNaira } from "@/lib/money";
+import { EarningsExamples, PartnerRules } from "@/components/referral/Referral";
+import { Button, ButtonLink } from "@/components/ui/Button";
+import { fieldClass } from "@/components/forms/field";
+import { categoryTiles, drivePlanCatalogue, featuredVehicles, heroVehicles, heroVideoUrl, inventoryStats } from "@/lib/repositories/vehicles";
+import { mostRequested } from "@/lib/repositories/sourcing";
+import { formatNaira, money, percentOf } from "@/lib/money";
 import { dealerJsonLd, jsonLdScript } from "@/lib/seo/structured-data";
 import { site, siteUrl } from "@/lib/site";
-import { drivePlanBalance, drivePlanDeposit, priceLabel, vehicleTitle } from "@/lib/vehicle";
+import { BUDGET_OPTIONS } from "@/lib/sourcing";
+import { DRIVE_PLAN_DEPOSIT_BPS, priceLabel, vehicleTitle } from "@/lib/vehicle";
 
 /**
  * Rebuilt every five minutes, and immediately whenever staff change a vehicle
@@ -35,16 +41,36 @@ function SectionHead({ eyebrow, title, children }: { eyebrow: string; title: str
   );
 }
 
+/**
+ * The homepage.
+ *
+ * Its one job: leave every visitor with something on record — an enquiry on a
+ * car, a request for a car Sabicars does not have yet, or a partner code.
+ * Most arrive on a phone from Christ D's videos, often with more interest
+ * than cash, so the page answers their questions in the order they ask them:
+ * is this real, what can I afford, what if it isn't here, and can I earn
+ * from this. Sabicars' strength is its audience, not its lot; the page is
+ * built to capture the audience, not just display the lot.
+ */
 export default async function Home() {
-  const [hero, featured, stats, tiles, videoUrl] = await Promise.all([heroVehicles(8), featuredVehicles(6), inventoryStats(), categoryTiles(), heroVideoUrl()]);
+  const [hero, featured, stats, tiles, videoUrl, catalogue, demand] = await Promise.all([
+    heroVehicles(8),
+    featuredVehicles(6),
+    inventoryStats(),
+    categoryTiles(),
+    heroVideoUrl(),
+    drivePlanCatalogue(),
+    mostRequested(),
+  ]);
 
   // Staff choose hero vehicles; if none are chosen, lead with featured stock
   // rather than an empty backdrop.
   const heroSource = (hero.length ? hero : featured).filter((v) => v.cover);
   const slides: HeroSlide[] = heroSource.map((v) => ({ url: v.cover!.url, title: vehicleTitle(v), price: priceLabel(v), href: `/vehicles/${v.slug}` }));
 
-  // A real vehicle to explain the Drive Plan with, rather than invented numbers.
-  const example = featured.find((v) => v.priceMinor && v.segment !== "commercial") ?? featured.find((v) => v.priceMinor);
+  // The smallest deposit that drives a car home today, from the cheapest available vehicle.
+  const lowestDeposit = catalogue[0] ? percentOf(money(catalogue[0].priceMinor, "NGN"), DRIVE_PLAN_DEPOSIT_BPS).minor : null;
+  const busCover = tiles.find((t) => t.label === "Buses & Hiace")?.coverUrl;
 
   return (
     <>
@@ -60,56 +86,82 @@ export default async function Home() {
 
       <HeroShowcase slides={slides} videoUrl={videoUrl} />
 
-      {/* Facts, live from the inventory. */}
+      {/* Is this real? Facts, live from the inventory and the register. */}
       <section aria-label="At a glance" className="border-b border-border-subtle bg-surface-1">
         <dl className="mx-auto grid max-w-7xl grid-cols-2 gap-px bg-border-subtle md:grid-cols-4">
           {[
-            [String(stats.inStock), "Vehicles in stock today"],
-            [String(stats.makes), "Makes, from Toyota to Mercedes-Benz"],
-            [stats.fromMinor ? formatNaira(stats.fromMinor, { compact: true }) : "—", "Starting price"],
-            [site.rcNumber, "RC number · registered with the CAC"],
-          ].map(([value, label]) => (
+            { value: String(stats.inStock), label: "Vehicles in stock today" },
+            { value: lowestDeposit ? formatNaira(lowestDeposit, { compact: true }) : "—", label: "Drives one home today, on the 40% Drive Plan" },
+            { value: String(stats.makes), label: "Makes, from Toyota to Mercedes-Benz" },
+            { value: site.rcNumber, label: "RC number — verify it on the CAC register", href: site.cacSearchUrl },
+          ].map(({ value, label, href }) => (
             <div key={label} className="bg-surface-1 px-5 py-7 md:px-10 md:py-9">
               <dt className="sr-only">{label}</dt>
               <dd>
                 <span className="figures block font-display text-[2.4rem] leading-none text-text-primary md:text-[3rem]">{value}</span>
-                <span className="mt-2 block text-sm text-text-muted">{label}</span>
+                {href ? (
+                  <a href={href} target="_blank" rel="noopener noreferrer" className="mt-2 block text-sm text-text-muted underline-offset-4 hover:text-text-primary hover:underline">
+                    {label}
+                  </a>
+                ) : (
+                  <span className="mt-2 block text-sm text-text-muted">{label}</span>
+                )}
               </dd>
             </div>
           ))}
         </dl>
       </section>
 
+      {/* What can I afford? Answered from live stock, as they type. */}
+      {catalogue.length > 0 && (
+        <section id="drive-plan" className="scroll-mt-20 md:scroll-mt-24">
+          <div className="mx-auto max-w-7xl px-5 py-20 md:px-10 md:py-28">
+            <DrivePlanFinder vehicles={catalogue}>
+              <ScrollReveal>
+                <SectionHead eyebrow="The 40% Drive Plan" title="What can you drive home today?">
+                  <p>
+                    Pay 40% of the price and the car leaves the showroom with you; the balance is settled on terms agreed before you drive
+                    away. Tell us what you have — the answer comes from what is in stock right now.
+                  </p>
+                </SectionHead>
+              </ScrollReveal>
+            </DrivePlanFinder>
+          </div>
+        </section>
+      )}
+
       {/* Ways in. */}
       {tiles.length > 0 && (
-        <section className="mx-auto max-w-7xl px-5 py-20 md:px-10 md:py-28">
-          <ScrollReveal>
-            <SectionHead eyebrow="The inventory" title="Start with what you need." />
-          </ScrollReveal>
-          <div className="mt-12 grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
-            {tiles.slice(0, 4).map((t, i) => (
-              <ScrollReveal key={t.href} delay={i * 90}>
-                <Link href={t.href} className="group relative block aspect-[3/4] overflow-hidden bg-surface-2 sm:aspect-[4/5]">
-                  {t.coverUrl && (
-                    <VehicleImage
-                      src={t.coverUrl}
-                      alt=""
-                      fill
-                      sizes="(min-width: 1024px) 25vw, 50vw"
-                      className="object-cover transition-transform duration-[var(--duration-slow)] ease-[var(--ease-out)] group-hover:scale-[1.05]"
-                    />
-                  )}
-                  <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[#0B0A09] via-[#0B0A09]/35 to-transparent" />
-                  <div className="absolute inset-x-0 bottom-0 p-5 md:p-6">
-                    <p className="figures text-xs text-white/70">{t.count} in stock</p>
-                    <p className="mt-1 font-display text-[1.7rem] leading-tight text-white md:text-[2rem]">{t.label}</p>
-                    <span className="eyebrow mt-3 inline-block !text-gold-300 transition-transform duration-[var(--duration-base)] group-hover:translate-x-1">
-                      Browse →
-                    </span>
-                  </div>
-                </Link>
-              </ScrollReveal>
-            ))}
+        <section className="border-t border-border-subtle bg-surface-1">
+          <div className="mx-auto max-w-7xl px-5 py-20 md:px-10 md:py-28">
+            <ScrollReveal>
+              <SectionHead eyebrow="The inventory" title="Start with what you need." />
+            </ScrollReveal>
+            <div className="mt-12 grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
+              {tiles.slice(0, 4).map((t, i) => (
+                <ScrollReveal key={t.href} delay={i * 90}>
+                  <Link href={t.href} className="group relative block aspect-[3/4] overflow-hidden bg-surface-2 sm:aspect-[4/5]">
+                    {t.coverUrl && (
+                      <VehicleImage
+                        src={t.coverUrl}
+                        alt=""
+                        fill
+                        sizes="(min-width: 1024px) 25vw, 50vw"
+                        className="object-cover transition-transform duration-[var(--duration-slow)] ease-[var(--ease-out)] group-hover:scale-[1.05]"
+                      />
+                    )}
+                    <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[#0B0A09] via-[#0B0A09]/35 to-transparent" />
+                    <div className="absolute inset-x-0 bottom-0 p-5 md:p-6">
+                      <p className="figures text-xs text-white/70">{t.count} in stock</p>
+                      <p className="mt-1 font-display text-[1.7rem] leading-tight text-white md:text-[2rem]">{t.label}</p>
+                      <span className="eyebrow mt-3 inline-block !text-gold-300 transition-transform duration-[var(--duration-base)] group-hover:translate-x-1">
+                        Browse →
+                      </span>
+                    </div>
+                  </Link>
+                </ScrollReveal>
+              ))}
+            </div>
           </div>
         </section>
       )}
@@ -135,74 +187,61 @@ export default async function Home() {
         </section>
       )}
 
-      {/* The Drive Plan, explained with a real car. */}
+      {/* What if it isn't here? The request is kept, not lost. */}
       <section className="border-t border-border-subtle bg-surface-1">
-        <div className="mx-auto grid max-w-7xl gap-14 px-5 py-20 md:px-10 md:py-28 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-center">
+        <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 md:px-10 md:py-28 lg:grid-cols-2 lg:items-center lg:gap-20">
           <ScrollReveal>
-            <SectionHead eyebrow="The 40% Drive Plan" title="Drive it home today. Pay the rest on agreed terms.">
-              <p>Choose your vehicle, pay 40% of the price, and it leaves the showroom with you. The balance is settled on terms agreed with Sabicars before you drive away.</p>
+            <SectionHead eyebrow="The Sourcing Desk" title="Not in the showroom? Put it on the desk.">
+              <p>
+                Tell us the vehicle and your budget. Your request is recorded with a reference, it joins the list Sabicars sources from,
+                and the moment a match arrives, you are told.
+              </p>
             </SectionHead>
-            <ol className="mt-10 grid gap-6 sm:grid-cols-3">
-              {[
-                ["Choose", "Any vehicle in stock, seen in person or online."],
-                ["Pay 40%", "The deposit secures the car and it is yours to drive."],
-                ["Settle", "The balance, on the terms you agreed."],
-              ].map(([step, text], i) => (
-                <li key={step} className="border-t border-gold-700 pt-4">
-                  <p className="figures text-xs text-text-muted">0{i + 1}</p>
-                  <p className="mt-1 font-display text-2xl">{step}</p>
-                  <p className="mt-2 text-sm leading-relaxed text-text-secondary">{text}</p>
-                </li>
-              ))}
-            </ol>
-            <div className="mt-10">
-              <ButtonLink href="/drive-plan">How the Drive Plan works</ButtonLink>
-            </div>
+            {demand.length > 0 && (
+              <div className="mt-10">
+                <p className="eyebrow !text-text-muted">Most requested right now</p>
+                <ul className="mt-4 flex flex-wrap gap-2">
+                  {demand.map((d) => (
+                    <li key={d.want} className="border border-border-default px-3 py-1.5 text-sm text-text-secondary">
+                      {d.want} <span className="figures text-text-muted">· {d.requests}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </ScrollReveal>
 
-          {example && (
-            <ScrollReveal delay={120}>
-              <Link href={`/vehicles/${example.slug}`} className="group block border border-border-default bg-surface-0 transition-colors hover:border-border-strong">
-                {example.cover && (
-                  <div className="relative aspect-[16/10] overflow-hidden">
-                    <VehicleImage src={example.cover.url} alt={vehicleTitle(example)} fill sizes="(min-width: 1024px) 40vw, 100vw" className="object-cover" />
-                  </div>
-                )}
-                <div className="p-6 md:p-8">
-                  <p className="eyebrow !text-text-muted">For example</p>
-                  <p className="mt-2 font-display text-[1.9rem] leading-tight">{vehicleTitle(example)}</p>
-                  <dl className="mt-6 grid grid-cols-3 gap-4 border-t border-border-subtle pt-5">
-                    <div>
-                      <dt className="text-xs text-text-muted">Price</dt>
-                      <dd className="figures mt-1 font-semibold">{priceLabel(example)}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-xs text-text-muted">Pay today</dt>
-                      <dd className="figures mt-1 font-semibold text-accent-text">{drivePlanDeposit(example)}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-xs text-text-muted">Balance</dt>
-                      <dd className="figures mt-1 font-semibold">{drivePlanBalance(example)}</dd>
-                    </div>
-                  </dl>
-                </div>
-              </Link>
-            </ScrollReveal>
-          )}
+          <ScrollReveal delay={120}>
+            <Form action="/find" className="grid gap-6 border border-border-default bg-surface-0 p-6 md:p-10">
+              <label className="grid gap-2">
+                <span className="eyebrow !text-text-secondary">What are you looking for?</span>
+                <input name="want" required maxLength={120} placeholder="e.g. Toyota Highlander, 2018 or newer" className={fieldClass} />
+              </label>
+              <label className="grid gap-2">
+                <span className="eyebrow !text-text-secondary">Budget for the vehicle</span>
+                <select name="budget" defaultValue="" className={fieldClass}>
+                  <option value="">Not sure yet</option>
+                  {BUDGET_OPTIONS.map((b) => (
+                    <option key={b.value} value={b.value}>
+                      {b.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+                <Button type="submit" size="lg">
+                  Continue
+                </Button>
+                <span className="text-sm text-text-muted">Next: where to reach you.</span>
+              </div>
+            </Form>
+          </ScrollReveal>
         </div>
       </section>
 
       {/* Fleet and government. */}
       <section className="relative isolate overflow-hidden border-t border-border-subtle bg-[#0B0A09]">
-        {tiles.find((t) => t.label === "Buses & Hiace")?.coverUrl && (
-          <VehicleImage
-            src={tiles.find((t) => t.label === "Buses & Hiace")!.coverUrl!}
-            alt=""
-            fill
-            sizes="100vw"
-            className="-z-20 object-cover opacity-45"
-          />
-        )}
+        {busCover && <VehicleImage src={busCover} alt="" fill sizes="100vw" className="-z-20 object-cover opacity-45" />}
         <div aria-hidden className="absolute inset-0 -z-10" style={{ background: "var(--hero-scrim)" }} />
         <div className="mx-auto max-w-7xl px-5 py-24 md:px-10 md:py-32">
           <ScrollReveal className="max-w-2xl">
@@ -222,7 +261,7 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* The founder. */}
+      {/* The man the audience came for. */}
       <section className="border-t border-border-subtle">
         <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 md:px-10 md:py-28 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-center">
           <ScrollReveal>
@@ -251,8 +290,38 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Come and see it. */}
+      {/* Can I earn from this? A commission on sales, on plain terms. */}
       <section className="border-t border-border-subtle bg-surface-1">
+        <div className="mx-auto max-w-7xl px-5 py-20 md:px-10 md:py-28">
+          <div className="grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-20">
+            <ScrollReveal>
+              <SectionHead eyebrow="Refer & Earn" title="Know a buyer? Earn 1.5% when they buy.">
+                <p>
+                  Register free and get your own link. When a buyer you sent completes a purchase, 1.5% of the price is yours — and they
+                  are recorded against your code from their first enquiry, so nobody can claim them.
+                </p>
+              </SectionHead>
+              <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3">
+                <ButtonLink href="/partners#register" size="lg">
+                  Become a partner
+                </ButtonLink>
+                <ButtonLink href="/partners" variant="quiet">
+                  How it works
+                </ButtonLink>
+              </div>
+            </ScrollReveal>
+            <ScrollReveal delay={120}>
+              <EarningsExamples vehicles={catalogue} />
+            </ScrollReveal>
+          </div>
+          <div className="mt-16 md:mt-20">
+            <PartnerRules />
+          </div>
+        </div>
+      </section>
+
+      {/* Come and see it. */}
+      <section className="border-t border-border-subtle">
         <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 md:px-10 md:py-24 lg:grid-cols-2 lg:items-end">
           <ScrollReveal>
             <SectionHead eyebrow="Visit" title="See it before you commit.">
@@ -263,12 +332,7 @@ export default async function Home() {
             <div>
               <p className="eyebrow !text-text-muted">Showroom</p>
               <Address className="mt-3 text-text-secondary" />
-              <a
-                href={site.mapsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="eyebrow mt-4 inline-block"
-              >
+              <a href={site.mapsUrl} target="_blank" rel="noopener noreferrer" className="eyebrow mt-4 inline-block">
                 Get directions →
               </a>
             </div>

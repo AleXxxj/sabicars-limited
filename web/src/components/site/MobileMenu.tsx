@@ -52,7 +52,7 @@ export function MobileMenu() {
         onClick={() => setOpen(true)}
         aria-expanded={open}
         aria-controls="mobile-menu"
-        className="eyebrow min-h-12 px-1 !text-text-primary lg:hidden"
+        className="eyebrow min-h-12 px-1 !text-text-primary xl:hidden"
       >
         Menu
       </button>
@@ -63,7 +63,7 @@ export function MobileMenu() {
         aria-modal="true"
         aria-label="Menu"
         hidden={!open}
-        className="fixed inset-0 z-50 flex flex-col overflow-y-auto bg-surface-0 px-5 pb-10 pt-4 lg:hidden"
+        className="fixed inset-0 z-50 flex flex-col overflow-y-auto bg-surface-0 px-5 pb-10 pt-4 xl:hidden"
       >
         <div className="flex items-center justify-between">
           <span className="eyebrow !text-text-muted">Sabicars</span>

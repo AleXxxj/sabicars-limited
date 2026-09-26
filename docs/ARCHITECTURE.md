@@ -294,6 +294,39 @@ Tested end to end under a real staff session and cleaned up afterwards. Until
 cutover the legacy admin remains the source of truth: a legacy re-import
 overwrites imported vehicles' fields.
 
+### Direction reset — the homepage has one job (2026-09-26)
+
+Reviewing /about, /fleet and /contact, the owner's developer judged the rebuild
+"a lower version of the live site" with "no intentionality". Fair: the pages had
+been ported one by one, unverifiable claims removed with nothing put in their
+place, and the live site's Refer & Earn, reviews, deliveries, blog, sold list,
+calculator and map dropped. Agreed thesis:
+
+> Sabicars' strength is its audience (Christ D's reach and relationships); its
+> weakness is stock and staff. The platform turns the audience into recorded
+> demand, and demand into deals, without anyone having to be at the park.
+
+Every page now states its one job in its source, and is checked against the
+live page it replaces so nothing is lost silently. Built on that basis:
+
+- **Homepage**, ordered by the visitor's questions: is this real (live facts,
+  CAC link) → what can I afford (**Drive Plan finder**: type what you can pay
+  today, see the live count and the best cars it reaches) → browse → what if
+  it isn't here (**Sourcing Desk** first step) → fleet → the founder → can I
+  earn (**Refer & Earn**, with commission on real cars in stock) → visit.
+- **/find — the Sourcing Desk.** A standing request for a car not in stock:
+  a `sourcing` lead (one inbox, one reference) plus a `vehicle_requests` row
+  with the criteria. On submit it replies at once with any in-stock matches.
+  "Most requested right now" appears publicly once 3+ requests are open.
+- **/partners — Refer & Earn.** Registration issues a six-character code and
+  a link (`/r/CODE`, optional `?to=/vehicles/…`) at once. The link sets a
+  90-day first-touch cookie; every lead saved while it is present records
+  `partner_id`. A partner's own enquiry is never their referral. The four
+  rules (free, paid on sales only, no recruiting, buyer on record) are shown
+  before the form.
+- The **Record** (dated deliveries and verified-buyer reviews) is next; there
+  are no sold vehicles yet to build it from.
+
 ### What Sabicars has that Adedayo does not
 
 Consignment and custody (§2.2), youth scout and creator programmes on top of
@@ -325,6 +358,8 @@ These block content and go-live, not architecture. Building continues without th
 14. **A professional portrait of Ccristian Dee.** The homepage uses the photo from the current About page (casual, football shirt). For the institutional story, a proper portrait session is worth more than any design change.
 15. **Fleet figures.** The current About page names orders (70 Hiace buses to Hobbys Circle, 60 to House of Chi, 60 Corollas) and the current homepage different ones (13 Highlanders, 3 Lexus GX). Which are accurate, and may clients be named? The new homepage states no figures until confirmed.
 16. **Hero photography.** Of the six vehicles flagged for the homepage hero, the Hiace Humer 2's cover is an interior shot, and the 2022 GLE 350's cover looks like a manufacturer press photo rather than the actual car. Hero vehicles need a daylight exterior three-quarter view.
+17. **Refer & Earn operating rules** — built with defaults that need the owner's word: (a) first partner to bring a buyer keeps them for 90 days; (b) a partner buying for themselves earns nothing; (c) how and how soon commission is paid, and whether partners must show ID before payout; (d) whether a code given verbally at the showroom counts (staff will need to record it on walk-in leads).
+18. **Sourcing to order** — the Sourcing Desk tells buyers their request joins "the list Sabicars sources from". Confirm that Sabicars will source on request (through the importer and dealer network), and who reviews the requests.
 13. **The import report** (`web/.data/legacy-import-report.md`) — 26 vehicles need a salesperson's attention: mostly missing descriptions and body types, one price with a stray "Z", one car with a colour in the seats field. Some cover photos are interiors (e.g. the Acura MDX); covers should be an exterior three-quarter view.
 
 ## 9. Cost shape

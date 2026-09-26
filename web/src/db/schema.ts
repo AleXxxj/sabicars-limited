@@ -103,6 +103,8 @@ export const leadType = pgEnum("lead_type", [
   "drive_plan",
   "fleet",
   "contact",
+  /** A standing request for a vehicle not in stock (the Sourcing Desk). */
+  "sourcing",
 ]);
 
 export const leadChannel = pgEnum("lead_channel", [
@@ -115,6 +117,11 @@ export const leadChannel = pgEnum("lead_channel", [
 ]);
 
 export const leadStatus = pgEnum("lead_status", ["new", "contacted", "qualified", "won", "lost"]);
+
+export const requestPayment = pgEnum("request_payment", ["cash", "drive_plan", "undecided"]);
+export const requestStatus = pgEnum("request_status", ["open", "matched", "fulfilled", "closed"]);
+
+export const partnerStatus = pgEnum("partner_status", ["active", "suspended"]);
 
 /* ── Dealers, locations, people ────────────────────────────────────────── */
 
@@ -312,7 +319,8 @@ export const leads = pgTable(
     utmSource: text("utm_source"),
     utmMedium: text("utm_medium"),
     utmCampaign: text("utm_campaign"),
-    partnerId: uuid("partner_id"),
+    /** The Refer & Earn partner whose link brought this buyer — the record their commission rests on. */
+    partnerId: uuid("partner_id").references(() => partners.id, { onDelete: "set null" }),
 
     assignedTo: uuid("assigned_to").references(() => staff.id, { onDelete: "set null" }),
     /**
@@ -332,6 +340,75 @@ export const leads = pgTable(
     index("leads_assigned_idx").on(t.assignedTo, t.status),
     check("leads_reachable", sql`${t.phone} IS NOT NULL OR ${t.email} IS NOT NULL`),
     check("leads_name_present", sql`length(btrim(${t.name})) > 0`),
+  ],
+);
+
+/**
+ * The Sourcing Desk. Sabicars' audience is larger than its showroom, so a
+ * buyer whose car is not in stock leaves a standing request instead of
+ * leaving. Each request is a lead (one inbox, one reference) plus the
+ * criteria new stock is matched against; together they tell staff what to
+ * source, and tell the buyer the moment a match arrives.
+ */
+export const vehicleRequests = pgTable(
+  "vehicle_requests",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    dealerId: uuid("dealer_id").notNull().references(() => dealers.id),
+    leadId: uuid("lead_id").notNull().references(() => leads.id, { onDelete: "cascade" }),
+    /** In the buyer's words — "Toyota Highlander", "Hiace high roof". Matched against make and model. */
+    want: text("want").notNull(),
+    yearFrom: integer("year_from"),
+    /** Most they will pay for the vehicle, in kobo. Null: not stated. */
+    budgetMaxMinor: bigint("budget_max_minor", { mode: "number" }),
+    payment: requestPayment("payment").notNull().default("undecided"),
+    status: requestStatus("status").notNull().default("open"),
+    /** When stock matching this request was last offered to the buyer. */
+    lastMatchedAt: timestamp("last_matched_at", { withTimezone: true }),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [
+    uniqueIndex("vehicle_requests_lead_idx").on(t.leadId),
+    index("vehicle_requests_open_idx").on(t.dealerId, t.status, t.createdAt),
+    check("vehicle_requests_want_present", sql`length(btrim(${t.want})) > 1`),
+    check("vehicle_requests_year_range", sql`${t.yearFrom} IS NULL OR ${t.yearFrom} BETWEEN 1980 AND 2100`),
+    check("vehicle_requests_budget_positive", sql`${t.budgetMaxMinor} IS NULL OR ${t.budgetMaxMinor} > 0`),
+  ],
+);
+
+/* ── Refer & Earn ──────────────────────────────────────────────────────── */
+
+/**
+ * People who send Sabicars buyers for a 1.5% commission. The programme pays
+ * only on completed sales and never for signing up other partners, so it
+ * cannot become a pyramid. The code is how a referral is attributed: a buyer
+ * who arrives through a partner's link is recorded against them, and nobody
+ * else can claim that buyer.
+ */
+export const partners = pgTable(
+  "partners",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    dealerId: uuid("dealer_id").notNull().references(() => dealers.id),
+    /** Six characters, e.g. ADA7K3 — short enough to say out loud. */
+    code: text("code").notNull(),
+    name: text("name").notNull(),
+    /** E.164. One registration per phone number. */
+    phone: text("phone").notNull(),
+    email: text("email"),
+    /** Where they expect to find buyers — tells Sabicars which channels work. */
+    reach: text("reach"),
+    status: partnerStatus("status").notNull().default("active"),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [
+    uniqueIndex("partners_code_idx").on(t.code),
+    uniqueIndex("partners_dealer_phone_idx").on(t.dealerId, t.phone),
+    check("partners_code_format", sql`${t.code} ~ '^[A-Z0-9]{6}$'`),
+    check("partners_phone_e164", sql`${t.phone} ~ '^\\+[1-9][0-9]{7,14}$'`),
+    check("partners_name_present", sql`length(btrim(${t.name})) > 0`),
   ],
 );
 
@@ -487,3 +564,5 @@ export type NewVehicle = typeof vehicles.$inferInsert;
 export type VehicleMedia = typeof vehicleMedia.$inferSelect;
 export type Lead = typeof leads.$inferSelect;
 export type NewLead = typeof leads.$inferInsert;
+export type VehicleRequest = typeof vehicleRequests.$inferSelect;
+export type Partner = typeof partners.$inferSelect;

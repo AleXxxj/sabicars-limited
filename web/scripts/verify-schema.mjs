@@ -154,6 +154,30 @@ await allows(db, "records a lead with a phone number", `INSERT INTO leads (deale
 await rejects(db, "refuses a lead nobody can call or email back", `INSERT INTO leads (dealer_id, type, channel, name) VALUES (${D}, 'question', 'web_form', 'Ada')`, "leads_reachable");
 await rejects(db, "refuses a lead with a blank name", `INSERT INTO leads (dealer_id, type, channel, name, phone) VALUES (${D}, 'question', 'web_form', '   ', '+2348000000000')`, "leads_name_present");
 
+// ── Sourcing Desk ──────────────────────────────────────────────────────────
+console.log("\nSourcing Desk");
+const L = "'1e000000-0000-0000-0000-000000000001'";
+await allows(db, "records a sourcing lead", `INSERT INTO leads (id, dealer_id, type, channel, name, phone) VALUES (${L}, ${D}, 'sourcing', 'web_form', 'Ada', '+2348000000001')`);
+await allows(db, "records a standing request against it", `INSERT INTO vehicle_requests (dealer_id, lead_id, want, year_from, budget_max_minor, payment) VALUES (${D}, ${L}, 'Toyota Highlander', 2018, 2500000000, 'drive_plan')`);
+await rejects(db, "refuses a second request on the same lead", `INSERT INTO vehicle_requests (dealer_id, lead_id, want) VALUES (${D}, ${L}, 'Lexus RX')`, "vehicle_requests_lead_idx");
+await rejects(db, "refuses a request with no vehicle named", `INSERT INTO vehicle_requests (dealer_id, lead_id, want) VALUES (${D}, gen_random_uuid(), ' ')`, "vehicle_requests_want_present");
+await rejects(db, "refuses a zero budget", `INSERT INTO leads (id, dealer_id, type, channel, name, phone) VALUES ('1e000000-0000-0000-0000-000000000002', ${D}, 'sourcing', 'web_form', 'Ada', '+2348000000001'); INSERT INTO vehicle_requests (dealer_id, lead_id, want, budget_max_minor) VALUES (${D}, '1e000000-0000-0000-0000-000000000002', 'Hiace', 0)`, "vehicle_requests_budget_positive");
+await rejects(db, "refuses a request for a car from the year 1066", `INSERT INTO vehicle_requests (dealer_id, lead_id, want, year_from) VALUES (${D}, '1e000000-0000-0000-0000-000000000002', 'Hiace', 1066)`, "vehicle_requests_year_range");
+await allows(db, "deleting the lead removes its request", `DELETE FROM leads WHERE id = ${L}`);
+const reqLeft = await db.query(`SELECT count(*)::int AS n FROM vehicle_requests WHERE lead_id = ${L}`);
+expect("no orphaned requests remain", reqLeft.rows[0].n === 0, `${reqLeft.rows[0].n} left`);
+
+// ── Refer & Earn ───────────────────────────────────────────────────────────
+console.log("\nRefer & Earn");
+const P = "'9a000000-0000-0000-0000-000000000001'";
+await allows(db, "registers a partner", `INSERT INTO partners (id, dealer_id, code, name, phone) VALUES (${P}, ${D}, 'ADA7K3', 'Ada', '+2348031234567')`);
+await rejects(db, "refuses a second registration for the same phone", `INSERT INTO partners (dealer_id, code, name, phone) VALUES (${D}, 'ADB7K3', 'Ada B', '+2348031234567')`, "partners_dealer_phone_idx");
+await rejects(db, "refuses a code another partner holds", `INSERT INTO partners (dealer_id, code, name, phone) VALUES (${D}, 'ADA7K3', 'Bola', '+2348031234568')`, "partners_code_idx");
+await rejects(db, "refuses a lower-case or malformed code", `INSERT INTO partners (dealer_id, code, name, phone) VALUES (${D}, 'ada7k', 'Bola', '+2348031234568')`, "partners_code_format");
+await rejects(db, "refuses a phone number not in international form", `INSERT INTO partners (dealer_id, code, name, phone) VALUES (${D}, 'BOL123', 'Bola', '08031234568')`, "partners_phone_e164");
+await allows(db, "attributes a lead to a partner", `INSERT INTO leads (dealer_id, type, channel, name, phone, partner_id) VALUES (${D}, 'question', 'web_form', 'Buyer', '+2348000000002', ${P})`);
+await rejects(db, "refuses attribution to a partner who does not exist", `INSERT INTO leads (dealer_id, type, channel, name, phone, partner_id) VALUES (${D}, 'question', 'web_form', 'Buyer', '+2348000000003', gen_random_uuid())`, "leads_partner_id_partners_id_fk");
+
 // ── People and audience ────────────────────────────────────────────────────
 console.log("\nPeople and audience");
 await rejects(db, "refuses the same staff email twice, whatever the case", `INSERT INTO staff (id, dealer_id, email) VALUES (gen_random_uuid(), ${D}, 'Owner@Sabicars.com')`, "staff_email_idx");

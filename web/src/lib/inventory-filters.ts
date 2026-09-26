@@ -57,6 +57,13 @@ export function parseFilters(raw: Raw): InventoryFilters {
   return schema.parse(flat);
 }
 
+/** A price range no band matches, in words: "Up to ₦25m", "From ₦8m", "₦8m – ₦25m". */
+export function customPriceLabel(f: InventoryFilters): string {
+  const m = (n: number) => `₦${Number((n / 1_000_000).toFixed(1))}m`;
+  if (f.minPrice && f.maxPrice) return `${m(f.minPrice)} – ${m(f.maxPrice)}`;
+  return f.maxPrice ? `Up to ${m(f.maxPrice)}` : `From ${m(f.minPrice ?? 0)}`;
+}
+
 /** The price dropdown's value for the current filters: "min-max". */
 export function priceValue(f: InventoryFilters): string {
   return f.minPrice || f.maxPrice ? `${f.minPrice ?? ""}-${f.maxPrice ?? ""}` : "";
