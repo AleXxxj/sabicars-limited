@@ -290,10 +290,13 @@ try {
         reactions: p.reactions ?? {},
         createdAt: new Date(p.createdAt ?? Date.now()),
       };
+      // A post is brought over once. After that it belongs to the new editor —
+      // rewritten articles must survive later runs — and only its reads,
+      // shares and reactions keep following the old site until cutover.
       const [saved] = await tx
         .insert(schema.blogPosts)
         .values(values)
-        .onConflictDoUpdate({ target: schema.blogPosts.legacyId, set: values })
+        .onConflictDoUpdate({ target: schema.blogPosts.legacyId, set: { views: values.views, shares: values.shares, reactions: values.reactions } })
         .returning({ id: schema.blogPosts.id });
       postIdByLegacy.set(idOf(p), saved.id);
       counts.posts = (counts.posts ?? 0) + 1;

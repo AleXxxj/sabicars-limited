@@ -6,10 +6,16 @@ import { anchorFor, type Block } from "@/lib/blog/blocks";
 import { videoSource } from "@/lib/blog/video";
 import { money, percentOf } from "@/lib/money";
 import { carsForBlock } from "@/lib/repositories/blog";
-import { hummerBuses } from "@/lib/repositories/vehicles";
+import { catalogueWithShape, drivePlanCatalogue, hummerBuses } from "@/lib/repositories/vehicles";
 import { DRIVE_PLAN_DEPOSIT_BPS, vehicleTitle } from "@/lib/vehicle";
 import { Inline } from "./Inline";
+import { BudgetQuiz } from "./illustrations/BudgetQuiz";
+import { DepositStretch } from "./illustrations/DepositStretch";
+import { DrivePlanJourney } from "./illustrations/DrivePlanJourney";
 import { DrivePlanSplit } from "./illustrations/DrivePlanSplit";
+import { FloodDetective } from "./illustrations/FloodDetective";
+import { RepaymentComfort } from "./illustrations/RepaymentComfort";
+import { Walkaround } from "./illustrations/Walkaround";
 import { HummerAnatomy } from "./illustrations/HummerAnatomy";
 import { InspectionChecklist } from "./illustrations/InspectionChecklist";
 import { RouteCalculator } from "./illustrations/RouteCalculator";
@@ -63,6 +69,24 @@ async function Illustration({ block }: { block: Extract<Block, { type: "illustra
       break;
     case "route-calculator":
       body = <RouteCalculator car={await exampleBus()} />;
+      break;
+    case "drive-plan-journey":
+      body = <DrivePlanJourney />;
+      break;
+    case "deposit-stretch":
+      body = <DepositStretch cars={await drivePlanCatalogue()} />;
+      break;
+    case "repayment-comfort":
+      body = <RepaymentComfort />;
+      break;
+    case "walkaround":
+      body = <Walkaround />;
+      break;
+    case "flood-detective":
+      body = <FloodDetective />;
+      break;
+    case "budget-quiz":
+      body = <BudgetQuiz cars={await catalogueWithShape()} />;
       break;
     case "stock-chart":
       body = (

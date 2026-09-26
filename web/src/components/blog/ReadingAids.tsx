@@ -45,21 +45,34 @@ export interface Heading {
   text: string;
 }
 
+/** The section being read: the last heading that has passed the reading line, a third of the way down the screen. */
 function useCurrentSection(ids: string[]) {
   const [current, setCurrent] = useState<string | null>(null);
+  const key = ids.join("|");
   useEffect(() => {
-    const els = ids.map((id) => document.getElementById(id)).filter((e): e is HTMLElement => Boolean(e));
+    const els = key
+      .split("|")
+      .map((id) => document.getElementById(id))
+      .filter((e): e is HTMLElement => Boolean(e));
     if (!els.length) return;
-    const io = new IntersectionObserver(
-      (entries) => {
-        const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-        if (visible[0]) setCurrent(visible[0].target.id);
-      },
-      { rootMargin: "-20% 0px -70% 0px" },
-    );
-    els.forEach((e) => io.observe(e));
-    return () => io.disconnect();
-  }, [ids]);
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const line = window.innerHeight * 0.33;
+      let now: string | null = null;
+      for (const e of els) if (e.getBoundingClientRect().top <= line) now = e.id;
+      setCurrent(now);
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(frame);
+    };
+  }, [key]);
   return current;
 }
 

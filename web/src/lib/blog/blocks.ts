@@ -22,6 +22,12 @@ export const ILLUSTRATIONS = {
   "inspection-checklist": "An inspection checklist the reader ticks off",
   "route-calculator": "Will a bus pay for itself? The reader's own numbers",
   "stock-chart": "The Hummer buses in stock, plotted by year and price",
+  "drive-plan-journey": "The Drive Plan as a journey: a car drives the six steps as the reader scrolls",
+  "deposit-stretch": "Your money two ways: cash, or a 40% deposit, against live stock",
+  "repayment-comfort": "Can you carry the repayment? Pay against Autochek's quote",
+  "walkaround": "The 20-minute walk-around, played out as the reader scrolls",
+  "flood-detective": "Has it been under water? A find-the-evidence game",
+  "budget-quiz": "Four questions: what the reader's money should buy them",
 } as const;
 export type IllustrationName = keyof typeof ILLUSTRATIONS;
 

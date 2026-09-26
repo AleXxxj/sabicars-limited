@@ -196,6 +196,24 @@ export async function drivePlanCatalogue(): Promise<CatalogueItem[]> {
   }));
 }
 
+/** The same catalogue with the shape of each car, for the article quiz that matches cars to a reader's needs. */
+export async function catalogueWithShape(): Promise<(CatalogueItem & { body: string | null; segment: string; make: string })[]> {
+  const rows = await db
+    .select()
+    .from(vehicles)
+    .where(and(eq(vehicles.dealerId, await sabicarsId()), eq(vehicles.status, "available"), sql`${vehicles.priceMinor} IS NOT NULL`))
+    .orderBy(asc(vehicles.priceMinor));
+  return (await withCovers(rows)).map((v) => ({
+    slug: v.slug,
+    title: vehicleTitle(v),
+    priceMinor: v.priceMinor!,
+    coverUrl: v.cover?.url ?? null,
+    body: v.body,
+    segment: v.segment,
+    make: v.make,
+  }));
+}
+
 /**
  * In-stock vehicles that satisfy a Sourcing Desk request — the same rule as
  * lib/matching.ts, expressed in SQL so it runs over the whole inventory.

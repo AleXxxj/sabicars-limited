@@ -113,6 +113,12 @@ export const hiaceHummerGuide = {
       ],
     },
 
+    {
+      type: "video",
+      url: "https://www.instagram.com/reel/DdjpP3tSO6j/",
+      caption: "A Toyota Hummer 2 with a manual gearbox, on video.",
+    },
+
     { type: "h2", text: "Six places to look before you pay" },
     {
       type: "p",

@@ -89,3 +89,15 @@
   [data-ticker-frame] { overflow-x: auto; }
   [data-ticker-copy] { display: none; }
 }
+
+/* Article illustrations: the road rushing past on the test drive, the car's idle, exhaust smoke. */
+@keyframes road-rush { to { stroke-dashoffset: -40; } }
+@keyframes car-idle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-1.5px); } }
+@keyframes smoke {
+  from { opacity: 0.9; transform: translate(0, 0) scale(0.6); }
+  to   { opacity: 0; transform: translate(6px, 26px) scale(1.8); }
+}
+@media (prefers-reduced-motion: reduce) {
+  [class*="animate-[road-rush"], [class*="animate-[car-idle"], [class*="animate-[smoke"] { animation: none !important; }
+}
+@keyframes ripple { from { opacity: 1; transform: scale(0.4); } to { opacity: 0; transform: scale(1.8); } }
