@@ -75,7 +75,7 @@ async function deliverPriceDrop(watchId: string): Promise<"sent" | "pending" | "
   const html = `<!doctype html><html><body style="margin:0;background:#0a0908;font-family:Helvetica,Arial,sans-serif;color:#f5f2ea">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0a0908"><tr><td align="center" style="padding:32px 16px">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px">
-<tr><td style="padding:0 0 24px;font-size:13px;letter-spacing:4px;color:#c9a84c">SABICARS · PRICE ALERT</td></tr>
+<tr><td style="padding:0 0 28px"><img src="${esc(siteUrl())}/brand/logo-email.png" width="220" height="45" alt="Sabicars" style="display:block;border:0"><div style="padding-top:14px;font-size:12px;letter-spacing:3px;color:#c9a84c">PRICE ALERT</div></td></tr>
 ${cover ? `<tr><td><a href="${esc(url)}"><img src="${esc(shareImageUrl(cover.url))}" width="560" alt="${esc(title)}" style="display:block;width:100%;height:auto;border:0;border-radius:12px"></a></td></tr>` : ""}
 <tr><td style="padding:20px 0 0;font-family:Georgia,serif;font-size:28px;line-height:1.2">${esc(title)}</td></tr>
 <tr><td style="padding:10px 0 0;font-size:20px">${was ? `<span style="color:#aba394;text-decoration:line-through">${esc(formatNaira(was))}</span>&nbsp; ` : ""}<strong style="color:#dfc67c">${esc(formatNaira(now))}</strong></td></tr>

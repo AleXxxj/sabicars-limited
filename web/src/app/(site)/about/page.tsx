@@ -96,15 +96,22 @@ export default async function AboutPage() {
 
       <section className="border-t border-border-subtle bg-surface-1">
         <div className="mx-auto max-w-7xl px-5 py-20 md:px-10 md:py-28">
-          <ScrollReveal className="max-w-2xl">
-            <p className="kicker">The standard</p>
-            <h2 className="mt-4 text-display-2">What buying from Sabicars means.</h2>
+          <ScrollReveal className="flex flex-wrap items-end justify-between gap-10">
+            <div className="max-w-2xl">
+              <p className="kicker">The standard</p>
+              <h2 className="mt-4 text-display-2">What buying from Sabicars means.</h2>
+              <p className="mt-5 text-lg leading-relaxed text-text-secondary">
+                The Sabicars Verified seal stands for these four promises — and carries the registration number anyone can check.
+              </p>
+            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element -- a vector seal, cached across pages; nothing for next/image to optimise */}
+            <img src="/brand/seal-gold.svg" alt="The Sabicars Verified seal, with CAC RC 1560100" width={168} height={168} className="size-36 md:size-42" />
           </ScrollReveal>
-          <div className="mt-14 grid gap-px bg-border-subtle sm:grid-cols-2">
+          <div className="mt-14 grid gap-px overflow-hidden rounded-2xl border border-white/[0.07] bg-border-subtle sm:grid-cols-2">
             {STANDARDS.map((s, i) => (
               <ScrollReveal key={s.title} delay={(i % 2) * 90} className="bg-surface-1 p-6 md:p-10">
                 <p className="figures text-xs text-text-muted">0{i + 1}</p>
-                <h3 className="mt-2 text-[1.9rem] leading-tight">{s.title}</h3>
+                <h3 className="mt-2 text-[1.6rem] font-semibold leading-tight font-sans tracking-[-0.01em]">{s.title}</h3>
                 <p className="mt-3 leading-relaxed text-text-secondary">{s.body}</p>
                 <a
                   href={s.link.href}

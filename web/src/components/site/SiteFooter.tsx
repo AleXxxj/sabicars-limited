@@ -28,12 +28,23 @@ export function SiteFooter() {
         <div>
           <Logo />
           <p className="mt-6 max-w-xs text-sm leading-relaxed text-text-secondary">
-            Verified luxury cars, Toyota Hiace buses, SUVs and trucks from Lagos — with the 40% Drive Plan and fleet supply for
-            companies and government.
+            Toyota Hiace Hummer buses, verified luxury cars, SUVs and trucks from Lagos — with the 40% Drive Plan and fleet supply
+            for companies and government.
           </p>
-          <p className="figures mt-6 text-xs text-text-muted">
-            {site.legalName} · CAC RC {site.rcNumber}
-          </p>
+          <a
+            href={site.cacSearchUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group mt-6 inline-flex items-center gap-4 text-xs text-text-muted hover:text-text-primary"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element -- a vector seal, cached across pages */}
+            <img src="/brand/seal-gold.svg" alt="" width={72} height={72} className="size-18 shrink-0" />
+            <span className="figures leading-relaxed">
+              {site.legalName}
+              <br />
+              CAC RC {site.rcNumber} — verify it ↗
+            </span>
+          </a>
         </div>
 
         <Column title="Inventory">
