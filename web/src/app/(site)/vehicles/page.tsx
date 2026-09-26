@@ -4,6 +4,7 @@ import { VehicleCard } from "@/components/VehicleCard";
 import { AutoSubmitForm } from "@/components/inventory/AutoSubmitForm";
 import { searchInventory } from "@/lib/repositories/vehicles";
 import {
+  CAR_BODIES,
   customPriceLabel,
   filtersHref,
   hasActiveFilters,
@@ -17,11 +18,11 @@ import { BODY_LABEL, CONDITION_LABEL } from "@/lib/vehicle";
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 
-const PLURAL: Partial<Record<string, string>> = { bus: "Buses", suv: "SUVs", truck: "Trucks", sedan: "Sedans", van: "Vans", pickup: "Pickups", coupe: "Coupes" };
+const PLURAL: Partial<Record<string, string>> = { car: "Cars", bus: "Buses", suv: "SUVs", truck: "Trucks", sedan: "Sedans", van: "Vans", pickup: "Pickups", coupe: "Coupes" };
 
 /** "Luxury Lexus SUVs" — the heading reads the way a buyer would say it. */
 function headingFor(f: InventoryFilters): string {
-  const noun = f.body ? PLURAL[f.body] ?? BODY_LABEL[f.body] : "vehicles";
+  const noun = f.body ? (PLURAL[f.body] ?? BODY_LABEL[f.body as keyof typeof BODY_LABEL]) : "vehicles";
   const words = [f.segment === "luxury" ? "Luxury" : f.segment === "commercial" ? "Commercial" : null, f.make, noun].filter(Boolean);
   const phrase = words.join(" ");
   return f.body || f.segment || f.make ? phrase.charAt(0).toUpperCase() + phrase.slice(1) : "Verified vehicles";
@@ -61,6 +62,7 @@ function Chip({ href, active, children }: { href: string; active: boolean; child
 export default async function InventoryPage({ searchParams }: Props) {
   const f = parseFilters(await searchParams);
   const result = await searchInventory(f);
+  const cars = result.bodies.filter((b) => (CAR_BODIES as readonly string[]).includes(b.body)).reduce((n, b) => n + b.count, 0);
 
   return (
     <>
@@ -80,11 +82,19 @@ export default async function InventoryPage({ searchParams }: Props) {
             <Chip href={filtersHref(f, { segment: f.segment === "luxury" ? undefined : "luxury", body: undefined })} active={f.segment === "luxury"}>
               Luxury
             </Chip>
-            {result.bodies.map((b) => (
-              <Chip key={b.body} href={filtersHref(f, { body: f.body === b.body ? undefined : b.body, segment: undefined })} active={f.body === b.body}>
-                {PLURAL[b.body] ?? BODY_LABEL[b.body]} <span className="figures opacity-70">{b.count}</span>
+            {/* Saloons, coupés and the like are one chip, "Cars" — the way buyers ask. */}
+            {cars > 0 && (
+              <Chip href={filtersHref(f, { body: f.body === "car" ? undefined : "car", segment: undefined })} active={f.body === "car"}>
+                Cars <span className="figures opacity-70">{cars}</span>
               </Chip>
-            ))}
+            )}
+            {result.bodies
+              .filter((b) => !(CAR_BODIES as readonly string[]).includes(b.body))
+              .map((b) => (
+                <Chip key={b.body} href={filtersHref(f, { body: f.body === b.body ? undefined : b.body, segment: undefined })} active={f.body === b.body}>
+                  {PLURAL[b.body] ?? BODY_LABEL[b.body]} <span className="figures opacity-70">{b.count}</span>
+                </Chip>
+              ))}
           </nav>
 
           <AutoSubmitForm className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-[repeat(4,minmax(0,1fr))_auto]">

@@ -6,7 +6,13 @@ import { z } from "zod";
  * dropped rather than erroring: a mistyped link should still show cars.
  */
 
-const BODIES = ["sedan", "suv", "bus", "van", "pickup", "truck", "coupe", "hatchback", "wagon", "convertible", "other"] as const;
+const BODIES = ["car", "sedan", "suv", "bus", "van", "pickup", "truck", "coupe", "hatchback", "wagon", "convertible", "other"] as const;
+
+/**
+ * "car" is how buyers say it: every passenger car that is not an SUV — saloons,
+ * coupés, hatchbacks, estates, convertibles. It is a filter, not a body type.
+ */
+export const CAR_BODIES = ["sedan", "coupe", "hatchback", "wagon", "convertible"] as const;
 const SORTS = ["newest", "price_asc", "price_desc", "year_desc"] as const;
 
 const naira = z.coerce.number().int().positive().max(10_000_000_000);

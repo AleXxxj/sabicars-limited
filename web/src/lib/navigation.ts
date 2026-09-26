@@ -23,10 +23,10 @@ export const TAB_BAR = [
 
 /** Ways into the inventory that match how buyers describe what they want. */
 export const INVENTORY_SHORTCUTS = [
-  { href: "/vehicles?segment=luxury", label: "Luxury" },
+  { href: "/vehicles?body=car", label: "Cars" },
   { href: "/vehicles?body=suv", label: "SUVs" },
   { href: "/hummer-bus", label: "Hummer buses" },
   { href: "/vehicles?body=bus", label: "All buses" },
   { href: "/vehicles?body=truck", label: "Trucks" },
-  { href: "/vehicles?body=sedan", label: "Sedans" },
+  { href: "/vehicles?segment=luxury", label: "Luxury" },
 ] as const;

@@ -3,7 +3,7 @@ import { cache } from "react";
 import { and, asc, count, desc, eq, gte, inArray, lte, ne, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
 import { dealers, locations, settings, vehicleMedia, vehicles, type Vehicle, type VehicleMedia } from "@/db/schema";
-import type { InventoryFilters } from "@/lib/inventory-filters";
+import { CAR_BODIES, type InventoryFilters } from "@/lib/inventory-filters";
 import { wantWords } from "@/lib/matching";
 import { vehicleTitle } from "@/lib/vehicle";
 
@@ -95,6 +95,7 @@ export async function inventoryStats(): Promise<{ inStock: number; makes: number
 }
 
 export interface CategoryTile {
+  key: "cars" | "suvs" | "buses" | "trucks";
   label: string;
   href: string;
   count: number;
@@ -102,22 +103,38 @@ export interface CategoryTile {
 }
 
 /**
- * The ways into the inventory, each with a real photograph and a live count.
- * A category with nothing in stock is left out rather than shown empty.
+ * Tile photographs chosen by eye (26 Sep 2026), because the best photo of a
+ * category is rarely its newest car's cover: a clean saloon for cars, the
+ * high roof that gives the Hummer bus its name, and the truck's best angle. Each
+ * falls back to the automatic choice as soon as that vehicle is no longer
+ * listed. Replace when better photography arrives (an admin control for this
+ * belongs with the media work).
+ */
+const CURATED_COVERS: Partial<Record<CategoryTile["key"], { slug: string; position: number }>> = {
+  cars: { slug: "2010-lexus-is-250-awd", position: 0 },
+  buses: { slug: "2016-toyota-hiace-humer-3", position: 1 },
+  trucks: { slug: "2000-volvo-fl7", position: 3 },
+};
+
+/**
+ * The four ways into the inventory, each with a real photograph and a live
+ * count: cars, SUVs, buses (Hummers first) and trucks. Luxury is not a tile —
+ * most luxury stock is SUVs, so the two tiles showed the same cars.
  */
 export async function categoryTiles(): Promise<CategoryTile[]> {
   const dealerId = await sabicarsId();
-  const defs: { label: string; href: string; where: SQL }[] = [
-    { label: "Luxury", href: "/vehicles?segment=luxury", where: eq(vehicles.segment, "luxury") },
-    { label: "SUVs", href: "/vehicles?body=suv", where: eq(vehicles.body, "suv") },
-    { label: "Buses & Hummers", href: "/vehicles?body=bus", where: eq(vehicles.body, "bus") },
-    { label: "Trucks", href: "/vehicles?body=truck", where: eq(vehicles.body, "truck") },
-    { label: "Sedans", href: "/vehicles?body=sedan", where: eq(vehicles.body, "sedan") },
+  const isHummer = sql`${vehicles.model} ~* 'hum+er'`;
+  const defs: { key: CategoryTile["key"]; label: string; href: string; where: SQL; prefer?: SQL }[] = [
+    { key: "cars", label: "Cars", href: "/vehicles?body=car", where: inArray(vehicles.body, [...CAR_BODIES]) },
+    { key: "suvs", label: "SUVs", href: "/vehicles?body=suv", where: eq(vehicles.body, "suv") },
+    { key: "buses", label: "Buses & Humer", href: "/vehicles?body=bus", where: eq(vehicles.body, "bus"), prefer: isHummer },
+    { key: "trucks", label: "Trucks", href: "/vehicles?body=truck", where: eq(vehicles.body, "truck") },
   ];
   const candidates = await Promise.all(
     defs.map(async (d) => {
       const base = and(eq(vehicles.dealerId, dealerId), inArray(vehicles.status, [...LISTED]), d.where);
-      const [[{ n }], covers] = await Promise.all([
+      const curated = CURATED_COVERS[d.key];
+      const [[{ n }], covers, [pick]] = await Promise.all([
         db.select({ n: count() }).from(vehicles).where(base),
         // The best-merchandised vehicles in the category: featured first, then newest.
         db
@@ -125,23 +142,30 @@ export async function categoryTiles(): Promise<CategoryTile[]> {
           .from(vehicles)
           .innerJoin(vehicleMedia, and(eq(vehicleMedia.vehicleId, vehicles.id), eq(vehicleMedia.position, 0)))
           .where(base)
-          .orderBy(desc(vehicles.isFeatured), desc(vehicles.createdAt))
+          .orderBy(...(d.prefer ? [desc(d.prefer)] : []), desc(vehicles.isFeatured), desc(vehicles.createdAt))
           .limit(8),
+        curated
+          ? db
+              .select({ vehicleId: vehicles.id, url: vehicleMedia.url })
+              .from(vehicles)
+              .innerJoin(vehicleMedia, and(eq(vehicleMedia.vehicleId, vehicles.id), eq(vehicleMedia.position, curated.position)))
+              .where(and(base, eq(vehicles.slug, curated.slug)))
+              .limit(1)
+          : Promise.resolve([]),
       ]);
-      return { ...d, count: n, covers };
+      return { ...d, count: n, covers: pick ? [pick, ...covers] : covers };
     }),
   );
 
-  // A luxury SUV belongs to both "Luxury" and "SUVs"; two tiles showing the
-  // same car side by side looks careless, so each tile takes the best vehicle
-  // no earlier tile has used.
+  // A car can qualify for two tiles; each tile takes the best vehicle no
+  // earlier tile has used, so no photograph appears twice.
   const used = new Set<string>();
   return candidates
     .filter((c) => c.count > 0)
     .map((c) => {
       const pick = c.covers.find((cv) => !used.has(cv.vehicleId)) ?? c.covers[0];
       if (pick) used.add(pick.vehicleId);
-      return { label: c.label, href: c.href, count: c.count, coverUrl: pick?.url ?? null };
+      return { key: c.key, label: c.label, href: c.href, count: c.count, coverUrl: pick?.url ?? null };
     });
 }
 
@@ -247,7 +271,7 @@ type Facet = "make" | "body" | "segment";
 
 function filterConditions(dealerId: string, f: InventoryFilters, omit: Facet[] = []): SQL[] {
   const where: SQL[] = [eq(vehicles.dealerId, dealerId), inArray(vehicles.status, [...LISTED])];
-  if (f.body && !omit.includes("body")) where.push(eq(vehicles.body, f.body));
+  if (f.body && !omit.includes("body")) where.push(f.body === "car" ? inArray(vehicles.body, [...CAR_BODIES]) : eq(vehicles.body, f.body));
   if (f.segment && !omit.includes("segment")) where.push(eq(vehicles.segment, f.segment));
   if (f.make && !omit.includes("make")) where.push(eq(vehicles.make, f.make));
   if (f.condition) where.push(eq(vehicles.condition, f.condition));

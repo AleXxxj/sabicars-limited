@@ -75,7 +75,7 @@ export default async function Home() {
 
   // The smallest deposit that drives a car home today, from the cheapest available vehicle.
   const lowestDeposit = catalogue[0] ? percentOf(money(catalogue[0].priceMinor, "NGN"), DRIVE_PLAN_DEPOSIT_BPS).minor : null;
-  const busCover = tiles.find((t) => t.label === "Buses & Hummers")?.coverUrl;
+  const busCover = tiles.find((t) => t.key === "buses")?.coverUrl;
 
   return (
     <>

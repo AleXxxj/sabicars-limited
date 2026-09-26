@@ -22,7 +22,7 @@ Everything here is generated from exact geometry by `web/scripts/build-brand.mjs
 | Verification seal | `svg/seal-gold.svg`, `-black`, `-white`; print sticker `svg/seal-gold-on-black-disc.svg` |
 | Seal, small sizes | `svg/seal-small-gold.svg`, `-black` (ring and S only) |
 | Browser and app icons | `icons/` (favicon.ico, favicon.svg, 16/32/48, apple-touch 180, 192, 512, maskable 512) |
-| WhatsApp, Instagram and Facebook profile picture | `social/profile-1080.png` (safe in a circle crop) |
+| WhatsApp, Instagram, TikTok and Facebook profile picture | `social/profile-with-name-1080.png` (the S and the name, for the switch from the old ring logo) or `social/profile-1080.png` (the S alone, once the new mark is known). Both are safe in a circle crop. |
 | Link preview image | `social/share-1200x630.png` |
 
 Printers and signwriters should always get the **SVG**. The PNGs are for screens and quick use.

@@ -339,6 +339,21 @@ await png(tile(512, { fill: 0.48 }), join(BRAND, "icons", "icon-maskable-512.png
 
 // Social: profile picture (safe inside a circle crop) and the default link preview.
 await png(tile(1080, { fill: 0.5 }), join(BRAND, "social", "profile-1080.png"), 1080, 1080);
+// For the switch from the old ring logo: people know Sabicars on social media by
+// its name, so the first profile picture carries the name with the S — sized
+// to sit inside the circle every platform crops to.
+{
+  // As large as the circle allows at the wordmark's corners: it must read in a 40px avatar.
+  const lockupW = 820, k = lockupW / sw, lockupH = sh * k;
+  const withName = svg(
+    1080,
+    1080,
+    `<rect width="1080" height="1080" fill="${black}"/>` +
+      `<g transform="translate(${n(540 - lockupW / 2)} ${n(540 - lockupH / 2)}) scale(${n(k)})">${path(ST.s, gold)}${path(ST.wordmark, ivory)}</g>`,
+    { px: [1080, 1080] },
+  );
+  await png(withName, join(BRAND, "social", "profile-with-name-1080.png"), 1080, 1080);
+}
 const domain = outline("SABICARS.COM", { size: 20, wdth: 112, wght: 500, tracking: 0.28 });
 const ogLogoW = 640, ogScale = ogLogoW / hw;
 const og = svg(

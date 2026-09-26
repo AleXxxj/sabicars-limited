@@ -159,6 +159,25 @@ const BODY_WORDS: Record<string, Body> = {
   coupe: "coupe", hatchback: "hatchback", wagon: "wagon", convertible: "convertible",
 };
 
+/**
+ * When the legacy record has no body type, well-known model names settle it:
+ * a Camry is a saloon and a Highlander an SUV, whoever typed the listing. Only
+ * models whose shape is not in doubt are here — anything else stays unset and
+ * is flagged for a salesperson. SUV names are checked first, so "GLE Coupe"
+ * reads as the SUV it is.
+ */
+const MODEL_SHAPES: [RegExp, Body][] = [
+  [/\b(highlander|prado|land cruiser|4runner|venza|rav4|sequoia|fortuner|escalade|range rover|cayenne|macan|santa fe|tucson|edge|explorer|expedition|mdx|rdx|pathfinder|murano|tahoe)\b/i, "suv"],
+  [/\b(rx|gx|lx|nx|ux|gle|gls|glk|ml|g-?class|g ?63|x[5-7]|q[5-8])\b/i, "suv"],
+  [/\b(camry|avalon|corolla|accord|civic|altima|elantra|sonata|passat|jetta)\b/i, "sedan"],
+  [/\b(es|is|gs|ls) ?\d{3}/i, "sedan"],
+  [/\b[ces]-class\b|\b[ces] ?\d{3}\b/i, "sedan"],
+];
+
+export function shapeFromModel(model: string): Body | null {
+  return MODEL_SHAPES.find(([pattern]) => pattern.test(model))?.[1] ?? null;
+}
+
 /** "31,000,000Z" -> kobo, with a warning about the Z. No digits at all -> price on request. */
 export function parseNaira(raw: unknown, warnings: string[]): number | null {
   const text = tidy(String(raw ?? ""));
@@ -203,7 +222,11 @@ export function normaliseLegacyCar(car: LegacyCar): Normalised {
   const category = tidy(car.category).toLowerCase();
   let body: Body | null = BODY_WORDS[bodyTyped] ?? null;
   if (!body && ["suv", "bus", "truck"].includes(category)) body = BODY_WORDS[category];
-  if (!body) warnings.push(`Body type not recorded — choose sedan, SUV, bus, truck…`);
+  if (!body) {
+    body = shapeFromModel(model);
+    if (body) fixes.push(`Body type not recorded — set to ${body === "suv" ? "SUV" : body} from the model name.`);
+    else warnings.push(`Body type not recorded — choose sedan, SUV, bus, truck…`);
+  }
 
   let segment: Segment = "standard";
   if (body === "bus" || body === "truck" || category === "bus" || category === "truck") segment = "commercial";
