@@ -410,15 +410,24 @@ The owner's brief: magazine-grade, articles you finish once you start, with anim
   - the 40/60 Drive Plan split on a real bus
   - an inspection checklist that stays ticked on the reader's phone
   - a route calculator on the reader's own numbers
+  - the Drive Plan journey: a pinned scroll story in which a car drives six steps along a road
+  - the deposit stretch: cash vs a 40% deposit, racing against live stock to the best car each reaches
+  - repayment comfort: the reader's pay, a 30% ring, and a verdict on Autochek's quote
+  - the walk-around: a pinned scroll story round a top-down car, seven stops, with the minutes for each
+  - the flood detective: water rises and drains, then the reader hunts the six marks it leaves
+  - the budget quiz: four questions, a suggested body type and plan, matched to live stock (or the closest car and the Sourcing Desk)
 
-  All respect reduced motion and are readable down to 360 px.
+  All respect reduced motion (scroll stories become still lists) and are readable down to 360 px.
 - **Video:** YouTube, TikTok and Instagram links show a poster, and their player loads only when tapped (data-light). Sabicars' own Cloudinary clips play as silent loops when scrolled into view, with a tap for sound.
 - **Around each article:** the old site's four reactions, shares, read counts, moderated comments (managers alerted), a subscribe box, related articles, BlogPosting and FAQPage structured data, and sitemap entries.
-- **Flagship:** "The Toyota Hiace Hummer bus: the complete buyer's guide" (`src/content/articles`, `npm run blog:seed`). Every price in it is live from stock.
+- **Articles in code** (`src/content/articles`, `npm run blog:seed`):
+  - Flagship: "The Toyota Hiace Hummer bus: the complete buyer's guide". Every price in it is live from stock, and it carries the owner's Instagram reel of a manual Hummer 2.
+  - The three old posts, rewritten at their original addresses so links, reads, reactions, comments and dates carry over: "Drive now, pay monthly" (now the Autochek 40/60 arrangement), "How to inspect a used car in Lagos in 20 minutes", and "Best cars under ₦5 million" (the old model list kept, without market prices that date).
+  - The seeder inserts new articles, rewrites an old-site row once (one with no hook line yet), and otherwise leaves admin edits alone unless run with `--force`. The legacy importer now updates only reads, shares and reactions on posts that already exist, so a final import cannot undo the rewrites.
 - **Admin → Insights:** a block editor with direct photo upload to Cloudinary (`sabicars/blog`) and draft preview. The first publish announces the article once: bell, push, and an email to blog subscribers. Published articles cannot be deleted, only unpublished, so links never break.
 - "Insights" is in the site navigation, the latest articles are on the homepage, and the Hummer bus page links to the guide.
 
-Still open: videos. The owner has clips on Instagram, YouTube, TikTok and phones. Paste the links into a video block, and upload phone clips to Cloudinary for silent loops. The old posts are due a rewrite to the new standard. "Drive Now, Pay Monthly" in particular still says "30–40% deposit, 12–48 months", which predates the Autochek arrangement.
+Still open: more video. One Instagram reel is in (the Hummer guide). YouTube and TikTok links are still wanted, and phone clips can be uploaded to Cloudinary for silent loops.
 
 ### What Sabicars has that Adedayo does not
 
