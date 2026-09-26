@@ -40,7 +40,7 @@ export function useCountUp(target: number, active: boolean, ms = 1400) {
     let frame = 0;
     const start = performance.now();
     const tick = (now: number) => {
-      const p = Math.min(1, (now - start) / ms);
+      const p = Math.min(1, Math.max(0, (now - start) / ms));
       const eased = 1 - Math.pow(1 - p, 4);
       setValue(Math.round(target * eased));
       if (p < 1) frame = requestAnimationFrame(tick);
@@ -128,7 +128,7 @@ export function useTween(target: number, ms = 600) {
     const origin = from.current;
     let frame = 0;
     const tick = (now: number) => {
-      const p = Math.min(1, (now - start) / ms);
+      const p = Math.min(1, Math.max(0, (now - start) / ms));
       const eased = 1 - Math.pow(1 - p, 3);
       const v = origin + (target - origin) * eased;
       from.current = v;
