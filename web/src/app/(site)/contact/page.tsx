@@ -34,23 +34,38 @@ export default function ContactPage() {
       </PageIntro>
 
       <section className="mx-auto max-w-7xl px-5 py-16 md:px-10 md:py-20">
-        <div className="grid gap-px bg-border-subtle sm:grid-cols-2 lg:grid-cols-4">
-          <Channel title="Visit">
-            <Address />
-            <a href={site.mapsUrl} target="_blank" rel="noopener noreferrer" className="eyebrow mt-4 inline-block">
-              Get directions →
-            </a>
-          </Channel>
-          <Channel title="Opening hours">
-            <ul className="space-y-3">
-              {site.hours.map((h) => (
-                <li key={h.days}>
-                  <span className="block text-text-primary">{h.days}</span>
-                  <span className="figures text-sm">{h.time}</span>
-                </li>
-              ))}
-            </ul>
-          </Channel>
+        <div className="grid gap-px bg-border-subtle lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
+          <div className="grid content-start gap-px bg-border-subtle sm:grid-cols-2 lg:grid-cols-1">
+            <Channel title="Visit">
+              <Address />
+              <a href={site.mapsUrl} target="_blank" rel="noopener noreferrer" className="eyebrow mt-4 inline-block">
+                Get directions →
+              </a>
+            </Channel>
+            <Channel title="Opening hours">
+              <ul className="space-y-3">
+                {site.hours.map((h) => (
+                  <li key={h.days}>
+                    <span className="block text-text-primary">{h.days}</span>
+                    <span className="figures text-sm">{h.time}</span>
+                  </li>
+                ))}
+              </ul>
+            </Channel>
+          </div>
+          {/* Satellite view, as on the legacy page: it shows the plaza itself, which is what a first-time visitor is looking for. */}
+          <div className="relative min-h-80 bg-surface-2 md:min-h-[28rem]">
+            <iframe
+              src={site.mapEmbedUrl}
+              title="Map showing the Sabicars showroom at Amazing Grace Shopping Complex, Igando, Lagos"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              allowFullScreen
+              className="absolute inset-0 size-full border-0"
+            />
+          </div>
+        </div>
+        <div className="mt-px grid gap-px bg-border-subtle sm:grid-cols-2">
           <Channel title="Call">
             <ul className="space-y-2">
               {site.phones.map((p) => (

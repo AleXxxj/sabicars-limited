@@ -5,6 +5,8 @@
  * Where the legacy site contradicted itself, the choice and the reason are
  * noted — see docs/ARCHITECTURE.md §8 for what still needs the owner's word.
  */
+const MAP_QUERY = "Sabicars+Autos+Amazing+Grace+Shopping+Complex+Alhaji+Ede+Bus+Stop+Km+16+Igando+Lagos+100267";
+
 export const site = {
   name: "Sabicars",
   legalName: "Sabicars Limited",
@@ -26,8 +28,9 @@ export const site = {
   },
 
   /** The Google Maps listing the legacy contact page links to ("Sabicars Autos"). */
-  mapsUrl:
-    "https://www.google.com/maps/search/?api=1&query=Sabicars+Autos+Amazing+Grace+Shopping+Complex+Alhaji+Ede+Bus+Stop+Km+16+Igando+Lagos+100267",
+  mapsUrl: `https://www.google.com/maps/search/?api=1&query=${MAP_QUERY}`,
+  /** The same listing as an embeddable map — satellite view, as on the legacy contact page. */
+  mapEmbedUrl: `https://maps.google.com/maps?q=${MAP_QUERY}&t=k&z=16&ie=UTF8&iwloc=&output=embed`,
 
   /** Published on the legacy contact page. */
   hours: [
