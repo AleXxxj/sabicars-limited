@@ -42,6 +42,22 @@ const resting = (kind: Kind) => {
   const at = Number(store.get(`sabicars:prompt:${kind}`));
   return Boolean(at) && Date.now() - at < REST[kind];
 };
+/** Set for good once Sabicars is on this phone's home screen: the install ask is never made again. */
+const INSTALLED_KEY = "sabicars:installed";
+
+/**
+ * The old site's own memory, on the same domain after cutover: someone who
+ * subscribed, reviewed, or dealt with its install banner there is not asked
+ * again here.
+ */
+const doneOnOldSite = {
+  subscribe: () => Boolean(store.get("sabi_subscribed")),
+  review: () => Boolean(store.get("sabi_review_done")),
+  install: () => Boolean(store.get("sabi_install_dismissed") || store.get("sabi_ios_hint_seen")),
+};
+
+const installed = () => Boolean(store.get(INSTALLED_KEY)) || doneOnOldSite.install();
+
 const standalone = () =>
   window.matchMedia("(display-mode: standalone)").matches || (navigator as Navigator & { standalone?: boolean }).standalone === true;
 const ios = () => /iPhone|iPad|iPod/.test(navigator.userAgent);
@@ -71,13 +87,27 @@ export function EngagementPrompt() {
   }, [pathname]);
 
   // Android offers its own "install" dialog; keep it for the right moment.
+  // And remember, for good, anyone who has Sabicars on their home screen:
+  // opened from it, installed through any route, or already installed
+  // (Chrome can tell when the web app itself is installed).
   useEffect(() => {
     const keep = (e: Event) => {
       e.preventDefault();
       setInstallEvent(e as InstallEvent);
     };
+    const remember = () => store.set(INSTALLED_KEY, String(Date.now()));
+    if (standalone()) remember();
+    const nav = navigator as Navigator & { getInstalledRelatedApps?: () => Promise<unknown[]> };
+    nav
+      .getInstalledRelatedApps?.()
+      .then((apps) => apps.length > 0 && remember())
+      .catch(() => {});
     window.addEventListener("beforeinstallprompt", keep);
-    return () => window.removeEventListener("beforeinstallprompt", keep);
+    window.addEventListener("appinstalled", remember);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", keep);
+      window.removeEventListener("appinstalled", remember);
+    };
   }, []);
 
   useEffect(() => {
@@ -90,10 +120,11 @@ export function EngagementPrompt() {
     window.addEventListener("scroll", onScroll, { passive: true });
 
     const choose = (): Kind | null => {
-      if (!store.get(SUBSCRIBED_KEY) && !resting("subscribe")) return "subscribe";
+      if (!store.get(SUBSCRIBED_KEY) && !doneOnOldSite.subscribe() && !resting("subscribe")) return "subscribe";
       if (alertsAvailable() && Notification.permission === "default" && !resting("alerts")) return "alerts";
-      if (!standalone() && (installEvent || ios()) && !resting("install")) return "install";
-      if (Number(store.get("sabicars:visits")) >= 3 && !store.get(REVIEWED_KEY) && !resting("review")) return "review";
+      if (!standalone() && !installed() && (installEvent || ios()) && !resting("install")) return "install";
+      if (Number(store.get("sabicars:visits")) >= 3 && !store.get(REVIEWED_KEY) && !doneOnOldSite.review() && !resting("review"))
+        return "review";
       return null;
     };
 
@@ -204,10 +235,31 @@ export function EngagementPrompt() {
                   const { outcome } = await installEvent.userChoice;
                   setInstallEvent(null);
                   if (outcome === "dismissed") notNow();
-                  else finish();
+                  else {
+                    store.set(INSTALLED_KEY, String(Date.now()));
+                    finish();
+                  }
                 }}
               >
                 Add to home screen
+              </Button>
+              <Button type="button" variant="quiet" onClick={notNow}>
+                Not now
+              </Button>
+            </div>
+          )}
+          {kind === "install" && !installEvent && (
+            // iPhones give no signal when a site is added, so the visitor tells us — once.
+            <div className="flex items-center gap-3">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => {
+                  store.set(INSTALLED_KEY, String(Date.now()));
+                  finish();
+                }}
+              >
+                I&rsquo;ve added it
               </Button>
               <Button type="button" variant="quiet" onClick={notNow}>
                 Not now
