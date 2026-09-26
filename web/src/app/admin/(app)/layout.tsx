@@ -4,6 +4,7 @@ import { NavLink } from "@/components/site/NavLink";
 import { requireStaff } from "@/lib/auth";
 import { signOut } from "@/lib/actions/auth";
 import { adminNavFor, ROLE_LABEL } from "@/lib/admin-nav";
+import { waitingCount } from "@/lib/repositories/leads";
 
 /**
  * The staff workspace. Built for a phone first: most listings will be made
@@ -12,6 +13,7 @@ import { adminNavFor, ROLE_LABEL } from "@/lib/admin-nav";
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const me = await requireStaff();
   const nav = adminNavFor(me.role);
+  const waiting = await waitingCount(me.dealerId);
 
   return (
     <div className="min-h-svh bg-surface-0">
@@ -36,10 +38,20 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             </form>
           </div>
         </div>
-        <nav aria-label="Admin" className="mx-auto flex max-w-7xl gap-7 overflow-x-auto px-5 pb-2 [scrollbar-width:none] md:px-8 [&::-webkit-scrollbar]:hidden">
+        <nav
+          aria-label="Admin"
+          className="mx-auto flex max-w-7xl gap-7 overflow-x-auto px-5 pb-2 whitespace-nowrap [scrollbar-width:none] md:px-8 [&::-webkit-scrollbar]:hidden"
+        >
           {nav.map((item) => (
             <NavLink key={item.href} href={item.href}>
               {item.label}
+              {item.href === "/admin/leads" && waiting > 0 && (
+                <span className="figures ml-2 inline-flex min-w-5 items-center justify-center rounded-full bg-gold-500 px-1.5 text-[0.7rem] font-bold text-[#0A0908]">
+                  <span className="sr-only">, </span>
+                  {waiting}
+                  <span className="sr-only"> waiting</span>
+                </span>
+              )}
             </NavLink>
           ))}
         </nav>

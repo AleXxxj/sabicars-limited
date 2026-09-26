@@ -131,6 +131,16 @@ export const matchStatus = pgEnum("match_status", ["pending", "sent", "failed", 
 
 export const partnerStatus = pgEnum("partner_status", ["active", "suspended"]);
 
+export const leadActivityKind = pgEnum("lead_activity_kind", [
+  "alerted", // staff were notified (detail: how many, which channels)
+  "claimed", // a staff member took it
+  "assigned", // given to someone by a manager
+  "status", // detail: the new status
+  "contacted", // detail: call | whatsapp | email
+  "note",
+  "escalated", // untouched too long: managers alerted
+]);
+
 /* ── Dealers, locations, people ────────────────────────────────────────── */
 
 export const dealers = pgTable("dealers", {
@@ -196,6 +206,8 @@ export const staff = pgTable(
     phone: text("phone"),
     role: staffRole("role").notNull().default("sales"),
     isActive: boolean("is_active").notNull().default(true),
+    /** Whether new enquiries alert this person (push to their phone, and email). */
+    receivesAlerts: boolean("receives_alerts").notNull().default(true),
     createdAt: createdAt(),
   },
   (t) => [
@@ -345,6 +357,8 @@ export const leads = pgTable(
      * car sales, so it is measured rather than hoped for.
      */
     firstResponseAt: timestamp("first_response_at", { withTimezone: true }),
+    /** Set when an untouched lead was escalated to managers, so it escalates once. */
+    escalatedAt: timestamp("escalated_at", { withTimezone: true }),
     closedAt: timestamp("closed_at", { withTimezone: true }),
     lostReason: text("lost_reason"),
 
@@ -449,6 +463,45 @@ export const vehicleWatches = pgTable(
     uniqueIndex("vehicle_watches_lead_vehicle_idx").on(t.leadId, t.vehicleId),
     index("vehicle_watches_vehicle_idx").on(t.vehicleId),
     check("vehicle_watches_sent_has_date", sql`${t.alertStatus} IS DISTINCT FROM 'sent' OR ${t.alertedAt} IS NOT NULL`),
+  ],
+);
+
+/**
+ * Everything that happened to a lead, in order: who was alerted, who took it,
+ * every call and message, every change and note. The lead's history belongs
+ * to the business, not to one person's phone.
+ */
+export const leadActivity = pgTable(
+  "lead_activity",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    leadId: uuid("lead_id").notNull().references(() => leads.id, { onDelete: "cascade" }),
+    /** Null for what the system did (alerts, escalations). */
+    staffId: uuid("staff_id").references(() => staff.id, { onDelete: "set null" }),
+    kind: leadActivityKind("kind").notNull(),
+    detail: text("detail"),
+    createdAt: createdAt(),
+  },
+  (t) => [index("lead_activity_lead_idx").on(t.leadId, t.createdAt)],
+);
+
+/** A staff member's phone or browser, subscribed to push alerts (Web Push; no third-party service). */
+export const pushSubscriptions = pgTable(
+  "push_subscriptions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    staffId: uuid("staff_id").notNull().references(() => staff.id, { onDelete: "cascade" }),
+    endpoint: text("endpoint").notNull(),
+    p256dh: text("p256dh").notNull(),
+    auth: text("auth").notNull(),
+    userAgent: text("user_agent"),
+    createdAt: createdAt(),
+    lastSuccessAt: timestamp("last_success_at", { withTimezone: true }),
+  },
+  (t) => [
+    uniqueIndex("push_subscriptions_endpoint_idx").on(t.endpoint),
+    index("push_subscriptions_staff_idx").on(t.staffId),
+    check("push_subscriptions_https", sql`${t.endpoint} LIKE 'https://%'`),
   ],
 );
 
@@ -643,3 +696,4 @@ export type VehicleRequest = typeof vehicleRequests.$inferSelect;
 export type Partner = typeof partners.$inferSelect;
 export type RequestMatch = typeof requestMatches.$inferSelect;
 export type VehicleWatch = typeof vehicleWatches.$inferSelect;
+export type LeadActivity = typeof leadActivity.$inferSelect;

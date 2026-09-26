@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npm run tokens && npm run check:contrast && npm run test:schema && npm run test:money && next build",
+    "build": "npm run tokens && npm run check:contrast && npm run test:schema && npm run test:money && npm run test:hours && next build",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
@@ -18,6 +18,7 @@
     "staff:create": "node --env-file=.env.local scripts/create-staff.mjs",
     "test:schema": "node scripts/verify-schema.mjs",
     "test:money": "tsx scripts/verify-money.ts",
+    "test:hours": "tsx scripts/verify-hours.ts",
     "auth:check": "node --env-file=.env.local scripts/check-auth.mjs",
     "brand": "node scripts/build-brand.mjs"
   },
@@ -31,6 +32,7 @@
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "server-only": "^0.0.1",
+    "web-push": "^3.6.7",
     "zod": "^4.4.3"
   },
   "devDependencies": {
@@ -39,6 +41,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/web-push": "^3.6.4",
     "drizzle-kit": "^0.31.10",
     "embedded-postgres": "17.10.0-beta.17",
     "eslint": "^9",

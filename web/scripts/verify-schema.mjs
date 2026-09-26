@@ -194,6 +194,23 @@ await allows(db, "deleting the vehicle removes its watches", `DELETE FROM vehicl
 const watchLeft = await db.query(`SELECT count(*)::int AS n FROM vehicle_watches WHERE lead_id = ${L3}`);
 expect("no watches on a deleted vehicle remain", watchLeft.rows[0].n === 0, `${watchLeft.rows[0].n} left`);
 
+// ── Lead engine ────────────────────────────────────────────────────────────
+console.log("\nLead engine");
+const L4 = "'1e000000-0000-0000-0000-000000000005'";
+const ST = "'5a000000-0000-0000-0000-000000000009'";
+await allows(db, "a staff member receives alerts by default", `INSERT INTO staff (id, dealer_id, email) VALUES (${ST}, ${D}, 'alerts@sabicars.com')`);
+const rcv = await db.query(`SELECT receives_alerts FROM staff WHERE id = ${ST}`);
+expect("new staff are alerted unless switched off", rcv.rows[0].receives_alerts === true);
+await allows(db, "records a lead's history", `INSERT INTO leads (id, dealer_id, type, channel, name, phone) VALUES (${L4}, ${D}, 'question', 'web_form', 'Ada', '+2348000000011'); INSERT INTO lead_activity (lead_id, staff_id, kind, detail) VALUES (${L4}, ${ST}, 'contacted', 'call')`);
+await rejects(db, "refuses an activity that is not in the vocabulary", `INSERT INTO lead_activity (lead_id, kind) VALUES (${L4}, 'gossip')`, "invalid input value for enum");
+await allows(db, "subscribes a phone to push alerts", `INSERT INTO push_subscriptions (staff_id, endpoint, p256dh, auth) VALUES (${ST}, 'https://fcm.googleapis.com/fcm/send/abc', 'k', 'a')`);
+await rejects(db, "refuses the same phone twice", `INSERT INTO push_subscriptions (staff_id, endpoint, p256dh, auth) VALUES (${ST}, 'https://fcm.googleapis.com/fcm/send/abc', 'k', 'a')`, "push_subscriptions_endpoint_idx");
+await rejects(db, "refuses an insecure push endpoint", `INSERT INTO push_subscriptions (staff_id, endpoint, p256dh, auth) VALUES (${ST}, 'http://example.com/x', 'k', 'a')`, "push_subscriptions_https");
+await allows(db, "removing a staff member keeps the lead's history, unattributed", `DELETE FROM push_subscriptions WHERE staff_id = ${ST}; DELETE FROM staff WHERE id = ${ST}`);
+const hist = await db.query(`SELECT count(*)::int AS n, count(staff_id)::int AS attributed FROM lead_activity WHERE lead_id = ${L4}`);
+expect("the history survives, without the departed name", hist.rows[0].n === 1 && hist.rows[0].attributed === 0, JSON.stringify(hist.rows[0]));
+await allows(db, "deleting the lead removes its history", `DELETE FROM leads WHERE id = ${L4}`);
+
 // ── Refer & Earn ───────────────────────────────────────────────────────────
 console.log("\nRefer & Earn");
 const P = "'9a000000-0000-0000-0000-000000000001'";

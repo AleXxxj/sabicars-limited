@@ -367,6 +367,19 @@ The owner's aim: the inventory everywhere a related search happens. Built, takin
 
 Needs the business, not code: verify the domain in Google Search Console and submit the sitemap at launch; claim and fill the Google Business Profile for the showroom (photos, hours, link); add the site to every social bio; and consider automatic posting of new arrivals to Instagram/Facebook (Meta business account).
 
+### Phase 3 — the lead engine (2026-09-26)
+
+One rule: no buyer waits. Built:
+
+- **One inbox** (`/admin/leads`, and now the admin's front door) for every enquiry from every form: vehicle questions, viewings, reservations, Drive Plan, fleet, contact, Sourcing Desk and price watches. Views: *Waiting for a reply* (longest wait first), *Mine*, *In progress*, *Closed*, *All*; search by name, phone or the buyer's SC- reference. The nav shows how many are waiting.
+- **Claim and assign.** "I'll take it" claims an unclaimed enquiry (atomic, so two people never answer the same buyer). Owners and managers can give it to anyone, who is alerted on their phone. Reaching out to an unclaimed enquiry claims it too.
+- **Instant alerts to staff phones** through standard Web Push (VAPID). There is no third-party service and no monthly fee, and it works with the browser closed. Staff turn alerts on per phone in the inbox. On Android, Chrome is enough. On iPhone, the staff side installs as its own home-screen app, "Sabicars Staff", which iOS requires for web push. The inbox explains this on the phone itself. Email alerts to staff follow once Resend is configured. Each staff member can turn off "every new enquiry" and still get the ones handed to them.
+- **Response time, measured.** The Call, WhatsApp and Email buttons on each enquiry record the first contact. WhatsApp opens with the greeting and reference already written. There is also an "I replied another way" option. The clock runs on showroom time: an enquiry sent at 2am starts counting at opening (`lib/showroom-hours.ts`, 22 checks on every build). The inbox shows the typical first reply, the share answered within 15 minutes, and, for managers, a per-person breakdown.
+- **Escalation.** An enquiry with no reply after 15 showroom minutes alerts the owner and managers, once. The sweep runs on every new enquiry, every inbox visit, and at `/api/cron/escalate`.
+- **A trail on every enquiry**: alerts sent, claims, contacts, notes, status changes, and why a lead was lost (a fixed list, so the reasons can be counted).
+
+At cutover: set `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` and `CRON_SECRET` in Vercel (generate fresh keys for production), and give the sweep a timer. Vercel Pro can call `/api/cron/escalate` every 5 minutes via `vercel.json`. On the Hobby plan, which allows only a daily cron, use a free external scheduler such as cron-job.org with the secret as a Bearer token. Without a timer, escalation still runs whenever an enquiry arrives or someone opens the inbox.
+
 ### What Sabicars has that Adedayo does not
 
 Consignment and custody (§2.2), youth scout and creator programmes on top of
@@ -383,7 +396,7 @@ decoding, the market switch), and rentals unless Sabicars starts renting.
 
 These block content and go-live, not architecture. Building continues without them.
 
-1. **Staff list** — who handles sales, who approves Drive Plans, who is owner. Names, phones, emails.
+1. **Staff list** — who handles sales, who approves Drive Plans, who is owner. Names, phones, emails. Each person's role decides what they see; managers are the ones alerted when an enquiry waits 15 minutes. Every salesperson then installs "Sabicars Staff" on their phone and turns alerts on.
 2. **Reservation policy** — deposit amount, how long a car is held, and whether the deposit is refundable.
 3. **Drive Plan terms** — *Answered 2026-09-26:* the buyer pays 40%; **Autochek finances the remaining 60%**. Sabicars has an Autochek dealer store; its stock is listed there and each listing already carries its loan configuration (tenor, interest). Loan buyers are profiled and processed by Autochek, and the vehicle must be on the store. Built: a per-vehicle Autochek link (legacy `financeUrl`, empty on all 48 today), "Apply for the 60% on Autochek" on each vehicle (records the buyer first, then sends them to the listing), a request path for vehicles not yet listed, and an admin flag on available vehicles with no link. *Answered 2026-09-26:* the car leaves the showroom only after Autochek approves; the buyer pays the 40% then.
 4. **Consignment terms** — what the truck importer is paid, and what they should be able to see.

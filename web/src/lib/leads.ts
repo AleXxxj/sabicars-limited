@@ -1,9 +1,12 @@
 import "server-only";
 import { cookies } from "next/headers";
+import { after } from "next/server";
 import { and, eq, gte, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { dealers, leads, requestMatches, vehicleRequests, vehicleWatches, type NewLead } from "@/db/schema";
+import { escalateStaleLeads, notifyNewLead } from "@/lib/alerts";
 import { activePartnerByCode, PARTNER_COOKIE } from "@/lib/partners";
+import { referenceFor } from "@/lib/reference";
 
 /**
  * The rules every enquiry form shares — vehicle enquiries, the contact page,
@@ -35,10 +38,8 @@ export async function tooManyFrom(phone: string): Promise<boolean> {
   return recent >= RATE_LIMIT;
 }
 
-/** SC- plus the first six characters of the lead id: short enough to read down a phone. */
-export function referenceFor(leadId: string): string {
-  return `SC-${leadId.replace(/-/g, "").slice(0, 6).toUpperCase()}`;
-}
+/** Re-exported: forms and the admin read references from here. */
+export { referenceFor };
 
 export async function sabicarsDealerId(): Promise<string> {
   const [row] = await db.select({ id: dealers.id }).from(dealers).where(eq(dealers.slug, "sabicars")).limit(1);
@@ -63,13 +64,33 @@ async function referringPartnerId(dealerId: string, buyerPhone: string | null | 
 }
 
 /**
+ * Staff are alerted after the buyer has their reference — the alert never
+ * delays the response, and a failed alert never costs the lead. Every alert
+ * run also sweeps for leads left waiting too long.
+ */
+function alertStaff(leadId: string) {
+  after(async () => {
+    try {
+      await notifyNewLead(leadId);
+      await escalateStaleLeads();
+    } catch (e) {
+      console.error("[leads] alerting staff failed", e);
+    }
+  });
+}
+
+/**
  * Saves the lead and returns its reference. The database write is the
- * commitment to the customer; alerting staff (phase 3) is layered on top and
- * can never cost the lead.
+ * commitment to the customer; alerting staff is layered on top and can
+ * never cost the lead.
  */
 export async function saveLead(values: NewLead): Promise<string> {
   const partnerId = values.partnerId ?? (await referringPartnerId(values.dealerId, values.phone));
-  const [row] = await db.insert(leads).values({ ...values, partnerId }).returning({ id: leads.id });
+  const [row] = await db
+    .insert(leads)
+    .values({ ...values, partnerId })
+    .returning({ id: leads.id });
+  alertStaff(row.id);
   return referenceFor(row.id);
 }
 
@@ -79,11 +100,19 @@ export async function saveVehicleRequest(
   request: { want: string; yearFrom: number | null; budgetMaxMinor: number | null; payment: "cash" | "drive_plan" | "undecided" },
 ): Promise<{ reference: string; requestId: string }> {
   const partnerId = lead.partnerId ?? (await referringPartnerId(lead.dealerId, lead.phone));
-  return db.transaction(async (tx) => {
-    const [row] = await tx.insert(leads).values({ ...lead, partnerId }).returning({ id: leads.id });
-    const [req] = await tx.insert(vehicleRequests).values({ dealerId: lead.dealerId, leadId: row.id, ...request }).returning({ id: vehicleRequests.id });
-    return { reference: referenceFor(row.id), requestId: req.id };
+  const saved = await db.transaction(async (tx) => {
+    const [row] = await tx
+      .insert(leads)
+      .values({ ...lead, partnerId })
+      .returning({ id: leads.id });
+    const [req] = await tx
+      .insert(vehicleRequests)
+      .values({ dealerId: lead.dealerId, leadId: row.id, ...request })
+      .returning({ id: vehicleRequests.id });
+    return { leadId: row.id, requestId: req.id };
   });
+  alertStaff(saved.leadId);
+  return { reference: referenceFor(saved.leadId), requestId: saved.requestId };
 }
 
 /**
@@ -103,7 +132,10 @@ export async function recordShownMatches(requestId: string, vehicleIds: string[]
 export async function saveWatch(lead: NewLead, watched: { vehicleId: string; priceMinor: number | null }[]): Promise<string> {
   const partnerId = lead.partnerId ?? (await referringPartnerId(lead.dealerId, lead.phone));
   return db.transaction(async (tx) => {
-    const [row] = await tx.insert(leads).values({ ...lead, partnerId }).returning({ id: leads.id });
+    const [row] = await tx
+      .insert(leads)
+      .values({ ...lead, partnerId })
+      .returning({ id: leads.id });
     await tx
       .insert(vehicleWatches)
       .values(watched.map((w) => ({ dealerId: lead.dealerId, leadId: row.id, vehicleId: w.vehicleId, knownPriceMinor: w.priceMinor })));
