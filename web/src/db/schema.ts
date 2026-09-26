@@ -119,7 +119,13 @@ export const leadChannel = pgEnum("lead_channel", [
 export const leadStatus = pgEnum("lead_status", ["new", "contacted", "qualified", "won", "lost"]);
 
 export const requestPayment = pgEnum("request_payment", ["cash", "drive_plan", "undecided"]);
-export const requestStatus = pgEnum("request_status", ["open", "matched", "fulfilled", "closed"]);
+/**
+ * open: waiting for review or a match · sourcing: staff judged the buyer
+ * serious and are looking for the car · matched: a vehicle has been offered ·
+ * fulfilled: they bought · closed: no longer active.
+ */
+export const requestStatus = pgEnum("request_status", ["open", "sourcing", "matched", "fulfilled", "closed"]);
+export const matchStatus = pgEnum("match_status", ["pending", "sent", "failed", "dismissed"]);
 
 export const partnerStatus = pgEnum("partner_status", ["active", "suspended"]);
 
@@ -365,6 +371,8 @@ export const vehicleRequests = pgTable(
     status: requestStatus("status").notNull().default("open"),
     /** When stock matching this request was last offered to the buyer. */
     lastMatchedAt: timestamp("last_matched_at", { withTimezone: true }),
+    /** What staff made of the request and the buyer — how serious, what was tried. */
+    staffNote: text("staff_note"),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
@@ -374,6 +382,32 @@ export const vehicleRequests = pgTable(
     check("vehicle_requests_want_present", sql`length(btrim(${t.want})) > 1`),
     check("vehicle_requests_year_range", sql`${t.yearFrom} IS NULL OR ${t.yearFrom} BETWEEN 1980 AND 2100`),
     check("vehicle_requests_budget_positive", sql`${t.budgetMaxMinor} IS NULL OR ${t.budgetMaxMinor} > 0`),
+  ],
+);
+
+/**
+ * Every vehicle offered against a request, and whether the buyer was told.
+ * One row per (request, vehicle): a car is offered to a buyer once, however
+ * many times it is saved or re-priced. "pending" means no automatic channel
+ * could reach the buyer, so it waits on the staff board.
+ */
+export const requestMatches = pgTable(
+  "request_matches",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    requestId: uuid("request_id").notNull().references(() => vehicleRequests.id, { onDelete: "cascade" }),
+    vehicleId: uuid("vehicle_id").notNull().references(() => vehicles.id, { onDelete: "cascade" }),
+    status: matchStatus("status").notNull().default("pending"),
+    /** email | whatsapp | sms | on_screen (shown when they asked) | staff (sent by a person) */
+    channel: text("channel"),
+    sentAt: timestamp("sent_at", { withTimezone: true }),
+    error: text("error"),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    uniqueIndex("request_matches_pair_idx").on(t.requestId, t.vehicleId),
+    index("request_matches_status_idx").on(t.status, t.createdAt),
+    check("request_matches_sent_has_date", sql`${t.status} <> 'sent' OR ${t.sentAt} IS NOT NULL`),
   ],
 );
 
@@ -566,3 +600,4 @@ export type Lead = typeof leads.$inferSelect;
 export type NewLead = typeof leads.$inferInsert;
 export type VehicleRequest = typeof vehicleRequests.$inferSelect;
 export type Partner = typeof partners.$inferSelect;
+export type RequestMatch = typeof requestMatches.$inferSelect;

@@ -80,8 +80,8 @@ export default async function AboutPage() {
               whatever its size.
             </p>
             <p>
-              Today Sabicars works from its showroom on Lasu Road in Igando, with its full inventory online, the 40% Drive Plan, and
-              fleet supply for companies and government.
+              Today Sabicars sells from its Lagos showroom and online — with the 40% Drive Plan, financed with Autochek, and fleet
+              supply for companies and government.
             </p>
           </div>
           <blockquote className="mt-12 border-l-2 border-gold-500 pl-6">

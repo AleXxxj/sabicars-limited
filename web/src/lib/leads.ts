@@ -2,7 +2,7 @@ import "server-only";
 import { cookies } from "next/headers";
 import { and, eq, gte, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { dealers, leads, vehicleRequests, type NewLead } from "@/db/schema";
+import { dealers, leads, requestMatches, vehicleRequests, type NewLead } from "@/db/schema";
 import { activePartnerByCode, PARTNER_COOKIE } from "@/lib/partners";
 
 /**
@@ -77,13 +77,26 @@ export async function saveLead(values: NewLead): Promise<string> {
 export async function saveVehicleRequest(
   lead: NewLead,
   request: { want: string; yearFrom: number | null; budgetMaxMinor: number | null; payment: "cash" | "drive_plan" | "undecided" },
-): Promise<string> {
+): Promise<{ reference: string; requestId: string }> {
   const partnerId = lead.partnerId ?? (await referringPartnerId(lead.dealerId, lead.phone));
   return db.transaction(async (tx) => {
     const [row] = await tx.insert(leads).values({ ...lead, partnerId }).returning({ id: leads.id });
-    await tx.insert(vehicleRequests).values({ dealerId: lead.dealerId, leadId: row.id, ...request });
-    return referenceFor(row.id);
+    const [req] = await tx.insert(vehicleRequests).values({ dealerId: lead.dealerId, leadId: row.id, ...request }).returning({ id: vehicleRequests.id });
+    return { reference: referenceFor(row.id), requestId: req.id };
   });
+}
+
+/**
+ * Vehicles the buyer was shown the moment they asked. Recorded as already
+ * offered, so the engine never "announces" a car they have seen.
+ */
+export async function recordShownMatches(requestId: string, vehicleIds: string[]): Promise<void> {
+  if (!vehicleIds.length) return;
+  const now = new Date();
+  await db
+    .insert(requestMatches)
+    .values(vehicleIds.map((vehicleId) => ({ requestId, vehicleId, status: "sent" as const, channel: "on_screen", sentAt: now })))
+    .onConflictDoNothing();
 }
 
 /** The reply to a bot: indistinguishable from success, so it learns nothing. */

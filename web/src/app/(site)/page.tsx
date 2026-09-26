@@ -91,7 +91,7 @@ export default async function Home() {
         <dl className="mx-auto grid max-w-7xl grid-cols-2 gap-px bg-border-subtle md:grid-cols-4">
           {[
             { value: String(stats.inStock), label: "Vehicles in stock today" },
-            { value: lowestDeposit ? formatNaira(lowestDeposit, { compact: true }) : "—", label: "Drives one home today, on the 40% Drive Plan" },
+            { value: lowestDeposit ? formatNaira(lowestDeposit, { compact: true }) : "—", label: "Lowest deposit on the 40% Drive Plan" },
             { value: String(stats.makes), label: "Makes, from Toyota to Mercedes-Benz" },
             { value: site.rcNumber, label: "RC number — verify it on the CAC register", href: site.cacSearchUrl },
           ].map(({ value, label, href }) => (
@@ -118,10 +118,10 @@ export default async function Home() {
           <div className="mx-auto max-w-7xl px-5 py-20 md:px-10 md:py-28">
             <DrivePlanFinder vehicles={catalogue}>
               <ScrollReveal>
-                <SectionHead eyebrow="The 40% Drive Plan" title="What can you drive home today?">
+                <SectionHead eyebrow="The 40% Drive Plan" title="What can your 40% drive home?">
                   <p>
-                    Pay 40% of the price and the car leaves the showroom with you; the balance is settled on terms agreed before you drive
-                    away. Tell us what you have — the answer comes from what is in stock right now.
+                    Pay 40% of the price. Autochek, Sabicars’ financing partner, finances the remaining 60%, subject to its approval.
+                    Tell us what you can put down — the answer comes from what is in stock right now.
                   </p>
                 </SectionHead>
               </ScrollReveal>

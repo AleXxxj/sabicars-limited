@@ -56,7 +56,8 @@ function Welcome({ name, code, link, returning }: { name?: string; code: string;
 
       <p className="mt-8 text-sm leading-relaxed text-text-muted">
         Anyone who opens your link and then enquires is recorded against your code. Buyers who visit the showroom can simply give
-        your code. When a sale you brought completes, Sabicars contacts you on the number you registered to pay your commission.
+        your code. When a sale you brought is final, your commission goes into a bank account in your own name — Sabicars confirms
+        your identity and account before your first payout.
       </p>
     </div>
   );

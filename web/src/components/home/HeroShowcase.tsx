@@ -140,15 +140,15 @@ export function HeroShowcase({ slides, videoUrl }: { slides: HeroSlide[]; videoU
       <div aria-hidden className="absolute inset-0 -z-10" style={{ background: "var(--hero-scrim-bottom)" }} />
 
       <div className="mx-auto w-full max-w-7xl px-5 pb-8 pt-14 md:px-10 md:pb-14 md:pt-28">
-        <p className="eyebrow !text-gold-300">Sabicars Limited · Igando, Lagos · RC 1560100</p>
+        <p className="eyebrow !text-gold-300">Sabicars Limited · CAC RC 1560100</p>
         <h1 className="mt-6 max-w-4xl text-display-1 text-[var(--hero-text)]">
           Every car verified.
           <br />
           <em className="text-gold-300">Every deal</em> on record.
         </h1>
         <p className="mt-5 max-w-xl text-base leading-relaxed text-[var(--hero-text-secondary)] md:mt-6 md:text-lg">
-          Luxury cars, Toyota Hiace buses, SUVs and trucks — photographed, priced and documented. Drive today on the 40% Drive Plan,
-          or let us supply your fleet.
+          Luxury cars, Toyota Hiace buses, SUVs and trucks — photographed, priced and documented. Pay 40% and Autochek finances the
+          rest, or let us supply your whole fleet.
         </p>
         <div className="mt-8 flex flex-wrap gap-3 md:mt-10 md:gap-4">
           <Link
@@ -161,7 +161,7 @@ export function HeroShowcase({ slides, videoUrl }: { slides: HeroSlide[]; videoU
             href="#drive-plan"
             className="inline-flex min-h-14 items-center border border-white/40 px-8 text-[0.78rem] font-semibold uppercase tracking-[0.18em] text-white transition-colors [font-stretch:115%] hover:border-white"
           >
-            What can I drive today?
+            What can I afford?
           </a>
         </div>
 

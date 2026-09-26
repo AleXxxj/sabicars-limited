@@ -86,9 +86,8 @@ export function specRows(v: Vehicle): { label: string; value: string }[] {
 }
 
 /**
- * Balance after the 40% deposit, for the Drive Plan panel. The tenor and any
- * charge on the balance are not published until the terms are confirmed
- * (architecture §8, item 3) — so neither is invented here.
+ * The 60% Autochek finances after the 40% deposit. Autochek sets the tenor and
+ * rate when it assesses the buyer, so neither is invented here.
  */
 export function drivePlanBalance(v: Pick<Vehicle, "priceMinor">): string | null {
   if (!v.priceMinor) return null;

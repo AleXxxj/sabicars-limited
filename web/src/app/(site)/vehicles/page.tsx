@@ -35,7 +35,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   const canonical = filtersHref({ sort: "newest", page: 1, body: f.body, segment: f.segment, make: f.make }, {});
   return {
     title,
-    description: `${title} from Sabicars Limited (RC 1560100), a CAC-registered dealer in Igando, Lagos. Every vehicle with photos, specifications and prices.`,
+    description: `${title} from Sabicars Limited (RC 1560100), a CAC-registered dealer in Lagos, Nigeria. Every vehicle with photos, specifications and prices.`,
     alternates: { canonical },
   };
 }

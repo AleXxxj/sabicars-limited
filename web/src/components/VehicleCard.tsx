@@ -60,7 +60,7 @@ export function VehicleCard({
           <p className="figures text-xl font-semibold tracking-tight text-text-primary">{priceLabel(v)}</p>
           {deposit && (
             <p className="mt-1 text-[0.82rem] text-text-secondary">
-              <span className="figures text-accent-text">{deposit}</span> today on the 40% Drive Plan
+              <span className="figures text-accent-text">{deposit}</span> deposit on the 40% Drive Plan
             </p>
           )}
         </div>

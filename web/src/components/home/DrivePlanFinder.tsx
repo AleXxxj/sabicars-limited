@@ -46,7 +46,7 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
 
         <div className="mt-10 border-t border-gold-700 pt-6">
           <label htmlFor={inputId} className="eyebrow !text-text-secondary">
-            I can pay today
+            I can put down
           </label>
           <div className="mt-3 flex items-baseline gap-2 border-b border-border-strong pb-2 transition-colors focus-within:border-gold-500">
             <span aria-hidden className="font-display text-[2.4rem] leading-none text-text-muted md:text-[3rem]">
@@ -88,7 +88,7 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
             <p className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
               <span className="figures font-display text-[4.5rem] leading-[0.85] text-accent-text md:text-[5.5rem]">{within.length}</span>
               <span className="max-w-xs text-lg leading-snug text-text-primary">
-                {within.length === 1 ? "vehicle" : "vehicles"} you can drive home today
+                {within.length === 1 ? "vehicle" : "vehicles"} your deposit can drive home
               </span>
             </p>
             <p className="mt-4 text-sm leading-relaxed text-text-secondary">
@@ -119,7 +119,7 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
                     </div>
                     <p className="mt-2 truncate text-sm text-text-primary group-hover:text-accent-text">{v.title}</p>
                     <p className="figures text-xs text-text-muted">
-                      <span className="text-text-secondary">{formatNaira(depositOf(v.priceMinor))}</span> today
+                      <span className="text-text-secondary">{formatNaira(depositOf(v.priceMinor))}</span> deposit
                     </p>
                   </Link>
                 </li>
@@ -140,11 +140,11 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
         ) : (
           <div className="flex h-full flex-col justify-center py-6">
             <p className="font-display text-[2rem] leading-tight text-text-primary">
-              {naira ? "Nothing in the showroom at that deposit today." : "Enter what you can pay today."}
+              {naira ? "Nothing in the showroom at that deposit today." : "Enter what you can put down."}
             </p>
             {cheapest && (
               <p className="mt-4 text-text-secondary">
-                The least you can drive home with right now is{" "}
+                The lowest deposit in the showroom right now is{" "}
                 <button type="button" onClick={() => setText(grouped(Math.ceil(depositOf(cheapest.priceMinor) / 100)))} className="figures text-accent-text underline-offset-4 hover:underline">
                   {formatNaira(depositOf(cheapest.priceMinor))}
                 </button>

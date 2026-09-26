@@ -2,17 +2,17 @@ import "server-only";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { partners } from "@/db/schema";
+import { ATTRIBUTION_DAYS } from "@/lib/referral";
 
 /**
  * Attribution for Refer & Earn. A partner's link (/r/CODE) leaves this cookie;
  * any lead saved while it is present is recorded against that partner.
  *
- * First touch wins for 90 days: the partner who first brought a buyer keeps
- * them, so a second link cannot take the commission. (Window and rule pending
- * the owner's confirmation — architecture §8.)
+ * First touch wins for 90 days (confirmed by the owner): the partner who first
+ * brought a buyer keeps them, so a second link cannot take the commission.
  */
 export const PARTNER_COOKIE = "sc_partner";
-export const PARTNER_COOKIE_MAX_AGE = 90 * 24 * 60 * 60;
+export const PARTNER_COOKIE_MAX_AGE = ATTRIBUTION_DAYS * 24 * 60 * 60;
 
 const CODE_PATTERN = /^[A-Z0-9]{6}$/;
 

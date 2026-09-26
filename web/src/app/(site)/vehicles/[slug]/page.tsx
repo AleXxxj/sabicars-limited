@@ -129,15 +129,16 @@ export default async function VehiclePage({ params }: Props) {
                 <p className="eyebrow">40% Drive Plan</p>
                 <dl className="mt-4 grid grid-cols-2 gap-4">
                   <div>
-                    <dt className="text-xs text-text-muted">Pay today</dt>
+                    <dt className="text-xs text-text-muted">Your 40% deposit</dt>
                     <dd className="figures mt-1 text-lg font-semibold text-accent-text">{deposit}</dd>
                   </div>
                   <div>
-                    <dt className="text-xs text-text-muted">Balance, on agreed terms</dt>
+                    <dt className="text-xs text-text-muted">60%, financed by Autochek</dt>
                     <dd className="figures mt-1 text-lg font-semibold">{balance}</dd>
                   </div>
                 </dl>
-                <Link href="/drive-plan" className="eyebrow mt-5 inline-block !text-text-secondary hover:!text-text-primary">
+                <p className="mt-4 text-xs text-text-muted">Financing is subject to Autochek’s approval.</p>
+                <Link href="/drive-plan" className="eyebrow mt-4 inline-block !text-text-secondary hover:!text-text-primary">
                   How the Drive Plan works →
                 </Link>
               </div>

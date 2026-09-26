@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { and, asc, eq, max, ne, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
@@ -10,6 +11,7 @@ import { audit, changes } from "@/lib/audit";
 import { can, requireStaff, type StaffMember } from "@/lib/auth";
 import { isGenuineUpload, uploadTicket, type UploadedAsset, type UploadTicket } from "@/lib/cloudinary";
 import { slugify } from "@/lib/legacy/normalise";
+import { offerVehicle } from "@/lib/sourcing-engine";
 
 export interface ActionResult {
   ok: boolean;
@@ -88,6 +90,23 @@ function refreshPublicPages(slug: string) {
   revalidatePath("/partners"); // commission examples use real prices
   revalidatePath("/sitemap.xml");
   revalidatePath("/admin/vehicles");
+}
+
+/**
+ * An available vehicle is offered to every Sourcing Desk request it answers.
+ * Run after the response, so the save returns at once; safe to repeat, since a
+ * buyer is offered a given vehicle only once — a price cut simply reaches
+ * buyers whose budget it now fits.
+ */
+function offerToWaitingBuyers(vehicleId: string) {
+  after(async () => {
+    try {
+      const { offered, emailed } = await offerVehicle(vehicleId);
+      if (offered) console.info(`[sourcing] vehicle ${vehicleId} offered to ${offered} request(s), ${emailed} emailed`);
+    } catch (e) {
+      console.error("[sourcing] matching failed for vehicle", vehicleId, e);
+    }
+  });
 }
 
 async function ownVehicle(me: StaffMember, vehicleId: string) {
@@ -203,6 +222,7 @@ export async function saveVehicle(_prev: ActionResult | null, formData: FormData
   }
 
   refreshPublicPages(slug);
+  if (f.status === "available" && id) offerToWaitingBuyers(id);
   // A new vehicle goes straight to its own page, where photos are added.
   if (!before) redirect(`/admin/vehicles/${id}?created=1`);
   return { ok: true, savedAt: Date.now() };
@@ -358,5 +378,6 @@ export async function setVehicleStatus(vehicleId: string, status: "available" | 
   await db.update(vehicles).set({ ...next, updatedAt: now }).where(eq(vehicles.id, vehicleId));
   await audit(me, "vehicle", vehicleId, "status_change", changes(v as unknown as Record<string, unknown>, next));
   refreshPublicPages(v.slug);
+  if (status === "available") offerToWaitingBuyers(vehicleId);
   return { ok: true };
 }

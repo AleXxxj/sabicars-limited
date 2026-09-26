@@ -49,7 +49,7 @@ export function SourcingForm({ whatsappBase, initial }: { whatsappBase: string; 
                     <div className="min-w-0">
                       <p className="text-text-primary group-hover:text-accent-text">{m.title}</p>
                       <p className="figures mt-1 text-sm text-text-secondary">{m.price}</p>
-                      {m.deposit && <p className="figures text-xs text-text-muted">{m.deposit} today on the Drive Plan</p>}
+                      {m.deposit && <p className="figures text-xs text-text-muted">{m.deposit} deposit on the Drive Plan</p>}
                     </div>
                   </Link>
                 </li>

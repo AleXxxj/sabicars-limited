@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { FLEET_QUANTITIES, FLEET_TIMEFRAMES, FLEET_VEHICLES } from "@/lib/fleet";
-import { DECOY_REFERENCE, looksAutomated, sabicarsDealerId, saveLead, saveVehicleRequest, tooManyFrom } from "@/lib/leads";
+import { DECOY_REFERENCE, looksAutomated, recordShownMatches, sabicarsDealerId, saveLead, saveVehicleRequest, tooManyFrom } from "@/lib/leads";
 import { normalisePhone } from "@/lib/phone";
 import { stockMatching } from "@/lib/repositories/vehicles";
 import { budgetLabel, budgetMaxMinor, PAYMENT_OPTIONS } from "@/lib/sourcing";
@@ -193,7 +193,7 @@ export async function submitSourcingRequest(_prev: SourcingResult | null, formDa
     .join("\n");
 
   try {
-    const reference = await saveVehicleRequest(
+    const { reference, requestId } = await saveVehicleRequest(
       {
         dealerId: await sabicarsDealerId(),
         type: "sourcing",
@@ -209,6 +209,7 @@ export async function submitSourcingRequest(_prev: SourcingResult | null, formDa
     );
     // Looked up after saving: the request is on record whether or not this succeeds.
     const matches = await stockMatching(v.want, v.yearFrom ?? null, budgetMax).catch(() => []);
+    await recordShownMatches(requestId, matches.map((m) => m.id)).catch((e) => console.error("[sourcing] could not record shown matches", e));
     return {
       ok: true,
       reference,

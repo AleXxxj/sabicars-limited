@@ -4,6 +4,7 @@ import { and, asc, count, desc, eq, gte, inArray, lte, ne, sql, type SQL } from 
 import { db } from "@/db";
 import { dealers, locations, settings, vehicleMedia, vehicles, type Vehicle, type VehicleMedia } from "@/db/schema";
 import type { InventoryFilters } from "@/lib/inventory-filters";
+import { wantWords } from "@/lib/matching";
 import { vehicleTitle } from "@/lib/vehicle";
 
 /**
@@ -155,21 +156,14 @@ export async function drivePlanCatalogue(): Promise<CatalogueItem[]> {
   }));
 }
 
-/** Words that describe a want but never appear in a make or model. */
-const WANT_NOISE = new Set(["a", "an", "the", "or", "and", "any", "newer", "older", "model", "car", "cars", "for", "with", "used", "new", "brand", "foreign", "nigerian", "tokunbo", "clean", "neat"]);
-
 /**
- * In-stock vehicles that satisfy a Sourcing Desk request: every meaningful
- * word of the want must appear in the make or model ("benz" finds
- * Mercedes-Benz), within the year and budget given. Strict on purpose — a
- * buyer who asked for a Highlander should not be offered a Camry.
+ * In-stock vehicles that satisfy a Sourcing Desk request — the same rule as
+ * lib/matching.ts, expressed in SQL so it runs over the whole inventory.
  */
 export async function stockMatching(want: string, yearFrom: number | null, budgetMaxMinor: number | null, limit = 4): Promise<VehicleWithCover[]> {
-  const words = want
-    .toLowerCase()
-    .split(/[^a-z0-9-]+/)
-    .filter((w) => w.length >= 2 && !WANT_NOISE.has(w) && !/^\d+$/.test(w));
+  const words = wantWords(want);
   if (!words.length) return [];
+  const name = sql`(${vehicles.make} || ' ' || ${vehicles.model})`;
   const rows = await db
     .select()
     .from(vehicles)
@@ -177,7 +171,7 @@ export async function stockMatching(want: string, yearFrom: number | null, budge
       and(
         eq(vehicles.dealerId, await sabicarsId()),
         inArray(vehicles.status, [...LISTED]),
-        ...words.map((w) => sql`(${vehicles.make} ILIKE ${`%${w}%`} OR ${vehicles.model} ILIKE ${`%${w}%`})`),
+        ...words.map((w) => sql`${name} ILIKE ${`%${w}%`}`),
         yearFrom ? gte(vehicles.year, yearFrom) : undefined,
         budgetMaxMinor ? lte(vehicles.priceMinor, budgetMaxMinor) : undefined,
       ),

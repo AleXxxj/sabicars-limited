@@ -167,6 +167,20 @@ await allows(db, "deleting the lead removes its request", `DELETE FROM leads WHE
 const reqLeft = await db.query(`SELECT count(*)::int AS n FROM vehicle_requests WHERE lead_id = ${L}`);
 expect("no orphaned requests remain", reqLeft.rows[0].n === 0, `${reqLeft.rows[0].n} left`);
 
+// ── Matching ───────────────────────────────────────────────────────────────
+console.log("\nMatching");
+const L2 = "'1e000000-0000-0000-0000-000000000003'";
+const R2 = "'2e000000-0000-0000-0000-000000000003'";
+const V2 = "'a0000000-0000-0000-0000-000000000002'";
+await allows(db, "a request staff are sourcing for", `INSERT INTO leads (id, dealer_id, type, channel, name, phone) VALUES (${L2}, ${D}, 'sourcing', 'web_form', 'Ada', '+2348000000009'); INSERT INTO vehicle_requests (id, dealer_id, lead_id, want, status) VALUES (${R2}, ${D}, ${L2}, 'Hiace', 'sourcing')`);
+await allows(db, "offers a vehicle against it", `${vehicle({ id: V2 })}; INSERT INTO request_matches (request_id, vehicle_id) VALUES (${R2}, ${V2})`);
+await rejects(db, "refuses offering the same vehicle to the same request twice", `INSERT INTO request_matches (request_id, vehicle_id) VALUES (${R2}, ${V2})`, "request_matches_pair_idx");
+await rejects(db, "refuses a match marked sent without when", `UPDATE request_matches SET status = 'sent' WHERE request_id = ${R2}`, "request_matches_sent_has_date");
+await allows(db, "records a match as sent, with its channel and time", `UPDATE request_matches SET status = 'sent', channel = 'email', sent_at = now() WHERE request_id = ${R2}`);
+await allows(db, "deleting the vehicle removes its offers", `DELETE FROM vehicles WHERE id = ${V2}`);
+const matchLeft = await db.query(`SELECT count(*)::int AS n FROM request_matches WHERE request_id = ${R2}`);
+expect("no offers of a deleted vehicle remain", matchLeft.rows[0].n === 0, `${matchLeft.rows[0].n} left`);
+
 // ── Refer & Earn ───────────────────────────────────────────────────────────
 console.log("\nRefer & Earn");
 const P = "'9a000000-0000-0000-0000-000000000001'";
