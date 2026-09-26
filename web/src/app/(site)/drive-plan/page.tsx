@@ -27,6 +27,7 @@ const STEPS = [
 ];
 
 const QUESTIONS = [
+  ["When can I drive it home?", "As soon as Autochek approves the financing. You pay the 40% deposit then, and the car leaves the showroom with you — it does not leave before approval."],
   ["Who finances the 60%?", "Autochek, Sabicars’ financing partner for the Drive Plan. The balance is an Autochek facility, on Autochek’s terms — Sabicars does not lend."],
   ["Can I find Sabicars cars on Autochek?", "Yes. Sabicars’ stock is also listed on its Autochek dealer store. Wherever you find the car, the loan is profiled and processed by Autochek."],
   ["What if the car I want is not on Autochek?", "Press “Apply for the Drive Plan” on its page. Sabicars lists it on its Autochek store and sends you the link."],
@@ -41,7 +42,9 @@ const QUESTIONS = [
  * Its one job: get a buyer who cannot pay all of it to a car they can apply
  * for. As the owner described it: Sabicars' stock is listed on its Autochek
  * dealer store; loan buyers are profiled and processed by Autochek, and each
- * listing already carries its loan configuration. Applications therefore
+ * listing already carries its loan configuration. The car leaves the
+ * showroom only once Autochek has approved (confirmed by the owner, 2026-09-26).
+ * Applications therefore
  * start from a vehicle's page (DrivePlanApply), which records the buyer and
  * sends them to that car's listing. No tenor or rate is published here —
  * Autochek sets them per listing.
