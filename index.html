@@ -832,20 +832,22 @@ async function loadBlogPosts() {
 }
 
 // ─── REVIEW TICKER ───
-const staticReviews = [
-  { name: 'Emeka O.', location: 'Port Harcourt, Rivers State', rating: 5, message: 'Paid 40% on a Hiace on Friday, drove it to Port Harcourt same day. Sabicars is the real deal. No stories, no shakara.' },
-  { name: 'Mr. Taiwo A.', location: 'Corporate Client, Lagos', rating: 5, message: 'We ordered 13 Highlanders for our company fleet. Every single one delivered on time, clean docs. Ccristian is professional to the core.' },
-  { name: 'Chief Adebayo T.', location: 'Ibadan, Oyo State', rating: 5, message: 'Got a Mack tipper for my construction business. Exactly as described — accident-free and well-serviced. Already referring my partners.' },
-];
+// Only reviews customers actually posted are shown.
+const staticReviews = [];
+
+// Reviews are typed by the public: show them as text, never as page code.
+function escapeHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+}
 
 function reviewCardHTML(r) {
   const stars = '★'.repeat(r.rating || 5) + '☆'.repeat(5 - (r.rating || 5));
   return `<div class="review-card">
     <div class="review-stars">${stars}</div>
     <div class="review-q">"</div>
-    <p class="review-text">${r.message}</p>
-    <div class="review-name">${r.name}</div>
-    <div class="review-loc">${r.location || ''}</div>
+    <p class="review-text">${escapeHtml(r.message)}</p>
+    <div class="review-name">${escapeHtml(r.name)}</div>
+    <div class="review-loc">${escapeHtml(r.location || '')}</div>
   </div>`;
 }
 
@@ -857,7 +859,7 @@ async function loadReviews() {
     if (data.success && data.reviews.length > 0) reviews = [...data.reviews, ...staticReviews];
   } catch (e) {}
   const countEl = document.getElementById('reviewCountLbl');
-  if (countEl) countEl.textContent = reviews.length + ' verified customer reviews';
+  if (countEl) countEl.textContent = reviews.length ? reviews.length + ' customer reviews' : '';
   const doubled = [...reviews, ...reviews];
   const track = document.getElementById('tickerTrack');
   if (track) {
