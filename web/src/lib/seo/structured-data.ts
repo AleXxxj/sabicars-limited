@@ -35,8 +35,11 @@ export function dealerJsonLd() {
       streetAddress: `${site.address.line1}, ${site.address.line2}`,
       addressLocality: site.address.city,
       addressRegion: "Lagos",
+      postalCode: site.address.postcode,
       addressCountry: site.address.country,
     },
+    openingHours: site.hours.map((h) => h.schema),
+    hasMap: site.mapsUrl,
     sameAs: [site.social.instagram],
   };
 }

@@ -12,15 +12,31 @@ export const site = {
   tagline: "Luxury Auto · Lagos",
 
   /**
-   * The legacy contact page (most recently edited) says Km 16; the newsletter
-   * template says Km 13. Km 16 is used pending confirmation.
+   * As the legacy contact page gives it (its "verified location" block, with
+   * the postcode). The newsletter template said Km 13 and the About page
+   * "Amazing Grace Plaza"; Km 16 and "Shopping Complex" are used pending the
+   * owner's confirmation.
    */
   address: {
-    line1: "Amazing Grace Plaza, Km 16, Alhaji-Ede Bus Stop",
-    line2: "Lasu Road, off Isheri, Igando",
+    line1: "Amazing Grace Shopping Complex, Km 16",
+    line2: "Alhaji Ede Bus Stop, Lasu Road, Igando",
     city: "Lagos",
+    postcode: "100267",
     country: "NG",
   },
+
+  /** The Google Maps listing the legacy contact page links to ("Sabicars Autos"). */
+  mapsUrl:
+    "https://www.google.com/maps/search/?api=1&query=Sabicars+Autos+Amazing+Grace+Shopping+Complex+Alhaji+Ede+Bus+Stop+Km+16+Igando+Lagos+100267",
+
+  /** Published on the legacy contact page. */
+  hours: [
+    { days: "Monday – Friday", time: "8:00am – 7:00pm", schema: "Mo-Fr 08:00-19:00" },
+    { days: "Saturday – Sunday", time: "9:00am – 6:00pm", schema: "Sa-Su 09:00-18:00" },
+  ],
+
+  /** Anyone can check the registration themselves — an institution invites it. */
+  cacSearchUrl: "https://search.cac.gov.ng",
 
   phones: [
     { display: "0810 188 5558", e164: "+2348101885558" },
@@ -28,7 +44,7 @@ export const site = {
   ],
 
   /** One deliberate WhatsApp entry point for the whole platform. */
-  whatsapp: { e164: "+2348055065825" },
+  whatsapp: { e164: "+2348055065825", display: "0805 506 5825" },
 
   /**
    * sabicars.com has mail servers (Google Workspace). sabicars.ng has no MX

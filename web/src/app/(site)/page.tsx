@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { ScrollReveal } from "@/components/ScrollReveal";
+import { Address } from "@/components/site/Address";
 import { VehicleCard } from "@/components/VehicleCard";
 import { VehicleImage } from "@/components/VehicleImage";
 import { HeroShowcase, type HeroSlide } from "@/components/home/HeroShowcase";
@@ -261,13 +262,9 @@ export default async function Home() {
           <ScrollReveal delay={120} className="grid gap-8 sm:grid-cols-2">
             <div>
               <p className="eyebrow !text-text-muted">Showroom</p>
-              <p className="mt-3 leading-relaxed text-text-secondary">
-                {site.address.line1}
-                <br />
-                {site.address.line2}, {site.address.city}
-              </p>
+              <Address className="mt-3 text-text-secondary" />
               <a
-                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${site.address.line1}, ${site.address.line2}, ${site.address.city}`)}`}
+                href={site.mapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="eyebrow mt-4 inline-block"

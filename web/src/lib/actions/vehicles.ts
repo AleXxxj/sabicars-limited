@@ -83,6 +83,8 @@ function refreshPublicPages(slug: string) {
   revalidatePath("/");
   revalidatePath(`/vehicles/${slug}`);
   revalidatePath("/vehicles");
+  revalidatePath("/about"); // live stock count
+  revalidatePath("/fleet"); // cover photo comes from the bus stock
   revalidatePath("/sitemap.xml");
   revalidatePath("/admin/vehicles");
 }

@@ -10,8 +10,19 @@ import { useEffect, useRef } from "react";
  * So without JavaScript nothing is ever invisible, and nothing already on
  * screen flickers. Reduced-motion settings are respected.
  */
-export function ScrollReveal({ children, delay = 0, className }: { children: React.ReactNode; delay?: number; className?: string }) {
-  const ref = useRef<HTMLDivElement>(null);
+export function ScrollReveal({
+  children,
+  delay = 0,
+  className,
+  as: Tag = "div",
+}: {
+  children: React.ReactNode;
+  delay?: number;
+  className?: string;
+  /** "li" inside a list: a <div> there is invalid HTML and breaks the list for screen readers. */
+  as?: "div" | "li";
+}) {
+  const ref = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const el = ref.current;
@@ -31,8 +42,13 @@ export function ScrollReveal({ children, delay = 0, className }: { children: Rea
     return () => io.disconnect();
   }, []);
 
-  return (
-    <div ref={ref} className={className} style={delay ? ({ ["--reveal-delay" as string]: `${delay}ms` } as React.CSSProperties) : undefined}>
+  const style = delay ? ({ ["--reveal-delay" as string]: `${delay}ms` } as React.CSSProperties) : undefined;
+  return Tag === "li" ? (
+    <li ref={ref as React.Ref<HTMLLIElement>} className={className} style={style}>
+      {children}
+    </li>
+  ) : (
+    <div ref={ref as React.Ref<HTMLDivElement>} className={className} style={style}>
       {children}
     </div>
   );

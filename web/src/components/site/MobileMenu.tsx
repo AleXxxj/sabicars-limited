@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { PRIMARY_NAV } from "@/lib/navigation";
 import { site } from "@/lib/site";
+import { Address } from "./Address";
 
 /**
  * The phone menu: a full-screen sheet with the sections set large, the way a
@@ -86,10 +87,7 @@ export function MobileMenu() {
         </nav>
 
         <div className="mt-auto space-y-2 pt-12 text-sm text-text-secondary">
-          <p>{site.address.line1}</p>
-          <p>
-            {site.address.line2}, {site.address.city}
-          </p>
+          <Address />
           <p className="figures pt-3">
             <a href={`tel:${site.phones[0].e164}`} className="text-text-primary">
               {site.phones[0].display}

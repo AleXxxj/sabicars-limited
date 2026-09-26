@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
+import { Address } from "@/components/site/Address";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { INVENTORY_SHORTCUTS, PRIMARY_NAV } from "@/lib/navigation";
 import { site, whatsappLink } from "@/lib/site";
@@ -57,10 +58,11 @@ export function SiteFooter() {
         </Column>
 
         <Column title="Visit or call">
-          <li className="leading-relaxed text-text-secondary">
-            {site.address.line1}
-            <br />
-            {site.address.line2}, {site.address.city}
+          <li className="text-text-secondary">
+            <Address />
+            <a href={site.mapsUrl} target="_blank" rel="noopener noreferrer" className={`mt-2 inline-block ${link}`}>
+              Directions →
+            </a>
           </li>
           {site.phones.map((p) => (
             <li key={p.e164}>
