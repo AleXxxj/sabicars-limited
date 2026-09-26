@@ -12,11 +12,11 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
   title: {
-    default: "Sabicars — Verified Luxury Cars, Hiace Buses & Trucks in Lagos",
+    default: "Sabicars — Hummer Buses, Luxury Cars, SUVs & Trucks in Lagos",
     template: "%s · Sabicars",
   },
   description:
-    "Sabicars Limited (RC 1560100) sells verified luxury cars, Toyota Hiace buses, SUVs and trucks from Lagos, with nationwide delivery and the 40% Drive Plan.",
+    "Sabicars Limited (RC 1560100) sells Toyota Hiace Hummer buses, verified luxury cars, SUVs and trucks from Lagos — with fleet supply and the 40% Drive Plan financed by Autochek.",
   applicationName: site.legalName,
   openGraph: { siteName: site.legalName, type: "website", locale: "en_NG" },
 };

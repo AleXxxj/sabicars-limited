@@ -192,6 +192,13 @@ export function VehicleForm({ vehicle: v, options, canSetPrices }: { vehicle?: V
         <Field error={err("wasPrice")} label="Previous price (optional)" hint="Only for a genuine reduction — shown struck through">
           <input name="wasPrice" inputMode="numeric" disabled={!canSetPrices} defaultValue={nairaText(v?.wasPriceMinor)} className={`figures ${input}`} />
         </Field>
+        <Field
+          error={err("autochekUrl")}
+          label="Autochek listing (optional)"
+          hint="The link to this vehicle on the Sabicars dealer store on Autochek. Drive Plan buyers are sent there to apply."
+        >
+          <input name="autochekUrl" type="url" inputMode="url" defaultValue={v?.autochekUrl ?? ""} placeholder="https://autochek.africa/…" className={input} />
+        </Field>
         <Field error={err("status")} label="Status">
           <Select invalid={Boolean(err("status"))} name="status" options={STATUS} value={v?.status ?? "draft"} />
         </Field>

@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
-import { requestMatches, vehicleRequests } from "@/db/schema";
+import { requestMatches, vehicleRequests, vehicleWatches } from "@/db/schema";
 import { audit, changes } from "@/lib/audit";
 import { requireStaff } from "@/lib/auth";
 
@@ -53,6 +53,25 @@ export async function markMatchSent(matchId: string): Promise<{ ok: boolean }> {
   if (m.status === "sent") return { ok: true };
   await db.update(requestMatches).set({ status: "sent", channel: "staff", sentAt: new Date(), error: null }).where(eq(requestMatches.id, matchId));
   await audit(me, "request_match", matchId, "status_change", { status: [m.status, "sent"], channel: [null, "staff"] });
+  revalidatePath("/admin/requests");
+  return { ok: true };
+}
+
+/** A staff member told a watcher about a price drop themselves. */
+export async function markPriceDropSent(watchId: string): Promise<{ ok: boolean }> {
+  const me = await requireStaff();
+  const [w] = await db
+    .select({ id: vehicleWatches.id, status: vehicleWatches.alertStatus, pending: vehicleWatches.pendingPriceMinor })
+    .from(vehicleWatches)
+    .where(and(eq(vehicleWatches.id, watchId), eq(vehicleWatches.dealerId, me.dealerId)))
+    .limit(1);
+  if (!w || !w.pending) return { ok: false };
+  if (w.status === "sent") return { ok: true };
+  await db
+    .update(vehicleWatches)
+    .set({ alertStatus: "sent", alertChannel: "staff", alertedAt: new Date(), alertError: null, knownPriceMinor: w.pending })
+    .where(eq(vehicleWatches.id, watchId));
+  await audit(me, "vehicle_watch", watchId, "status_change", { alertStatus: [w.status, "sent"], alertChannel: [null, "staff"] });
   revalidatePath("/admin/requests");
   return { ok: true };
 }

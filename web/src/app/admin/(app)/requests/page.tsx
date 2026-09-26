@@ -4,10 +4,11 @@ import { NotifyOnWhatsApp, RequestControls } from "@/components/admin/RequestCon
 import { requireStaff } from "@/lib/auth";
 import { formatNaira } from "@/lib/money";
 import { displayPhone } from "@/lib/phone";
-import { demandSummary, REQUEST_VIEWS, requestBoard, requestCounts, type BoardMatch, type RequestView } from "@/lib/repositories/requests";
+import { demandSummary, pendingPriceDrops, REQUEST_VIEWS, requestBoard, requestCounts, type BoardMatch, type RequestView } from "@/lib/repositories/requests";
 import { siteUrl } from "@/lib/site";
 import { PAYMENT_OPTIONS } from "@/lib/sourcing";
 import { matchWhatsAppText } from "@/lib/sourcing-engine";
+import { priceDropWhatsAppText } from "@/lib/watch-engine";
 
 export const metadata: Metadata = { title: "Sourcing Desk · Admin", robots: { index: false, follow: false } };
 
@@ -42,7 +43,7 @@ export default async function SourcingDeskAdmin({ searchParams }: Props) {
   const me = await requireStaff();
   const sp = await searchParams;
   const view: RequestView = sp.view && sp.view in REQUEST_VIEWS ? (sp.view as RequestView) : "review";
-  const [rows, counts, demand] = await Promise.all([requestBoard(me.dealerId, view), requestCounts(me.dealerId), demandSummary(me.dealerId)]);
+  const [rows, counts, demand, drops] = await Promise.all([requestBoard(me.dealerId, view), requestCounts(me.dealerId), demandSummary(me.dealerId), pendingPriceDrops(me.dealerId)]);
 
   return (
     <>
@@ -53,11 +54,49 @@ export default async function SourcingDeskAdmin({ searchParams }: Props) {
         </div>
         {counts.toNotify > 0 && (
           <p className="border border-gold-700 px-4 py-2 text-sm text-text-primary">
-            <span className="figures font-semibold text-accent-text">{counts.toNotify}</span> {counts.toNotify === 1 ? "buyer is" : "buyers are"} waiting to hear about a
-            match
+            <span className="figures font-semibold text-accent-text">{counts.toNotify}</span> {counts.toNotify === 1 ? "buyer is" : "buyers are"} waiting to hear from you
           </p>
         )}
       </div>
+
+      {drops.length > 0 && (
+        <section aria-label="Price drops to tell buyers" className="mt-8 border border-gold-700 bg-surface-1 p-5 md:p-6">
+          <p className="text-sm font-semibold text-text-primary">Price drops to tell buyers</p>
+          <p className="mt-1 text-xs text-text-muted">These buyers are watching a car whose price you cut, and could not be reached automatically.</p>
+          <ul className="mt-4 grid gap-3">
+            {drops.map((d) => {
+              const url = `${siteUrl()}/vehicles/${d.vehicle.slug}`;
+              const waNumber = d.buyer.phone?.replace("+", "");
+              return (
+                <li key={d.watchId} className="flex flex-wrap items-center justify-between gap-3 border-t border-border-subtle pt-3">
+                  <div className="min-w-0 text-sm">
+                    <p className="text-text-primary">
+                      {d.buyer.name}
+                      {d.buyer.phone && <span className="figures ml-2 text-text-muted">{displayPhone(d.buyer.phone)}</span>}
+                      <span className="figures ml-2 text-xs text-text-muted">{d.reference}</span>
+                    </p>
+                    <p className="text-text-secondary">
+                      <Link href={`/vehicles/${d.vehicle.slug}`} target="_blank" className="hover:text-accent-text">
+                        {d.vehicle.title}
+                      </Link>
+                      <span className="figures ml-2 text-xs">
+                        {d.wasMinor ? <span className="line-through">{formatNaira(d.wasMinor)}</span> : "price on request"} → {formatNaira(d.nowMinor)}
+                      </span>
+                    </p>
+                    {d.status === "failed" && <p className="text-xs text-danger">Email failed — send it yourself</p>}
+                  </div>
+                  {waNumber && (
+                    <NotifyOnWhatsApp
+                      watchId={d.watchId}
+                      href={`https://wa.me/${waNumber}?text=${encodeURIComponent(priceDropWhatsAppText({ firstName: d.buyer.name.split(" ")[0], title: d.vehicle.title, was: d.wasMinor, now: d.nowMinor, url }))}`}
+                    />
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
 
       {demand.length > 0 && (
         <section aria-label="What buyers want" className="mt-8 border border-border-subtle bg-surface-1 p-5 md:p-6">
@@ -136,7 +175,7 @@ export default async function SourcingDeskAdmin({ searchParams }: Props) {
                   {(r.referredBy || r.buyerIsPartner) && (
                     <p className="mt-3 flex flex-wrap gap-2 text-xs">
                       {r.referredBy && <span className="border border-gold-700 px-2 py-1 text-accent-text">Referred by partner {r.referredBy} — 1.5% if it sells</span>}
-                      {r.buyerIsPartner && <span className="border border-info px-2 py-1 text-info">Buyer is partner {r.buyerIsPartner} — partner price, no commission</span>}
+                      {r.buyerIsPartner && <span className="border border-info px-2 py-1 text-info">Buyer is partner {r.buyerIsPartner} — partner price (1.5% off), no commission</span>}
                     </p>
                   )}
 

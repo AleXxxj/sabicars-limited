@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { Gauge, Wallet } from "lucide-react";
-import type { VehicleWithCover } from "@/lib/repositories/vehicles";
+import type { CardVehicle } from "@/lib/repositories/vehicles";
 import { VEHICLE_PLACEHOLDER } from "@/lib/media";
 import { VehicleImage } from "@/components/VehicleImage";
+import { SaveButton } from "@/components/saved/SaveButton";
 import { badgeFor, drivePlanDeposit, priceLabel, specLine } from "@/lib/vehicle";
 
 /**
@@ -11,7 +12,8 @@ import { badgeFor, drivePlanDeposit, priceLabel, specLine } from "@/lib/vehicle"
  * Deliberately has no WhatsApp or call button. The whole card is one link to
  * the vehicle's page, where the buyer can reserve, book a viewing or ask —
  * and every one of those is recorded. The legacy card sent people straight to
- * one phone from every tile in every grid.
+ * one phone from every tile in every grid. The only other control is the
+ * heart, which keeps the car on the visitor's shortlist.
  *
  * Read in the order a buyer scans: the car, the price, what it takes to drive
  * it home. Model names are set in the sans, not the display serif — a name
@@ -22,7 +24,7 @@ export function VehicleCard({
   href,
   priority = false,
 }: {
-  vehicle: VehicleWithCover;
+  vehicle: CardVehicle;
   /** Omit to render the card without a link (e.g. in the design reference). */
   href?: string;
   /** True for cards visible without scrolling, so the browser fetches them first. */
@@ -48,6 +50,7 @@ export function VehicleCard({
         {badge && (
           <span className="glass absolute left-3 top-3 rounded-full px-3 py-1 text-[0.72rem] font-semibold tracking-[0.04em] text-gold-200">{badge}</span>
         )}
+        {href && <SaveButton slug={v.slug} title={`${v.year} ${v.make} ${v.model}`} className="absolute right-3 top-3 z-[2]" />}
       </div>
 
       <div className="flex flex-1 flex-col gap-4 p-5 md:p-6">
@@ -84,11 +87,12 @@ export function VehicleCard({
     "surface-card group flex h-full flex-col overflow-hidden transition-[transform,border-color,box-shadow] duration-[var(--duration-base)] ease-[var(--ease-out)] " +
     "hover:-translate-y-1 hover:border-gold-500/30 hover:shadow-[inset_0_1px_0_rgb(255_255_255/0.06),0_30px_70px_-30px_rgb(0_0_0/0.9)]";
 
-  return href ? (
-    <Link href={href} className={shell}>
+  // The whole card is the link (stretched over it), with the heart above it —
+  // a button cannot sit inside a link.
+  return (
+    <article className={`relative ${shell}`}>
+      {href && <Link href={href} aria-label={`${v.year} ${v.make} ${v.model}, ${priceLabel(v)}`} className="absolute inset-0 z-[1] rounded-[1.25rem]" />}
       {body}
-    </Link>
-  ) : (
-    <article className={shell}>{body}</article>
+    </article>
   );
 }

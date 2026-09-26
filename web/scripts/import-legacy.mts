@@ -184,6 +184,7 @@ try {
         isFeatured: v.isFeatured,
         inHero: v.inHero,
         description: v.description,
+        autochekUrl: v.autochekUrl,
         features: v.features,
         createdAt: v.createdAt,
         updatedAt: v.updatedAt,

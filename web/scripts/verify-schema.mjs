@@ -181,6 +181,19 @@ await allows(db, "deleting the vehicle removes its offers", `DELETE FROM vehicle
 const matchLeft = await db.query(`SELECT count(*)::int AS n FROM request_matches WHERE request_id = ${R2}`);
 expect("no offers of a deleted vehicle remain", matchLeft.rows[0].n === 0, `${matchLeft.rows[0].n} left`);
 
+// ── Autochek and watches ───────────────────────────────────────────────────
+console.log("\nAutochek and watches");
+const V3 = "'a0000000-0000-0000-0000-000000000003'";
+const L3 = "'1e000000-0000-0000-0000-000000000004'";
+await allows(db, "records a vehicle's Autochek listing", vehicle({ id: V3, autochek_url: "'https://autochek.africa/ng/car/toyota-hiace-abc'" }));
+await rejects(db, "refuses an insecure Autochek link", vehicle({ autochek_url: "'http://autochek.africa/x'" }), "vehicles_autochek_https");
+await allows(db, "a buyer watches it for a price drop", `INSERT INTO leads (id, dealer_id, type, channel, name, phone) VALUES (${L3}, ${D}, 'watch', 'web_form', 'Ada', '+2348000000010'); INSERT INTO vehicle_watches (dealer_id, lead_id, vehicle_id, known_price_minor) VALUES (${D}, ${L3}, ${V3}, 3800000000)`);
+await rejects(db, "refuses watching the same car twice on one lead", `INSERT INTO vehicle_watches (dealer_id, lead_id, vehicle_id) VALUES (${D}, ${L3}, ${V3})`, "vehicle_watches_lead_vehicle_idx");
+await rejects(db, "refuses an alert marked sent without when", `UPDATE vehicle_watches SET alert_status = 'sent' WHERE lead_id = ${L3}`, "vehicle_watches_sent_has_date");
+await allows(db, "deleting the vehicle removes its watches", `DELETE FROM vehicles WHERE id = ${V3}`);
+const watchLeft = await db.query(`SELECT count(*)::int AS n FROM vehicle_watches WHERE lead_id = ${L3}`);
+expect("no watches on a deleted vehicle remain", watchLeft.rows[0].n === 0, `${watchLeft.rows[0].n} left`);
+
 // ── Refer & Earn ───────────────────────────────────────────────────────────
 console.log("\nRefer & Earn");
 const P = "'9a000000-0000-0000-0000-000000000001'";

@@ -25,6 +25,8 @@ export interface LegacyCar {
   price?: string;
   tag?: string;
   description?: string;
+  /** The Autochek listing, entered in the legacy admin as "AutoCheck Finance URL". */
+  financeUrl?: string;
   engine?: string;
   horsepower?: string;
   transmission?: string;
@@ -67,6 +69,7 @@ export interface CleanVehicle {
   isFeatured: boolean;
   inHero: boolean;
   description: string | null;
+  autochekUrl: string | null;
   features: string[];
   images: string[];
   createdAt: Date;
@@ -303,6 +306,7 @@ export function normaliseLegacyCar(car: LegacyCar): Normalised {
       isFeatured: Boolean(car.featured),
       inHero: Boolean(car.showInHero),
       description,
+      autochekUrl: /^https:\/\/\S+$/.test(tidy(car.financeUrl)) ? tidy(car.financeUrl) : null,
       features,
       images,
       createdAt: new Date(car.createdAt ?? Date.now()),

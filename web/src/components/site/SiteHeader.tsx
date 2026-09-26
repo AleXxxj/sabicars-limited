@@ -1,5 +1,6 @@
 import { Phone } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import { SavedLink } from "@/components/saved/SaveButton";
 import { ButtonLink } from "@/components/ui/Button";
 import { PRIMARY_NAV } from "@/lib/navigation";
 import { site } from "@/lib/site";
@@ -25,13 +26,14 @@ export function SiteHeader() {
           ))}
         </nav>
         <div className="flex items-center gap-2">
+          <SavedLink className="!size-10 sm:!size-11" />
           <ButtonLink href="/vehicles" className="!hidden !min-h-11 !px-5 !text-[0.9rem] xl:!inline-flex">
             Browse cars
           </ButtonLink>
           <a
             href={`tel:${site.phones[0].e164}`}
             aria-label={`Call Sabicars on ${site.phones[0].display}`}
-            className="glass inline-flex size-11 items-center justify-center rounded-full text-text-primary transition-colors hover:text-gold-300 xl:hidden"
+            className="glass inline-flex size-10 items-center justify-center rounded-full text-text-primary transition-colors hover:text-gold-300 sm:size-11 xl:hidden"
           >
             <Phone aria-hidden size={19} strokeWidth={1.75} />
           </a>

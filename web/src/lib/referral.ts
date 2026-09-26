@@ -7,6 +7,14 @@ import { money, percentOf } from "@/lib/money";
  */
 export const REFERRAL_COMMISSION_BPS = 150;
 
+/**
+ * A partner buying for themselves earns no commission; they get the partner
+ * price instead. The owner asked for "the standard partner discount": set to
+ * the commission rate, so the partner receives the same value either way and
+ * Sabicars' margin is identical whether they refer a buyer or buy themselves.
+ */
+export const PARTNER_DISCOUNT_BPS = 150;
+
 /** Confirmed by the owner (2026-09-26): the first partner to bring a buyer keeps them this long. */
 export const ATTRIBUTION_DAYS = 90;
 
@@ -25,7 +33,7 @@ export const PARTNER_RULES = [
 /** The practical terms, confirmed by the owner — shown on the programme page after the rules. */
 export const PARTNER_TERMS = [
   ["Where your money goes", "Straight into the bank account you register, which must be in your own name. Your identity is confirmed before your first payout, so nobody else can collect what you earned."],
-  ["Buying for yourself?", "Your own purchase doesn’t earn a commission — you get a partner price on it instead."],
+  ["Buying for yourself?", "Your own purchase doesn’t earn a commission — you get the partner price instead: 1.5% off, the same value as the commission."],
   ["Fleet orders count in full", "Send a company or government buyer and your 1.5% is on the whole order."],
 ] as const;
 

@@ -105,6 +105,8 @@ export const leadType = pgEnum("lead_type", [
   "contact",
   /** A standing request for a vehicle not in stock (the Sourcing Desk). */
   "sourcing",
+  /** Watching a vehicle for a price drop. */
+  "watch",
 ]);
 
 export const leadChannel = pgEnum("lead_channel", [
@@ -243,6 +245,14 @@ export const vehicles = pgTable(
     /** Strike-through price, for genuine reductions only. */
     wasPriceMinor: bigint("was_price_minor", { mode: "number" }),
 
+    /**
+     * This vehicle on Sabicars' Autochek dealer store. Autochek profiles Drive
+     * Plan buyers and finances the 60%, but only for vehicles listed there —
+     * each listing already carries its loan configuration. (Legacy field:
+     * financeUrl.)
+     */
+    autochekUrl: text("autochek_url"),
+
     status: vehicleStatus("status").notNull().default("draft"),
     badge: vehicleBadge("badge"),
     isFeatured: boolean("is_featured").notNull().default(false),
@@ -260,6 +270,7 @@ export const vehicles = pgTable(
   },
   (t) => [
     uniqueIndex("vehicles_dealer_slug_idx").on(t.dealerId, t.slug),
+    check("vehicles_autochek_https", sql`${t.autochekUrl} IS NULL OR ${t.autochekUrl} LIKE 'https://%'`),
     uniqueIndex("vehicles_legacy_idx").on(t.legacyId),
     index("vehicles_dealer_status_idx").on(t.dealerId, t.status),
     index("vehicles_make_model_idx").on(t.make, t.model),
@@ -408,6 +419,36 @@ export const requestMatches = pgTable(
     uniqueIndex("request_matches_pair_idx").on(t.requestId, t.vehicleId),
     index("request_matches_status_idx").on(t.status, t.createdAt),
     check("request_matches_sent_has_date", sql`${t.status} <> 'sent' OR ${t.sentAt} IS NOT NULL`),
+  ],
+);
+
+/**
+ * A buyer watching a vehicle for a price drop — from their saved cars or the
+ * vehicle's page. The watch is a lead (one inbox, one reference) tied to the
+ * car; when staff cut the price below what the buyer last saw, the engine
+ * tells them, and anything it cannot send waits on the staff board.
+ */
+export const vehicleWatches = pgTable(
+  "vehicle_watches",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    dealerId: uuid("dealer_id").notNull().references(() => dealers.id),
+    leadId: uuid("lead_id").notNull().references(() => leads.id, { onDelete: "cascade" }),
+    vehicleId: uuid("vehicle_id").notNull().references(() => vehicles.id, { onDelete: "cascade" }),
+    /** The price the buyer last knew about, in kobo: when they started watching, then each price they were told. */
+    knownPriceMinor: bigint("known_price_minor", { mode: "number" }),
+    /** A lower price waiting to be announced, and how that went. */
+    pendingPriceMinor: bigint("pending_price_minor", { mode: "number" }),
+    alertStatus: matchStatus("alert_status"),
+    alertChannel: text("alert_channel"),
+    alertedAt: timestamp("alerted_at", { withTimezone: true }),
+    alertError: text("alert_error"),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    uniqueIndex("vehicle_watches_lead_vehicle_idx").on(t.leadId, t.vehicleId),
+    index("vehicle_watches_vehicle_idx").on(t.vehicleId),
+    check("vehicle_watches_sent_has_date", sql`${t.alertStatus} IS DISTINCT FROM 'sent' OR ${t.alertedAt} IS NOT NULL`),
   ],
 );
 
@@ -601,3 +642,4 @@ export type NewLead = typeof leads.$inferInsert;
 export type VehicleRequest = typeof vehicleRequests.$inferSelect;
 export type Partner = typeof partners.$inferSelect;
 export type RequestMatch = typeof requestMatches.$inferSelect;
+export type VehicleWatch = typeof vehicleWatches.$inferSelect;

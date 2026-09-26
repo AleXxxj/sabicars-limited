@@ -4,7 +4,7 @@ import { z } from "zod";
 import { FLEET_QUANTITIES, FLEET_TIMEFRAMES, FLEET_VEHICLES } from "@/lib/fleet";
 import { DECOY_REFERENCE, looksAutomated, recordShownMatches, sabicarsDealerId, saveLead, saveVehicleRequest, tooManyFrom } from "@/lib/leads";
 import { normalisePhone } from "@/lib/phone";
-import { stockMatching } from "@/lib/repositories/vehicles";
+import { stockMatching, vehicleForDrivePlan } from "@/lib/repositories/vehicles";
 import { budgetLabel, budgetMaxMinor, PAYMENT_OPTIONS } from "@/lib/sourcing";
 import { drivePlanDeposit, priceLabel, vehicleTitle } from "@/lib/vehicle";
 
@@ -225,5 +225,63 @@ export async function submitSourcingRequest(_prev: SourcingResult | null, formDa
   } catch (e) {
     console.error("[sourcing] insert failed", e);
     return { ok: false, error: "Something went wrong saving your request. Please call 0810 188 5558.", values };
+  }
+}
+
+/* ── Drive Plan via Autochek ───────────────────────────────────────────── */
+
+const drivePlanSchema = z.object({
+  vehicleId: z.uuid(),
+  name: z.string().trim().min(2, "Please tell us your name").max(120),
+  phone: z.string().trim().max(40),
+  website: z.string().optional(),
+  renderedAt: z.coerce.number().optional(),
+});
+
+export interface DrivePlanStart extends LeadFormResult {
+  /** The vehicle's Autochek listing, where the buyer continues. Null when it is not listed yet. */
+  autochekUrl?: string | null;
+}
+
+/**
+ * A buyer starting the Drive Plan on a particular vehicle. Autochek profiles
+ * them and finances the 60% — but only for vehicles on Sabicars' Autochek
+ * store. Either way Sabicars keeps the record first: the buyer is followed up,
+ * and a partner who sent them keeps their commission even though the loan is
+ * processed elsewhere.
+ */
+export async function startDrivePlan(_prev: DrivePlanStart | null, formData: FormData): Promise<DrivePlanStart> {
+  const values = submitted(formData);
+  const parsed = drivePlanSchema.safeParse(Object.fromEntries(formData.entries()));
+  if (!parsed.success) return { ok: false, fieldErrors: firstErrors(parsed.error), values };
+  const v = parsed.data;
+
+  const vehicle = await vehicleForDrivePlan(v.vehicleId);
+  if (!vehicle) return { ok: false, error: "This vehicle is no longer available.", values };
+  if (looksAutomated(v.website, v.renderedAt)) return { ok: true, reference: DECOY_REFERENCE, name: v.name, autochekUrl: vehicle.autochekUrl };
+
+  const phone = normalisePhone(v.phone);
+  if (!phone) return { ok: false, fieldErrors: { phone: "Please enter a phone number we can reach, e.g. 0803 123 4567" }, values };
+  if (await tooManyFrom(phone)) return { ok: true, name: v.name.split(" ")[0], autochekUrl: vehicle.autochekUrl };
+
+  try {
+    const reference = await saveLead({
+      dealerId: vehicle.dealerId,
+      type: "drive_plan",
+      channel: "web_form",
+      vehicleId: vehicle.id,
+      name: v.name,
+      phone,
+      preferredContact: "whatsapp",
+      message: vehicle.autochekUrl
+        ? `Went to Autochek to apply for the Drive Plan on the ${vehicle.title}.`
+        : `Wants the Drive Plan on the ${vehicle.title}, which is not on Autochek yet — list it and send the application link.`,
+      landingPath: `/vehicles/${vehicle.slug}`,
+    });
+    return { ok: true, reference, name: v.name.split(" ")[0], autochekUrl: vehicle.autochekUrl };
+  } catch (e) {
+    console.error("[drive plan] insert failed", e);
+    // Never stand between a buyer and their loan application.
+    return vehicle.autochekUrl ? { ok: true, name: v.name.split(" ")[0], autochekUrl: vehicle.autochekUrl } : { ok: false, error: "Something went wrong. Please call 0810 188 5558.", values };
   }
 }

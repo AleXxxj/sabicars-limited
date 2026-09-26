@@ -12,6 +12,7 @@ import { can, requireStaff, type StaffMember } from "@/lib/auth";
 import { isGenuineUpload, uploadTicket, type UploadedAsset, type UploadTicket } from "@/lib/cloudinary";
 import { slugify } from "@/lib/legacy/normalise";
 import { offerVehicle } from "@/lib/sourcing-engine";
+import { announcePriceDrop } from "@/lib/watch-engine";
 
 export interface ActionResult {
   ok: boolean;
@@ -71,6 +72,14 @@ const schema = z.object({
   consignorId: z.preprocess(blank, z.uuid().optional()),
   locationId: z.preprocess(blank, z.uuid().optional()),
   description: optText(5000),
+  // Only an https link on an Autochek domain: this is where Drive Plan buyers are sent to apply.
+  autochekUrl: z.preprocess(
+    blank,
+    z
+      .url("Paste the full link, starting https://")
+      .refine((u) => /^https:\/\/([a-z0-9-]+\.)*autochek\.[a-z.]+\//i.test(u), "That is not an Autochek link — copy it from the vehicle on your Autochek dealer store")
+      .optional(),
+  ),
   features: z.preprocess(
     (v) =>
       [...new Set(String(v ?? "").split("\n").map((f) => f.trim()).filter(Boolean))],
@@ -94,10 +103,10 @@ function refreshPublicPages(slug: string) {
 }
 
 /**
- * An available vehicle is offered to every Sourcing Desk request it answers.
- * Run after the response, so the save returns at once; safe to repeat, since a
- * buyer is offered a given vehicle only once — a price cut simply reaches
- * buyers whose budget it now fits.
+ * Everyone waiting on an available vehicle hears about it: Sourcing Desk
+ * requests it now answers, and watchers whose last-known price it now beats.
+ * Run after the response, so the save returns at once; safe to repeat, since
+ * a buyer is offered a vehicle once and told about a given price once.
  */
 function offerToWaitingBuyers(vehicleId: string) {
   after(async () => {
@@ -106,6 +115,12 @@ function offerToWaitingBuyers(vehicleId: string) {
       if (offered) console.info(`[sourcing] vehicle ${vehicleId} offered to ${offered} request(s), ${emailed} emailed`);
     } catch (e) {
       console.error("[sourcing] matching failed for vehicle", vehicleId, e);
+    }
+    try {
+      const { due, emailed } = await announcePriceDrop(vehicleId);
+      if (due) console.info(`[watch] vehicle ${vehicleId} price drop for ${due} watcher(s), ${emailed} emailed`);
+    } catch (e) {
+      console.error("[watch] price-drop alert failed for vehicle", vehicleId, e);
     }
   });
 }
@@ -197,6 +212,7 @@ export async function saveVehicle(_prev: ActionResult | null, formData: FormData
     consignorId: f.consignorId ?? null,
     locationId,
     description: f.description ?? null,
+    autochekUrl: f.autochekUrl ?? null,
     features: f.features,
     slug,
     // Sold keeps its original date if it already had one; leaving "sold" clears it.

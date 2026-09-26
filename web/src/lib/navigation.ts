@@ -9,6 +9,9 @@ export const PRIMARY_NAV = [
   { href: "/contact", label: "Contact", hint: "Visit, call or write — with a map" },
 ] as const;
 
+/** In the phone menu, after the sections: the visitor's own shortlist. */
+export const SAVED_NAV = { href: "/saved", label: "Saved cars", hint: "Your shortlist, with price-drop alerts" } as const;
+
 /** The phone's bottom bar: the five things a visitor comes to do, one thumb away. */
 export const TAB_BAR = [
   { href: "/", label: "Home" },
@@ -22,7 +25,8 @@ export const TAB_BAR = [
 export const INVENTORY_SHORTCUTS = [
   { href: "/vehicles?segment=luxury", label: "Luxury" },
   { href: "/vehicles?body=suv", label: "SUVs" },
-  { href: "/vehicles?body=bus", label: "Buses & Hiace" },
+  { href: "/hummer-bus", label: "Hummer buses" },
+  { href: "/vehicles?body=bus", label: "All buses" },
   { href: "/vehicles?body=truck", label: "Trucks" },
   { href: "/vehicles?body=sedan", label: "Sedans" },
 ] as const;

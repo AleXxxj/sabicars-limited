@@ -12,7 +12,7 @@ import { EarningsExamples, PartnerRules } from "@/components/referral/Referral";
 import { ArrowRight, CarFront, Layers, MapPin, ShieldCheck, Wallet } from "lucide-react";
 import { Button, ButtonAnchor, ButtonLink } from "@/components/ui/Button";
 import { fieldClass } from "@/components/forms/field";
-import { categoryTiles, drivePlanCatalogue, featuredVehicles, heroVehicles, heroVideoUrl, inventoryStats } from "@/lib/repositories/vehicles";
+import { categoryTiles, drivePlanCatalogue, featuredVehicles, heroVehicles, heroVideoUrl, hummerBuses, inventoryStats } from "@/lib/repositories/vehicles";
 import { mostRequested } from "@/lib/repositories/sourcing";
 import { formatNaira, money, percentOf } from "@/lib/money";
 import { dealerJsonLd, jsonLdScript } from "@/lib/seo/structured-data";
@@ -28,7 +28,7 @@ import { DRIVE_PLAN_DEPOSIT_BPS, priceLabel, vehicleTitle } from "@/lib/vehicle"
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: { absolute: "Sabicars — Verified Luxury Cars, Toyota Hiace Buses & Trucks in Lagos" },
+  title: { absolute: "Sabicars — Toyota Hiace Hummer Buses, Luxury Cars & SUVs in Lagos" },
   alternates: { canonical: "/" },
 };
 
@@ -54,7 +54,7 @@ function SectionHead({ eyebrow, title, children }: { eyebrow: string; title: str
  * built to capture the audience, not just display the lot.
  */
 export default async function Home() {
-  const [hero, featured, stats, tiles, videoUrl, catalogue, demand] = await Promise.all([
+  const [hero, featured, stats, tiles, videoUrl, catalogue, demand, buses] = await Promise.all([
     heroVehicles(8),
     featuredVehicles(6),
     inventoryStats(),
@@ -62,7 +62,11 @@ export default async function Home() {
     heroVideoUrl(),
     drivePlanCatalogue(),
     mostRequested(),
+    hummerBuses(),
   ]);
+  // The signature: Hummer buses, newest first, those with a photograph.
+  const hummers = buses.filter((b) => /hum+er/i.test(b.model) && b.cover);
+  const hummerFrom = hummers.map((b) => b.priceMinor).filter((p): p is number => Boolean(p)).sort((a, b) => a - b)[0] ?? null;
 
   // Staff choose hero vehicles; if none are chosen, lead with featured stock
   // rather than an empty backdrop.
@@ -71,7 +75,7 @@ export default async function Home() {
 
   // The smallest deposit that drives a car home today, from the cheapest available vehicle.
   const lowestDeposit = catalogue[0] ? percentOf(money(catalogue[0].priceMinor, "NGN"), DRIVE_PLAN_DEPOSIT_BPS).minor : null;
-  const busCover = tiles.find((t) => t.label === "Buses & Hiace")?.coverUrl;
+  const busCover = tiles.find((t) => t.label === "Buses & Hummers")?.coverUrl;
 
   return (
     <>
@@ -114,9 +118,78 @@ export default async function Home() {
         </dl>
       </section>
 
+      {/* The signature vehicle: what Sabicars is known for, first. */}
+      {hummers.length > 0 && (
+        <section className="relative isolate overflow-hidden">
+          <div aria-hidden className="absolute inset-0 -z-10 bg-[radial-gradient(800px_420px_at_85%_40%,rgb(201_168_76/0.1),transparent_70%)]" />
+          <div className="mx-auto grid max-w-7xl gap-10 px-5 py-20 md:px-10 md:py-28 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:items-center lg:gap-16">
+            <ScrollReveal>
+              <SectionHead eyebrow="The signature" title="The home of the Hummer bus.">
+                <p>
+                  The Toyota Hiace high-roof — for staff, schools, churches, hotels and routes — is what Sabicars is known for. In stock,
+                  inspected, supplied one at a time or as a fleet, and on the 40% Drive Plan.
+                </p>
+              </SectionHead>
+              <dl className="mt-8 grid grid-cols-3 gap-3">
+                {[
+                  [String(hummers.length), "in stock now"],
+                  [hummerFrom ? formatNaira(hummerFrom, { compact: true }) : "—", "starting price"],
+                  [hummerFrom ? formatNaira(percentOf(money(hummerFrom, "NGN"), DRIVE_PLAN_DEPOSIT_BPS).minor, { compact: true }) : "—", "40% deposit from"],
+                ].map(([value, label]) => (
+                  <div key={label} className="surface-card !rounded-2xl p-4">
+                    <dt className="sr-only">{label}</dt>
+                    <dd>
+                      <span className="figures block font-display text-[1.8rem] leading-none md:text-[2.2rem]">{value}</span>
+                      <span className="mt-1.5 block text-[0.78rem] text-text-muted">{label}</span>
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <ButtonLink href="/hummer-bus" size="lg">
+                  See every Hummer bus
+                </ButtonLink>
+                <ButtonLink href="/fleet#quote" size="lg" variant="secondary">
+                  Quote me a fleet
+                </ButtonLink>
+              </div>
+            </ScrollReveal>
+
+            <ScrollReveal delay={120}>
+              <Link href={`/vehicles/${hummers[0].slug}`} className="group relative block aspect-[4/3] overflow-hidden rounded-3xl border border-white/[0.08] shadow-[0_40px_90px_-40px_rgb(0_0_0/0.9)]">
+                <VehicleImage
+                  src={hummers[0].cover!.url}
+                  alt={vehicleTitle(hummers[0])}
+                  fill
+                  sizes="(min-width: 1024px) 55vw, 100vw"
+                  className="object-cover transition-transform duration-[var(--duration-slow)] ease-[var(--ease-out)] group-hover:scale-[1.03]"
+                />
+                <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[#0A0908]/80 via-transparent to-transparent" />
+                <span className="glass absolute bottom-4 left-4 right-4 flex items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm text-white">
+                  <span className="truncate">{vehicleTitle(hummers[0])}</span>
+                  <span className="figures shrink-0 font-semibold text-gold-200">{priceLabel(hummers[0])}</span>
+                </span>
+              </Link>
+              {hummers.length > 1 && (
+                <ul className="mt-3 grid grid-cols-3 gap-3">
+                  {hummers.slice(1, 4).map((b) => (
+                    <li key={b.id}>
+                      <Link href={`/vehicles/${b.slug}`} className="group relative block aspect-[4/3] overflow-hidden rounded-xl border border-white/[0.08]">
+                        <VehicleImage src={b.cover!.url} alt={vehicleTitle(b)} fill sizes="(min-width: 1024px) 18vw, 30vw" className="object-cover transition-transform group-hover:scale-[1.05]" />
+                        <span className="figures absolute bottom-1.5 left-1.5 rounded-full bg-[#0A0908]/75 px-2 py-0.5 text-[0.7rem] text-white">{b.year}</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </ScrollReveal>
+          </div>
+        </section>
+      )}
+
       {/* What can I afford? Answered from live stock, as they type. */}
       {catalogue.length > 0 && (
-        <section id="drive-plan" className="scroll-mt-20 md:scroll-mt-24">
+        <section id="drive-plan" className="scroll-mt-20 border-t border-white/[0.06] md:scroll-mt-24">
           <div className="mx-auto max-w-7xl px-5 py-20 md:px-10 md:py-28">
             <DrivePlanFinder vehicles={catalogue}>
               <ScrollReveal>

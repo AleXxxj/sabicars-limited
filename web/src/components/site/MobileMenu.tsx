@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Menu, Phone, X } from "lucide-react";
 import { ButtonAnchor } from "@/components/ui/Button";
-import { PRIMARY_NAV } from "@/lib/navigation";
+import { PRIMARY_NAV, SAVED_NAV } from "@/lib/navigation";
 import { site, whatsappLink } from "@/lib/site";
 import { Address } from "./Address";
 import { NAV_ICON } from "./nav-icons";
@@ -57,7 +57,7 @@ export function MobileMenu() {
         aria-expanded={open}
         aria-controls="mobile-menu"
         aria-label="Menu"
-        className="glass inline-flex size-11 items-center justify-center rounded-full text-text-primary transition-colors hover:text-gold-300 xl:hidden"
+        className="glass inline-flex size-10 items-center justify-center rounded-full text-text-primary transition-colors hover:text-gold-300 sm:size-11 xl:hidden"
       >
         <Menu aria-hidden size={20} strokeWidth={1.75} />
       </button>
@@ -84,7 +84,7 @@ export function MobileMenu() {
         </div>
 
         <nav className="mt-6 grid gap-1">
-          {PRIMARY_NAV.map((item) => {
+          {[...PRIMARY_NAV, SAVED_NAV].map((item) => {
             const Icon = NAV_ICON[item.href];
             const current = !item.href.includes("#") && pathname.startsWith(item.href);
             return (

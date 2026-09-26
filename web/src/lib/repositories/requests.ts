@@ -1,7 +1,7 @@
 import "server-only";
 import { and, count, desc, eq, inArray, max, or, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { leads, partners, requestMatches, vehicleRequests, vehicles, type RequestMatch, type VehicleRequest } from "@/db/schema";
+import { leads, partners, requestMatches, vehicleRequests, vehicles, vehicleWatches, type RequestMatch, type VehicleRequest } from "@/db/schema";
 import { referenceFor } from "@/lib/leads";
 
 /** The board's views, in the order staff work through them. */
@@ -40,8 +40,13 @@ export async function requestCounts(dealerId: string): Promise<Record<RequestVie
     .from(requestMatches)
     .innerJoin(vehicleRequests, eq(vehicleRequests.id, requestMatches.requestId))
     .where(and(eq(vehicleRequests.dealerId, dealerId), inArray(requestMatches.status, ["pending", "failed"])));
+  const [{ drops }] = await db
+    .select({ drops: count() })
+    .from(vehicleWatches)
+    .innerJoin(vehicles, eq(vehicles.id, vehicleWatches.vehicleId))
+    .where(and(eq(vehicleWatches.dealerId, dealerId), inArray(vehicleWatches.alertStatus, ["pending", "failed"]), eq(vehicles.status, "available")));
   const sum = (v: RequestView) => REQUEST_VIEWS[v].statuses.reduce((n, s) => n + (by[s] ?? 0), 0);
-  return { review: sum("review"), sourcing: sum("sourcing"), matched: sum("matched"), done: sum("done"), toNotify };
+  return { review: sum("review"), sourcing: sum("sourcing"), matched: sum("matched"), done: sum("done"), toNotify: toNotify + drops };
 }
 
 export async function requestBoard(dealerId: string, view: RequestView): Promise<BoardRequest[]> {
@@ -126,4 +131,43 @@ export async function demandSummary(dealerId: string, limit = 8): Promise<{ want
     .orderBy(desc(count()), key)
     .limit(limit);
   return rows.map((r) => ({ want: r.want, requests: r.requests, topBudgetMinor: r.topBudgetMinor === null ? null : Number(r.topBudgetMinor) }));
+}
+
+export interface PendingPriceDrop {
+  watchId: string;
+  status: "pending" | "failed";
+  error: string | null;
+  buyer: { name: string; phone: string | null };
+  reference: string;
+  vehicle: { title: string; slug: string };
+  wasMinor: number | null;
+  nowMinor: number;
+}
+
+/** Price drops no automatic channel could deliver — the staff board sends them. */
+export async function pendingPriceDrops(dealerId: string): Promise<PendingPriceDrop[]> {
+  const rows = await db
+    .select({
+      watch: vehicleWatches,
+      lead: { id: leads.id, name: leads.name, phone: leads.phone },
+      vehicle: { make: vehicles.make, model: vehicles.model, year: vehicles.year, slug: vehicles.slug, status: vehicles.status },
+    })
+    .from(vehicleWatches)
+    .innerJoin(leads, eq(leads.id, vehicleWatches.leadId))
+    .innerJoin(vehicles, eq(vehicles.id, vehicleWatches.vehicleId))
+    .where(and(eq(vehicleWatches.dealerId, dealerId), inArray(vehicleWatches.alertStatus, ["pending", "failed"]), eq(vehicles.status, "available")))
+    .orderBy(desc(vehicleWatches.createdAt))
+    .limit(200);
+  return rows
+    .filter((r) => r.watch.pendingPriceMinor)
+    .map((r) => ({
+      watchId: r.watch.id,
+      status: r.watch.alertStatus as "pending" | "failed",
+      error: r.watch.alertError,
+      buyer: { name: r.lead.name, phone: r.lead.phone },
+      reference: referenceFor(r.lead.id),
+      vehicle: { title: `${r.vehicle.year} ${r.vehicle.make} ${r.vehicle.model}`, slug: r.vehicle.slug },
+      wasMinor: r.watch.knownPriceMinor,
+      nowMinor: r.watch.pendingPriceMinor!,
+    }));
 }

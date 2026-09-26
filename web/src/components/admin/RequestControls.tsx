@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useTransition } from "react";
-import { markMatchSent, updateRequest } from "@/lib/actions/requests";
+import { markMatchSent, markPriceDropSent, updateRequest } from "@/lib/actions/requests";
 
 const STATUSES = [
   ["open", "To review"],
@@ -48,14 +48,19 @@ export function RequestControls({ requestId, status, staffNote }: { requestId: s
  * For a match no automatic channel could deliver: opens WhatsApp with the
  * message already written, and records that a person sent it.
  */
-export function NotifyOnWhatsApp({ matchId, href }: { matchId: string; href: string }) {
+export function NotifyOnWhatsApp({ matchId, watchId, href }: { matchId?: string; watchId?: string; href: string }) {
   const [pending, start] = useTransition();
   return (
     <a
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      onClick={() => start(async () => void (await markMatchSent(matchId)))}
+      onClick={() =>
+        start(async () => {
+          if (matchId) await markMatchSent(matchId);
+          if (watchId) await markPriceDropSent(watchId);
+        })
+      }
       aria-disabled={pending}
       className="inline-flex min-h-10 items-center bg-cta px-4 text-xs font-semibold text-cta-fg hover:bg-cta-hover"
     >

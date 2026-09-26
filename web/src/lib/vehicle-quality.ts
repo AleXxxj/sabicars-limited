@@ -15,13 +15,17 @@ export interface Attention {
 /** A buyer scrolls through a car before they call. Fewer than this and they move on. */
 const MIN_PHOTOS = 5;
 
-export function attentionFor(v: Pick<Vehicle, "year" | "condition" | "body" | "description" | "priceMinor" | "mileageKm" | "createdAt">, photoCount: number): Attention[] {
+export function attentionFor(
+  v: Pick<Vehicle, "year" | "condition" | "body" | "description" | "priceMinor" | "mileageKm" | "createdAt" | "autochekUrl" | "status">,
+  photoCount: number,
+): Attention[] {
   const out: Attention[] = [];
   if (photoCount === 0) out.push({ level: "fix", message: "No photos — buyers skip listings without them" });
   else if (photoCount < MIN_PHOTOS) out.push({ level: "fix", message: `Only ${photoCount} photo${photoCount === 1 ? "" : "s"} — add at least ${MIN_PHOTOS}` });
   if (!v.body) out.push({ level: "fix", message: "Body type not set — the car is missing from type filters" });
   if (!v.description) out.push({ level: "fix", message: "No description" });
   if (!v.priceMinor) out.push({ level: "check", message: "Price on request — listings with a price get more enquiries" });
+  if (v.status === "available" && !v.autochekUrl) out.push({ level: "check", message: "Not linked to Autochek — Drive Plan buyers cannot apply online" });
   if (v.condition === "brand_new" && v.year < new Date(v.createdAt).getFullYear() - 2) {
     out.push({ level: "check", message: `Marked brand new, but it is a ${v.year} model` });
   }

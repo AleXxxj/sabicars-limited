@@ -25,6 +25,21 @@ export const PAGE_SIZE = 24;
 
 export type VehicleWithCover = Vehicle & { cover: Pick<VehicleMedia, "url" | "alt" | "width" | "height"> | null };
 
+/**
+ * Exactly what a vehicle card shows, and nothing else. Anything sent to the
+ * browser as data (not rendered on the server) goes through this: a vehicle
+ * row also carries the chassis number, the consignor and the custodian.
+ */
+export type CardVehicle = Pick<
+  Vehicle,
+  "id" | "slug" | "year" | "make" | "model" | "priceMinor" | "status" | "badge" | "createdAt" | "condition" | "mileageKm" | "transmission" | "drivetrain" | "fuel"
+> & { cover: VehicleWithCover["cover"] };
+
+export function toCard(v: VehicleWithCover): CardVehicle {
+  const { id, slug, year, make, model, priceMinor, status, badge, createdAt, condition, mileageKm, transmission, drivetrain, fuel, cover } = v;
+  return { id, slug, year, make, model, priceMinor, status, badge, createdAt, condition, mileageKm, transmission, drivetrain, fuel, cover };
+}
+
 /** The dealer every public page belongs to until the dealer network opens (architecture §2.3). */
 const sabicarsId = cache(async (): Promise<string> => {
   const [row] = await db.select({ id: dealers.id }).from(dealers).where(eq(dealers.slug, "sabicars")).limit(1);
@@ -95,7 +110,7 @@ export async function categoryTiles(): Promise<CategoryTile[]> {
   const defs: { label: string; href: string; where: SQL }[] = [
     { label: "Luxury", href: "/vehicles?segment=luxury", where: eq(vehicles.segment, "luxury") },
     { label: "SUVs", href: "/vehicles?body=suv", where: eq(vehicles.body, "suv") },
-    { label: "Buses & Hiace", href: "/vehicles?body=bus", where: eq(vehicles.body, "bus") },
+    { label: "Buses & Hummers", href: "/vehicles?body=bus", where: eq(vehicles.body, "bus") },
     { label: "Trucks", href: "/vehicles?body=truck", where: eq(vehicles.body, "truck") },
     { label: "Sedans", href: "/vehicles?body=sedan", where: eq(vehicles.body, "sedan") },
   ];
@@ -179,6 +194,41 @@ export async function stockMatching(want: string, yearFrom: number | null, budge
     .orderBy(desc(vehicles.year), asc(vehicles.priceMinor))
     .limit(limit);
   return withCovers(rows);
+}
+
+/**
+ * The Toyota Hiace high-roof — the "Hummer bus" (spelt "Humer" in some
+ * listings) — Sabicars' signature vehicle, then any other Hiace. Hummers first.
+ */
+export async function hummerBuses(): Promise<VehicleWithCover[]> {
+  const isHummer = sql`${vehicles.model} ~* 'hum+er'`;
+  const rows = await db
+    .select()
+    .from(vehicles)
+    .where(and(eq(vehicles.dealerId, await sabicarsId()), inArray(vehicles.status, [...LISTED]), sql`(${isHummer} OR ${vehicles.model} ILIKE '%hiace%')`))
+    .orderBy(desc(isHummer), desc(vehicles.year), asc(vehicles.priceMinor));
+  return withCovers(rows);
+}
+
+/** Vehicles on a visitor's shortlist, in the order they saved them. Sold cars stay, marked sold. */
+export async function vehiclesBySlugs(slugs: string[]): Promise<VehicleWithCover[]> {
+  if (!slugs.length) return [];
+  const rows = await db
+    .select()
+    .from(vehicles)
+    .where(and(eq(vehicles.dealerId, await sabicarsId()), inArray(vehicles.slug, slugs), inArray(vehicles.status, [...HAS_PAGE])));
+  const order = new Map(slugs.map((s, i) => [s, i]));
+  return withCovers(rows.sort((a, b) => (order.get(a.slug) ?? 0) - (order.get(b.slug) ?? 0)));
+}
+
+/** What the Drive Plan button needs about a vehicle a buyer can still buy. */
+export async function vehicleForDrivePlan(id: string): Promise<{ id: string; dealerId: string; slug: string; title: string; autochekUrl: string | null } | null> {
+  const [v] = await db
+    .select()
+    .from(vehicles)
+    .where(and(eq(vehicles.id, id), eq(vehicles.dealerId, await sabicarsId()), inArray(vehicles.status, [...LISTED])))
+    .limit(1);
+  return v ? { id: v.id, dealerId: v.dealerId, slug: v.slug, title: vehicleTitle(v), autochekUrl: v.autochekUrl } : null;
 }
 
 /** The homepage hero video, when staff have set one (YouTube link or direct video file). */

@@ -2,7 +2,7 @@ import "server-only";
 import { cookies } from "next/headers";
 import { and, eq, gte, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { dealers, leads, requestMatches, vehicleRequests, type NewLead } from "@/db/schema";
+import { dealers, leads, requestMatches, vehicleRequests, vehicleWatches, type NewLead } from "@/db/schema";
 import { activePartnerByCode, PARTNER_COOKIE } from "@/lib/partners";
 
 /**
@@ -97,6 +97,18 @@ export async function recordShownMatches(requestId: string, vehicleIds: string[]
     .insert(requestMatches)
     .values(vehicleIds.map((vehicleId) => ({ requestId, vehicleId, status: "sent" as const, channel: "on_screen", sentAt: now })))
     .onConflictDoNothing();
+}
+
+/** A price-drop watch: the lead and the vehicles it watches, at the prices the buyer saw. */
+export async function saveWatch(lead: NewLead, watched: { vehicleId: string; priceMinor: number | null }[]): Promise<string> {
+  const partnerId = lead.partnerId ?? (await referringPartnerId(lead.dealerId, lead.phone));
+  return db.transaction(async (tx) => {
+    const [row] = await tx.insert(leads).values({ ...lead, partnerId }).returning({ id: leads.id });
+    await tx
+      .insert(vehicleWatches)
+      .values(watched.map((w) => ({ dealerId: lead.dealerId, leadId: row.id, vehicleId: w.vehicleId, knownPriceMinor: w.priceMinor })));
+    return referenceFor(row.id);
+  });
 }
 
 /** The reply to a bot: indistinguishable from success, so it learns nothing. */

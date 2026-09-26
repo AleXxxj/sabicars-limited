@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, BellRing, Search } from "lucide-react";
 import { notFound } from "next/navigation";
 import { ButtonLink } from "@/components/ui/Button";
 import { VehicleCard } from "@/components/VehicleCard";
 import { EnquiryForm } from "@/components/vehicle/EnquiryForm";
+import { DrivePlanApply } from "@/components/vehicle/DrivePlanApply";
+import { SaveButton } from "@/components/saved/SaveButton";
+import { WatchForm } from "@/components/saved/WatchForm";
 import { Gallery } from "@/components/vehicle/Gallery";
 import { listedVehicleSlugs, similarVehicles, vehicleBySlug } from "@/lib/repositories/vehicles";
 import { shareImageUrl } from "@/lib/media";
@@ -114,9 +117,12 @@ export default async function VehiclePage({ params }: Props) {
                 {sold ? "This vehicle has been sold" : "Reserved — a buyer has placed a deposit"}
               </p>
             )}
-            <p className="text-[0.95rem] font-medium text-text-muted">
-              {v.year} · {v.make}
-            </p>
+            <div className="flex items-center justify-between gap-4">
+              <p className="text-[0.95rem] font-medium text-text-muted">
+                {v.year} · {v.make}
+              </p>
+              {!sold && <SaveButton slug={v.slug} title={title} variant="labelled" />}
+            </div>
             <h1 className="mt-3 text-display-2">{v.model}</h1>
             <p className="mt-3 text-text-secondary">{specLine(v)}</p>
 
@@ -139,7 +145,8 @@ export default async function VehiclePage({ params }: Props) {
                     <dd className="figures mt-1 text-lg font-semibold">{balance}</dd>
                   </div>
                 </dl>
-                <p className="mt-4 text-xs text-text-muted">Financing is subject to Autochek’s approval.</p>
+                <p className="mt-4 text-xs text-text-muted">Autochek profiles you and approves the financing; the loan terms are set on its listing.</p>
+                <DrivePlanApply vehicleId={v.id} autochekUrl={v.autochekUrl} />
                 <Link href="/drive-plan" className="group mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-gold-300 hover:text-gold-200">
                   How the Drive Plan works <ArrowRight aria-hidden size={16} className="transition-transform group-hover:translate-x-1" />
                 </Link>
@@ -161,6 +168,32 @@ export default async function VehiclePage({ params }: Props) {
                   </ButtonLink>
                 </>
               )}
+            </div>
+
+            {/* For the buyer who is not ready yet: a reason to come back, on its own. */}
+            <div className="mt-6 grid gap-2">
+              {!sold && v.priceMinor && (
+                <details className="surface-card group !rounded-2xl p-4 [&_summary::-webkit-details-marker]:hidden">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-text-primary">
+                    <span className="flex items-center gap-2">
+                      <BellRing aria-hidden size={17} className="text-gold-300" /> Not ready yet? Get an alert if the price drops
+                    </span>
+                    <span aria-hidden className="text-gold-300 transition-transform group-open:rotate-45">+</span>
+                  </summary>
+                  <div className="mt-4">
+                    <WatchForm slugs={[v.slug]} landingPath={`/vehicles/${v.slug}`} compact />
+                  </div>
+                </details>
+              )}
+              <Link
+                href={`/find?want=${encodeURIComponent(`${v.make} ${v.model}`)}`}
+                className="surface-card group flex items-center justify-between gap-3 !rounded-2xl p-4 text-sm font-semibold text-text-primary hover:border-gold-500/30"
+              >
+                <span className="flex items-center gap-2">
+                  <Search aria-hidden size={17} className="text-gold-300" /> {sold ? "Tell me when another one arrives" : "Want a different year or colour? Tell us"}
+                </span>
+                <ArrowRight aria-hidden size={16} className="text-gold-300 transition-transform group-hover:translate-x-1" />
+              </Link>
             </div>
 
             <ul className="mt-8 space-y-2 text-sm text-text-secondary">

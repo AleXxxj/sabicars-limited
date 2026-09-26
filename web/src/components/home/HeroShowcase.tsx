@@ -149,7 +149,7 @@ export function HeroShowcase({ slides, videoUrl }: { slides: HeroSlide[]; videoU
           <em className="text-gold-300">Every deal</em> on record.
         </h1>
         <p className="mt-5 max-w-xl text-base leading-relaxed text-[var(--hero-text-secondary)] md:mt-6 md:text-lg">
-          Luxury cars, Toyota Hiace buses, SUVs and trucks — photographed, priced and documented. Pay 40% and Autochek finances the
+          Toyota Hiace Hummer buses, luxury cars, SUVs and trucks — photographed, priced and documented. Pay 40% and Autochek finances the
           rest, or let us supply your whole fleet.
         </p>
         <div className="mt-8 flex flex-wrap gap-3 md:mt-10 md:gap-4">

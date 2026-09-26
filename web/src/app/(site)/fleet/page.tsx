@@ -37,7 +37,7 @@ const PROCESS = [
  */
 export default async function FleetPage() {
   const tiles = await categoryTiles();
-  const busCover = tiles.find((t) => t.label === "Buses & Hiace")?.coverUrl ?? null;
+  const busCover = tiles.find((t) => t.label === "Buses & Hummers")?.coverUrl ?? null;
 
   return (
     <>
