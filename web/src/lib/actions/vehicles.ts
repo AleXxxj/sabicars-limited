@@ -88,6 +88,7 @@ function refreshPublicPages(slug: string) {
   revalidatePath("/about"); // live stock count
   revalidatePath("/fleet"); // cover photo comes from the bus stock
   revalidatePath("/partners"); // commission examples use real prices
+  revalidatePath("/drive-plan"); // the finder and the worked example use live stock
   revalidatePath("/sitemap.xml");
   revalidatePath("/admin/vehicles");
 }

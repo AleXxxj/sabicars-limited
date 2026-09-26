@@ -3,13 +3,17 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { Menu, Phone, X } from "lucide-react";
+import { ButtonAnchor } from "@/components/ui/Button";
 import { PRIMARY_NAV } from "@/lib/navigation";
-import { site } from "@/lib/site";
+import { site, whatsappLink } from "@/lib/site";
 import { Address } from "./Address";
+import { NAV_ICON } from "./nav-icons";
 
 /**
- * The phone menu: a full-screen sheet with the sections set large, the way a
- * printed brochure's contents page would be.
+ * The phone menu: every section with an icon and a line saying what it is
+ * for, then the three ways to reach a person — so nobody has to guess what a
+ * word like "Fleet" leads to.
  *
  * Closes on navigation, on Escape and on the close button; locks page scroll
  * while open so the page underneath does not drift; moves focus into the sheet
@@ -52,9 +56,10 @@ export function MobileMenu() {
         onClick={() => setOpen(true)}
         aria-expanded={open}
         aria-controls="mobile-menu"
-        className="eyebrow min-h-12 px-1 !text-text-primary xl:hidden"
+        aria-label="Menu"
+        className="glass inline-flex size-11 items-center justify-center rounded-full text-text-primary transition-colors hover:text-gold-300 xl:hidden"
       >
-        Menu
+        <Menu aria-hidden size={20} strokeWidth={1.75} />
       </button>
 
       <div
@@ -63,36 +68,58 @@ export function MobileMenu() {
         aria-modal="true"
         aria-label="Menu"
         hidden={!open}
-        className="fixed inset-0 z-50 flex flex-col overflow-y-auto bg-surface-0 px-5 pb-10 pt-4 xl:hidden"
+        className="fixed inset-0 z-50 flex flex-col overflow-y-auto bg-[radial-gradient(900px_500px_at_80%_-10%,rgb(201_168_76/0.1),transparent_70%),var(--surface-0)] px-5 pb-8 pt-3 xl:hidden"
       >
-        <div className="flex items-center justify-between">
-          <span className="eyebrow !text-text-muted">Sabicars</span>
-          <button ref={close} type="button" onClick={() => setOpen(false)} className="eyebrow min-h-12 px-1 !text-text-primary">
-            Close
+        <div className="flex h-12 items-center justify-between">
+          <span className="kicker">Sabicars</span>
+          <button
+            ref={close}
+            type="button"
+            onClick={() => setOpen(false)}
+            aria-label="Close menu"
+            className="glass inline-flex size-11 items-center justify-center rounded-full text-text-primary"
+          >
+            <X aria-hidden size={20} strokeWidth={1.75} />
           </button>
         </div>
 
-        <nav className="mt-10 flex flex-col">
-          {PRIMARY_NAV.map((item, i) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              aria-current={pathname.startsWith(item.href) ? "page" : undefined}
-              className="flex items-baseline gap-5 border-b border-border-subtle py-5 font-display text-[2.1rem] leading-none text-text-primary aria-[current=page]:text-accent-text"
-            >
-              <span className="figures font-sans text-xs text-text-muted">0{i + 1}</span>
-              {item.label}
-            </Link>
-          ))}
+        <nav className="mt-6 grid gap-1">
+          {PRIMARY_NAV.map((item) => {
+            const Icon = NAV_ICON[item.href];
+            const current = !item.href.includes("#") && pathname.startsWith(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setOpen(false)}
+                aria-current={current ? "page" : undefined}
+                className="group flex items-center gap-4 rounded-2xl px-3 py-3.5 transition-colors hover:bg-white/[0.04] aria-[current=page]:bg-white/[0.05]"
+              >
+                <span className="glass inline-flex size-11 shrink-0 items-center justify-center rounded-xl text-gold-300">
+                  {Icon && <Icon aria-hidden size={20} strokeWidth={1.75} />}
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-[1.15rem] font-semibold leading-tight text-text-primary">{item.label}</span>
+                  <span className="block truncate text-sm text-text-muted">{item.hint}</span>
+                </span>
+              </Link>
+            );
+          })}
         </nav>
 
-        <div className="mt-auto space-y-2 pt-12 text-sm text-text-secondary">
-          <Address />
-          <p className="figures pt-3">
-            <a href={`tel:${site.phones[0].e164}`} className="text-text-primary">
-              {site.phones[0].display}
-            </a>
-          </p>
+        <div className="mt-auto grid gap-3 pt-10">
+          <ButtonAnchor href={`tel:${site.phones[0].e164}`} size="lg" className="w-full">
+            <Phone aria-hidden size={18} /> Call {site.phones[0].display}
+          </ButtonAnchor>
+          <div className="grid grid-cols-2 gap-3">
+            <ButtonAnchor href={whatsappLink()} target="_blank" rel="noopener noreferrer" variant="secondary" className="w-full">
+              WhatsApp
+            </ButtonAnchor>
+            <ButtonAnchor href={site.mapsUrl} target="_blank" rel="noopener noreferrer" variant="secondary" className="w-full">
+              Directions
+            </ButtonAnchor>
+          </div>
+          <Address className="pt-3 text-center text-sm text-text-muted" />
         </div>
       </div>
     </>

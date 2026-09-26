@@ -3,7 +3,7 @@
 import { useActionState, useEffect, useRef, useState } from "react";
 import { registerPartner } from "@/lib/actions/partners";
 import { PARTNER_REACH } from "@/lib/referral";
-import { Button } from "@/components/ui/Button";
+import { Button, ButtonAnchor } from "@/components/ui/Button";
 import { FieldError, fieldClass, Label, SpamGuard } from "./shared";
 
 /** What a partner sees once registered: their code, their link, and the two ways they will use it. */
@@ -18,14 +18,14 @@ function Welcome({ name, code, link, returning }: { name?: string; code: string;
   const share = `Looking for a car? Sabicars has verified luxury cars, Hiace buses, SUVs and trucks — and you can drive home on 40%. See what's in stock: ${link}`;
 
   return (
-    <div ref={ref} role="status" className="scroll-mt-24 border border-gold-700 bg-surface-0 p-8">
-      <p className="eyebrow">{returning ? "Already registered" : "Registered"}</p>
+    <div ref={ref} role="status" className="surface-card scroll-mt-24 !border-gold-500/30 p-7 md:p-9">
+      <p className="kicker">{returning ? "Already registered" : "Registered"}</p>
       <h3 className="mt-3 text-display-3">{returning ? `Welcome back${name ? `, ${name}` : ""}.` : `You’re a Sabicars partner${name ? `, ${name}` : ""}.`}</h3>
       <p className="mt-4 text-text-secondary">{returning ? "This number is already registered. Your code is:" : "Your partner code is:"}</p>
-      <p className="figures mt-2 font-display text-[3.5rem] leading-none tracking-[0.08em] text-accent-text">{code}</p>
+      <p className="figures text-gold mt-2 font-display text-[3.75rem] leading-none tracking-[0.08em]">{code}</p>
 
       <div className="mt-8 border-t border-border-subtle pt-6">
-        <p className="eyebrow !text-text-secondary">Your link</p>
+        <p className="text-sm font-medium text-text-secondary">Your link</p>
         <p className="mt-2 break-all text-text-primary">{link}</p>
         <div className="mt-5 flex flex-wrap gap-3">
           <Button
@@ -43,14 +43,9 @@ function Welcome({ name, code, link, returning }: { name?: string; code: string;
           >
             {copied ? "Copied" : "Copy link"}
           </Button>
-          <a
-            href={`https://wa.me/?text=${encodeURIComponent(share)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex min-h-12 items-center rounded-[2px] bg-cta px-6 text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-cta-fg [font-stretch:115%] hover:bg-cta-hover"
-          >
+          <ButtonAnchor href={`https://wa.me/?text=${encodeURIComponent(share)}`} target="_blank" rel="noopener noreferrer">
             Share on WhatsApp
-          </a>
+          </ButtonAnchor>
         </div>
       </div>
 

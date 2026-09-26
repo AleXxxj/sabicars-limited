@@ -29,7 +29,7 @@
   );
   --hero-scrim-bottom: linear-gradient(to top, rgb(11 10 9 / 0.9) 0%, rgb(11 10 9 / 0) 45%);
   --hero-text: #F5F2EA;
-  --hero-text-secondary: #CFC8B8;
+  --hero-text-secondary: #D6CFC0;
 }
 
 /* ── Dark theme (default) ────────────────────────────────────────────── */
@@ -37,18 +37,18 @@
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --surface-0: #0B0A09;
-  --surface-1: #1F1C19;
-  --surface-2: #2C2824;
-  --surface-3: #38342E;
-  --surface-4: #48433B;
+  --surface-0: #0A0908;
+  --surface-1: #1D1B18;
+  --surface-2: #2A2825;
+  --surface-3: #353330;
+  --surface-4: #3F3D3A;
 
   --text-primary: #F5F2EA;
-  --text-secondary: #CFC8B8;
-  --text-muted: #A39B8B;
+  --text-secondary: #D6CFC0;
+  --text-muted: #ABA394;
 
-  --border-subtle: #221F1B;
-  --border-default: #3A352E;
+  --border-subtle: #231F1B;
+  --border-default: #342F29;
   --border-strong: #7A7263;
 
   --focus: #E4CF8E;
@@ -56,7 +56,7 @@
   /* Gold carries the one action that matters on each screen. */
   --cta-bg: var(--gold-500);
   --cta-bg-hover: var(--gold-400);
-  --cta-fg: #0B0A09;
+  --cta-fg: #0A0908;
   --accent-text: var(--gold-400);
   --link: var(--gold-400);
 

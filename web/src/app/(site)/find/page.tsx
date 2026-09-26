@@ -49,7 +49,7 @@ export default async function FindPage({ searchParams }: Props) {
       <section className="mx-auto grid max-w-7xl gap-14 px-5 py-16 md:px-10 md:py-24 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
         <div>
           <ScrollReveal>
-            <p className="eyebrow">How the desk works</p>
+            <p className="kicker">How the desk works</p>
             <ol className="mt-8 grid gap-8">
               {STEPS.map(([step, text], i) => (
                 <li key={step} className="border-t border-gold-700 pt-4">
@@ -62,8 +62,8 @@ export default async function FindPage({ searchParams }: Props) {
           </ScrollReveal>
 
           {demand.length > 0 && (
-            <ScrollReveal className="mt-12 border border-border-subtle p-6">
-              <p className="eyebrow !text-text-muted">Most requested right now</p>
+            <ScrollReveal className="surface-card mt-12 p-6">
+              <p className="text-sm font-medium text-text-muted">Most requested right now</p>
               <ul className="mt-4 divide-y divide-border-subtle">
                 {demand.map((d) => (
                   <li key={d.want} className="flex items-baseline justify-between gap-4 py-2.5">

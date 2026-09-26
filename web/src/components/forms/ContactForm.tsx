@@ -5,14 +5,22 @@ import { submitContact } from "@/lib/actions/leads";
 import { Button } from "@/components/ui/Button";
 import { Confirmation, FieldError, fieldClass, Label, SpamGuard } from "./shared";
 
-const TOPICS = [
+const TOPICS: { value: "buying" | "drive_plan" | "fleet" | "general"; label: string }[] = [
   { value: "buying", label: "Buying a vehicle" },
   { value: "drive_plan", label: "The 40% Drive Plan" },
   { value: "fleet", label: "Fleet or bulk supply" },
   { value: "general", label: "Something else" },
 ];
 
-export function ContactForm({ whatsappBase }: { whatsappBase: string }) {
+export function ContactForm({
+  whatsappBase,
+  defaultTopic = "buying",
+  messagePlaceholder,
+}: {
+  whatsappBase: string;
+  defaultTopic?: (typeof TOPICS)[number]["value"];
+  messagePlaceholder?: string;
+}) {
   const [state, action, pending] = useActionState(submitContact, null);
   const v = state?.values ?? {};
   const err = state?.fieldErrors ?? {};
@@ -39,7 +47,7 @@ export function ContactForm({ whatsappBase }: { whatsappBase: string }) {
 
       <label className="grid gap-2">
         <Label>What is it about?</Label>
-        <select key={`topic-${v.topic ?? ""}`} name="topic" defaultValue={v.topic ?? "buying"} className={fieldClass}>
+        <select key={`topic-${v.topic ?? ""}`} name="topic" defaultValue={v.topic ?? defaultTopic} className={fieldClass}>
           {TOPICS.map((t) => (
             <option key={t.value} value={t.value}>
               {t.label}
@@ -69,12 +77,12 @@ export function ContactForm({ whatsappBase }: { whatsappBase: string }) {
 
       <label className="grid gap-2">
         <Label>Your message</Label>
-        <textarea name="message" rows={5} required defaultValue={v.message} className={`${fieldClass} py-3 leading-relaxed`} />
+        <textarea name="message" rows={5} required defaultValue={v.message} placeholder={messagePlaceholder} className={`${fieldClass} py-3 leading-relaxed`} />
         <FieldError message={err.message} />
       </label>
 
       <fieldset>
-        <legend className="eyebrow mb-3 !text-text-secondary">How should we reply?</legend>
+        <legend className="mb-3 text-sm font-medium text-text-secondary">How should we reply?</legend>
         <div className="flex flex-wrap gap-6 text-sm text-text-secondary">
           {[
             ["phone", "A phone call"],

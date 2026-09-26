@@ -69,7 +69,7 @@ export function FleetForm({ whatsappBase }: { whatsappBase: string }) {
       </div>
 
       <fieldset className="grid gap-3">
-        <legend className="eyebrow mb-3 !text-text-secondary">Which vehicles?</legend>
+        <legend className="mb-3 text-sm font-medium text-text-secondary">Which vehicles?</legend>
         <div className="grid gap-x-6 gap-y-1 sm:grid-cols-2">
           {FLEET_VEHICLES.map((type) => (
             <label key={type} className="inline-flex min-h-11 items-center gap-3 text-text-secondary">

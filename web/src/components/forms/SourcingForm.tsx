@@ -34,8 +34,8 @@ export function SourcingForm({ whatsappBase, initial }: { whatsappBase: string; 
           whatsappHref={`${whatsappBase}?text=${encodeURIComponent(`Hello Sabicars, I put a request on the Sourcing Desk (reference ${state.reference}).`)}`}
         />
         {matches.length > 0 && (
-          <div className="border border-border-default bg-surface-1 p-6 md:p-8">
-            <p className="eyebrow">Already in the showroom</p>
+          <div className="surface-card p-6 md:p-8">
+            <p className="kicker">Already in the showroom</p>
             <p className="mt-3 text-text-secondary">
               {matches.length === 1 ? "One vehicle in stock matches" : `${matches.length} vehicles in stock match`} what you asked for:
             </p>
@@ -71,7 +71,7 @@ export function SourcingForm({ whatsappBase, initial }: { whatsappBase: string; 
       )}
 
       <fieldset className="grid gap-6">
-        <legend className="eyebrow mb-6">The vehicle</legend>
+        <legend className="mb-5 text-[1.1rem] font-semibold text-text-primary">The vehicle</legend>
         <label className="grid gap-2">
           <Label>What are you looking for?</Label>
           <input
@@ -108,7 +108,7 @@ export function SourcingForm({ whatsappBase, initial }: { whatsappBase: string; 
           </label>
         </div>
         <div>
-          <span className="eyebrow !text-text-secondary">How would you pay?</span>
+          <span className="text-sm font-medium text-text-secondary">How would you pay?</span>
           <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm text-text-secondary">
             {PAYMENT_OPTIONS.map((p) => (
               <label key={p.value} className="inline-flex min-h-11 items-center gap-3">
@@ -128,7 +128,7 @@ export function SourcingForm({ whatsappBase, initial }: { whatsappBase: string; 
 
       <div className="border-t border-border-subtle pt-8">
         <fieldset className="grid gap-6">
-          <legend className="eyebrow mb-6">Where to reach you</legend>
+          <legend className="mb-5 text-[1.1rem] font-semibold text-text-primary">Where to reach you</legend>
           <div className="grid gap-6 sm:grid-cols-2">
             <label className="grid gap-2">
               <Label>Your name</Label>
@@ -156,7 +156,7 @@ export function SourcingForm({ whatsappBase, initial }: { whatsappBase: string; 
             <FieldError message={err.email} />
           </label>
           <div>
-            <span className="eyebrow !text-text-secondary">Tell me by</span>
+            <span className="text-sm font-medium text-text-secondary">Tell me by</span>
             <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm text-text-secondary">
               {REPLY_BY.map(([value, label]) => (
                 <label key={value} className="inline-flex min-h-11 items-center gap-3">

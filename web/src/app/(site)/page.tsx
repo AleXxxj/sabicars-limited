@@ -9,7 +9,8 @@ import { VehicleImage } from "@/components/VehicleImage";
 import { DrivePlanFinder } from "@/components/home/DrivePlanFinder";
 import { HeroShowcase, type HeroSlide } from "@/components/home/HeroShowcase";
 import { EarningsExamples, PartnerRules } from "@/components/referral/Referral";
-import { Button, ButtonLink } from "@/components/ui/Button";
+import { ArrowRight, CarFront, Layers, MapPin, ShieldCheck, Wallet } from "lucide-react";
+import { Button, ButtonAnchor, ButtonLink } from "@/components/ui/Button";
 import { fieldClass } from "@/components/forms/field";
 import { categoryTiles, drivePlanCatalogue, featuredVehicles, heroVehicles, heroVideoUrl, inventoryStats } from "@/lib/repositories/vehicles";
 import { mostRequested } from "@/lib/repositories/sourcing";
@@ -34,7 +35,7 @@ export const metadata: Metadata = {
 function SectionHead({ eyebrow, title, children }: { eyebrow: string; title: string; children?: React.ReactNode }) {
   return (
     <div className="max-w-2xl">
-      <p className="eyebrow">{eyebrow}</p>
+      <p className="kicker">{eyebrow}</p>
       <h2 className="mt-4 text-display-2">{title}</h2>
       {children && <div className="mt-5 text-lg leading-relaxed text-text-secondary">{children}</div>}
     </div>
@@ -87,24 +88,25 @@ export default async function Home() {
       <HeroShowcase slides={slides} videoUrl={videoUrl} />
 
       {/* Is this real? Facts, live from the inventory and the register. */}
-      <section aria-label="At a glance" className="border-b border-border-subtle bg-surface-1">
-        <dl className="mx-auto grid max-w-7xl grid-cols-2 gap-px bg-border-subtle md:grid-cols-4">
+      <section aria-label="At a glance" className="relative z-10 -mt-12 md:-mt-16">
+        <dl className="mx-auto grid max-w-7xl grid-cols-2 gap-3 px-5 md:grid-cols-4 md:gap-4 md:px-10">
           {[
-            { value: String(stats.inStock), label: "Vehicles in stock today" },
-            { value: lowestDeposit ? formatNaira(lowestDeposit, { compact: true }) : "—", label: "Lowest deposit on the 40% Drive Plan" },
-            { value: String(stats.makes), label: "Makes, from Toyota to Mercedes-Benz" },
-            { value: site.rcNumber, label: "RC number — verify it on the CAC register", href: site.cacSearchUrl },
-          ].map(({ value, label, href }) => (
-            <div key={label} className="bg-surface-1 px-5 py-7 md:px-10 md:py-9">
+            { value: String(stats.inStock), label: "Vehicles in stock today", icon: CarFront },
+            { value: lowestDeposit ? formatNaira(lowestDeposit, { compact: true }) : "—", label: "Lowest deposit on the 40% Drive Plan", icon: Wallet },
+            { value: String(stats.makes), label: "Makes, from Toyota to Mercedes-Benz", icon: Layers },
+            { value: site.rcNumber, label: "CAC registered — verify it", href: site.cacSearchUrl, icon: ShieldCheck },
+          ].map(({ value, label, href, icon: Icon }) => (
+            <div key={label} className="glass rounded-2xl p-4 shadow-[0_24px_60px_-30px_rgb(0_0_0/0.9)] md:p-6">
               <dt className="sr-only">{label}</dt>
               <dd>
-                <span className="figures block font-display text-[2.4rem] leading-none text-text-primary md:text-[3rem]">{value}</span>
+                <Icon aria-hidden size={20} strokeWidth={1.75} className="text-gold-300" />
+                <span className="figures mt-3 block font-display text-[2.1rem] leading-none text-text-primary md:text-[2.75rem]">{value}</span>
                 {href ? (
-                  <a href={href} target="_blank" rel="noopener noreferrer" className="mt-2 block text-sm text-text-muted underline-offset-4 hover:text-text-primary hover:underline">
-                    {label}
+                  <a href={href} target="_blank" rel="noopener noreferrer" className="mt-2 block text-[0.82rem] leading-snug text-text-secondary underline-offset-4 hover:text-text-primary hover:underline">
+                    {label} ↗
                   </a>
                 ) : (
-                  <span className="mt-2 block text-sm text-text-muted">{label}</span>
+                  <span className="mt-2 block text-[0.82rem] leading-snug text-text-secondary">{label}</span>
                 )}
               </dd>
             </div>
@@ -124,6 +126,9 @@ export default async function Home() {
                     Tell us what you can put down — the answer comes from what is in stock right now.
                   </p>
                 </SectionHead>
+                <ButtonLink href="/drive-plan" variant="quiet" className="mt-4">
+                  How the Drive Plan works
+                </ButtonLink>
               </ScrollReveal>
             </DrivePlanFinder>
           </div>
@@ -140,7 +145,7 @@ export default async function Home() {
             <div className="mt-12 grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
               {tiles.slice(0, 4).map((t, i) => (
                 <ScrollReveal key={t.href} delay={i * 90}>
-                  <Link href={t.href} className="group relative block aspect-[3/4] overflow-hidden bg-surface-2 sm:aspect-[4/5]">
+                  <Link href={t.href} className="group relative block aspect-[3/4] overflow-hidden rounded-2xl border border-white/[0.07] bg-surface-2 sm:aspect-[4/5]">
                     {t.coverUrl && (
                       <VehicleImage
                         src={t.coverUrl}
@@ -152,10 +157,10 @@ export default async function Home() {
                     )}
                     <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[#0B0A09] via-[#0B0A09]/35 to-transparent" />
                     <div className="absolute inset-x-0 bottom-0 p-5 md:p-6">
-                      <p className="figures text-xs text-white/70">{t.count} in stock</p>
+                      <p className="figures glass inline-block rounded-full px-2.5 py-0.5 text-xs text-white/85">{t.count} in stock</p>
                       <p className="mt-1 font-display text-[1.7rem] leading-tight text-white md:text-[2rem]">{t.label}</p>
-                      <span className="eyebrow mt-3 inline-block !text-gold-300 transition-transform duration-[var(--duration-base)] group-hover:translate-x-1">
-                        Browse →
+                      <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-gold-300">
+                        Browse <ArrowRight aria-hidden size={16} className="transition-transform duration-[var(--duration-base)] group-hover:translate-x-1" />
                       </span>
                     </div>
                   </Link>
@@ -176,9 +181,10 @@ export default async function Home() {
                 See all {stats.inStock} vehicles
               </ButtonLink>
             </ScrollReveal>
-            <div className="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {/* On a phone, a row to swipe through — the pattern every shopping app uses — instead of 4,000px of stacked cards. */}
+            <div className="-mx-5 mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-5 px-5 pb-4 [scrollbar-width:none] md:mx-0 md:mt-12 md:grid md:snap-none md:grid-cols-2 md:gap-6 md:overflow-visible md:px-0 md:pb-0 xl:grid-cols-3 [&::-webkit-scrollbar]:hidden">
               {featured.map((v, i) => (
-                <ScrollReveal key={v.id} delay={(i % 3) * 90}>
+                <ScrollReveal key={v.id} delay={(i % 3) * 90} className="w-[84%] shrink-0 snap-start sm:w-[60%] md:w-auto">
                   <VehicleCard vehicle={v} href={`/vehicles/${v.slug}`} />
                 </ScrollReveal>
               ))}
@@ -199,10 +205,10 @@ export default async function Home() {
             </SectionHead>
             {demand.length > 0 && (
               <div className="mt-10">
-                <p className="eyebrow !text-text-muted">Most requested right now</p>
+                <p className="text-sm font-medium text-text-muted">Most requested right now</p>
                 <ul className="mt-4 flex flex-wrap gap-2">
                   {demand.map((d) => (
-                    <li key={d.want} className="border border-border-default px-3 py-1.5 text-sm text-text-secondary">
+                    <li key={d.want} className="rounded-full border border-border-default bg-surface-1 px-3.5 py-1.5 text-sm text-text-secondary">
                       {d.want} <span className="figures text-text-muted">· {d.requests}</span>
                     </li>
                   ))}
@@ -212,13 +218,13 @@ export default async function Home() {
           </ScrollReveal>
 
           <ScrollReveal delay={120}>
-            <Form action="/find" className="grid gap-6 border border-border-default bg-surface-0 p-6 md:p-10">
+            <Form action="/find" className="surface-card grid gap-6 p-6 md:p-10">
               <label className="grid gap-2">
-                <span className="eyebrow !text-text-secondary">What are you looking for?</span>
+                <span className="text-sm font-medium text-text-secondary">What are you looking for?</span>
                 <input name="want" required maxLength={120} placeholder="e.g. Toyota Highlander, 2018 or newer" className={fieldClass} />
               </label>
               <label className="grid gap-2">
-                <span className="eyebrow !text-text-secondary">Budget for the vehicle</span>
+                <span className="text-sm font-medium text-text-secondary">Budget for the vehicle</span>
                 <select name="budget" defaultValue="" className={fieldClass}>
                   <option value="">Not sure yet</option>
                   {BUDGET_OPTIONS.map((b) => (
@@ -229,7 +235,7 @@ export default async function Home() {
                 </select>
               </label>
               <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-                <Button type="submit" size="lg">
+                <Button type="submit" size="lg" arrow>
                   Continue
                 </Button>
                 <span className="text-sm text-text-muted">Next: where to reach you.</span>
@@ -245,18 +251,15 @@ export default async function Home() {
         <div aria-hidden className="absolute inset-0 -z-10" style={{ background: "var(--hero-scrim)" }} />
         <div className="mx-auto max-w-7xl px-5 py-24 md:px-10 md:py-32">
           <ScrollReveal className="max-w-2xl">
-            <p className="eyebrow !text-gold-300">Fleet &amp; Government</p>
+            <p className="kicker">Fleet &amp; Government</p>
             <h2 className="mt-4 text-display-2 text-[var(--hero-text)]">One supplier for the whole fleet.</h2>
             <p className="mt-5 text-lg leading-relaxed text-[var(--hero-text-secondary)]">
               Companies and government bodies buy from Sabicars in volume — Toyota Hiace buses, SUVs and staff cars, sourced,
               documented and delivered as a single order, with one team accountable from quotation to handover.
             </p>
-            <Link
-              href="/fleet"
-              className="mt-10 inline-flex min-h-14 items-center bg-gold-500 px-8 text-[0.78rem] font-semibold uppercase tracking-[0.18em] text-[#0B0A09] transition-colors [font-stretch:115%] hover:bg-gold-400"
-            >
+            <ButtonLink href="/fleet" size="lg" className="mt-10">
               Request a fleet quotation
-            </Link>
+            </ButtonLink>
           </ScrollReveal>
         </div>
       </section>
@@ -265,12 +268,12 @@ export default async function Home() {
       <section className="border-t border-border-subtle">
         <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 md:px-10 md:py-28 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-center">
           <ScrollReveal>
-            <div className="relative aspect-[4/5] overflow-hidden bg-surface-2">
+            <div className="relative aspect-[4/5] overflow-hidden rounded-3xl border border-white/[0.08] bg-surface-2 shadow-[0_40px_90px_-40px_rgb(0_0_0/0.9)]">
               <Image src="/founder.jpg" alt="Ccristian Dee, founder of Sabicars Limited" fill sizes="(min-width: 1024px) 40vw, 100vw" className="object-cover object-[60%_center]" />
             </div>
           </ScrollReveal>
           <ScrollReveal delay={120}>
-            <p className="eyebrow">The founder</p>
+            <p className="kicker">The founder</p>
             <blockquote className="mt-6">
               <p className="font-display text-[1.9rem] leading-[1.25] text-text-primary md:text-[2.4rem]">
                 “Every vehicle that leaves our plaza carries my name on it — accident-free, verified, and exactly as described. That’s not
@@ -330,14 +333,14 @@ export default async function Home() {
           </ScrollReveal>
           <ScrollReveal delay={120} className="grid gap-8 sm:grid-cols-2">
             <div>
-              <p className="eyebrow !text-text-muted">Showroom</p>
+              <p className="text-sm font-medium text-text-muted">Showroom</p>
               <Address className="mt-3 text-text-secondary" />
-              <a href={site.mapsUrl} target="_blank" rel="noopener noreferrer" className="eyebrow mt-4 inline-block">
-                Get directions →
-              </a>
+              <ButtonAnchor href={site.mapsUrl} target="_blank" rel="noopener noreferrer" variant="secondary" className="mt-5">
+                <MapPin aria-hidden size={17} /> Get directions
+              </ButtonAnchor>
             </div>
             <div>
-              <p className="eyebrow !text-text-muted">Call</p>
+              <p className="text-sm font-medium text-text-muted">Call</p>
               <ul className="mt-3 space-y-1">
                 {site.phones.map((p) => (
                   <li key={p.e164}>

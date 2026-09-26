@@ -66,7 +66,7 @@ export default async function InventoryPage({ searchParams }: Props) {
     <>
       <section className="border-b border-border-subtle">
         <div className="mx-auto max-w-7xl px-5 pb-10 pt-14 md:px-10 md:pt-20">
-          <p className="eyebrow">Inventory</p>
+          <p className="kicker">Inventory</p>
           <h1 className="mt-4 text-display-2">{headingFor(f)}</h1>
           <p className="figures mt-4 text-text-secondary">
             {result.total} {result.total === 1 ? "vehicle" : "vehicles"} in stock
@@ -146,7 +146,7 @@ export default async function InventoryPage({ searchParams }: Props) {
           </AutoSubmitForm>
 
           {hasActiveFilters(f) && (
-            <Link href="/vehicles" className="eyebrow mt-5 inline-block !text-text-muted hover:!text-text-primary">
+            <Link href="/vehicles" className="mt-4 inline-flex min-h-11 items-center text-sm font-medium text-text-muted underline-offset-4 hover:text-text-primary hover:underline">
               Clear all filters
             </Link>
           )}
@@ -166,7 +166,7 @@ export default async function InventoryPage({ searchParams }: Props) {
             <p className="mx-auto mt-4 max-w-md text-text-secondary">
               Try fewer filters — or tell us what you are looking for, and Sabicars can source it.
             </p>
-            <Link href="/vehicles" className="eyebrow mt-8 inline-block">
+            <Link href="/vehicles" className="group inline-flex min-h-11 items-center gap-1.5 text-[0.95rem] font-semibold text-gold-300 hover:text-gold-200 mt-6">
               See all vehicles →
             </Link>
           </div>
@@ -175,7 +175,7 @@ export default async function InventoryPage({ searchParams }: Props) {
         {result.pages > 1 && (
           <nav aria-label="Pages" className="mt-14 flex items-center justify-between border-t border-border-subtle pt-6">
             {result.page > 1 ? (
-              <Link href={filtersHref(f, { page: result.page - 1 })} className="eyebrow">
+              <Link href={filtersHref(f, { page: result.page - 1 })} className="group inline-flex min-h-11 items-center gap-1.5 text-[0.95rem] font-semibold text-gold-300 hover:text-gold-200">
                 ← Previous
               </Link>
             ) : (
@@ -185,7 +185,7 @@ export default async function InventoryPage({ searchParams }: Props) {
               Page {result.page} of {result.pages}
             </span>
             {result.page < result.pages ? (
-              <Link href={filtersHref(f, { page: result.page + 1 })} className="eyebrow">
+              <Link href={filtersHref(f, { page: result.page + 1 })} className="group inline-flex min-h-11 items-center gap-1.5 text-[0.95rem] font-semibold text-gold-300 hover:text-gold-200">
                 Next →
               </Link>
             ) : (

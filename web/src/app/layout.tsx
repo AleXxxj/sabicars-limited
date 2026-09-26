@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { archivo, cormorant } from "@/lib/fonts";
 import { site, siteUrl } from "@/lib/site";
-import { THEME_BOOT_SCRIPT } from "@/lib/theme";
 import "./globals.css";
 
 /**
@@ -23,20 +22,17 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0B0A09",
-  colorScheme: "dark light",
+  themeColor: "#0A0908",
+  colorScheme: "dark",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    // Dark is the default: the brand is black and gold, and vehicle
-    // photography reads best on it. A theme toggle swaps this attribute.
-    // suppressHydrationWarning: the boot script may switch data-theme before
-    // React hydrates, which is intended.
-    <html lang="en-NG" data-theme="dark" className={`${cormorant.variable} ${archivo.variable}`} suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
-      </head>
+    // One art-directed look, not a light/dark switch. A marque's showroom does
+    // not change colour with the visitor's phone settings; the light variant
+    // read as a plain document and made car-park photography look cheap
+    // (design pass, 2026-09-26). The light tokens remain for the /style page.
+    <html lang="en-NG" data-theme="dark" className={`${cormorant.variable} ${archivo.variable}`}>
       <body>{children}</body>
     </html>
   );

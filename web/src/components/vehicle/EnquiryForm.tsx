@@ -2,10 +2,8 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { submitEnquiry } from "@/lib/actions/enquiry";
-import { Button } from "@/components/ui/Button";
-
-const field =
-  "min-h-12 w-full border border-border-strong bg-surface-0 px-4 text-text-primary outline-none transition-colors placeholder:text-text-muted focus:border-gold-500";
+import { Button, ButtonAnchor } from "@/components/ui/Button";
+import { fieldClass as field } from "@/components/forms/field";
 
 function FieldError({ message }: { message?: string }) {
   return message ? <p className="text-sm text-danger">{message}</p> : null;
@@ -49,24 +47,26 @@ export function EnquiryForm({
       `Hello Sabicars, I just enquired about the ${vehicleTitle} on your website (reference ${state.reference}).`,
     )}`;
     return (
-      <div ref={confirmation} role="status" className="scroll-mt-24 border border-gold-700 bg-surface-0 p-8">
-        <p className="eyebrow">Enquiry received</p>
+      <div ref={confirmation} role="status" className="surface-card scroll-mt-24 !border-gold-500/30 p-7 md:p-9">
+        <p className="kicker">Enquiry received</p>
         <h3 className="mt-3 text-display-3">Thank you, {state.name}.</h3>
         <p className="mt-4 text-text-secondary">
           Your reference is <strong className="figures text-text-primary">{state.reference}</strong>. A member of the Sabicars team will
           contact you about the {vehicleTitle}.
         </p>
-        <a href={wa} target="_blank" rel="noopener noreferrer" className="eyebrow mt-8 inline-flex min-h-12 items-center gap-2">
-          Prefer WhatsApp? Continue there with your reference →
-        </a>
+        <ButtonAnchor href={wa} target="_blank" rel="noopener noreferrer" variant="secondary" arrow className="mt-8 w-full sm:w-auto">
+          Continue on WhatsApp with your reference
+        </ButtonAnchor>
       </div>
     );
   }
 
   const tab = (value: typeof type, label: string) => (
     <label
-      className={`flex min-h-12 flex-1 cursor-pointer items-center justify-center border text-[0.72rem] font-semibold uppercase tracking-[0.16em] [font-stretch:112%] transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-[var(--focus)] ${
-        type === value ? "border-gold-500 bg-gold-500 text-[#0B0A09]" : "border-border-default text-text-secondary hover:text-text-primary"
+      className={`flex min-h-11 flex-1 cursor-pointer items-center justify-center rounded-full text-[0.95rem] font-semibold transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-[var(--focus)] ${
+        type === value
+          ? "bg-[linear-gradient(180deg,var(--gold-300),var(--gold-500))] text-[#0A0908] shadow-[inset_0_1px_0_rgb(255_255_255/0.4)]"
+          : "text-text-secondary hover:text-text-primary"
       }`}
     >
       <input type="radio" name="type" value={value} checked={type === value} onChange={() => setType(value)} className="sr-only" />
@@ -88,7 +88,7 @@ export function EnquiryForm({
 
       <fieldset>
         <legend className="sr-only">What would you like to do?</legend>
-        <div className="flex gap-2">
+        <div className="flex gap-1 rounded-full border border-border-default bg-surface-1 p-1">
           {tab("question", "Ask a question")}
           {tab("viewing", "Book a viewing")}
         </div>
@@ -102,19 +102,19 @@ export function EnquiryForm({
 
       <div className="grid gap-6 sm:grid-cols-2">
         <label className="grid gap-2">
-          <span className="eyebrow !text-text-secondary">Your name</span>
+          <span className="text-sm font-medium text-text-secondary">Your name</span>
           <input name="name" autoComplete="name" required defaultValue={state?.values?.name} className={field} />
           <FieldError message={state?.fieldErrors?.name} />
         </label>
         <label className="grid gap-2">
-          <span className="eyebrow !text-text-secondary">Phone number</span>
+          <span className="text-sm font-medium text-text-secondary">Phone number</span>
           <input name="phone" type="tel" inputMode="tel" autoComplete="tel" required placeholder="0803 123 4567" defaultValue={state?.values?.phone} className={`figures ${field}`} />
           <FieldError message={state?.fieldErrors?.phone} />
         </label>
       </div>
 
       <fieldset className="grid gap-3">
-        <legend className="eyebrow mb-3 !text-text-secondary">How should we reach you?</legend>
+        <legend className="mb-3 text-sm font-medium text-text-secondary">How should we reach you?</legend>
         <div className="flex flex-wrap gap-6 text-sm text-text-secondary">
           <label className="inline-flex min-h-11 items-center gap-3">
             <input type="radio" name="preferredContact" value="phone" defaultChecked={state?.values?.preferredContact !== "whatsapp"} className="size-4 accent-[var(--gold-500)]" /> A phone call
@@ -126,7 +126,7 @@ export function EnquiryForm({
       </fieldset>
 
       <label className="grid gap-2">
-        <span className="eyebrow !text-text-secondary">
+        <span className="text-sm font-medium text-text-secondary">
           {type === "viewing" ? "When suits you to see it? (optional)" : "Your question (optional)"}
         </span>
         <textarea
@@ -141,7 +141,7 @@ export function EnquiryForm({
       </label>
 
       <label className="grid gap-2">
-        <span className="eyebrow !text-text-secondary">Email (optional)</span>
+        <span className="text-sm font-medium text-text-secondary">Email (optional)</span>
         <input name="email" type="email" autoComplete="email" defaultValue={state?.values?.email} className={field} />
         <FieldError message={state?.fieldErrors?.email} />
       </label>

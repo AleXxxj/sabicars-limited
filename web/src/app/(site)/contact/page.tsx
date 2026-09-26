@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 function Channel({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="bg-surface-1 p-6 md:p-8">
-      <p className="eyebrow !text-text-muted">{title}</p>
+      <p className="text-sm font-medium text-text-muted">{title}</p>
       <div className="mt-4 text-text-secondary">{children}</div>
     </div>
   );
@@ -34,11 +34,11 @@ export default function ContactPage() {
       </PageIntro>
 
       <section className="mx-auto max-w-7xl px-5 py-16 md:px-10 md:py-20">
-        <div className="grid gap-px bg-border-subtle lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
+        <div className="grid gap-px overflow-hidden rounded-t-2xl border border-white/[0.07] bg-border-subtle lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
           <div className="grid content-start gap-px bg-border-subtle sm:grid-cols-2 lg:grid-cols-1">
             <Channel title="Visit">
               <Address />
-              <a href={site.mapsUrl} target="_blank" rel="noopener noreferrer" className="eyebrow mt-4 inline-block">
+              <a href={site.mapsUrl} target="_blank" rel="noopener noreferrer" className="group inline-flex min-h-11 items-center gap-1.5 text-[0.95rem] font-semibold text-gold-300 hover:text-gold-200 mt-3">
                 Get directions →
               </a>
             </Channel>
@@ -65,7 +65,7 @@ export default function ContactPage() {
             />
           </div>
         </div>
-        <div className="mt-px grid gap-px bg-border-subtle sm:grid-cols-2">
+        <div className="grid gap-px overflow-hidden rounded-b-2xl border border-t-0 border-white/[0.07] bg-border-subtle sm:grid-cols-2">
           <Channel title="Call">
             <ul className="space-y-2">
               {site.phones.map((p) => (
@@ -94,7 +94,7 @@ export default function ContactPage() {
       <section className="border-t border-border-subtle">
         <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 md:px-10 md:py-24 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
           <ScrollReveal>
-            <p className="eyebrow">Send a message</p>
+            <p className="kicker">Send a message</p>
             <h2 className="mt-4 text-display-2">How can we help?</h2>
             <p className="mt-5 text-lg leading-relaxed text-text-secondary">
               Asking about a particular vehicle? You will get a faster answer from the enquiry form on its page — it tells us exactly

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Gauge, Wallet } from "lucide-react";
 import type { VehicleWithCover } from "@/lib/repositories/vehicles";
 import { VEHICLE_PLACEHOLDER } from "@/lib/media";
 import { VehicleImage } from "@/components/VehicleImage";
@@ -11,6 +12,10 @@ import { badgeFor, drivePlanDeposit, priceLabel, specLine } from "@/lib/vehicle"
  * the vehicle's page, where the buyer can reserve, book a viewing or ask —
  * and every one of those is recorded. The legacy card sent people straight to
  * one phone from every tile in every grid.
+ *
+ * Read in the order a buyer scans: the car, the price, what it takes to drive
+ * it home. Model names are set in the sans, not the display serif — a name
+ * has to be read at a glance, not admired.
  */
 export function VehicleCard({
   vehicle: v,
@@ -38,29 +43,36 @@ export function VehicleCard({
           sizes="(min-width: 1280px) 400px, (min-width: 768px) 50vw, 100vw"
           className="object-cover transition-transform duration-[var(--duration-slow)] ease-[var(--ease-out)] group-hover:scale-[1.04]"
         />
+        {/* Lets the photo sink into the card instead of ending on a hard line. */}
+        <div aria-hidden className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#0A0908]/55 to-transparent" />
         {badge && (
-          // Sits on a photograph, so it takes the dark photographic treatment in
-          // both themes — a white chip with gold text is unreadable on light.
-          <span className="eyebrow absolute left-4 top-4 bg-[#0B0A09]/80 px-3 py-1.5 !text-[0.62rem] !tracking-[0.2em] !text-gold-300 backdrop-blur-sm">
-            {badge}
-          </span>
+          <span className="glass absolute left-3 top-3 rounded-full px-3 py-1 text-[0.72rem] font-semibold tracking-[0.04em] text-gold-200">{badge}</span>
         )}
       </div>
 
-      <div className="flex flex-1 flex-col gap-4 p-6">
-        <div>
-          <p className="eyebrow !text-[0.66rem]">
-            {v.make} · {v.year}
+      <div className="flex flex-1 flex-col gap-4 p-5 md:p-6">
+        <div className="min-w-0">
+          <p className="text-[0.8rem] font-medium text-text-muted">
+            {v.year} · {v.make}
           </p>
-          <h3 className="mt-2 text-[1.9rem] leading-[1.05] text-text-primary">{v.model}</h3>
-          {spec && <p className="mt-2 text-sm text-text-muted">{spec}</p>}
+          <h3 className="mt-1 truncate font-sans text-[1.3rem] font-semibold leading-snug tracking-[-0.01em] text-text-primary">{v.model}</h3>
+          {spec && (
+            <p className="mt-1.5 flex items-center gap-1.5 text-sm text-text-muted">
+              <Gauge aria-hidden size={15} className="shrink-0 opacity-70" />
+              <span className="truncate">{spec}</span>
+            </p>
+          )}
         </div>
 
-        <div className="mt-auto border-t border-border-subtle pt-4">
-          <p className="figures text-xl font-semibold tracking-tight text-text-primary">{priceLabel(v)}</p>
+        <div className="mt-auto flex items-end justify-between gap-3 border-t border-white/[0.06] pt-4">
+          <p className="figures text-[1.35rem] font-semibold leading-none tracking-tight text-text-primary">{priceLabel(v)}</p>
           {deposit && (
-            <p className="mt-1 text-[0.82rem] text-text-secondary">
-              <span className="figures text-accent-text">{deposit}</span> deposit on the 40% Drive Plan
+            <p className="flex items-center gap-1.5 text-right text-[0.8rem] leading-tight text-text-secondary">
+              <Wallet aria-hidden size={15} className="shrink-0 text-accent-text" />
+              <span>
+                <span className="figures block font-semibold text-accent-text">{deposit}</span>
+                40% deposit
+              </span>
             </p>
           )}
         </div>
@@ -69,7 +81,8 @@ export function VehicleCard({
   );
 
   const shell =
-    "group flex h-full flex-col overflow-hidden border border-border-subtle bg-surface-1 transition-[border-color,box-shadow] duration-[var(--duration-base)] ease-[var(--ease-out)] hover:border-border-default hover:shadow-[var(--shadow-lg)]";
+    "surface-card group flex h-full flex-col overflow-hidden transition-[transform,border-color,box-shadow] duration-[var(--duration-base)] ease-[var(--ease-out)] " +
+    "hover:-translate-y-1 hover:border-gold-500/30 hover:shadow-[inset_0_1px_0_rgb(255_255_255/0.06),0_30px_70px_-30px_rgb(0_0_0/0.9)]";
 
   return href ? (
     <Link href={href} className={shell}>

@@ -10,12 +10,16 @@ import type { ImageLoaderProps } from "next/image";
  * optimisation is never touched.
  *
  * f_auto picks the best format the browser accepts; q_auto picks the lowest
- * quality that is visually lossless for that particular image.
+ * quality that is visually lossless for that particular image. e_improve
+ * corrects exposure and colour per photo: most stock is shot on a phone in an
+ * open car park under a white Lagos sky, and it lifts a dull, flat frame
+ * without the over-saturated look of a filter (compared side by side on real
+ * listings before choosing it).
  */
 export function cloudinaryLoader({ src, width, quality }: ImageLoaderProps): string {
   if (!src.includes("res.cloudinary.com") || !src.includes("/upload/")) return src;
   const q = quality ? `q_${quality}` : "q_auto";
-  return src.replace("/upload/", `/upload/f_auto,${q},c_limit,w_${width}/`);
+  return src.replace("/upload/", `/upload/e_improve,f_auto,${q},c_limit,w_${width}/`);
 }
 
 /**
@@ -26,7 +30,7 @@ export function cloudinaryLoader({ src, width, quality }: ImageLoaderProps): str
  */
 export function shareImageUrl(url: string): string {
   if (!url.includes("res.cloudinary.com") || !url.includes("/upload/")) return url;
-  return url.replace("/upload/", "/upload/c_fill,g_auto,w_1200,h_630,f_jpg,q_auto/");
+  return url.replace("/upload/", "/upload/e_improve,c_fill,g_auto,w_1200,h_630,f_jpg,q_auto/");
 }
 
 /** Shown when a vehicle has no photos yet. An honest empty state, never a stock car. */

@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { ArrowRight, Pause, Play, Volume2, VolumeX, Wallet } from "lucide-react";
+import { ButtonAnchor, ButtonLink } from "@/components/ui/Button";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { VehicleImage } from "@/components/VehicleImage";
 
@@ -139,8 +141,8 @@ export function HeroShowcase({ slides, videoUrl }: { slides: HeroSlide[]; videoU
       <div aria-hidden className="absolute inset-0 -z-10" style={{ background: "var(--hero-scrim)" }} />
       <div aria-hidden className="absolute inset-0 -z-10" style={{ background: "var(--hero-scrim-bottom)" }} />
 
-      <div className="mx-auto w-full max-w-7xl px-5 pb-8 pt-14 md:px-10 md:pb-14 md:pt-28">
-        <p className="eyebrow !text-gold-300">Sabicars Limited · CAC RC 1560100</p>
+      <div className="mx-auto w-full max-w-7xl px-5 pb-20 pt-14 md:px-10 md:pb-28 md:pt-28">
+        <p className="kicker">CAC registered · RC 1560100</p>
         <h1 className="mt-6 max-w-4xl text-display-1 text-[var(--hero-text)]">
           Every car verified.
           <br />
@@ -151,28 +153,23 @@ export function HeroShowcase({ slides, videoUrl }: { slides: HeroSlide[]; videoU
           rest, or let us supply your whole fleet.
         </p>
         <div className="mt-8 flex flex-wrap gap-3 md:mt-10 md:gap-4">
-          <Link
-            href="/vehicles"
-            className="inline-flex min-h-14 items-center bg-gold-500 px-8 text-[0.78rem] font-semibold uppercase tracking-[0.18em] text-[#0B0A09] transition-colors [font-stretch:115%] hover:bg-gold-400"
-          >
-            View the inventory
-          </Link>
-          <a
-            href="#drive-plan"
-            className="inline-flex min-h-14 items-center border border-white/40 px-8 text-[0.78rem] font-semibold uppercase tracking-[0.18em] text-white transition-colors [font-stretch:115%] hover:border-white"
-          >
-            What can I afford?
-          </a>
+          <ButtonLink href="/vehicles" size="lg">
+            Browse cars
+          </ButtonLink>
+          <ButtonAnchor href="#drive-plan" size="lg" variant="secondary">
+            <Wallet aria-hidden size={18} strokeWidth={1.75} /> What can I afford?
+          </ButtonAnchor>
         </div>
 
         {/* What is on screen, and a way to it. */}
         <div className="mt-10 flex flex-wrap items-end justify-between gap-6 border-t border-white/15 pt-5 md:mt-14">
           {current && !videoOn ? (
-            <Link href={current.href} aria-live="polite" className="group min-w-0 text-[var(--hero-text-secondary)]">
-              <span className="eyebrow !text-[0.62rem] !text-white/60">Now showing</span>
-              <span className="mt-1 block truncate text-sm text-white transition-colors group-hover:text-gold-300">
-                {current.title} <span className="figures text-white/70">· {current.price}</span> <span aria-hidden>→</span>
+            <Link href={current.href} aria-live="polite" className="glass group flex min-w-0 max-w-full items-center gap-3 rounded-full py-2 pl-4 pr-3 text-sm text-white">
+              <span className="shrink-0 text-xs text-white/60">Now showing</span>
+              <span className="truncate transition-colors group-hover:text-gold-300">
+                {current.title} <span className="figures text-white/70">· {current.price}</span>
               </span>
+              <ArrowRight aria-hidden size={16} className="shrink-0 transition-transform group-hover:translate-x-0.5" />
             </Link>
           ) : (
             <span />
@@ -180,8 +177,8 @@ export function HeroShowcase({ slides, videoUrl }: { slides: HeroSlide[]; videoU
 
           <div className="flex items-center gap-4">
             {videoOn ? (
-              <button type="button" onClick={toggleSound} className="eyebrow min-h-11 !text-white/80 hover:!text-white">
-                {muted ? "Sound on" : "Sound off"}
+              <button type="button" onClick={toggleSound} aria-label={muted ? "Sound on" : "Sound off"} className="glass inline-flex size-11 items-center justify-center rounded-full text-white/85 hover:text-white">
+                {muted ? <VolumeX aria-hidden size={18} /> : <Volume2 aria-hidden size={18} />}
               </button>
             ) : (
               slides.length > 1 && (
@@ -202,8 +199,8 @@ export function HeroShowcase({ slides, videoUrl }: { slides: HeroSlide[]; videoU
                       </button>
                     ))}
                   </div>
-                  <button type="button" onClick={() => setPaused((p) => !p)} className="eyebrow min-h-11 w-14 text-left !text-[0.62rem] !text-white/70 hover:!text-white">
-                    {paused ? "Play" : "Pause"}
+                  <button type="button" onClick={() => setPaused((p) => !p)} aria-label={paused ? "Play the slideshow" : "Pause the slideshow"} className="glass inline-flex size-11 items-center justify-center rounded-full text-white/80 hover:text-white">
+                    {paused ? <Play aria-hidden size={16} /> : <Pause aria-hidden size={16} />}
                   </button>
                 </>
               )

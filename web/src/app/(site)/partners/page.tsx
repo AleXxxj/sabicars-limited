@@ -45,7 +45,7 @@ export default async function PartnersPage() {
 
       <section className="mx-auto grid max-w-7xl gap-14 px-5 py-16 md:px-10 md:py-24 lg:grid-cols-2 lg:items-start">
         <ScrollReveal>
-          <p className="eyebrow">How it works</p>
+          <p className="kicker">How it works</p>
           <ol className="mt-8 grid gap-8 sm:grid-cols-2">
             {HOW.map(([step, text], i) => (
               <li key={step} className="border-t border-gold-700 pt-4">
@@ -64,7 +64,7 @@ export default async function PartnersPage() {
       <section className="border-t border-border-subtle bg-surface-1">
         <div className="mx-auto max-w-7xl px-5 py-20 md:px-10 md:py-28">
           <ScrollReveal className="max-w-2xl">
-            <p className="eyebrow">The rules</p>
+            <p className="kicker">The rules</p>
             <h2 className="mt-4 text-display-2">A commission on sales. Nothing else.</h2>
             <p className="mt-5 text-lg leading-relaxed text-text-secondary">
               You earn when a car is sold to someone you brought — the way commission has always worked in this trade, written down so
@@ -95,7 +95,7 @@ export default async function PartnersPage() {
       <section id="register" className="scroll-mt-24 border-t border-border-subtle">
         <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 md:px-10 md:py-28 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
           <ScrollReveal>
-            <p className="eyebrow">Register</p>
+            <p className="kicker">Register</p>
             <h2 className="mt-4 text-display-2">Get your code.</h2>
             <p className="mt-5 text-lg leading-relaxed text-text-secondary">
               One minute, no fee. Your code and link appear as soon as you register.

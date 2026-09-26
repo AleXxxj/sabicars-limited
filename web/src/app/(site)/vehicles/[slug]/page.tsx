@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { notFound } from "next/navigation";
 import { ButtonLink } from "@/components/ui/Button";
 import { VehicleCard } from "@/components/VehicleCard";
@@ -57,7 +58,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   return (
     <section className="border-t border-border-subtle py-12 md:py-16">
       <div className="mx-auto grid max-w-7xl gap-8 px-5 md:px-10 lg:grid-cols-[16rem_minmax(0,1fr)]">
-        <h2 className="eyebrow !text-text-secondary">{title}</h2>
+        <h2 className="kicker self-start">{title}</h2>
         <div>{children}</div>
       </div>
     </section>
@@ -109,24 +110,25 @@ export default async function VehiclePage({ params }: Props) {
 
           <div className="lg:sticky lg:top-28 lg:self-start">
             {v.status !== "available" && (
-              <p className="eyebrow mb-6 border-l-2 border-gold-500 bg-surface-1 px-4 py-3 !text-text-primary">
+              <p className="mb-6 rounded-xl border border-gold-500/30 bg-gold-500/10 px-4 py-3 text-sm font-semibold text-gold-200">
                 {sold ? "This vehicle has been sold" : "Reserved — a buyer has placed a deposit"}
               </p>
             )}
-            <p className="eyebrow">
-              {v.make} · {v.year}
+            <p className="text-[0.95rem] font-medium text-text-muted">
+              {v.year} · {v.make}
             </p>
             <h1 className="mt-3 text-display-2">{v.model}</h1>
             <p className="mt-3 text-text-secondary">{specLine(v)}</p>
 
-            <div className="mt-8 border-y border-border-subtle py-6">
-              <p className="eyebrow !text-text-muted">Price</p>
+            <div className="mt-8 border-y border-white/[0.06] py-6">
+              <p className="text-sm font-medium text-text-muted">Price</p>
               <p className="figures mt-2 text-[2rem] font-semibold leading-none tracking-tight">{priceLabel(v)}</p>
             </div>
 
             {deposit && balance && !sold && (
-              <div className="mt-6 bg-surface-1 p-6">
-                <p className="eyebrow">40% Drive Plan</p>
+              <div className="surface-card relative mt-6 overflow-hidden p-6">
+                <div aria-hidden className="pointer-events-none absolute -right-16 -top-16 size-48 rounded-full bg-gold-500/12 blur-3xl" />
+                <p className="kicker">40% Drive Plan</p>
                 <dl className="mt-4 grid grid-cols-2 gap-4">
                   <div>
                     <dt className="text-xs text-text-muted">Your 40% deposit</dt>
@@ -138,8 +140,8 @@ export default async function VehiclePage({ params }: Props) {
                   </div>
                 </dl>
                 <p className="mt-4 text-xs text-text-muted">Financing is subject to Autochek’s approval.</p>
-                <Link href="/drive-plan" className="eyebrow mt-4 inline-block !text-text-secondary hover:!text-text-primary">
-                  How the Drive Plan works →
+                <Link href="/drive-plan" className="group mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-gold-300 hover:text-gold-200">
+                  How the Drive Plan works <ArrowRight aria-hidden size={16} className="transition-transform group-hover:translate-x-1" />
                 </Link>
               </div>
             )}
@@ -213,7 +215,7 @@ export default async function VehiclePage({ params }: Props) {
           <section id="enquire" className="scroll-mt-24 border-t border-border-subtle bg-surface-1 py-14 md:py-20">
             <div className="mx-auto grid max-w-7xl gap-12 px-5 md:px-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
               <div>
-                <p className="eyebrow">Enquire</p>
+                <p className="kicker">Enquire</p>
                 <h2 className="mt-3 text-display-3">Interested in the {v.model}?</h2>
                 <p className="mt-5 max-w-md text-text-secondary">
                   Ask anything, or arrange to see it at the showroom. Your enquiry is recorded with a reference, so whoever picks it up
@@ -234,7 +236,7 @@ export default async function VehiclePage({ params }: Props) {
         {similar.length > 0 && (
           <section id="similar" className="scroll-mt-24 border-t border-border-subtle py-14 md:py-20">
             <div className="mx-auto max-w-7xl px-5 md:px-10">
-              <p className="eyebrow">You may also consider</p>
+              <p className="kicker">You may also consider</p>
               <h2 className="mt-3 text-display-3">Similar vehicles</h2>
               <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                 {similar.map((s) => (

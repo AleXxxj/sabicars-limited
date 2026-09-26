@@ -17,7 +17,7 @@ function Arrow({ dir, onClick, label }: { dir: "prev" | "next"; onClick: () => v
       type="button"
       onClick={onClick}
       aria-label={label}
-      className={`absolute top-1/2 z-10 grid size-12 -translate-y-1/2 place-items-center bg-[#0B0A09]/70 text-white backdrop-blur-sm transition-colors hover:bg-[#0B0A09]/90 ${
+      className={`glass absolute top-1/2 z-10 grid size-12 -translate-y-1/2 place-items-center rounded-full text-white transition-colors hover:bg-[#0A0908]/80 ${
         dir === "prev" ? "left-3" : "right-3"
       }`}
     >
@@ -60,7 +60,7 @@ export function Gallery({ images, title }: { images: GalleryImage[]; title: stri
 
   return (
     <div onKeyDown={keys} aria-roledescription="carousel" aria-label={`Photos of the ${title}`} className="min-w-0">
-      <div className="relative aspect-[4/3] overflow-hidden bg-surface-2 lg:aspect-[16/11]" {...swipe}>
+      <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-white/[0.07] bg-surface-2 lg:aspect-[16/11]" {...swipe}>
         <VehicleImage
           key={photos[i].url}
           src={photos[i].url}
@@ -77,7 +77,7 @@ export function Gallery({ images, title }: { images: GalleryImage[]; title: stri
           </>
         )}
         <div className="absolute bottom-3 left-3 right-3 z-10 flex items-center justify-between">
-          <span aria-live="polite" className="eyebrow bg-[#0B0A09]/70 px-3 py-1.5 !text-[0.62rem] !text-white backdrop-blur-sm">
+          <span aria-live="polite" className="glass figures rounded-full px-3 py-1.5 text-xs font-medium text-white">
             <span className="figures">
               {i + 1} / {photos.length}
             </span>
@@ -86,7 +86,7 @@ export function Gallery({ images, title }: { images: GalleryImage[]; title: stri
             <button
               type="button"
               onClick={() => dialog.current?.showModal()}
-              className="eyebrow bg-[#0B0A09]/70 px-3 py-1.5 !text-[0.62rem] !text-white backdrop-blur-sm hover:bg-[#0B0A09]/90"
+              className="glass rounded-full px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-[#0A0908]/80"
             >
               Full screen
             </button>
@@ -103,7 +103,7 @@ export function Gallery({ images, title }: { images: GalleryImage[]; title: stri
               onClick={() => setI(n)}
               aria-label={`Photo ${n + 1}`}
               aria-current={n === i ? "true" : undefined}
-              className={`relative aspect-[4/3] w-20 shrink-0 overflow-hidden border-2 transition-opacity md:w-24 ${
+              className={`relative aspect-[4/3] w-20 shrink-0 overflow-hidden rounded-lg border-2 transition-opacity md:w-24 ${
                 n === i ? "border-gold-500" : "border-transparent opacity-60 hover:opacity-100"
               }`}
             >
@@ -128,10 +128,10 @@ export function Gallery({ images, title }: { images: GalleryImage[]; title: stri
             </>
           )}
           <div className="absolute inset-x-0 top-0 z-10 flex items-center justify-between p-4">
-            <span className="eyebrow figures !text-white">
+            <span className="figures text-sm font-medium text-white">
               {i + 1} / {photos.length}
             </span>
-            <button type="button" onClick={() => dialog.current?.close()} className="eyebrow min-h-12 px-2 !text-white" autoFocus>
+            <button type="button" onClick={() => dialog.current?.close()} className="glass min-h-11 rounded-full px-4 text-sm font-semibold text-white" autoFocus>
               Close
             </button>
           </div>

@@ -16,23 +16,23 @@
   },
 
   "darkSurface": {
-    "$comment": "Luminance ladder with a warm undertone, so black reads as lacquer rather than dead grey. Contrast compresses near black, so the steps are wider than they look — validated by the checker, not by eye.",
-    "0": "#0B0A09",
-    "1": "#1F1C19",
-    "2": "#2C2824",
-    "3": "#38342E",
-    "4": "#48433B"
+    "$comment": "Luminance ladder with a warm undertone, so black reads as lacquer rather than dead grey. Neutralised in the 2026-09-26 design pass (less brown, so cards read as charcoal, not mud), each step the smallest that still clears the checker. Validated by the checker, not by eye.",
+    "0": "#0A0908",
+    "1": "#1D1B18",
+    "2": "#2A2825",
+    "3": "#353330",
+    "4": "#3F3D3A"
   },
 
   "darkText": {
     "primary":   "#F5F2EA",
-    "secondary": "#CFC8B8",
-    "muted":     "#A39B8B"
+    "secondary": "#D6CFC0",
+    "muted":     "#ABA394"
   },
 
   "darkBorder": {
-    "subtle":  "#221F1B",
-    "default": "#3A352E",
+    "subtle":  "#231F1B",
+    "default": "#342F29",
     "strong":  "#7A7263"
   },
 

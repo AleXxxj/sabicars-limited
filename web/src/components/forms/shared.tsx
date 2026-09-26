@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { ButtonAnchor } from "@/components/ui/Button";
 
 // Kept in a plain module so Server Components can use it too.
 export { fieldClass } from "./field";
@@ -10,7 +11,7 @@ export function FieldError({ message }: { message?: string }) {
 }
 
 export function Label({ children }: { children: React.ReactNode }) {
-  return <span className="eyebrow !text-text-secondary">{children}</span>;
+  return <span className="text-sm font-medium text-text-secondary">{children}</span>;
 }
 
 /**
@@ -54,15 +55,15 @@ export function Confirmation({
     ref.current?.scrollIntoView({ behavior: still ? "auto" : "smooth", block: "center" });
   }, []);
   return (
-    <div ref={ref} role="status" className="scroll-mt-24 border border-gold-700 bg-surface-0 p-8">
-      <p className="eyebrow">Received</p>
+    <div ref={ref} role="status" className="surface-card scroll-mt-24 !border-gold-500/30 p-7 md:p-9">
+      <p className="kicker">Received</p>
       <h3 className="mt-3 text-display-3">Thank you{name ? `, ${name}` : ""}.</h3>
       <p className="mt-4 text-text-secondary">
         Your reference is <strong className="figures text-text-primary">{reference}</strong>. {body}
       </p>
-      <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="eyebrow mt-8 inline-flex min-h-12 items-center gap-2">
-        Prefer WhatsApp? Continue there with your reference →
-      </a>
+      <ButtonAnchor href={whatsappHref} target="_blank" rel="noopener noreferrer" variant="secondary" arrow className="mt-8 w-full sm:w-auto">
+        Continue on WhatsApp with your reference
+      </ButtonAnchor>
     </div>
   );
 }

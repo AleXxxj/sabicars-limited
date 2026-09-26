@@ -1,14 +1,13 @@
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
 import { Address } from "@/components/site/Address";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { INVENTORY_SHORTCUTS, PRIMARY_NAV } from "@/lib/navigation";
 import { site, whatsappLink } from "@/lib/site";
 
 function Column({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <p className="eyebrow !text-text-muted">{title}</p>
+      <p className="text-sm font-semibold text-text-primary">{title}</p>
       <ul className="mt-5 space-y-3 text-sm">{children}</ul>
     </div>
   );
@@ -24,7 +23,7 @@ const link = "text-text-secondary transition-colors hover:text-text-primary";
 export function SiteFooter() {
   const year = new Date().getFullYear();
   return (
-    <footer className="border-t border-border-subtle bg-surface-1">
+    <footer className="relative border-t border-white/[0.06] bg-[linear-gradient(180deg,var(--surface-1),var(--surface-0))]">
       <div className="mx-auto grid max-w-7xl gap-12 px-5 py-16 md:grid-cols-2 md:px-10 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr]">
         <div>
           <Logo />
@@ -92,7 +91,9 @@ export function SiteFooter() {
           <p>
             © {year} {site.legalName}. All rights reserved.
           </p>
-          <ThemeToggle />
+          <a href={site.cacSearchUrl} target="_blank" rel="noopener noreferrer" className="hover:text-text-primary">
+            Verify RC {site.rcNumber} on the CAC register ↗
+          </a>
         </div>
       </div>
     </footer>

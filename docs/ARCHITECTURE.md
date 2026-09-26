@@ -327,6 +327,35 @@ live page it replaces so nothing is lost silently. Built on that basis:
 - The **Record** (dated deliveries and verified-buyer reviews) is next; there
   are no sold vehicles yet to build it from.
 
+### Design pass — "standard" feel (2026-09-26)
+
+Feedback: the structure and content were right, but the feel was "not standard
+enough" — the background, text on the background, how easy calls, functions
+and navigation are to understand. What changed, site-wide:
+
+- **One look.** The site no longer flips to a plain light version with the
+  visitor's phone setting (or a remembered toggle). Dark, art-directed, always.
+- **Depth, not flat black.** A warm light from above the page, a trace of
+  film grain, raised surfaces lit by a hairline top edge, frosted glass over
+  photography. The surface ladder was neutralised (less brown) within the
+  contrast gate.
+- **Readable type.** Body text 17px. Spaced-out capitals kept only for short
+  section labels (now led by a gold rule); every button, label and link is in
+  sentence case at a readable size. Model names set in the sans.
+- **Obvious calls.** Brushed-gold pill for the one primary action, frosted
+  pill for the alternative, arrows and icons (lucide) on every action.
+- **Navigation like an app.** Phones get a bottom tab bar (Home, Cars, Drive
+  Plan, Find a car, Earn) and a menu with an icon and a one-line explanation
+  per section, plus Call / WhatsApp / Directions. Desktop gets sentence-case
+  links and a "Browse cars" button.
+- **Photography.** Every vehicle photo passes through Cloudinary `e_improve`
+  (auto exposure and colour), chosen after comparing it with a stronger
+  outdoor/vibrance treatment on real listings.
+- Featured cars swipe sideways on a phone instead of stacking 4,000px deep.
+- **/drive-plan** built on the confirmed structure (40% deposit, Autochek
+  finances 60%): finder, four steps, a worked example on a real car,
+  straight answers, and an application recorded as a Drive Plan lead.
+
 ### What Sabicars has that Adedayo does not
 
 Consignment and custody (§2.2), youth scout and creator programmes on top of

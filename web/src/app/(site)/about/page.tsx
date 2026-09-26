@@ -67,7 +67,7 @@ export default async function AboutPage() {
         </ScrollReveal>
 
         <ScrollReveal delay={120}>
-          <p className="eyebrow">The founder</p>
+          <p className="kicker">The founder</p>
           <h2 className="mt-4 text-display-2">From single vehicles to a registered company.</h2>
           <div className="mt-8 space-y-6 text-lg leading-relaxed text-text-secondary">
             <p>
@@ -97,7 +97,7 @@ export default async function AboutPage() {
       <section className="border-t border-border-subtle bg-surface-1">
         <div className="mx-auto max-w-7xl px-5 py-20 md:px-10 md:py-28">
           <ScrollReveal className="max-w-2xl">
-            <p className="eyebrow">The standard</p>
+            <p className="kicker">The standard</p>
             <h2 className="mt-4 text-display-2">What buying from Sabicars means.</h2>
           </ScrollReveal>
           <div className="mt-14 grid gap-px bg-border-subtle sm:grid-cols-2">
@@ -109,7 +109,7 @@ export default async function AboutPage() {
                 <a
                   href={s.link.href}
                   {...(s.link.href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                  className="eyebrow mt-5 inline-block"
+                  className="group inline-flex min-h-11 items-center gap-1.5 text-[0.95rem] font-semibold text-gold-300 hover:text-gold-200 mt-4"
                 >
                   {s.link.label} →
                 </a>
@@ -122,7 +122,7 @@ export default async function AboutPage() {
       <section className="border-t border-border-subtle">
         <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 md:px-10 md:py-24 lg:grid-cols-2 lg:items-end">
           <ScrollReveal>
-            <p className="eyebrow">Today</p>
+            <p className="kicker">Today</p>
             <p className="figures mt-4 font-display text-[3.5rem] leading-none md:text-[4.5rem]">{stats.inStock}</p>
             <p className="mt-3 text-lg text-text-secondary">vehicles in stock right now, across {stats.makes} makes.</p>
             <div className="mt-8 flex flex-wrap gap-4">
@@ -133,7 +133,7 @@ export default async function AboutPage() {
             </div>
           </ScrollReveal>
           <ScrollReveal delay={120} className="text-text-secondary">
-            <p className="eyebrow !text-text-muted">The showroom</p>
+            <p className="text-sm font-medium text-text-muted">The showroom</p>
             <Address className="mt-3" />
             <ul className="mt-5 space-y-1 text-sm">
               {site.hours.map((h) => (

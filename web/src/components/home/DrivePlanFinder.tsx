@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { useId, useState } from "react";
 import { VehicleImage } from "@/components/VehicleImage";
 import { formatNaira, money, percentOf } from "@/lib/money";
@@ -44,8 +45,8 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
       <div>
         {children}
 
-        <div className="mt-10 border-t border-gold-700 pt-6">
-          <label htmlFor={inputId} className="eyebrow !text-text-secondary">
+        <div className="mt-10 border-t border-white/[0.08] pt-6">
+          <label htmlFor={inputId} className="text-sm font-medium text-text-secondary">
             I can put down
           </label>
           <div className="mt-3 flex items-baseline gap-2 border-b border-border-strong pb-2 transition-colors focus-within:border-gold-500">
@@ -73,7 +74,7 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
                 type="button"
                 onClick={() => setText(grouped(p))}
                 aria-pressed={naira === p}
-                className="figures min-h-11 border border-border-default px-4 text-sm text-text-secondary transition-colors hover:border-border-strong hover:text-text-primary aria-pressed:border-gold-500 aria-pressed:text-text-primary"
+                className="figures min-h-11 rounded-full border border-border-default bg-surface-1 px-5 text-sm font-medium text-text-secondary transition-colors hover:border-border-strong hover:text-text-primary aria-pressed:border-gold-500 aria-pressed:bg-gold-500/10 aria-pressed:text-gold-200"
               >
                 {formatNaira(p * 100, { compact: true })}
               </button>
@@ -82,11 +83,13 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
         </div>
       </div>
 
-      <div id={`${inputId}-result`} aria-live="polite" className="border border-border-default bg-surface-1 p-6 md:p-8">
+      <div id={`${inputId}-result`} aria-live="polite" className="surface-card relative overflow-hidden p-6 md:p-8">
+        {/* A pool of warm light behind the answer. */}
+        <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full bg-gold-500/15 blur-3xl" />
         {within.length > 0 ? (
           <>
             <p className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-              <span className="figures font-display text-[4.5rem] leading-[0.85] text-accent-text md:text-[5.5rem]">{within.length}</span>
+              <span className="figures text-gold font-display text-[4.75rem] leading-[0.85] md:text-[6rem]">{within.length}</span>
               <span className="max-w-xs text-lg leading-snug text-text-primary">
                 {within.length === 1 ? "vehicle" : "vehicles"} your deposit can drive home
               </span>
@@ -106,7 +109,7 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
               {picks.map((v) => (
                 <li key={v.slug}>
                   <Link href={`/vehicles/${v.slug}`} className="group block">
-                    <div className="relative aspect-[4/3] overflow-hidden bg-surface-2">
+                    <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-surface-2">
                       {v.coverUrl && (
                         <VehicleImage
                           src={v.coverUrl}
@@ -128,8 +131,8 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
 
             <div className="mt-6 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-t border-border-subtle pt-5">
               {within.length > picks.length && (
-                <Link href={`/vehicles?maxPrice=${ceilingNaira}&sort=price_desc`} className="eyebrow group inline-flex min-h-11 items-center gap-2">
-                  See all {within.length} <span aria-hidden className="transition-transform group-hover:translate-x-1">→</span>
+                <Link href={`/vehicles?maxPrice=${ceilingNaira}&sort=price_desc`} className="group inline-flex min-h-11 items-center gap-2 font-semibold text-gold-300 hover:text-gold-200">
+                  See all {within.length} <ArrowRight aria-hidden size={17} className="transition-transform group-hover:translate-x-1" />
                 </Link>
               )}
               <Link href="/find" className="inline-flex min-h-11 items-center text-sm text-text-secondary hover:text-text-primary">
@@ -151,8 +154,8 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
                 .
               </p>
             )}
-            <Link href="/find" className="eyebrow mt-8 inline-flex min-h-11 items-center">
-              Or tell the Sourcing Desk what you want →
+            <Link href="/find" className="group mt-8 inline-flex min-h-11 items-center gap-2 font-semibold text-gold-300 hover:text-gold-200">
+              Or tell the Sourcing Desk what you want <ArrowRight aria-hidden size={17} className="transition-transform group-hover:translate-x-1" />
             </Link>
           </div>
         )}

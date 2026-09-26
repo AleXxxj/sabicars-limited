@@ -1,3 +1,4 @@
+import { MobileTabBar } from "@/components/site/MobileTabBar";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { SiteHeader } from "@/components/site/SiteHeader";
 
@@ -9,8 +10,12 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
         Skip to content
       </a>
       <SiteHeader />
-      <main id="main">{children}</main>
-      <SiteFooter />
+      {/* Room at the foot for the phone's tab bar, so it never covers the footer. */}
+      <div className="pb-[calc(4rem+env(safe-area-inset-bottom))] xl:pb-0">
+        <main id="main">{children}</main>
+        <SiteFooter />
+      </div>
+      <MobileTabBar />
     </>
   );
 }

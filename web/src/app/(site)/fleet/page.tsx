@@ -50,7 +50,7 @@ export default async function FleetPage() {
 
       <section className="mx-auto max-w-7xl px-5 py-20 md:px-10 md:py-28">
         <ScrollReveal className="max-w-2xl">
-          <p className="eyebrow">What we supply</p>
+          <p className="kicker">What we supply</p>
           <h2 className="mt-4 text-display-2">From a single bus to an organisation’s entire fleet.</h2>
         </ScrollReveal>
         <ul className="mt-14 divide-y divide-border-subtle border-y border-border-subtle">
@@ -66,7 +66,7 @@ export default async function FleetPage() {
       <section className="border-t border-border-subtle bg-surface-1">
         <div className="mx-auto max-w-7xl px-5 py-20 md:px-10 md:py-28">
           <ScrollReveal className="max-w-2xl">
-            <p className="eyebrow">How a fleet order works</p>
+            <p className="kicker">How a fleet order works</p>
             <h2 className="mt-4 text-display-2">Four steps, one accountable team.</h2>
           </ScrollReveal>
           <ol className="mt-14 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
@@ -90,7 +90,7 @@ export default async function FleetPage() {
       <section id="quote" className="scroll-mt-24 border-t border-border-subtle">
         <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 md:px-10 md:py-28 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
           <ScrollReveal>
-            <p className="eyebrow">Request a quotation</p>
+            <p className="kicker">Request a quotation</p>
             <h2 className="mt-4 text-display-2">Tell us what the fleet needs.</h2>
             <p className="mt-5 text-lg leading-relaxed text-text-secondary">
               Your request is recorded with a reference. Sabicars will contact you to confirm the specification and prepare the

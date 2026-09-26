@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BadgeCheck, Ban, FileCheck2, Gift, type LucideIcon } from "lucide-react";
 import { formatNaira } from "@/lib/money";
 import { commissionMinor, PARTNER_RULES } from "@/lib/referral";
 import type { CatalogueItem } from "@/lib/repositories/vehicles";
@@ -13,14 +14,14 @@ export function EarningsExamples({ vehicles }: { vehicles: CatalogueItem[] }) {
   if (!unique.length) return null;
 
   return (
-    <div className="border border-border-default bg-surface-0">
-      <p className="eyebrow border-b border-border-subtle px-6 py-4 !text-text-muted md:px-8">What 1.5% looks like, on cars in stock today</p>
-      <ul className="divide-y divide-border-subtle">
+    <div className="surface-card overflow-hidden">
+      <p className="border-b border-white/[0.06] px-6 py-4 text-sm font-medium text-text-muted md:px-8">What 1.5% looks like, on cars in stock today</p>
+      <ul className="divide-y divide-white/[0.06]">
         {unique.map((v) => (
           <li key={v.slug}>
             <Link href={`/vehicles/${v.slug}`} className="group grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-6 gap-y-1 px-6 py-5 md:px-8">
               <span className="truncate text-text-primary group-hover:text-accent-text">{v.title}</span>
-              <span className="figures row-span-2 text-right font-display text-[1.9rem] leading-none text-accent-text">
+              <span className="figures text-gold row-span-2 text-right font-display text-[2rem] leading-none">
                 {formatNaira(commissionMinor(v.priceMinor))}
               </span>
               <span className="figures text-sm text-text-muted">If they buy it at {formatNaira(v.priceMinor)}</span>
@@ -28,7 +29,7 @@ export function EarningsExamples({ vehicles }: { vehicles: CatalogueItem[] }) {
           </li>
         ))}
       </ul>
-      <p className="border-t border-border-subtle px-6 py-4 text-sm text-text-secondary md:px-8">
+      <p className="border-t border-white/[0.06] bg-white/[0.02] px-6 py-4 text-sm text-text-secondary md:px-8">
         Fleet orders count in full: on a <span className="figures">₦100,000,000</span> order, 1.5% is{" "}
         <span className="figures text-text-primary">{formatNaira(commissionMinor(100_000_000 * 100))}</span>.
       </p>
@@ -36,17 +37,24 @@ export function EarningsExamples({ vehicles }: { vehicles: CatalogueItem[] }) {
   );
 }
 
+const RULE_ICONS: LucideIcon[] = [Gift, BadgeCheck, Ban, FileCheck2];
+
 /** The four promises that make this a sales commission and nothing else. */
 export function PartnerRules() {
   return (
-    <ol className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
-      {PARTNER_RULES.map(([rule, text], i) => (
-        <li key={rule} className="border-t border-gold-700 pt-5">
-          <p className="figures text-xs text-text-muted">0{i + 1}</p>
-          <p className="mt-2 font-display text-[1.6rem] leading-tight">{rule}</p>
-          <p className="mt-3 text-sm leading-relaxed text-text-secondary">{text}</p>
-        </li>
-      ))}
+    <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {PARTNER_RULES.map(([rule, text], i) => {
+        const Icon = RULE_ICONS[i];
+        return (
+          <li key={rule} className="surface-card p-6">
+            <span className="inline-flex size-11 items-center justify-center rounded-xl border border-gold-500/25 bg-gold-500/10 text-gold-300">
+              <Icon aria-hidden size={20} strokeWidth={1.75} />
+            </span>
+            <p className="mt-4 text-[1.1rem] font-semibold leading-snug text-text-primary">{rule}</p>
+            <p className="mt-2 text-sm leading-relaxed text-text-secondary">{text}</p>
+          </li>
+        );
+      })}
     </ol>
   );
 }
