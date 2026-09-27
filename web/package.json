@@ -17,6 +17,7 @@
     "legacy:import": "node --env-file=.env.local --import tsx scripts/import-legacy.mts",
     "blog:seed": "node --env-file=.env.local --import tsx scripts/seed-articles.mts",
     "ask:seed": "node --env-file=.env.local --import tsx scripts/seed-ask.mts",
+    "check:launch": "node --env-file=.env.local --conditions=react-server --import tsx scripts/check-launch.mts",
     "staff:create": "node --env-file=.env.local scripts/create-staff.mjs",
     "test:schema": "node scripts/verify-schema.mjs",
     "test:money": "tsx scripts/verify-money.ts",

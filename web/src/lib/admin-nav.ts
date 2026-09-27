@@ -18,6 +18,7 @@ const SECTIONS: { href: string; label: string; roles: StaffMember["role"][] }[] 
   { href: "/admin/blog", label: "Insights", roles: ["owner", "manager"] },
   { href: "/admin/audience", label: "Audience", roles: ["owner", "manager"] },
   { href: "/admin/consignors", label: "Consignors", roles: ["owner", "manager"] },
+  { href: "/admin/status", label: "System status", roles: ["owner", "manager"] },
 ];
 
 export function adminNavFor(role: StaffMember["role"]) {
