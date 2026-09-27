@@ -57,7 +57,7 @@ export function differences(cars: VehicleWithCover[]): string[] {
     out.push(
       `${cap(short(years[0]))} is the newest, a ${years[0].year} — ${yearGap} year${yearGap === 1 ? "" : "s"} younger than ${short(years.at(-1)!)}.`,
     );
-  else out.push(`All are ${years[0].year} models.`);
+  else out.push(`${cars.length === 2 ? "Both" : "All"} are ${years[0].year} models.`);
 
   const withKm = cars.filter((c) => c.mileageKm);
   if (withKm.length === cars.length) {
@@ -69,7 +69,8 @@ export function differences(cars: VehicleWithCover[]): string[] {
   }
   const withSeats = cars.filter((c) => c.seats);
   if (withSeats.length === cars.length && new Set(withSeats.map((c) => c.seats)).size > 1) {
-    out.push(`Seating: ${cars.map((c) => `${short(c)} ${c.seats}`).join(", ")}.`);
+    const bySeats = [...cars].sort((a, b) => b.seats! - a.seats!).map((c) => `${short(c)} seats ${c.seats}`);
+    out.push(`${cap(bySeats.slice(0, -1).join(", "))} and ${bySeats.at(-1)}.`);
   }
   const same = (f: (c: VehicleWithCover) => string | null) => {
     const vals = cars.map(f);
