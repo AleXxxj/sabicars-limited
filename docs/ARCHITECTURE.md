@@ -444,6 +444,16 @@ The owner's brief: suggest cars straight from the inventory from what the buyer 
 
 **Site audit (2026-09-27)**: every template at 1280 px and 375 px — no text below WCAG AA contrast, no sideways overflow, no broken images, all 176 internal links resolve; interactive states (quiz results, deposit stretch, repayment verdicts, chat with cards) checked too. The cause of the unreadable gold button (article styles outside Tailwind's layers) is fixed at the root. Spelling: no errors in the site's own copy; three in listing data corrected in the importer. Listing contradictions for the owner are in §8.
 
+### Launch preparation (2026-09-27)
+
+- **Redirects.** Every old address answers with one permanent redirect to its closest new page (`web/src/lib/legacy/urls.ts`). This covers:
+  - the pages, with and without `.html`
+  - old car and article ids
+  - the manifest and icons
+  - six standalone articles the old site had under `/blog/*.html`. Two were consolidated into the newer Drive Plan and Hummer articles, and the fleet piece into `/fleet`. Three are to be rewritten at `/blog/toyota-highlander-vs-lexus-gx-460`, `/blog/best-suvs-for-nigerian-roads` and `/blog/buying-a-tokunbo-truck-in-nigeria`. They can't be carried over as they are: they claim "accident-free", "warranty on every vehicle", "drive home same day", an unconfirmed fleet order and an unnamed customer quote.
+- **System status.** `/admin/status` and `npm run check:launch` form the launch checklist, and later the health page.
+- **Runbook.** `docs/LAUNCH.md` covers before the day, switch day (only the `@` A record and the `www` CNAME change; never the MX), switching back, and the weeks after.
+
 ### What Sabicars has that Adedayo does not
 
 Consignment and custody (§2.2), youth scout and creator programmes on top of
