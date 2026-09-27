@@ -194,6 +194,24 @@ const COVER_CORRECTIONS: Record<string, string> = {
   "6a373c015fe9bc3f3a25d2cd": "https://res.cloudinary.com/dbmtqpex2/image/upload/v1782004737/sabicars/olwmlziv3j9fjbhuudyq.jpg", // 2024 Mercedes-Benz AMG G-Class
 };
 
+/**
+ * Misspellings that can only mean one thing, corrected wherever they appear
+ * in a model name or description. Anything that could mean two things (an
+ * interior colour typed as "Harsh") is left for a person and reported.
+ */
+const SPELLINGS: [RegExp, string][] = [
+  [/\btotoya\b/gi, "Toyota"],
+  [/\bhumer\b/gi, "Hummer"],
+  [/\bhiace\b/g, "Hiace"],
+  [/\bhiaces\b/g, "Hiaces"],
+];
+
+function spell(text: string, field: string, fixes: string[]): string {
+  const fixed = SPELLINGS.reduce((t, [wrong, right]) => t.replace(wrong, right), text);
+  if (fixed !== text) fixes.push(`Spelling corrected in the ${field}.`);
+  return fixed;
+}
+
 /** "31,000,000Z" -> kobo, with a warning about the Z. No digits at all -> price on request. */
 export function parseNaira(raw: unknown, warnings: string[]): number | null {
   const text = tidy(String(raw ?? ""));
@@ -228,6 +246,7 @@ export function normaliseLegacyCar(car: LegacyCar): Normalised {
     fixes.push(`Model "${model}" written as "${searched}" — the spelling buyers search for.`);
     model = searched;
   }
+  model = spell(model, "model name", fixes);
   if (/\b(old model|short|long)\b/i.test(model) && model.split(" ").length > 3) {
     warnings.push(`Model "${model}" reads like a description — give it a model name and move the rest to the description.`);
   }
@@ -329,7 +348,7 @@ export function normaliseLegacyCar(car: LegacyCar): Normalised {
 
   const priceMinor = parseNaira(car.price, warnings);
 
-  const description = tidy(car.description) || null;
+  const description = spell(tidy(car.description), "description", fixes) || null;
   if (!description) warnings.push(`No description.`);
 
   return {
