@@ -275,7 +275,7 @@ export function BudgetQuiz({ cars }: { cars: QuizCar[] }) {
                 </span>
                 <span className="min-w-0 flex-1 text-sm text-text-secondary">
                   <span className="block text-xs text-text-muted">The closest in the showroom today</span>
-                  <Link href={`/vehicles/${result.nearest.slug}`} className="block text-base font-semibold">
+                  <Link href={`/vehicles/${result.nearest.slug}`} className="block text-base font-semibold text-text-primary underline-offset-4 hover:underline">
                     {result.nearest.title}
                   </Link>
                   <span className="figures">

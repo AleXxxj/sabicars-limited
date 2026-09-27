@@ -4,140 +4,148 @@
  * A reading column of about 66 characters — the width the eye travels without
  * losing its place — with illustrations, photographs and cars breaking out
  * wider on either side of it, the way a magazine spread does.
+ *
+ * In the components layer, so a utility class on anything placed in an
+ * article (a button, a card, an illustration) always wins over these defaults.
+ * Outside a layer, the gold link colour below painted over a gold button's
+ * dark label and made it unreadable.
  */
 
-.article {
-  display: grid;
-  grid-template-columns:
-    [full-start] minmax(1.25rem, 1fr)
-    [wide-start] minmax(0, 7rem)
-    [text-start] min(40rem, calc(100% - 2.5rem))
-    [text-end] minmax(0, 7rem)
-    [wide-end] minmax(1.25rem, 1fr)
-    [full-end];
-  font-size: 1.15rem;
-  line-height: 1.78;
-  color: var(--text-secondary);
-}
-.article > * {
-  grid-column: text;
-}
-.article > .wide {
-  grid-column: wide;
-}
-
-.article > p {
-  margin-top: 1.35em;
-}
-.article > p:first-child {
-  margin-top: 0;
-}
-.article strong {
-  color: var(--text-primary);
-  font-weight: 600;
-}
-.article a {
-  color: var(--gold-300);
-  text-decoration: underline;
-  text-decoration-color: rgb(201 168 76 / 0.4);
-  text-underline-offset: 0.2em;
-}
-.article a:hover {
-  color: var(--gold-200);
-  text-decoration-color: currentColor;
-}
-
-/* The opening paragraph: larger, brighter, and set with a gold initial. */
-.article > p.lede {
-  font-size: 1.3rem;
-  line-height: 1.7;
-  color: var(--text-primary);
-}
-.article > p.lede::first-letter {
-  float: left;
-  font-family: var(--font-display);
-  font-size: 4.4em;
-  line-height: 0.82;
-  padding: 0.06em 0.12em 0 0;
-  color: var(--gold-300);
-}
-
-.article > h2 {
-  margin-top: 2.6em;
-  font-size: clamp(1.9rem, 1.5rem + 1.4vw, 2.6rem);
-  line-height: 1.12;
-  letter-spacing: -0.01em;
-  color: var(--text-primary);
-  scroll-margin-top: 6rem;
-}
-.article > h2::before {
-  content: "";
-  display: block;
-  width: 2.5rem;
-  height: 2px;
-  margin-bottom: 1rem;
-  background: linear-gradient(90deg, var(--gold-400), transparent);
-}
-.article > h3 {
-  margin-top: 2em;
-  font-family: var(--font-sans);
-  font-size: 1.25rem;
-  font-weight: 600;
-  line-height: 1.35;
-  color: var(--text-primary);
-}
-.article > h3 + p {
-  margin-top: 0.6em;
-}
-
-.article > ul,
-.article > ol {
-  margin-top: 1.2em;
-  padding-left: 1.3em;
-  display: grid;
-  gap: 0.55em;
-}
-.article > ul {
-  list-style: none;
-  padding-left: 0;
-}
-.article > ul > li {
-  position: relative;
-  padding-left: 1.5em;
-}
-.article > ul > li::before {
-  content: "";
-  position: absolute;
-  left: 0.2em;
-  top: 0.72em;
-  width: 0.45em;
-  height: 0.45em;
-  border-radius: 999px;
-  background: var(--gold-400);
-}
-.article > ol {
-  list-style: decimal;
-}
-.article > ol > li::marker {
-  color: var(--gold-300);
-  font-weight: 600;
-}
-
-/* Blocks that sit apart from the running text get room around them. */
-.article > .spaced {
-  margin-top: 2.5rem;
-  margin-bottom: 0.5rem;
-}
-.article > .spaced + p,
-.article > .spaced + h3 {
-  margin-top: 2rem;
-}
-
-@media (max-width: 640px) {
+@layer components {
   .article {
-    font-size: 1.08rem;
+    display: grid;
+    grid-template-columns:
+      [full-start] minmax(1.25rem, 1fr)
+      [wide-start] minmax(0, 7rem)
+      [text-start] min(40rem, calc(100% - 2.5rem))
+      [text-end] minmax(0, 7rem)
+      [wide-end] minmax(1.25rem, 1fr)
+      [full-end];
+    font-size: 1.15rem;
+    line-height: 1.78;
+    color: var(--text-secondary);
   }
+  .article > * {
+    grid-column: text;
+  }
+  .article > .wide {
+    grid-column: wide;
+  }
+
+  .article > p {
+    margin-top: 1.35em;
+  }
+  .article > p:first-child {
+    margin-top: 0;
+  }
+  .article strong {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+  /* Links in the running text. Buttons, cards and pills bring their own look. */
+  .article a:not([class]) {
+    color: var(--gold-300);
+    text-decoration: underline;
+    text-decoration-color: rgb(201 168 76 / 0.4);
+    text-underline-offset: 0.2em;
+  }
+  .article a:not([class]):hover {
+    color: var(--gold-200);
+    text-decoration-color: currentColor;
+  }
+
+  /* The opening paragraph: larger, brighter, and set with a gold initial. */
   .article > p.lede {
-    font-size: 1.18rem;
+    font-size: 1.3rem;
+    line-height: 1.7;
+    color: var(--text-primary);
+  }
+  .article > p.lede::first-letter {
+    float: left;
+    font-family: var(--font-display);
+    font-size: 4.4em;
+    line-height: 0.82;
+    padding: 0.06em 0.12em 0 0;
+    color: var(--gold-300);
+  }
+
+  .article > h2 {
+    margin-top: 2.6em;
+    font-size: clamp(1.9rem, 1.5rem + 1.4vw, 2.6rem);
+    line-height: 1.12;
+    letter-spacing: -0.01em;
+    color: var(--text-primary);
+    scroll-margin-top: 6rem;
+  }
+  .article > h2::before {
+    content: "";
+    display: block;
+    width: 2.5rem;
+    height: 2px;
+    margin-bottom: 1rem;
+    background: linear-gradient(90deg, var(--gold-400), transparent);
+  }
+  .article > h3 {
+    margin-top: 2em;
+    font-family: var(--font-sans);
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--text-primary);
+  }
+  .article > h3 + p {
+    margin-top: 0.6em;
+  }
+
+  .article > ul,
+  .article > ol {
+    margin-top: 1.2em;
+    padding-left: 1.3em;
+    display: grid;
+    gap: 0.55em;
+  }
+  .article > ul {
+    list-style: none;
+    padding-left: 0;
+  }
+  .article > ul > li {
+    position: relative;
+    padding-left: 1.5em;
+  }
+  .article > ul > li::before {
+    content: "";
+    position: absolute;
+    left: 0.2em;
+    top: 0.72em;
+    width: 0.45em;
+    height: 0.45em;
+    border-radius: 999px;
+    background: var(--gold-400);
+  }
+  .article > ol {
+    list-style: decimal;
+  }
+  .article > ol > li::marker {
+    color: var(--gold-300);
+    font-weight: 600;
+  }
+
+  /* Blocks that sit apart from the running text get room around them. */
+  .article > .spaced {
+    margin-top: 2.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .article > .spaced + p,
+  .article > .spaced + h3 {
+    margin-top: 2rem;
+  }
+
+  @media (max-width: 640px) {
+    .article {
+      font-size: 1.08rem;
+    }
+    .article > p.lede {
+      font-size: 1.18rem;
+    }
   }
 }
