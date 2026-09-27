@@ -81,6 +81,16 @@ export async function SiteFooter() {
               </Link>
             </li>
           ))}
+          <li>
+            <Link href="/compare" className={link}>
+              Compare cars
+            </Link>
+          </li>
+          <li>
+            <Link href="/ask" className={link}>
+              Ask Sabicars
+            </Link>
+          </li>
         </Column>
 
         <Column title="Visit or call">

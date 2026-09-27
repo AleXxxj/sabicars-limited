@@ -1,5 +1,7 @@
 import type { MetadataRoute } from "next";
 import { INVENTORY_SHORTCUTS } from "@/lib/navigation";
+import { comparisonPairs } from "@/lib/compare";
+import { publishedAnswers } from "@/lib/repositories/ask";
 import { publishedPosts } from "@/lib/repositories/blog";
 import { searchTerms, sitemapVehicles } from "@/lib/repositories/vehicles";
 import { termHref } from "@/lib/seo/search-terms";
@@ -24,7 +26,7 @@ const indexImage = (url: string) => (url.includes("/upload/") ? url.replace("/up
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = siteUrl();
-  const [vehicles, terms, posts] = await Promise.all([sitemapVehicles(), searchTerms(), publishedPosts()]);
+  const [vehicles, terms, posts, answers, pairs] = await Promise.all([sitemapVehicles(), searchTerms(), publishedPosts(), publishedAnswers(), comparisonPairs()]);
   const newest = vehicles.reduce((d, v) => (v.updatedAt > d ? v.updatedAt : d), new Date(0));
 
   return [
@@ -44,6 +46,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: p.isFeatured ? 0.8 : 0.6,
       images: p.coverImageUrl ? [indexImage(p.coverImageUrl)] : undefined,
     })),
+    { url: `${base}/ask`, lastModified: answers.reduce((d, a) => (a.updatedAt > d ? a.updatedAt : d), new Date(0)), changeFrequency: "weekly" as const, priority: 0.7 },
+    ...answers.map((a) => ({ url: `${base}/ask/${a.slug}`, lastModified: a.updatedAt, changeFrequency: "monthly" as const, priority: 0.6 })),
+    { url: `${base}/compare`, lastModified: newest, changeFrequency: "daily" as const, priority: 0.6 },
+    ...pairs.map((p) => ({ url: `${base}${p.path}`, lastModified: newest, changeFrequency: "weekly" as const, priority: 0.5 })),
     ...vehicles.map((v) => ({
       url: `${base}/vehicles/${v.slug}`,
       lastModified: v.updatedAt,
