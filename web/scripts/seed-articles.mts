@@ -23,6 +23,9 @@ import { drivePlanExplained } from "../src/content/articles/drive-plan-explained
 import { fiveMillionNaira } from "../src/content/articles/five-million-naira";
 import { hiaceHummerGuide } from "../src/content/articles/hiace-hummer-buyers-guide";
 import { inspectAUsedCar } from "../src/content/articles/inspect-a-used-car";
+import { bestSuvsForNigerianRoads } from "../src/content/articles/best-suvs-for-nigerian-roads";
+import { highlanderVsGx460 } from "../src/content/articles/highlander-vs-gx-460";
+import { tokunboTruck } from "../src/content/articles/tokunbo-truck";
 
 interface Article {
   slug: string;
@@ -35,7 +38,15 @@ interface Article {
 }
 
 /** The first leads the Insights page. */
-const ARTICLES: Article[] = [hiaceHummerGuide, drivePlanExplained, inspectAUsedCar, fiveMillionNaira];
+const ARTICLES: Article[] = [
+  hiaceHummerGuide,
+  drivePlanExplained,
+  inspectAUsedCar,
+  fiveMillionNaira,
+  highlanderVsGx460,
+  bestSuvsForNigerianRoads,
+  tokunboTruck,
+];
 
 const force = process.argv.includes("--force");
 const client = postgres(process.env.DATABASE_URL!, { max: 1, prepare: false });
