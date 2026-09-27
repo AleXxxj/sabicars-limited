@@ -140,3 +140,46 @@ export function useTween(target: number, ms = 600) {
   }, [target, ms]);
   return value;
 }
+
+/**
+ * A value that follows `target` like something on a spring: it overshoots a
+ * little and settles. For things with weight — a balance tipping, a truck body
+ * dropping onto its chassis, a podium rising — where an eased tween would feel
+ * weightless.
+ */
+export function useSpring(target: number, { stiffness = 170, damping = 16, mass = 1 } = {}) {
+  const [value, setValue] = useState(target);
+  const state = useRef({ x: target, v: 0 });
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      state.current = { x: target, v: 0 };
+      const t = window.setTimeout(() => setValue(target), 0);
+      return () => window.clearTimeout(t);
+    }
+    let frame = 0;
+    let last = performance.now();
+    const tick = (now: number) => {
+      const dt = Math.min(0.032, Math.max(0, (now - last) / 1000));
+      last = now;
+      const s = state.current;
+      // Small fixed steps keep the spring stable on 60 Hz and 120 Hz screens alike.
+      const steps = Math.max(1, Math.ceil(dt / 0.004));
+      for (let i = 0; i < steps; i++) {
+        const h = dt / steps;
+        const a = (-stiffness * (s.x - target) - damping * s.v) / mass;
+        s.v += a * h;
+        s.x += s.v * h;
+      }
+      if (Math.abs(s.v) > 0.002 || Math.abs(s.x - target) > 0.002) {
+        setValue(s.x);
+        frame = requestAnimationFrame(tick);
+      } else {
+        state.current = { x: target, v: 0 };
+        setValue(target);
+      }
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [target, stiffness, damping, mass]);
+  return value;
+}
