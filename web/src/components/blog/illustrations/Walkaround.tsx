@@ -288,7 +288,7 @@ export function Walkaround() {
           <div aria-live="polite" className="min-h-[14rem]">
             <div className="flex items-center justify-between gap-3">
               <p className="figures text-xs font-semibold tracking-[0.18em] text-gold-300 uppercase">
-                Step {i + 1} of {STATIONS.length}
+                Stop {i + 1} of {STATIONS.length}
               </p>
               <p className="figures rounded-full border border-white/12 px-3 py-1 text-xs text-text-secondary">
                 ⏱ minutes {s.minutes[0]}–{s.minutes[1]}
