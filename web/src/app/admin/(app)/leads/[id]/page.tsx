@@ -4,6 +4,9 @@ import { notFound } from "next/navigation";
 import { ContactButtons, NoteForm, OwnerControl, ReviewRequest, StatusControl } from "@/components/admin/LeadActions";
 import { Stars } from "@/components/reviews/Stars";
 import { LiveRefresh } from "@/components/admin/LiveRefresh";
+import { eq } from "drizzle-orm";
+import { db } from "@/db";
+import { assistantConversations } from "@/db/schema";
 import { requireStaff } from "@/lib/auth";
 import { LEAD_STATUS_LABEL, LEAD_TYPE_LABEL, RESPONSE_TARGET_MINUTES } from "@/lib/lead-labels";
 import { formatNaira } from "@/lib/money";
@@ -29,7 +32,7 @@ const when = (d: Date) =>
 
 const CHANNEL_LABEL: Record<string, string> = {
   web_form: "the website",
-  assistant: "the assistant",
+  assistant: "Ask Sabicars",
   phone: "a phone call",
   walk_in: "a walk-in",
   whatsapp: "WhatsApp",
@@ -67,6 +70,10 @@ export default async function LeadPage({ params }: Props) {
   const [d, people] = await Promise.all([leadDetail(me.dealerId, id), assignableStaff(me.dealerId)]);
   if (!d) notFound();
   const { lead } = d;
+  const [chat] =
+    lead.channel === "assistant"
+      ? await db.select({ id: assistantConversations.id }).from(assistantConversations).where(eq(assistantConversations.leadId, lead.id)).limit(1)
+      : [];
 
   const buyerFirst = lead.name.trim().split(/\s+/)[0];
   const myFirst = (me.fullName ?? me.email).split(/[\s@]/)[0];
@@ -97,6 +104,15 @@ export default async function LeadPage({ params }: Props) {
           <h1 className="mt-2 text-display-3 break-words">{lead.name}</h1>
           <p className="mt-2 text-sm text-text-secondary">
             {when(lead.createdAt)} · from {CHANNEL_LABEL[lead.channel] ?? lead.channel}
+            {chat && (
+              <>
+                {" "}
+                ·{" "}
+                <Link href={`/admin/conversations/${chat.id}`} className="text-gold-300 hover:text-gold-200">
+                  Read the chat →
+                </Link>
+              </>
+            )}
           </p>
         </div>
         <div className="sm:text-right">
