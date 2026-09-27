@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, BellRing, Search } from "lucide-react";
+import { ArrowRight, BellRing, Search, Sparkles } from "lucide-react";
 import { notFound } from "next/navigation";
+import { AskButton } from "@/components/assistant/AskButton";
 import { ButtonLink } from "@/components/ui/Button";
 import { VehicleCard } from "@/components/VehicleCard";
 import { EnquiryForm } from "@/components/vehicle/EnquiryForm";
@@ -10,6 +11,7 @@ import { SaveButton } from "@/components/saved/SaveButton";
 import { WatchForm } from "@/components/saved/WatchForm";
 import { RecentlyViewed, RecordView } from "@/components/saved/RecentlyViewed";
 import { Gallery } from "@/components/vehicle/Gallery";
+import { comparePath } from "@/lib/assistant/parts";
 import { listedVehicleSlugs, similarVehicles, vehicleBySlug } from "@/lib/repositories/vehicles";
 import { shareImageUrl } from "@/lib/media";
 import { breadcrumbJsonLd, dealerJsonLd, jsonLdScript, vehicleJsonLd } from "@/lib/seo/structured-data";
@@ -94,7 +96,7 @@ export default async function VehiclePage({ params }: Props) {
   const similar = await similarVehicles(v);
 
   return (
-    <article className="pb-24 lg:pb-0">
+    <article className="pb-20 lg:pb-0">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdScript([vehicleJsonLd(v, media, url), breadcrumbJsonLd([{ name: "Home", path: "/" }, ...trail])]) }}
@@ -186,6 +188,17 @@ export default async function VehiclePage({ params }: Props) {
 
             {/* For the buyer who is not ready yet: a reason to come back, on its own. */}
             <div className="mt-6 grid gap-2">
+              {!sold && (
+                <AskButton
+                  prompt={`Tell me about the ${title}`}
+                  className="surface-card group flex items-center justify-between gap-3 !rounded-2xl p-4 text-left text-sm font-semibold text-text-primary hover:border-gold-500/30"
+                >
+                  <span className="flex items-center gap-2">
+                    <Sparkles aria-hidden size={17} className="text-gold-300" /> Ask Sabicars about this car — answers instantly
+                  </span>
+                  <ArrowRight aria-hidden size={16} className="text-gold-300 transition-transform group-hover:translate-x-1" />
+                </AskButton>
+              )}
               {!sold && v.priceMinor && (
                 <details className="surface-card group !rounded-2xl p-4 [&_summary::-webkit-details-marker]:hidden">
                   <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-text-primary">
@@ -290,6 +303,16 @@ export default async function VehiclePage({ params }: Props) {
                   <VehicleCard key={s.id} vehicle={s} href={`/vehicles/${s.slug}`} />
                 ))}
               </div>
+              {!sold && (
+                <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
+                  <span className="text-text-muted">Compare side by side:</span>
+                  {similar.map((s) => (
+                    <Link key={s.id} href={comparePath([v.slug, s.slug])} className="group inline-flex min-h-10 items-center gap-1.5 font-semibold text-gold-300 hover:text-gold-200">
+                      {v.model} vs {s.model} <ArrowRight aria-hidden size={15} className="transition-transform group-hover:translate-x-1" />
+                    </Link>
+                  ))}
+                </div>
+              )}
             </div>
           </section>
         )}
@@ -298,16 +321,28 @@ export default async function VehiclePage({ params }: Props) {
         <RecentlyViewed exclude={v.slug} className="mx-auto max-w-7xl border-t border-border-subtle px-5 py-14 md:px-10 md:py-20" />
       </div>
 
-      {/* Phones: the price and the next step always within thumb reach. */}
+      {/* Phones: the price and the next step always within thumb reach — above the tab bar, never under it. */}
       {!sold && (
-        <div className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-4 border-t border-border-default bg-surface-0/95 px-5 py-3 backdrop-blur-md lg:hidden">
+        <div
+          data-ask-dock
+          className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 flex items-center justify-between gap-3 border-t border-border-default bg-surface-0/95 px-4 py-2.5 backdrop-blur-md lg:hidden"
+        >
           <div className="min-w-0">
             <p className="truncate text-xs text-text-muted">{title}</p>
             <p className="figures truncate font-semibold">{priceLabel(v)}</p>
           </div>
-          <ButtonLink href="#enquire" className="shrink-0">
-            Enquire
-          </ButtonLink>
+          <div className="flex shrink-0 items-center gap-2">
+            <AskButton
+              prompt={`Tell me about the ${title}`}
+              label={`Ask Sabicars about the ${title}`}
+              className="inline-flex min-h-12 items-center gap-1.5 rounded-full border border-gold-500/40 px-4 text-sm font-semibold text-gold-200"
+            >
+              <Sparkles aria-hidden size={16} /> Ask
+            </AskButton>
+            <ButtonLink href="#enquire" className="shrink-0">
+              Enquire
+            </ButtonLink>
+          </div>
         </div>
       )}
 

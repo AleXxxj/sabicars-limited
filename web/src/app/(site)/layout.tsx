@@ -1,3 +1,4 @@
+import { AskSabicars } from "@/components/assistant/AskSabicars";
 import { EngagementPrompt } from "@/components/site/EngagementPrompt";
 import { MobileTabBar } from "@/components/site/MobileTabBar";
 import { SiteFooter } from "@/components/site/SiteFooter";
@@ -18,6 +19,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
       </div>
       <MobileTabBar />
       <EngagementPrompt />
+      <AskSabicars />
     </>
   );
 }

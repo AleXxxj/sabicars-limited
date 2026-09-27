@@ -11,8 +11,28 @@ import { PHONE_IN_TEXT } from "./summarise";
  * pipeline can all be exercised before an Anthropic key exists. It is not
  * clever and does not pretend to be.
  */
+/** Cars the message names, best match first: "the old model hiace and humer 1" finds both. */
+function named(message: string, stock: VehicleWithCover[]): VehicleWithCover[] {
+  const words = message
+    .toLowerCase()
+    .replace(/\bhumer\b/g, "hummer")
+    .split(/[^a-z0-9]+/)
+    .filter((w) => w.length > 1 && !["the", "and", "vs", "compare", "with", "me", "for", "or", "of", "a", "to"].includes(w));
+  const scored = stock
+    .map((v) => {
+      const title = `${v.year} ${v.make} ${v.model}`.toLowerCase().replace(/\bhumer\b/g, "hummer");
+      return { v, score: words.filter((w) => title.split(/[^a-z0-9]+/).includes(w)).length };
+    })
+    .filter((x) => x.score >= 2 || (x.score === 1 && /^\d{4}$/.test(words.find((w) => x.v.year === Number(w)) ?? "")))
+    .sort((a, b) => b.score - a.score);
+  // One car per distinct model named, so "hiace and hummer 1" gives one of each.
+  const seen = new Set<string>();
+  return scored.map((x) => x.v).filter((v) => (seen.has(v.model) ? false : (seen.add(v.model), true)));
+}
+
 export async function* devReply(message: string, stock: VehicleWithCover[], pageVehicle: VehicleWithCover | null): AsyncGenerator<string> {
   const m = message.toLowerCase();
+  const mentioned = named(message, stock);
   const pick = (list: VehicleWithCover[], n = 3) => list.slice(0, n);
   const budget = /(\d+(?:\.\d+)?)\s*(m|million)/.exec(m);
   const cap = budget ? Number(budget[1]) * 1_000_000 * 100 : null;
@@ -21,9 +41,16 @@ export async function* devReply(message: string, stock: VehicleWithCover[], page
   if (PHONE_IN_TEXT.test(message)) {
     reply = "Thank you — I've passed your number to the team, and someone will call you during showroom hours.";
   } else if (/\b(compare|vs|versus|or the)\b/.test(m)) {
-    const pool = pageVehicle
-      ? [pageVehicle, ...stock.filter((v) => v.body === pageVehicle.body && v.id !== pageVehicle.id)]
-      : stock.filter((v) => v.body === "suv");
+    const pool =
+      mentioned.length >= 2
+        ? mentioned
+        : pageVehicle
+          ? [
+              pageVehicle,
+              ...mentioned.filter((v) => v.id !== pageVehicle.id),
+              ...stock.filter((v) => v.body === pageVehicle.body && v.id !== pageVehicle.id),
+            ]
+          : [...mentioned, ...stock.filter((v) => v.body === (mentioned[0]?.body ?? "suv") && !mentioned.includes(v))];
     const [a, b] = pool;
     reply =
       a && b
@@ -35,7 +62,7 @@ export async function* devReply(message: string, stock: VehicleWithCover[], page
     const body = /suv|jeep/.test(m) ? "suv" : /bus|hummer|hiace/.test(m) ? "bus" : /saloon|sedan|car\b/.test(m) ? "sedan" : null;
     let pool = body ? stock.filter((v) => v.body === body) : stock;
     if (cap) pool = pool.filter((v) => v.priceMinor && v.priceMinor <= cap);
-    const shown = pick(pageVehicle && !body && !cap ? [pageVehicle] : pool);
+    const shown = pick(mentioned.length ? mentioned : pageVehicle && !body && !cap ? [pageVehicle] : pool);
     reply = shown.length
       ? `Here ${shown.length === 1 ? "is one" : `are ${shown.length}`} worth a look${cap ? ` within ${formatNaira(cap)}` : ""}.\n\n[[cars: ${shown.map((v) => v.slug).join(", ")}]]\n\n${shown.map((v) => `**${vehicleTitle(v)}** — ${v.priceMinor ? formatNaira(v.priceMinor) : "price on request"}.`).join("\n")}\n\n(Development stand-in — add ANTHROPIC_API_KEY for the real assistant.)`
       : "Nothing in the showroom matches that today. The [Sourcing Desk](/find) can look for one for you.";
