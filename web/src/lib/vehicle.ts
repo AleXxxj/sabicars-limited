@@ -22,7 +22,7 @@ export const BODY_LABEL: Record<NonNullable<Vehicle["body"]>, string> = {
   other: "Other",
 };
 
-const DRIVETRAIN_LABEL: Record<NonNullable<Vehicle["drivetrain"]>, string> = {
+export const DRIVETRAIN_LABEL: Record<NonNullable<Vehicle["drivetrain"]>, string> = {
   fwd: "FWD",
   rwd: "RWD",
   awd: "AWD",

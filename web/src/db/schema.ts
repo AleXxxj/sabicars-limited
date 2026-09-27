@@ -758,6 +758,96 @@ export const settings = pgTable(
   (t) => [uniqueIndex("settings_dealer_key_idx").on(t.dealerId, t.key)],
 );
 
+/* ── Ask Sabicars: the website assistant ───────────────────────────────── */
+
+/**
+ * A conversation with Ask Sabicars. Every one is kept, not only those that
+ * became an enquiry: what people ask at 2am, when nobody is on the phone, is
+ * the most honest market research the business has — and a chat that ended
+ * without a lead usually means the car they wanted was not in stock.
+ */
+export const assistantConversations = pgTable(
+  "assistant_conversations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    dealerId: uuid("dealer_id").notNull().references(() => dealers.id),
+    /** Where it started, so the context is not lost. */
+    landingPath: text("landing_path"),
+    /** The vehicle page it started on, if it started on one. */
+    vehicleId: uuid("vehicle_id").references(() => vehicles.id, { onDelete: "set null" }),
+    /** Written by a model for staff, so they read a paragraph rather than a transcript. */
+    summary: text("summary"),
+    intent: text("intent"),
+    summarisedAt: timestamp("summarised_at", { withTimezone: true }),
+    /** Set once contact details were given: the conversation joins the one inbox. */
+    leadId: uuid("lead_id").references(() => leads.id, { onDelete: "set null" }),
+    /** The visitor asked for a person, or the assistant reached the edge of what it may say. */
+    needsHuman: boolean("needs_human").notNull().default(false),
+    /** Counted rather than derived, so a long chat cannot be extended by deleting rows. */
+    messageCount: integer("message_count").notNull().default(0),
+    /** Slugs of every vehicle the assistant put in front of the visitor. */
+    vehiclesShown: jsonb("vehicles_shown").$type<string[]>().notNull().default([]),
+    /** Hashed, never stored raw: enough to rate-limit, not enough to locate anyone. */
+    ipHash: text("ip_hash"),
+    createdAt: createdAt(),
+    lastMessageAt: timestamp("last_message_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("assistant_conversations_recent_idx").on(t.dealerId, t.lastMessageAt),
+    index("assistant_conversations_ip_idx").on(t.ipHash, t.lastMessageAt),
+  ],
+);
+
+export const assistantMessages = pgTable(
+  "assistant_messages",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    conversationId: uuid("conversation_id")
+      .notNull()
+      .references(() => assistantConversations.id, { onDelete: "cascade" }),
+    role: text("role").notNull(),
+    /** As the model wrote it, directives included, so it sees what it showed. */
+    content: text("content").notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    index("assistant_messages_conversation_idx").on(t.conversationId, t.createdAt),
+    check("assistant_messages_role", sql`${t.role} IN ('user', 'assistant')`),
+  ],
+);
+
+/**
+ * Questions buyers ask, answered in public at /ask. Search engines cannot talk
+ * to a chat window, so the best answers leave it: staff publish them from real
+ * conversations, and each becomes a page Google can index — and the assistant
+ * reads them back, so it answers the same way.
+ */
+export const askAnswers = pgTable(
+  "ask_answers",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    dealerId: uuid("dealer_id").notNull().references(() => dealers.id),
+    slug: text("slug").notNull(),
+    question: text("question").notNull(),
+    /** Plain text with the blog's safe inline syntax: **bold**, *italic*, [link](/path). */
+    answer: text("answer").notNull(),
+    /** The chat it was drawn from, when it was drawn from one. */
+    conversationId: uuid("conversation_id").references(() => assistantConversations.id, { onDelete: "set null" }),
+    isPublished: boolean("is_published").notNull().default(false),
+    position: integer("position").notNull().default(0),
+    createdBy: uuid("created_by").references(() => staff.id, { onDelete: "set null" }),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+    publishedAt: timestamp("published_at", { withTimezone: true }),
+  },
+  (t) => [
+    uniqueIndex("ask_answers_slug_idx").on(t.dealerId, t.slug),
+    index("ask_answers_published_idx").on(t.dealerId, t.isPublished, t.position),
+    check("ask_answers_slug_format", sql`${t.slug} ~ '^[a-z0-9]+(-[a-z0-9]+)*$'`),
+    check("ask_answers_question_present", sql`length(btrim(${t.question})) > 0`),
+  ],
+);
+
 /* ── Accountability ────────────────────────────────────────────────────── */
 
 export const auditLog = pgTable(
@@ -797,3 +887,6 @@ export type Notification = typeof notifications.$inferSelect;
 export type NewsletterSend = typeof newsletterSends.$inferSelect;
 export type BlogPost = typeof blogPosts.$inferSelect;
 export type BlogComment = typeof blogComments.$inferSelect;
+export type AssistantConversation = typeof assistantConversations.$inferSelect;
+export type AssistantMessage = typeof assistantMessages.$inferSelect;
+export type AskAnswer = typeof askAnswers.$inferSelect;

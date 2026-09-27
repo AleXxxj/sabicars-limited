@@ -481,6 +481,31 @@ export async function similarVehicles(v: Vehicle, limit = 3): Promise<VehicleWit
   return withCovers(rows);
 }
 
+/**
+ * Everything on sale, cheapest first, with covers: what Ask Sabicars knows and
+ * the pool comparisons are drawn from. Full rows — server-side only; anything
+ * sent to a browser goes through a narrower shape.
+ */
+export async function listedVehicles(): Promise<VehicleWithCover[]> {
+  const rows = await db
+    .select()
+    .from(vehicles)
+    .where(and(eq(vehicles.dealerId, await sabicarsId()), inArray(vehicles.status, [...LISTED])))
+    .orderBy(sql`${vehicles.priceMinor} asc nulls last`, asc(vehicles.slug));
+  return withCovers(rows);
+}
+
+/** Vehicles by slug that still have a page (listed or sold), in the order asked. */
+export async function vehiclesWithPages(slugs: string[]): Promise<VehicleWithCover[]> {
+  if (!slugs.length) return [];
+  const rows = await db
+    .select()
+    .from(vehicles)
+    .where(and(eq(vehicles.dealerId, await sabicarsId()), inArray(vehicles.slug, slugs), inArray(vehicles.status, [...HAS_PAGE])));
+  const found = await withCovers(rows);
+  return slugs.map((s) => found.find((v) => v.slug === s)).filter((v): v is VehicleWithCover => Boolean(v));
+}
+
 /** Every vehicle address to offer search engines and to pre-render at build. */
 export async function listedVehicleSlugs(): Promise<{ slug: string; updatedAt: Date }[]> {
   return db
