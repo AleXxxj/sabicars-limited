@@ -9,6 +9,7 @@ import { assistantConversations, assistantMessages } from "@/db/schema";
 import { devReply } from "@/lib/assistant/dev-reply";
 import { knowledge, momentContext, toAssistantCar } from "@/lib/assistant/knowledge";
 import { comparePath, DirectiveSplitter, type Directive, type Part } from "@/lib/assistant/parts";
+import { reportAssistantFailure } from "@/lib/assistant/health";
 import { PERSONA } from "@/lib/assistant/prompt";
 import { PHONE_IN_TEXT, summariseConversation } from "@/lib/assistant/summarise";
 import { sabicarsDealerId } from "@/lib/leads";
@@ -152,6 +153,7 @@ export async function POST(request: NextRequest) {
     return { kind: "cars", cars: cars.map(toAssistantCar) };
   };
 
+  let failure: unknown = null;
   let finished: () => void = () => {};
   const persisted = new Promise<void>((r) => (finished = r));
   const encoder = new TextEncoder();
@@ -193,6 +195,7 @@ export async function POST(request: NextRequest) {
         emit(splitter.flush());
       } catch (e) {
         console.error("[assistant] reply failed", e);
+        failure = e;
         send({ type: "error", error: "Sorry — something went wrong on our side. Please try again, or call or WhatsApp us." });
       }
 
@@ -226,6 +229,10 @@ export async function POST(request: NextRequest) {
   // Summarised once the buyer has their answer — every other turn, or at once when they share a number.
   after(async () => {
     await persisted;
+    if (failure) {
+      await reportAssistantFailure(dealerId, failure).catch((e) => console.error("[assistant] reporting the failure failed", e));
+      return;
+    }
     try {
       const [c] = await db
         .select({ messageCount: assistantConversations.messageCount })

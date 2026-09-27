@@ -26,6 +26,8 @@ export interface AlertPayload {
   url: string;
   /** Notifications with the same tag replace each other instead of piling up. */
   tag: string;
+  /** The email's button, when it is not an enquiry to open. */
+  action?: string;
 }
 
 export function pushConfigured(): boolean {
@@ -81,7 +83,7 @@ async function emailStaff(people: { email: string }[], payload: AlertPayload): P
       to: p.email,
       subject: payload.title,
       text: `${payload.body}\n\nOpen it: ${link}`,
-      html: `<!doctype html><html><body style="margin:0;background:#0a0908;font-family:Helvetica,Arial,sans-serif;color:#f5f2ea"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:28px 16px"><table role="presentation" width="100%" style="max-width:520px"><tr><td style="padding-bottom:20px"><img src="${esc(siteUrl())}/brand/logo-email.png" width="180" alt="Sabicars" style="display:block;border:0"></td></tr><tr><td style="font-size:20px;font-weight:bold;padding-bottom:10px">${esc(payload.title)}</td></tr><tr><td style="font-size:15px;line-height:1.6;color:#d6cfc0;padding-bottom:24px">${esc(payload.body)}</td></tr><tr><td><a href="${esc(link)}" style="display:inline-block;background:#c9a84c;color:#0a0908;padding:14px 24px;border-radius:999px;font-weight:bold;text-decoration:none">Open the enquiry</a></td></tr></table></td></tr></table></body></html>`,
+      html: `<!doctype html><html><body style="margin:0;background:#0a0908;font-family:Helvetica,Arial,sans-serif;color:#f5f2ea"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:28px 16px"><table role="presentation" width="100%" style="max-width:520px"><tr><td style="padding-bottom:20px"><img src="${esc(siteUrl())}/brand/logo-email.png" width="180" alt="Sabicars" style="display:block;border:0"></td></tr><tr><td style="font-size:20px;font-weight:bold;padding-bottom:10px">${esc(payload.title)}</td></tr><tr><td style="font-size:15px;line-height:1.6;color:#d6cfc0;padding-bottom:24px">${esc(payload.body)}</td></tr><tr><td><a href="${esc(link)}" style="display:inline-block;background:#c9a84c;color:#0a0908;padding:14px 24px;border-radius:999px;font-weight:bold;text-decoration:none">${esc(payload.action ?? "Open the enquiry")}</a></td></tr></table></td></tr></table></body></html>`,
     });
     if (r.ok) sent++;
   }
@@ -128,6 +130,21 @@ export async function notifyManagers(dealerId: string, payload: AlertPayload): P
     managers.map((m) => m.id),
     payload,
   );
+}
+
+/** Something that must not wait for someone to open the admin: every owner and manager, by push and by email. */
+export async function alertManagers(dealerId: string, payload: AlertPayload): Promise<void> {
+  const managers = await db
+    .select({ id: staff.id, email: staff.email })
+    .from(staff)
+    .where(and(eq(staff.dealerId, dealerId), eq(staff.isActive, true), inArray(staff.role, ["owner", "manager"])));
+  await Promise.all([
+    pushToStaff(
+      managers.map((m) => m.id),
+      payload,
+    ),
+    emailStaff(managers, payload),
+  ]);
 }
 
 /** A lead was handed to someone: tell them, on their phone. */
