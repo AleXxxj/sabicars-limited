@@ -6,10 +6,20 @@ import { anchorFor, type Block } from "@/lib/blog/blocks";
 import { videoSource } from "@/lib/blog/video";
 import { money, percentOf } from "@/lib/money";
 import { carsForBlock } from "@/lib/repositories/blog";
-import { catalogueWithShape, drivePlanCatalogue, hummerBuses } from "@/lib/repositories/vehicles";
+import { catalogueWithShape, drivePlanCatalogue, hummerBuses, listedVehicles } from "@/lib/repositories/vehicles";
 import { DRIVE_PLAN_DEPOSIT_BPS, vehicleTitle } from "@/lib/vehicle";
 import { Inline } from "./Inline";
 import { BudgetQuiz } from "./illustrations/BudgetQuiz";
+import { ChassisMatch } from "./illustrations/ChassisMatch";
+import { FrameXray } from "./illustrations/FrameXray";
+import { FuelDuel } from "./illustrations/FuelDuel";
+import { SmokeDoctor } from "./illustrations/SmokeDoctor";
+import { SuvDuel } from "./illustrations/SuvDuel";
+import { SuvRace } from "./illustrations/SuvRace";
+import { SuvRadar } from "./illustrations/SuvRadar";
+import { TruckBuilder } from "./illustrations/TruckBuilder";
+import type { StoryCar } from "./illustrations/DepositStretch";
+import type { SuvStock } from "./illustrations/suvs";
 import { DepositStretch } from "./illustrations/DepositStretch";
 import { DrivePlanJourney } from "./illustrations/DrivePlanJourney";
 import { DrivePlanSplit } from "./illustrations/DrivePlanSplit";
@@ -24,6 +34,33 @@ import { VideoPlayer } from "./VideoPlayer";
 
 /** The Hummer buses in stock, fetched once per article however many blocks use them. */
 const hummersInStock = cache(async () => (await hummerBuses()).filter((v) => /hum+er/i.test(v.model) && v.priceMinor));
+
+/** Everything on sale, fetched once per article. */
+const stockOnce = cache(listedVehicles);
+
+/** Listed cars of one model family, cheapest first, as the illustrations take them. */
+async function modelStock(pattern: RegExp): Promise<StoryCar[]> {
+  return (await stockOnce())
+    .filter((v) => pattern.test(`${v.make} ${v.model}`) && v.priceMinor)
+    .map((v) => ({ slug: v.slug, title: vehicleTitle(v), priceMinor: v.priceMinor!, coverUrl: v.cover?.url ?? null }));
+}
+
+/** How many of each of the five SUVs are in stock, and from what price. */
+async function suvStock(): Promise<SuvStock> {
+  const families: Record<string, RegExp> = {
+    highlander: /toyota highlander/i,
+    gx: /lexus gx ?460/i,
+    prado: /land cruiser prado/i,
+    gle: /mercedes-benz .*gle/i,
+    rrs: /range rover sport/i,
+  };
+  const out: SuvStock = {};
+  for (const [id, re] of Object.entries(families)) {
+    const cars = await modelStock(re);
+    out[id] = { count: cars.length, fromMinor: cars[0]?.priceMinor ?? null };
+  }
+  return out;
+}
 
 /** The bus an illustration works its numbers on: the most affordable Hummer in the showroom. */
 async function exampleBus() {
@@ -87,6 +124,30 @@ async function Illustration({ block }: { block: Extract<Block, { type: "illustra
       break;
     case "budget-quiz":
       body = <BudgetQuiz cars={await catalogueWithShape()} />;
+      break;
+    case "frame-xray":
+      body = <FrameXray />;
+      break;
+    case "fuel-duel":
+      body = <FuelDuel />;
+      break;
+    case "suv-duel":
+      body = <SuvDuel highlanders={await modelStock(/toyota highlander/i)} gxs={await modelStock(/lexus gx ?460/i)} />;
+      break;
+    case "suv-race":
+      body = <SuvRace stock={await suvStock()} />;
+      break;
+    case "suv-radar":
+      body = <SuvRadar stock={await suvStock()} />;
+      break;
+    case "truck-builder":
+      body = <TruckBuilder />;
+      break;
+    case "smoke-doctor":
+      body = <SmokeDoctor />;
+      break;
+    case "chassis-match":
+      body = <ChassisMatch />;
       break;
     case "stock-chart":
       body = (

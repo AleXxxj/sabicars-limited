@@ -5,7 +5,7 @@ import { db } from "@/db";
 import { blogComments, blogPosts, type BlogPost } from "@/db/schema";
 import { readingMinutes } from "@/lib/blog/blocks";
 import { sabicarsDealerId } from "@/lib/leads";
-import { hummerBuses, searchTerms, toCard, vehiclesBySlugs, vehiclesForTerm, type CardVehicle } from "@/lib/repositories/vehicles";
+import { hummerBuses, listedVehicles, searchTerms, toCard, vehiclesBySlugs, vehiclesForTerm, type CardVehicle } from "@/lib/repositories/vehicles";
 
 export interface PostCard {
   slug: string;
@@ -88,8 +88,9 @@ export async function approvedComments(postId: string) {
  * stock for a search term ("hummer-bus", "toyota-highlander"). Always live —
  * an article never advertises a car that has gone.
  */
-export async function carsForBlock(b: { term?: string; slugs?: string[]; limit?: number }): Promise<CardVehicle[]> {
+export async function carsForBlock(b: { term?: string; slugs?: string[]; body?: string; limit?: number }): Promise<CardVehicle[]> {
   const limit = b.limit ?? 3;
+  if (b.body) return (await listedVehicles()).filter((v) => v.body === b.body).map(toCard).slice(0, limit);
   if (b.slugs?.length) {
     return (await vehiclesBySlugs(b.slugs))
       .map(toCard)

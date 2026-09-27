@@ -28,6 +28,14 @@ export const ILLUSTRATIONS = {
   "walkaround": "The 20-minute walk-around, played out as the reader scrolls",
   "flood-detective": "Has it been under water? A find-the-evidence game",
   "budget-quiz": "Four questions: what the reader's money should buy them",
+  "frame-xray": "Drag an X-ray across a Highlander and a GX 460: unibody against body-on-frame",
+  "fuel-duel": "Two fuel pumps: what the Highlander and the GX 460 cost to fuel on the reader's driving",
+  "suv-duel": "A balance: the reader's priorities tip it towards the Highlander or the GX 460",
+  "suv-race": "Five SUVs race the road the reader picks, with start lights and a podium",
+  "suv-radar": "Five SUVs as shapes on six ratings; pick two and they morph",
+  "truck-builder": "Pick the cargo; the right truck body drops onto the chassis",
+  "smoke-doctor": "Crank a cold truck and diagnose the smoke: a four-round game",
+  "chassis-match": "Spot the difference between the chassis number and the papers",
 } as const;
 export type IllustrationName = keyof typeof ILLUSTRATIONS;
 
@@ -53,6 +61,8 @@ export const blockSchema = z.discriminatedUnion("type", [
     title: short.optional(),
     term: z.string().trim().max(80).optional(),
     slugs: z.array(z.string().max(120)).max(12).optional(),
+    /** Everything listed with this body type, e.g. "truck". */
+    body: z.enum(["sedan", "suv", "bus", "van", "pickup", "truck", "coupe", "hatchback", "wagon", "convertible", "other"]).optional(),
     limit: z.number().int().min(1).max(6).optional(),
   }),
   z.object({
