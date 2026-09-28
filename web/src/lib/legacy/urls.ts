@@ -43,12 +43,16 @@ export const LEGACY_PAGES: Record<string, string> = {
   "images/cchristian-founder.JPG": "/founder.jpg",
 };
 
-/** The same pages without ".html", as GitHub Pages also served them. New pages that share the name (/about, /contact, /blog) need no redirect. */
+/**
+ * The same pages without ".html", as GitHub Pages also served them. New pages
+ * that share the name (/about, /contact, /blog, /admin) need no redirect — and
+ * /admin must never have one: the proxy sends signed-in staff from
+ * /admin/login back to /admin, so a redirect here would loop forever.
+ */
 const EXTENSIONLESS: Record<string, string> = {
   index: "/",
   cars: "/vehicles",
   financing: "/drive-plan",
-  admin: "/admin/login",
 };
 
 /** For next.config: every static old address, redirected permanently. */
