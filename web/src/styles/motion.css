@@ -303,3 +303,33 @@
   .crank, .idle { animation: none; }
   .smoke-puff { animation: none; opacity: 0.6; }
 }
+/* The Hummer race: what a bus says as it enters a leg, smoke at a bad pump, speed on the open road. */
+.bus-bubble {
+  transform-origin: bottom right;
+  animation: bus-bubble 2.2s var(--ease-out) forwards;
+}
+@keyframes bus-bubble {
+  0% { opacity: 0; transform: translateY(6px) scale(0.7); }
+  12% { opacity: 1; transform: none; }
+  78% { opacity: 1; transform: none; }
+  100% { opacity: 0; transform: translateY(-4px); }
+}
+.bus-puff {
+  opacity: 0;
+  animation: bus-puff 720ms ease-out infinite;
+}
+@keyframes bus-puff {
+  0% { transform: translate(0, 0) scale(0.4); opacity: 0.9; }
+  100% { transform: translate(-24px, -12px) scale(2.3); opacity: 0; }
+}
+.speed-line {
+  animation: speed-line 380ms linear infinite;
+}
+@keyframes speed-line {
+  0% { transform: translateX(0) scaleX(0.4); opacity: 0; }
+  30% { opacity: 0.8; }
+  100% { transform: translateX(-28px) scaleX(1); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bus-bubble, .bus-puff, .speed-line { animation: none; }
+}

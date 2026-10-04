@@ -112,6 +112,15 @@ export const hiaceHummerGuide = {
         ],
       ],
     },
+    {
+      type: "p",
+      text: "Now put the table to work. Pick the job your bus will do, guess which of the four wins it, and send them down the road. Each leg of the run tests one line of the table — the go-slow tests the gearbox, the open road tests the fuel, a doubtful filling station tests what the engine forgives, and the mechanic tests what it costs to put right:",
+    },
+    {
+      type: "illustration",
+      name: "hummer-race",
+      caption: "Every bus wins a different job. That is the point: choose by how the bus will be used.",
+    },
 
     {
       type: "video",

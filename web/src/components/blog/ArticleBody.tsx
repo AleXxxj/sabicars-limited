@@ -13,6 +13,7 @@ import { BudgetQuiz } from "./illustrations/BudgetQuiz";
 import { ChassisMatch } from "./illustrations/ChassisMatch";
 import { FrameXray } from "./illustrations/FrameXray";
 import { FuelDuel } from "./illustrations/FuelDuel";
+import { HummerRace } from "./illustrations/HummerRace";
 import { SmokeDoctor } from "./illustrations/SmokeDoctor";
 import { SuvDuel } from "./illustrations/SuvDuel";
 import { SuvRace } from "./illustrations/SuvRace";
@@ -20,6 +21,7 @@ import { SuvRadar } from "./illustrations/SuvRadar";
 import { TruckBuilder } from "./illustrations/TruckBuilder";
 import type { StoryCar } from "./illustrations/DepositStretch";
 import type { SuvStock } from "./illustrations/suvs";
+import type { HummerStock } from "./illustrations/hummers";
 import { DepositStretch } from "./illustrations/DepositStretch";
 import { DrivePlanJourney } from "./illustrations/DrivePlanJourney";
 import { DrivePlanSplit } from "./illustrations/DrivePlanSplit";
@@ -58,6 +60,22 @@ async function suvStock(): Promise<SuvStock> {
   for (const [id, re] of Object.entries(families)) {
     const cars = await modelStock(re);
     out[id] = { count: cars.length, fromMinor: cars[0]?.priceMinor ?? null };
+  }
+  return out;
+}
+
+/** The Hummer buses in stock for each fuel and gearbox, cheapest first: what the Hummer race links to. */
+async function hummerStock(): Promise<HummerStock> {
+  const out: HummerStock = {};
+  for (const v of [...(await hummersInStock())].sort((a, b) => a.priceMinor! - b.priceMinor!)) {
+    if (!v.fuel || !v.transmission || v.transmission === "other") continue;
+    (out[`${v.fuel}-${v.transmission}`] ??= []).push({
+      slug: v.slug,
+      title: vehicleTitle(v),
+      priceMinor: v.priceMinor!,
+      coverUrl: v.cover?.url ?? null,
+      seats: v.seats,
+    });
   }
   return out;
 }
@@ -136,6 +154,9 @@ async function Illustration({ block }: { block: Extract<Block, { type: "illustra
       break;
     case "suv-race":
       body = <SuvRace stock={await suvStock()} />;
+      break;
+    case "hummer-race":
+      body = <HummerRace stock={await hummerStock()} />;
       break;
     case "suv-radar":
       body = <SuvRadar stock={await suvStock()} />;
