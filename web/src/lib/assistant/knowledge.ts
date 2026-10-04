@@ -5,7 +5,7 @@ import { formatNaira, money, percentOf } from "@/lib/money";
 import { publishedAnswers } from "@/lib/repositories/ask";
 import { publishedPosts, type PostCard } from "@/lib/repositories/blog";
 import { listedVehicles, type VehicleWithCover } from "@/lib/repositories/vehicles";
-import { clockStartsAt, isOpen } from "@/lib/showroom-hours";
+import { clockStartsAt, isOpen, showroomHours } from "@/lib/showroom-hours";
 import { site } from "@/lib/site";
 import { BODY_LABEL, CONDITION_LABEL, DRIVE_PLAN_DEPOSIT_BPS, DRIVETRAIN_LABEL, vehicleTitle } from "@/lib/vehicle";
 import type { AssistantCar } from "./parts";
@@ -178,8 +178,17 @@ export function momentContext(page: { path: string | null; vehicle: VehicleWithC
     minute: "2-digit",
     hour12: true,
   });
+  const date = new Intl.DateTimeFormat("en-GB", { timeZone: "Africa/Lagos", weekday: "long", day: "numeric", month: "long" });
+  const clock = new Intl.DateTimeFormat("en-GB", { timeZone: "Africa/Lagos", hour: "numeric", minute: "2-digit", hour12: true });
+  const hoursOn = (d: Date) => {
+    const { opens, closes } = showroomHours(d);
+    return `${clock.format(opens)} to ${clock.format(closes)}`;
+  };
+  const tomorrow = new Date(now.getTime() + 24 * 3600_000);
   return [
-    `It is ${lagos.format(now)} in Lagos. The showroom is ${isOpen(now) ? "open now" : `closed now; it next opens ${lagos.format(clockStartsAt(now))}`}.`,
+    `It is ${lagos.format(now)} in Lagos. The showroom is ${isOpen(now) ? `open now, until ${clock.format(showroomHours(now).closes)}` : `closed now; it next opens ${lagos.format(clockStartsAt(now))}`}.`,
+    // Spelled out, so "can I come tomorrow?" is answered for tomorrow, not today.
+    `Today is ${date.format(now)}: open ${hoursOn(now)}. Tomorrow is ${date.format(tomorrow)}: open ${hoursOn(tomorrow)}. When a buyer names a day, answer for that day.`,
     page.vehicle
       ? `The visitor is on the page for the ${vehicleTitle(page.vehicle)} (slug: ${page.vehicle.slug}). "This car" means that one.`
       : page.path

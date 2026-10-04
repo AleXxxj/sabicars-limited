@@ -146,7 +146,9 @@ export async function POST(request: NextRequest) {
 
   const resolve = (d: Directive): Part | null => {
     if (d.kind === "callback") return { kind: "callback" };
-    const cars = d.slugs.map((s) => bySlug.get(s)).filter((v) => v !== undefined);
+    // The buyer on a car's page is looking at it already: a card for it would only repeat the page. Comparisons keep it.
+    const slugs = d.kind === "cars" && pageVehicle ? d.slugs.filter((s) => s !== pageVehicle.slug) : d.slugs;
+    const cars = slugs.map((s) => bySlug.get(s)).filter((v) => v !== undefined);
     if (!cars.length) return null;
     if (d.kind === "compare" && cars.length >= 2)
       return { kind: "compare", cars: cars.map(toAssistantCar), href: comparePath(cars.map((c) => c.slug)) };
