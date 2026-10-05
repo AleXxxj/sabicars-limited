@@ -1,0 +1,1490 @@
+[
+ {
+  "legacyId": "6a3869152a4dc09ddc36e366",
+  "vehicle": "2000 Volvo FL7",
+  "fields": {
+   "engine": [
+    "2.5L V4",
+    "7-litre TD73 inline-6 turbo diesel"
+   ],
+   "features": [
+    [
+     "Parking Sensors"
+    ],
+    [
+     "Skip Loader System",
+     "Removable Steel Container"
+    ]
+   ],
+   "drivetrain": [
+    "fwd",
+    "rwd"
+   ]
+  }
+ },
+ {
+  "legacyId": "6aaab48e2e4b779e7e4bfdf5",
+  "vehicle": "2006 Toyota Hiace XH10",
+  "fields": {
+   "model": [
+    "Short Hiace old model",
+    "Hiace XH10"
+   ],
+   "engine": [
+    "1TR",
+    null
+   ],
+   "features": [
+    [
+     "Air Conditioning",
+     "Third Row Seating",
+     "Parking Sensors"
+    ],
+    [
+     "Third Row Seating"
+    ]
+   ],
+   "description": [
+    "Clean and spacious Toyota Hiace van with a comfortable black leather interior. Well-suited for passenger transport, business, or commercial use.",
+    "Clean and spacious Toyota Hiace (the semi-bonnet XH10 generation) with cloth seats in three rows. Well-suited for passenger transport, business or commercial use."
+   ]
+  }
+ },
+ {
+  "legacyId": "6a5b31f62a731d0188505583",
+  "vehicle": "2010 Lexus IS 250 AWD",
+  "fields": {
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Sunroof",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Heated Seats",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Heated Seats",
+     "Sunroof",
+     "Cruise Control",
+     "Alloy Wheels"
+    ]
+   ],
+   "drivetrain": [
+    "fwd",
+    "awd"
+   ]
+  }
+ },
+ {
+  "legacyId": "6ab41015e1211fc294237cf6",
+  "vehicle": "2011 Acura MDX",
+  "fields": {
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Sunroof",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Keyless Entry",
+     "Heated Seats",
+     "Third Row Seating",
+     "Alloy Wheels",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Sunroof",
+     "Heated Seats",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Third Row Seating",
+     "Alloy Wheels"
+    ]
+   ]
+  }
+ },
+ {
+  "legacyId": "6a387c525c0db3b1b900240b",
+  "vehicle": "2011 Toyota Camry",
+  "fields": {
+   "status": [
+    "available",
+    "unlisted"
+   ]
+  }
+ },
+ {
+  "legacyId": "6ab11772fcc17cdcfb4348d8",
+  "vehicle": "2012 Toyota Land Cruiser Prado",
+  "fields": {
+   "engine": [
+    "2TR-FE",
+    "2.7L 2TR-FE"
+   ],
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Keyless Entry",
+     "Heated Seats",
+     "Third Row Seating",
+     "Alloy Wheels",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Third Row Seating"
+    ]
+   ]
+  }
+ },
+ {
+  "legacyId": "6aad547d4721f88f90823f26",
+  "vehicle": "2013 Toyota Hiace Hummer 1",
+  "fields": {
+   "engine": [
+    "2tr-fe",
+    "2.0L 1TR-FE"
+   ],
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Third Row Seating",
+     "Alloy Wheels",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Leather-look Seat Covers"
+    ]
+   ]
+  }
+ },
+ {
+  "legacyId": "6aaaae7e2e4b779e7e4bfdf1",
+  "vehicle": "2013 Toyota Hiace Hummer 2",
+  "fields": {
+   "engine": [
+    "2TR-FE",
+    "2.7L 2TR-FE"
+   ],
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Navigation System",
+     "Bluetooth",
+     "Third Row Seating",
+     "Alloy Wheels",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Leather-look Seat Covers"
+    ]
+   ]
+  }
+ },
+ {
+  "legacyId": "6ab13ac6f497efd738cca064",
+  "vehicle": "2013 Toyota Highlander Limited",
+  "fields": {
+   "model": [
+    "Highlander LE",
+    "Highlander Limited"
+   ],
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Sunroof",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Keyless Entry",
+     "Heated Seats",
+     "Third Row Seating",
+     "Alloy Wheels",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Third Row Seating",
+     "Alloy Wheels"
+    ]
+   ],
+   "condition": [
+    "brand_new",
+    "foreign_used"
+   ]
+  }
+ },
+ {
+  "legacyId": "6a5b908589d55cf34f1d87cd",
+  "vehicle": "2014 Hyundai Santa Fe Sport",
+  "fields": {
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Sunroof",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Heated Seats",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Heated Seats",
+     "Keyless Entry & Push Start",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Alloy Wheels"
+    ]
+   ]
+  }
+ },
+ {
+  "legacyId": "6a5b924789d55cf34f1d87ce",
+  "vehicle": "2014 Toyota Avalon Limited",
+  "fields": {
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Sunroof",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Heated Seats",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Heated & Ventilated Seats",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Alloy Wheels"
+    ]
+   ]
+  }
+ },
+ {
+  "legacyId": "6a5b51010b76038cd700c7e1",
+  "vehicle": "2014 Toyota Camry SE",
+  "fields": {
+   "engine": [
+    "5L Inline-4 (2AR-FE)",
+    "2.5L Inline-4 (2AR-FE)"
+   ],
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Sunroof",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Keyless Entry",
+     "Heated Seats",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Bluetooth",
+     "Cruise Control",
+     "Alloy Wheels"
+    ]
+   ]
+  }
+ },
+ {
+  "legacyId": "6aae288f5098a8f069b31272",
+  "vehicle": "2014 Toyota Coaster",
+  "fields": {
+   "engine": [
+    "2TR-FR",
+    "2TR-FE"
+   ],
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Navigation System",
+     "Third Row Seating",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning"
+    ]
+   ]
+  }
+ },
+ {
+  "legacyId": "6a3acd15bc5b9274d328de42",
+  "vehicle": "2014 Toyota Hiace Hummer 1",
+  "fields": {
+   "engine": [
+    "3.2L V4",
+    "2.0L 1TR-FE"
+   ],
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Keyless Entry",
+     "Third Row Seating",
+     "Alloy Wheels",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Leather-look Seat Covers",
+     "Alloy Wheels",
+     "Aftermarket Touchscreen",
+     "Roof-mounted Screen",
+     "Bull Bar"
+    ]
+   ],
+   "drivetrain": [
+    "fwd",
+    "rwd"
+   ]
+  }
+ },
+ {
+  "legacyId": "6aad63a0bcb09e5fbd17bcf8",
+  "vehicle": "2014 Toyota Hiace Hummer 2",
+  "fields": {
+   "engine": [
+    "2tr-fe",
+    "2.7L 2TR-FE"
+   ],
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Third Row Seating",
+     "Alloy Wheels",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Executive Captain's Chairs",
+     "Wooden Floor"
+    ]
+   ]
+  }
+ },
+ {
+  "legacyId": "6ab14a2507134fabeb945606",
+  "vehicle": "2014 Toyota Land Cruiser Prado",
+  "fields": {
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Keyless Entry",
+     "Heated Seats",
+     "Third Row Seating",
+     "Alloy Wheels",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Third Row Seating",
+     "Full-Time 4WD",
+     "Aftermarket Touchscreen",
+     "Alloy Wheels"
+    ]
+   ],
+   "drivetrain": [
+    "awd",
+    "4wd"
+   ]
+  }
+ },
+ {
+  "legacyId": "6a39b9e6b2cfe334a81059d1",
+  "vehicle": "2014 Toyota Land Cruiser Prado GRJ150L",
+  "fields": {
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Sunroof",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Keyless Entry",
+     "Heated Seats",
+     "Third Row Seating",
+     "Alloy Wheels",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Third Row Seating",
+     "Full-Time 4WD",
+     "Downhill Assist Control",
+     "Aftermarket Touchscreen",
+     "Alloy Wheels"
+    ]
+   ],
+   "drivetrain": [
+    "awd",
+    "4wd"
+   ]
+  }
+ },
+ {
+  "legacyId": "6a5b2bc22a731d0188505582",
+  "vehicle": "2015 Toyota Highlander",
+  "fields": {
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Sunroof",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Keyless Entry",
+     "Heated Seats",
+     "Third Row Seating",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Third Row Seating",
+     "Alloy Wheels"
+    ]
+   ]
+  }
+ },
+ {
+  "legacyId": "6a5b960c89d55cf34f1d87cf",
+  "vehicle": "2015 Toyota Highlander Limited",
+  "fields": {
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Sunroof",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Keyless Entry",
+     "Heated Seats",
+     "Third Row Seating",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Heated & Ventilated Seats",
+     "Sunroof",
+     "Navigation System",
+     "Keyless Entry & Push Start",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Third Row Seating",
+     "Alloy Wheels"
+    ]
+   ]
+  }
+ },
+ {
+  "legacyId": "6ab42023cc120897426dc7ce",
+  "vehicle": "2016 Ford Edge Titanium",
+  "fields": {
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Keyless Entry",
+     "Heated Seats",
+     "Alloy Wheels",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Heated Seats",
+     "Reverse Camera",
+     "Parking Sensors",
+     "Keyless Entry & Push Start",
+     "Bluetooth",
+     "Cruise Control"
+    ]
+   ]
+  }
+ },
+ {
+  "legacyId": "6ab133e8f497efd738cca061",
+  "vehicle": "2016 Lexus GX 460",
+  "fields": {
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Sunroof",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Keyless Entry",
+     "Heated Seats",
+     "Third Row Seating",
+     "Alloy Wheels",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Sunroof",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Third Row Seating",
+     "Alloy Wheels"
+    ]
+   ],
+   "condition": [
+    "brand_new",
+    "foreign_used"
+   ]
+  }
+ },
+ {
+  "legacyId": "6ab1231afcc17cdcfb4348dc",
+  "vehicle": "2016 Lexus RX 350",
+  "fields": {
+   "engine": [
+    "5L V6 petrol",
+    "3.5L V6"
+   ],
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Keyless Entry",
+     "Heated Seats",
+     "Alloy Wheels",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Leather-look Seats",
+     "Reverse Camera",
+     "Bluetooth",
+     "Keyless Entry & Push Start",
+     "Cruise Control",
+     "Alloy Wheels"
+    ]
+   ]
+  }
+ },
+ {
+  "legacyId": "6ab4282c91a7e83387ce4565",
+  "vehicle": "2016 Lexus RX 350",
+  "fields": {
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Sunroof",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Keyless Entry",
+     "Heated Seats",
+     "Alloy Wheels",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Leather-look Seats",
+     "Reverse Camera",
+     "Bluetooth",
+     "Keyless Entry & Push Start",
+     "Cruise Control",
+     "Alloy Wheels"
+    ]
+   ]
+  }
+ },
+ {
+  "legacyId": "6a5b40020b76038cd700c7e0",
+  "vehicle": "2016 Toyota 4Runner Limited",
+  "fields": {
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Sunroof",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Heated Seats",
+     "Third Row Seating",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Heated & Ventilated Seats",
+     "Navigation System",
+     "Parking Sensors",
+     "Keyless Entry & Push Start",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Alloy Wheels"
+    ]
+   ]
+  }
+ },
+ {
+  "legacyId": "6a373e8a5fe9bc3f3a25d2cf",
+  "vehicle": "2016 Toyota Hiace Hummer 3",
+  "fields": {
+   "engine": [
+    null,
+    "2.7L 2TR-FE"
+   ],
+   "fuel": [
+    null,
+    "petrol"
+   ],
+   "seats": [
+    null,
+    18
+   ],
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Third Row Seating",
+     "Alloy Wheels",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning"
+    ]
+   ]
+  }
+ },
+ {
+  "legacyId": "6a52b65617e45007a0c9c822",
+  "vehicle": "2017 Lexus ES 350",
+  "fields": {
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Sunroof",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Keyless Entry",
+     "Heated Seats",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Leather-look Seats",
+     "Sunroof",
+     "Adaptive Cruise Control",
+     "Bluetooth",
+     "Alloy Wheels"
+    ]
+   ]
+  }
+ },
+ {
+  "legacyId": "6ab4359a1acbeac1b9a80927",
+  "vehicle": "2017 Lexus RX 350",
+  "fields": {
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Sunroof",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Keyless Entry",
+     "Heated Seats",
+     "Alloy Wheels",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Leather-look Seats",
+     "Sunroof",
+     "Reverse Camera",
+     "Bluetooth",
+     "Keyless Entry & Push Start",
+     "Adaptive Cruise Control",
+     "Alloy Wheels"
+    ]
+   ]
+  }
+ },
+ {
+  "legacyId": "6a4f82abfa30e4f97b6bf14d",
+  "vehicle": "2017 Mercedes-Benz GLC 300 4MATIC (X253 generation)",
+  "fields": {
+   "engine": [
+    "2.0L",
+    "2.0L Turbocharged Inline-4"
+   ],
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Sunroof",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Keyless Entry",
+     "Heated Seats",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Leather-look Seats",
+     "Panoramic Sunroof",
+     "Reverse Camera",
+     "Keyless Entry & Push Start",
+     "Bluetooth",
+     "Cruise Control",
+     "Alloy Wheels"
+    ]
+   ],
+   "drivetrain": [
+    null,
+    "awd"
+   ]
+  }
+ },
+ {
+  "legacyId": "6ab11ae4fcc17cdcfb4348da",
+  "vehicle": "2017 Toyota Highlander",
+  "fields": {
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Sunroof",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Keyless Entry",
+     "Heated Seats",
+     "Third Row Seating",
+     "Alloy Wheels",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Reverse Camera",
+     "Bluetooth",
+     "Adaptive Cruise Control",
+     "Third Row Seating",
+     "Alloy Wheels"
+    ]
+   ]
+  }
+ },
+ {
+  "legacyId": "6ab444778b2a4b502e260770",
+  "vehicle": "2018 Lexus RX 350",
+  "fields": {
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Sunroof",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Keyless Entry",
+     "Heated Seats",
+     "Alloy Wheels",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Leather-look Seats",
+     "Reverse Camera",
+     "Bluetooth",
+     "Keyless Entry & Push Start",
+     "Adaptive Cruise Control",
+     "Alloy Wheels"
+    ]
+   ]
+  }
+ },
+ {
+  "legacyId": "6a50b6368dc26c69ccbab9a2",
+  "vehicle": "2018 Mercedes-Benz GLC 300 4MATIC",
+  "fields": {
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Sunroof",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Keyless Entry",
+     "Heated Seats",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Leather-look Seats",
+     "Reverse Camera",
+     "Keyless Entry & Push Start",
+     "Bluetooth",
+     "Cruise Control",
+     "Alloy Wheels"
+    ]
+   ]
+  }
+ },
+ {
+  "legacyId": "6a52b33e17e45007a0c9c821",
+  "vehicle": "2018 Toyota Highlander Limited",
+  "fields": {
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Sunroof",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Keyless Entry",
+     "Heated Seats",
+     "Third Row Seating",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Heated & Ventilated Seats",
+     "Panoramic Sunroof",
+     "Navigation System",
+     "Keyless Entry & Push Start",
+     "Reverse Camera",
+     "Bluetooth",
+     "Adaptive Cruise Control",
+     "Parking Sensors",
+     "Third Row Seating",
+     "Captain's Chairs",
+     "Alloy Wheels"
+    ]
+   ]
+  }
+ },
+ {
+  "legacyId": "6a5e6c7c56bd5d2643f115f4",
+  "vehicle": "2018 Toyota Highlander XLE",
+  "fields": {
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Sunroof",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Keyless Entry",
+     "Heated Seats",
+     "Third Row Seating",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Heated Seats",
+     "Sunroof",
+     "Navigation System",
+     "Keyless Entry & Push Start",
+     "Reverse Camera",
+     "Bluetooth",
+     "Adaptive Cruise Control",
+     "Third Row Seating",
+     "Alloy Wheels"
+    ]
+   ]
+  }
+ },
+ {
+  "legacyId": "6ab1300cf497efd738cca05e",
+  "vehicle": "2018 Toyota Highlander XLE",
+  "fields": {
+   "status": [
+    "available",
+    "unlisted"
+   ],
+   "condition": [
+    "brand_new",
+    "foreign_used"
+   ]
+  }
+ },
+ {
+  "legacyId": "6a501d8f04908585f4dcae84",
+  "vehicle": "2019 Mercedes-Benz AMG GLE 43 Coupe 4MATIC (C292)",
+  "fields": {
+   "engine": [
+    "2.0L Turbo I4",
+    "3.0L V6 biturbo"
+   ],
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Sunroof",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Keyless Entry",
+     "Heated Seats",
+     "Alloy Wheels",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Leather-look Seats",
+     "Panoramic Sunroof",
+     "Heated Seats",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Alloy Wheels"
+    ]
+   ],
+   "drivetrain": [
+    null,
+    "awd"
+   ],
+   "transmission": [
+    null,
+    "automatic"
+   ]
+  }
+ },
+ {
+  "legacyId": "6a373d6a5fe9bc3f3a25d2ce",
+  "vehicle": "2019 Toyota Hiace Hummer 2",
+  "fields": {
+   "engine": [
+    null,
+    "2.7L 2TR-FE"
+   ],
+   "seats": [
+    null,
+    18
+   ],
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Third Row Seating",
+     "Alloy Wheels",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning"
+    ]
+   ]
+  }
+ },
+ {
+  "legacyId": "6a38f7c9f11bcf73b64d4d41",
+  "vehicle": "2021 Cadillac Escalade 5th Generation",
+  "fields": {
+   "engine": [
+    "2L V8 gasoline engine",
+    "6.2L V8"
+   ],
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Sunroof",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Keyless Entry",
+     "Heated Seats",
+     "Third Row Seating",
+     "Alloy Wheels",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Leather-look Seats",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Keyless Entry & Push Start",
+     "Heated Seats",
+     "Third Row Seating",
+     "Alloy Wheels",
+     "Parking Sensors"
+    ]
+   ],
+   "condition": [
+    "brand_new",
+    "foreign_used"
+   ]
+  }
+ },
+ {
+  "legacyId": "6aad724653386a910969532b",
+  "vehicle": "2021 Lexus RX 350L",
+  "fields": {
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Sunroof",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Keyless Entry",
+     "Heated Seats",
+     "Third Row Seating",
+     "Alloy Wheels",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Third Row Seating",
+     "Reverse Camera",
+     "Bluetooth",
+     "Keyless Entry & Push Start",
+     "Adaptive Cruise Control",
+     "Alloy Wheels"
+    ]
+   ]
+  }
+ },
+ {
+  "legacyId": "6a370407f53680c8bdef0851",
+  "vehicle": "2021 Toyota Highlander",
+  "fields": {
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Sunroof",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Keyless Entry",
+     "Heated Seats",
+     "Third Row Seating",
+     "Alloy Wheels",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Panoramic Sunroof",
+     "Reverse Camera",
+     "Bluetooth",
+     "Adaptive Cruise Control",
+     "Third Row Seating",
+     "Alloy Wheels"
+    ]
+   ]
+  }
+ },
+ {
+  "legacyId": "6a523d0ad049d1f4387d8b8e",
+  "vehicle": "2022 Lexus RX 350 F SPORT",
+  "fields": {
+   "status": [
+    "available",
+    "unlisted"
+   ]
+  }
+ },
+ {
+  "legacyId": "6a51741fb2cca00c590a971c",
+  "vehicle": "2022 Lexus RX 350 F SPORT",
+  "fields": {
+   "engine": [
+    "RX 350 F SPORT",
+    "3.5L V6"
+   ],
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Sunroof",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Keyless Entry",
+     "Heated Seats",
+     "Third Row Seating",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Leather-look Seats",
+     "Reverse Camera",
+     "Bluetooth",
+     "Keyless Entry & Push Start",
+     "Adaptive Cruise Control",
+     "Alloy Wheels"
+    ]
+   ]
+  }
+ },
+ {
+  "legacyId": "6a5e6f6256bd5d2643f115f5",
+  "vehicle": "2022 Mercedes-Benz GLE 350 4MATIC",
+  "fields": {
+   "status": [
+    "available",
+    "unlisted"
+   ]
+  }
+ },
+ {
+  "legacyId": "6a5d7558b893a0585afb060e",
+  "vehicle": "2022 Toyota Highlander",
+  "fields": {
+   "seats": [
+    null,
+    7
+   ],
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Sunroof",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Keyless Entry",
+     "Heated Seats",
+     "Third Row Seating",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "12.3-inch Touchscreen",
+     "Captain's Chairs",
+     "Reverse Camera",
+     "Bluetooth",
+     "Adaptive Cruise Control",
+     "Third Row Seating",
+     "Alloy Wheels"
+    ]
+   ]
+  }
+ },
+ {
+  "legacyId": "6a392c514744efe6267cb10f",
+  "vehicle": "2024 Lexus GX 550",
+  "fields": {
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Sunroof",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Keyless Entry",
+     "Heated Seats",
+     "Third Row Seating",
+     "Alloy Wheels",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Sunroof",
+     "Heated & Ventilated Seats",
+     "Adaptive Cruise Control",
+     "Reverse Camera",
+     "Bluetooth",
+     "Keyless Entry & Push Start",
+     "14-inch Touchscreen",
+     "Full-Time 4WD",
+     "Alloy Wheels"
+    ]
+   ],
+   "condition": [
+    "brand_new",
+    "foreign_used"
+   ],
+   "drivetrain": [
+    "awd",
+    "4wd"
+   ]
+  }
+ },
+ {
+  "legacyId": "6a373c015fe9bc3f3a25d2cd",
+  "vehicle": "2024 Mercedes-Benz AMG G 63",
+  "fields": {
+   "model": [
+    "AMG G-Class",
+    "AMG G 63"
+   ],
+   "seats": [
+    null,
+    5
+   ],
+   "engine": [
+    null,
+    "4.0L V8 biturbo"
+   ],
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Sunroof",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Keyless Entry",
+     "Heated Seats",
+     "Third Row Seating",
+     "Alloy Wheels",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Sunroof",
+     "Heated Seats",
+     "360° Camera",
+     "Navigation System",
+     "Keyless Entry & Push Start",
+     "Bluetooth",
+     "Cruise Control",
+     "Alloy Wheels"
+    ]
+   ],
+   "drivetrain": [
+    null,
+    "4wd"
+   ],
+   "transmission": [
+    null,
+    "automatic"
+   ]
+  }
+ },
+ {
+  "legacyId": "6a38666a2a4dc09ddc36e365",
+  "vehicle": "2024 Mercedes-Benz AMG GLE 53 Coupe",
+  "fields": {
+   "model": [
+    "GLE 53 AMG Coupe",
+    "AMG GLE 53 Coupe"
+   ],
+   "seats": [
+    7,
+    5
+   ],
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Sunroof",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Keyless Entry",
+     "Heated Seats",
+     "Third Row Seating",
+     "Alloy Wheels",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Panoramic Sunroof",
+     "Heated & Ventilated Seats",
+     "Navigation System",
+     "Keyless Entry & Push Start",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Alloy Wheels"
+    ]
+   ]
+  }
+ },
+ {
+  "legacyId": "6a4f7fd6fa30e4f97b6bf14c",
+  "vehicle": "2024 Mercedes-Benz GLE 450 4MATIC",
+  "fields": {
+   "model": [
+    "GLE 450 4matic",
+    "GLE 450 4MATIC"
+   ],
+   "engine": [
+    "3.0L",
+    "3.0L turbocharged inline-6 + EQ Boost"
+   ],
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Sunroof",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Keyless Entry",
+     "Heated Seats",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Leather-look Seats",
+     "Panoramic Sunroof",
+     "Navigation System",
+     "Heated Seats",
+     "Keyless Entry & Push Start",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Alloy Wheels"
+    ]
+   ]
+  }
+ },
+ {
+  "legacyId": "6aae1cef867b2242682c6559",
+  "vehicle": "2026 Changan UNI-K",
+  "fields": {
+   "seats": [
+    4,
+    5
+   ],
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Sunroof",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Keyless Entry",
+     "Heated Seats",
+     "Alloy Wheels",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Panoramic Sunroof",
+     "360° Camera",
+     "Alloy Wheels"
+    ]
+   ]
+  }
+ }
+]

@@ -19,7 +19,7 @@
  * .data/legacy-import-report.md.
  */
 
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { MongoClient, type Document } from "mongodb";
 import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
@@ -32,6 +32,11 @@ import { site } from "../src/lib/site";
 import { formatNaira } from "../src/lib/money";
 
 const dryRun = process.argv.includes("--dry-run");
+
+/** Field corrections made on the new platform, re-applied after every import (see below). */
+const CORRECTIONS: { legacyId: string; vehicle: string; fields: Record<string, [unknown, unknown]> }[] = JSON.parse(
+  readFileSync(new URL("../src/content/listing-corrections.json", import.meta.url), "utf8"),
+);
 
 const mongoUri = process.env.LEGACY_MONGO_URI;
 if (!mongoUri) {
@@ -218,6 +223,28 @@ try {
       }
       counts.vehicles = (counts.vehicles ?? 0) + 1;
       counts.photos = (counts.photos ?? 0) + v.images.length;
+    }
+
+    // Corrections made on the new platform before cutover: features checked
+    // against the photos and the manufacturers' specifications, wrong engines
+    // and names, listings using another car's photos taken down. The legacy
+    // admin still holds the old values, so each correction is re-applied after
+    // every import — but only while the legacy record still holds the value it
+    // corrected. If staff have since changed it in the legacy admin, theirs wins.
+    const same = (a: unknown, b: unknown) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
+    for (const c of CORRECTIONS) {
+      const saved = vehicleByLegacy.get(c.legacyId);
+      if (!saved) continue;
+      const [row] = await tx.select().from(schema.vehicles).where(eq(schema.vehicles.id, saved.id));
+      const set: Record<string, unknown> = {};
+      for (const [field, [before, after]] of Object.entries(c.fields)) {
+        if (same((row as Record<string, unknown>)[field], before)) set[field] = after;
+        else skipped.push(`Correction to ${c.vehicle} (${field}) not applied: the legacy admin has changed it since.`);
+      }
+      if (Object.keys(set).length) {
+        await tx.update(schema.vehicles).set(set).where(eq(schema.vehicles.id, saved.id));
+        counts.corrections = (counts.corrections ?? 0) + Object.keys(set).length;
+      }
     }
 
     // Enquiries -> leads. One that left neither a phone nor an email cannot be
