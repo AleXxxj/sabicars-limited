@@ -145,7 +145,9 @@ export function familyGuide(): string {
       (m) =>
         `- ${m.name}: ${m.what}. Engine: ${m.engine}, ${m.power}, ${m.torque} of torque. Usually ${m.seats} seats. Body: ${m.body}. Best for: ${m.bestFor}.`,
     ),
-    `What the numbers mean on the road: the 2.7 in Hummer 2 and 3 has about a third more pulling power (torque) than the 2.0 in Hummer 1, so it copes better with a full load, hills and long distances. Hummer 3 has the same engine as Hummer 2 in a roomier body, so it trades a little pace for comfort. The short Hiace is the quickest when full only because full means 9 people. The square-face Hiace is the oldest — at least 20 years — and the slowest under load.`,
+    `What the numbers mean on the road: the 2.7 in Hummer 2 and 3 has about a third more pulling power (torque) than the 2.0 in Hummer 1, so it copes better with a full load, hills and long distances. Hummer 3 has the same engine as Hummer 2 in a roomier body, so it trades a little pace for comfort. The short Hiace is the quickest when full only because full means 9 people. The square-face Hiace is the oldest — at least 20 years.`,
+    // What HiaceFamilyRace shows, worked out from its sums; keep in step with them.
+    `What the race shows — describe only this: the short Hiace gets there first in every race, because it is the lightest (full means only 9 people). Hummer 2 comes second in every race, always ahead of Hummer 1, and with a full load it moves the most people for the time taken. Full on a good road, Hummer 1 comes last: its 2.0 is carrying 16. On the bad road's potholes the lighter buses are nimbler, so Hummer 1 is quicker than Hummer 2 over that stretch (Hummer 2 still finishes ahead overall), and the tall Hummer 3 comes last. Empty, and over a long distance, the square-face Hiace comes last.`,
     `Prices also follow year, condition, layout and papers, not only the number. If a listing contradicts this guide (for example a Hummer 1 listed with the 2.7 engine), say the team will confirm the engine rather than choosing.`,
   ].join("\n");
 }

@@ -297,8 +297,9 @@ export function AskSabicars() {
             <Avatar />
             <div className="min-w-0 flex-1">
               <p className="font-semibold text-text-primary">Ask Sabicars</p>
-              <p className="flex items-center gap-1.5 text-xs text-text-muted">
-                <span aria-hidden className="size-1.5 rounded-full bg-success" /> AI assistant · knows every car in stock
+              {/* One line, so the chat doesn't jump when the new-chat button appears beside it on a phone */}
+              <p className="flex items-center gap-1.5 text-xs whitespace-nowrap text-text-muted">
+                <span aria-hidden className="size-1.5 shrink-0 rounded-full bg-success" /> AI · knows every car in stock
               </p>
             </div>
             {msgs.length > 0 && (
