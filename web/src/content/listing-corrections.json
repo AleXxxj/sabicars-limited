@@ -82,6 +82,44 @@
   }
  },
  {
+  "legacyId": "6abe654f0cff82692db8c34d",
+  "vehicle": "2010 Toyota Avalon",
+  "fields": {
+   "status": [
+    "available",
+    "unlisted"
+   ]
+  }
+ },
+ {
+  "legacyId": "6abc18c8846885720300b97e",
+  "vehicle": "2010 Toyota Venza",
+  "fields": {
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Sunroof",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Keyless Entry",
+     "Heated Seats",
+     "Alloy Wheels",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Bluetooth",
+     "Cruise Control",
+     "Alloy Wheels"
+    ]
+   ]
+  }
+ },
+ {
   "legacyId": "6ab41015e1211fc294237cf6",
   "vehicle": "2011 Acura MDX",
   "fields": {
@@ -271,6 +309,35 @@
   }
  },
  {
+  "legacyId": "6abe5c2a0cff82692db8c349",
+  "vehicle": "2014 Toyota 4Runner",
+  "fields": {
+   "status": [
+    "available",
+    "unlisted"
+   ],
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Navigation System",
+     "Bluetooth",
+     "Cruise Control",
+     "Keyless Entry",
+     "Alloy Wheels"
+    ],
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Alloy Wheels"
+    ]
+   ]
+  }
+ },
+ {
   "legacyId": "6a5b924789d55cf34f1d87ce",
   "vehicle": "2014 Toyota Avalon Limited",
   "fields": {
@@ -296,6 +363,10 @@
      "Cruise Control",
      "Alloy Wheels"
     ]
+   ],
+   "status": [
+    "available",
+    "unlisted"
    ]
   }
  },
@@ -480,6 +551,32 @@
   }
  },
  {
+  "legacyId": "6abc07b7bec24a82a5b2170e",
+  "vehicle": "2014 Toyota Venza",
+  "fields": {
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Sunroof",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Keyless Entry",
+     "Alloy Wheels",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Bluetooth",
+     "Cruise Control",
+     "Alloy Wheels"
+    ]
+   ]
+  }
+ },
+ {
   "legacyId": "6a5b2bc22a731d0188505582",
   "vehicle": "2015 Toyota Highlander",
   "fields": {
@@ -537,6 +634,36 @@
      "Bluetooth",
      "Cruise Control",
      "Third Row Seating",
+     "Alloy Wheels"
+    ]
+   ]
+  }
+ },
+ {
+  "legacyId": "6abcacfff9c96bab4fc173f7",
+  "vehicle": "2015 Toyota Venza",
+  "fields": {
+   "engine": [
+    "3.5L",
+    "3.5L V6"
+   ],
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Keyless Entry",
+     "Heated Seats",
+     "Alloy Wheels",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Bluetooth",
+     "Cruise Control",
      "Alloy Wheels"
     ]
    ]
@@ -672,6 +799,40 @@
   }
  },
  {
+  "legacyId": "6abcc192ea505b1acd6000b1",
+  "vehicle": "2016 Mercedes-Benz GLE 350",
+  "fields": {
+   "model": [
+    "Benz GLE 350",
+    "GLE 350"
+   ],
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Sunroof",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Keyless Entry",
+     "Heated Seats",
+     "Third Row Seating",
+     "Alloy Wheels",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Leather-look Seats",
+     "Heated Seats",
+     "Bluetooth",
+     "Cruise Control",
+     "Alloy Wheels"
+    ]
+   ]
+  }
+ },
+ {
   "legacyId": "6a5b40020b76038cd700c7e0",
   "vehicle": "2016 Toyota 4Runner Limited",
   "fields": {
@@ -699,6 +860,10 @@
      "Cruise Control",
      "Alloy Wheels"
     ]
+   ],
+   "status": [
+    "available",
+    "unlisted"
    ]
   }
  },
@@ -789,6 +954,38 @@
      "Bluetooth",
      "Keyless Entry & Push Start",
      "Adaptive Cruise Control",
+     "Alloy Wheels"
+    ]
+   ]
+  }
+ },
+ {
+  "legacyId": "6abe6a690cff82692db8c34f",
+  "vehicle": "2017 Mercedes-Benz GLC 300",
+  "fields": {
+   "status": [
+    "available",
+    "unlisted"
+   ],
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Keyless Entry",
+     "Alloy Wheels",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Leather-look Seats",
+     "Reverse Camera",
+     "Keyless Entry & Push Start",
+     "Bluetooth",
+     "Cruise Control",
      "Alloy Wheels"
     ]
    ]
@@ -917,6 +1114,42 @@
      "Keyless Entry & Push Start",
      "Bluetooth",
      "Cruise Control",
+     "Alloy Wheels"
+    ]
+   ],
+   "status": [
+    "available",
+    "unlisted"
+   ]
+  }
+ },
+ {
+  "legacyId": "6abe60d50cff82692db8c34b",
+  "vehicle": "2018 Toyota Highlander",
+  "fields": {
+   "features": [
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Sunroof",
+     "Navigation System",
+     "Reverse Camera",
+     "Bluetooth",
+     "Cruise Control",
+     "Keyless Entry",
+     "Heated Seats",
+     "Third Row Seating",
+     "Alloy Wheels",
+     "Parking Sensors"
+    ],
+    [
+     "Air Conditioning",
+     "Leather Seats",
+     "Captain's Chairs",
+     "Reverse Camera",
+     "Bluetooth",
+     "Adaptive Cruise Control",
+     "Third Row Seating",
      "Alloy Wheels"
     ]
    ]
