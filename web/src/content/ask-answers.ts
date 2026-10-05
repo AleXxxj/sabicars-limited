@@ -66,7 +66,7 @@ Our [20-minute inspection guide](/blog/5-things-to-check-before-buying-a-used-ca
     question: "What is a Toyota Hiace “Hummer” bus?",
     answer: `It is the market’s name for the high-roof Toyota Hiace — the tall, square-shouldered bus Nigerian businesses use for staff, schools, churches, hire and tourism.
 
-“Hummer 1”, “Hummer 2” and “Hummer 3” are market names for the same bus at different face-lifts, not Toyota’s names. The **chassis number** tells you the real year, and the year sets the price. Our [Hummer buyer’s guide](/blog/toyota-hiace-hummer-bus-buyers-guide) covers the rest, and the [buses in stock](/hummer-bus) are always live.`,
+“Hummer 1”, “Hummer 2” and “Hummer 3” are market names, not Toyota’s, and sellers use them differently. At Sabicars, a **Hummer 1** has the 2.0-litre petrol engine and usually 16 seats; a **Hummer 2** has the stronger 2.7 and usually 18; a **Hummer 3** has the same 2.7 in the roomiest body. The **chassis number** tells you the real year. Our [Hummer buyer’s guide](/blog/toyota-hiace-hummer-bus-buyers-guide) covers the rest, and the [buses in stock](/hummer-bus) are always live.`,
   },
   {
     slug: "are-sabicars-cars-foreign-used-or-nigerian-used",

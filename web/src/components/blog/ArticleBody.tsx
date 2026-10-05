@@ -7,12 +7,14 @@ import { videoSource } from "@/lib/blog/video";
 import { money, percentOf } from "@/lib/money";
 import { carsForBlock } from "@/lib/repositories/blog";
 import { catalogueWithShape, drivePlanCatalogue, hummerBuses, listedVehicles } from "@/lib/repositories/vehicles";
+import { familyOf } from "@/lib/hiace-family";
 import { DRIVE_PLAN_DEPOSIT_BPS, vehicleTitle } from "@/lib/vehicle";
 import { Inline } from "./Inline";
 import { BudgetQuiz } from "./illustrations/BudgetQuiz";
 import { ChassisMatch } from "./illustrations/ChassisMatch";
 import { FrameXray } from "./illustrations/FrameXray";
 import { FuelDuel } from "./illustrations/FuelDuel";
+import { HiaceFamilyRace, type FamilyStock } from "./illustrations/HiaceFamilyRace";
 import { HummerRace } from "./illustrations/HummerRace";
 import { SmokeDoctor } from "./illustrations/SmokeDoctor";
 import { SuvDuel } from "./illustrations/SuvDuel";
@@ -76,6 +78,19 @@ async function hummerStock(): Promise<HummerStock> {
       coverUrl: v.cover?.url ?? null,
       seats: v.seats,
     });
+  }
+  return out;
+}
+
+/** How many of each of the Hiace family are on sale, the cheapest first: what the family race links to. */
+async function familyStock(): Promise<FamilyStock> {
+  const out: FamilyStock = {};
+  for (const v of [...(await stockOnce())].filter((x) => x.priceMinor).sort((a, b) => a.priceMinor! - b.priceMinor!)) {
+    const id = familyOf(v);
+    if (!id) continue;
+    const s = out[id];
+    if (s) s.count += 1;
+    else out[id] = { count: 1, fromMinor: v.priceMinor, slug: v.slug };
   }
   return out;
 }
@@ -154,6 +169,9 @@ async function Illustration({ block }: { block: Extract<Block, { type: "illustra
       break;
     case "suv-race":
       body = <SuvRace stock={await suvStock()} />;
+      break;
+    case "hiace-family-race":
+      body = <HiaceFamilyRace stock={await familyStock()} />;
       break;
     case "hummer-race":
       body = <HummerRace stock={await hummerStock()} />;
@@ -274,7 +292,11 @@ function render(b: Block, i: number, isLede: boolean): React.ReactNode {
         </h2>
       );
     case "h3":
-      return <h3 key={i}>{b.text}</h3>;
+      return (
+        <h3 key={i} id={anchorFor(b.text)}>
+          {b.text}
+        </h3>
+      );
     case "list": {
       const L = b.ordered ? "ol" : "ul";
       return (

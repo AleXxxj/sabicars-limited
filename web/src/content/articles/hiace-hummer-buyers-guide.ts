@@ -26,7 +26,7 @@ export const hiaceHummerGuide = {
       type: "summary",
       items: [
         "A “Hummer bus” is the **high-roof Toyota Hiace** — the same bus Toyota has built since 2004, through several face-lifts.",
-        "“Hummer 1, 2 and 3” are market names, not Toyota’s. The **chassis number** tells you the real year.",
+        "At Sabicars, **Hummer 1** has the 2.0-litre engine; **Hummer 2 and 3** have the stronger 2.7, and Hummer 3 is the roomiest. Race them below.",
         "Check **six places** before you pay. The checklist below stays on your phone, so you can finish it at the showroom.",
         "You can drive one away on the **40% Drive Plan**: you pay 40%, Autochek finances the 60% once it approves.",
         "Run **your own route numbers** first — the calculator below does the arithmetic.",
@@ -48,15 +48,39 @@ export const hiaceHummerGuide = {
       alt: "A black 2019 Toyota Hiace high-roof bus at the Sabicars showroom",
       caption: "A 2019 Hummer bus at the Sabicars showroom.",
     },
+    { type: "h3", text: "Hummer 1, 2 or 3: what is the difference?" },
     {
       type: "p",
-      text: "In the market you will also hear **Hummer 1**, **Hummer 2** and **Hummer 3**. They are the same bus at different face-lifts — new lamps, a new grille, updated cabins — and dealers use the names to tell them apart at a glance. Not everyone draws the lines in the same year, so treat the label as a description, not a specification.",
+      text: "In the market you will hear **Hummer 1**, **Hummer 2** and **Hummer 3**. They are not Toyota’s names, and sellers do not all use them the same way. At Sabicars, the number tells you three things at once: the engine, the size and the face.",
+    },
+    {
+      type: "list",
+      items: [
+        "**Hummer 1** has the 2.0-litre petrol engine (1TR), about 134 horsepower. It usually carries 16.",
+        "**Hummer 2** has the bigger 2.7-litre petrol engine (2TR-FE), about 150–160 horsepower, with a third more pulling power. It usually carries 18.",
+        "**Hummer 3** has the same 2.7 in the roomiest body: a higher roof and a longer cabin. It usually carries 18, with more headroom and legroom for each.",
+        "Each one has its own **face** — the lights and the grille — which is how people tell them apart across a yard.",
+      ],
+    },
+    {
+      type: "p",
+      text: "And the **old Hiace**? It is either the short Hiace — a lower roof, a short body, the 2.0 engine and about 9 seats — or the square-faced Hiace from before 2004, with a 2.0 or 2.4 engine and about 15 seats.",
+    },
+    {
+      type: "p",
+      text: "The easiest way to see the difference is to watch them work. Pick a road and a load, guess the winner, and let them go:",
+    },
+    {
+      type: "illustration",
+      name: "hiace-family-race",
+      caption:
+        "Watch the boarding: a bigger bus takes longer to fill, then has to pull more weight. That is the whole story of the engines.",
     },
     {
       type: "callout",
       tone: "tip",
-      title: "Ask for the year, not the number",
-      text: "When a seller says “Hummer 3”, ask for the year of manufacture from the chassis number, and check that the papers say the same. The year sets the price; the nickname does not.",
+      title: "Check the engine, not just the name",
+      text: "When a seller says “Hummer 2”, look for the engine code and ask for the year from the chassis number. Check that the papers say the same. The engine, the year and the condition set the price — the nickname does not.",
     },
 
     { type: "h2", text: "What one costs today" },
@@ -84,7 +108,7 @@ export const hiaceHummerGuide = {
     { type: "h2", text: "Petrol or diesel, manual or automatic" },
     {
       type: "p",
-      text: "Most Hummer buses in Nigeria run Toyota’s 2.7-litre petrol engine, known by its code **2TR-FE** — every petrol Hummer in the Sabicars showroom has one. It is simple, understood by mechanics in every city, and its parts are easy to find. Diesel Hiaces exist and can be more economical on long runs, but they are less forgiving of poor fuel and cost more to put right when something goes wrong.",
+      text: "Hummer 2 and Hummer 3 run Toyota’s 2.7-litre petrol engine, known by its code **2TR-FE**; Hummer 1 runs the smaller 2.0-litre **1TR**. Both are simple, understood by mechanics in every city, and their parts are easy to find. Diesel Hiaces exist and can be more economical on long runs, but they are less forgiving of poor fuel and cost more to put right when something goes wrong.",
     },
     {
       type: "p",
@@ -212,8 +236,12 @@ export const hiaceHummerGuide = {
           a: "It depends on how it is fitted. The buses in the Sabicars showroom today range from 8-seat executive layouts to 18-seat commuter layouts. Check that the seat count on the papers matches what is fitted.",
         },
         {
+          q: "What is the difference between a Hummer 1 and a Hummer 2?",
+          a: "The engine and the size. At Sabicars, a Hummer 1 has the 2.0-litre petrol engine and usually 16 seats; a Hummer 2 has the 2.7-litre, with about a third more pulling power, and usually 18 seats. Full of passengers, the Hummer 2 pulls away more easily. Each also has its own face — lights and grille.",
+        },
+        {
           q: "Is a Hummer 3 better than a Hummer 2?",
-          a: "A later face-lift has newer styling and features, but condition matters far more than the label. A well-kept older bus is a better buy than a hard-worked newer one. Judge the bus, not the name.",
+          a: "A Hummer 3 has the same 2.7-litre engine as a Hummer 2 in a roomier body — a higher roof and a longer cabin — so passengers travel more comfortably, especially on long trips. Whether it is the better buy depends on the bus itself: a well-kept Hummer 2 is a better buy than a hard-worked Hummer 3. Judge the bus, not the name.",
         },
         {
           q: "Can I pay in instalments?",

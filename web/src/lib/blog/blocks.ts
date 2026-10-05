@@ -33,6 +33,7 @@ export const ILLUSTRATIONS = {
   "suv-duel": "A balance: the reader's priorities tip it towards the Highlander or the GX 460",
   "suv-race": "Five SUVs race the road the reader picks, with start lights and a podium",
   "hummer-race": "Four Hummer buses (petrol or diesel, manual or automatic) race the job the reader picks, through Lagos",
+  "hiace-family-race": "The old Hiace, the short Hiace and Hummer 1, 2 and 3 race empty or full, on good and bad roads",
   "suv-radar": "Five SUVs as shapes on six ratings; pick two and they morph",
   "truck-builder": "Pick the cargo; the right truck body drops onto the chassis",
   "smoke-doctor": "Crank a cold truck and diagnose the smoke: a four-round game",

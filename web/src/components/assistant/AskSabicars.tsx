@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { ArrowUp, MessageCircle, Phone, PhoneCall, RotateCcw, X } from "lucide-react";
 import { SYMBOL } from "@/components/brand/marks";
@@ -9,6 +10,12 @@ import type { Part } from "@/lib/assistant/parts";
 import { site, whatsappLink } from "@/lib/site";
 import { CallbackForm, CarCards, CompareCard } from "./AssistantParts";
 import { MessageText } from "./MessageText";
+
+/** The races are only fetched when a reply shows one, so the chat stays light on every other page. */
+const ChatRace = dynamic(() => import("./ChatRace").then((m) => m.ChatRace), {
+  ssr: false,
+  loading: () => <div className="h-56 animate-pulse rounded-2xl bg-white/[0.04]" />,
+});
 
 interface Msg {
   id: string;
@@ -375,6 +382,8 @@ export function AskSabicars() {
                         <CarCards key={i} cars={p.cars} />
                       ) : p.kind === "compare" ? (
                         <CompareCard key={i} cars={p.cars} href={p.href} />
+                      ) : p.kind === "race" ? (
+                        <ChatRace key={i} race={p.race} />
                       ) : (
                         <CallbackForm key={i} conversationId={conversationId} path={pathname} />
                       ),

@@ -9,6 +9,7 @@ import { clockStartsAt, isOpen, showroomHours } from "@/lib/showroom-hours";
 import { site } from "@/lib/site";
 import { BODY_LABEL, CONDITION_LABEL, DRIVE_PLAN_DEPOSIT_BPS, DRIVETRAIN_LABEL, vehicleTitle } from "@/lib/vehicle";
 import type { AssistantCar } from "./parts";
+import { familyGuide } from "@/lib/hiace-family";
 
 /**
  * Everything Ask Sabicars is allowed to know, read live from the database.
@@ -155,6 +156,9 @@ ${site.legalName} (CAC RC ${site.rcNumber}) sells cars, SUVs, Toyota Hiace "Humm
 - All stock: /vehicles · SUVs: /vehicles?body=suv · Buses: /vehicles?body=bus · Saloons: /vehicles?body=sedan · Pickups: /vehicles?body=pickup · Trucks: /vehicles?body=truck
 - Luxury: /vehicles?segment=luxury · By price: /vehicles?maxPrice=20000000 (whole naira)
 - The Hummer bus: /hummer-bus · Contact: /contact · About: /about · Answers to common questions: /ask
+
+## The Hiace family: the old Hiace and Hummer 1, 2 and 3 (Sabicars' own definitions)
+${familyGuide()}
 
 ## Articles on the site (link to them when they genuinely help)
 ${articles(posts)}

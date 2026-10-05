@@ -6,6 +6,8 @@
  *   [[cars: slug, slug]]      up to three vehicle cards
  *   [[compare: slug, slug]]   a side-by-side comparison of two or three
  *   [[callback]]              the "have someone call me" form
+ *   [[race: family]]          the Hiace family race: old Hiace, short Hiace, Hummer 1, 2, 3
+ *   [[race: powertrain]]      the Hummer race: petrol or diesel, manual or automatic
  *
  * The server lifts directives out of the stream, checks every slug against the
  * live inventory and sends the widget structured parts in their place. A slug
@@ -39,17 +41,27 @@ export type Part =
   | { kind: "text"; text: string }
   | { kind: "cars"; cars: AssistantCar[] }
   | { kind: "compare"; cars: AssistantCar[]; href: string }
-  | { kind: "callback" };
+  | { kind: "callback" }
+  | { kind: "race"; race: RaceKind };
 
-export type Directive = { kind: "cars" | "compare"; slugs: string[] } | { kind: "callback" };
+/** The races the chat can show: the same ones the Hummer buyer's guide has. */
+export type RaceKind = "family" | "powertrain";
+
+export type Directive = { kind: "cars" | "compare"; slugs: string[] } | { kind: "callback" } | { kind: "race"; race: RaceKind };
 
 const MAX_CARDS = 3;
 
 export function parseDirective(inner: string): Directive | null {
-  const m = /^\s*(cars|compare|callback)\s*(?::\s*([\s\S]*))?$/i.exec(inner);
+  const m = /^\s*(cars|compare|callback|race)\s*(?::\s*([\s\S]*))?$/i.exec(inner);
   if (!m) return null;
   const kind = m[1].toLowerCase();
   if (kind === "callback") return { kind: "callback" };
+  if (kind === "race") {
+    const arg = (m[2] ?? "").trim().toLowerCase();
+    if (/family|hiace|hummer|generation/.test(arg)) return { kind: "race", race: "family" };
+    if (/powertrain|petrol|diesel|manual|automatic|gearbox|fuel/.test(arg)) return { kind: "race", race: "powertrain" };
+    return null;
+  }
   const slugs = [
     ...new Set(
       (m[2] ?? "")
@@ -116,6 +128,7 @@ export function describeDirectives(text: string, titleFor: (slug: string) => str
     const d = parseDirective(inner);
     if (!d) return "";
     if (d.kind === "callback") return "[offered a callback]";
+    if (d.kind === "race") return d.race === "family" ? "[showed the Hiace family race]" : "[showed the petrol/diesel race]";
     return `[${d.kind === "compare" ? "compared" : "showed"}: ${d.slugs.map(titleFor).join(", ")}]`;
   });
 }
