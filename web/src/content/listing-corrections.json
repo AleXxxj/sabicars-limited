@@ -215,6 +215,10 @@
      "Air Conditioning",
      "Leather-look Seat Covers"
     ]
+   ],
+   "horsepower": [
+    151,
+    134
    ]
   }
  },
@@ -454,6 +458,10 @@
    "drivetrain": [
     "fwd",
     "rwd"
+   ],
+   "horsepower": [
+    null,
+    134
    ]
   }
  },
