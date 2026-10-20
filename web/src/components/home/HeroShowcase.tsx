@@ -42,7 +42,16 @@ function videoAllowed(): boolean {
  * running — never a black box — and not at all on slow or data-saver
  * connections, where the slideshow stays.
  */
-export function HeroShowcase({ slides, videoUrl }: { slides: HeroSlide[]; videoUrl: string | null }) {
+export function HeroShowcase({
+  slides,
+  videoUrl,
+  allVerified,
+}: {
+  slides: HeroSlide[];
+  videoUrl: string | null;
+  /** Every car on sale has a fresh Sabicars Verified report: only then does the headline say so. */
+  allVerified: boolean;
+}) {
   const [index, setIndex] = useState(0);
   const [previous, setPrevious] = useState<number | null>(null);
   // Each slide's "generation" bumps when it becomes active, remounting it so
@@ -144,7 +153,7 @@ export function HeroShowcase({ slides, videoUrl }: { slides: HeroSlide[]; videoU
       <div className="mx-auto w-full max-w-7xl px-5 pb-20 pt-14 md:px-10 md:pb-28 md:pt-28">
         <p className="kicker">CAC registered · RC 1560100</p>
         <h1 className="mt-6 max-w-4xl text-display-1 text-[var(--hero-text)]">
-          Real cars, real prices.
+          {allVerified ? "Every car verified." : "Real cars, real prices."}
           <br />
           <em className="text-green-300">Every deal</em> on record.
         </h1>

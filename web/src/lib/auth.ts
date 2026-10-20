@@ -58,4 +58,6 @@ export const can = {
   setPrices: (s: StaffMember) => s.role === "owner" || s.role === "manager",
   seeMoney: (s: StaffMember) => s.role === "owner" || s.role === "manager",
   manageStaff: (s: StaffMember) => s.role === "owner",
+  /** Anyone can record an inspection; putting the seal on it in public is a manager's call. */
+  publishInspection: (s: StaffMember) => s.role === "owner" || s.role === "manager",
 };

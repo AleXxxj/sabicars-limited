@@ -57,6 +57,13 @@
       "when": 1790467338909,
       "tag": "0007_ask_sabicars",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792500063238,
+      "tag": "0008_sabicars_verified",
+      "breakpoints": true
     }
   ]
 }

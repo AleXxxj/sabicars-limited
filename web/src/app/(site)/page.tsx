@@ -12,7 +12,16 @@ import { EarningsExamples, PartnerRules } from "@/components/referral/Referral";
 import { ArrowRight, CarFront, Layers, MapPin, ShieldCheck, Wallet } from "lucide-react";
 import { Button, ButtonAnchor, ButtonLink } from "@/components/ui/Button";
 import { fieldClass } from "@/components/forms/field";
-import { categoryTiles, drivePlanCatalogue, featuredVehicles, heroVehicles, heroVideoUrl, hummerBuses, inventoryStats } from "@/lib/repositories/vehicles";
+import {
+  categoryTiles,
+  drivePlanCatalogue,
+  everyListedCarVerified,
+  featuredVehicles,
+  heroVehicles,
+  heroVideoUrl,
+  hummerBuses,
+  inventoryStats,
+} from "@/lib/repositories/vehicles";
 import { mostRequested } from "@/lib/repositories/sourcing";
 import { publishedReviews, reviewSummary } from "@/lib/repositories/reviews";
 import { ReviewsSection } from "@/components/reviews/ReviewsSection";
@@ -58,7 +67,7 @@ function SectionHead({ eyebrow, title, children }: { eyebrow: string; title: str
  * built to capture the audience, not just display the lot.
  */
 export default async function Home() {
-  const [hero, featured, stats, tiles, videoUrl, catalogue, demand, buses, reviews, reviewStats, posts] = await Promise.all([
+  const [hero, featured, stats, tiles, videoUrl, catalogue, demand, buses, reviews, reviewStats, posts, allVerified] = await Promise.all([
     heroVehicles(8),
     featuredVehicles(6),
     inventoryStats(),
@@ -70,6 +79,7 @@ export default async function Home() {
     publishedReviews(),
     reviewSummary(),
     latestPosts(3),
+    everyListedCarVerified(),
   ]);
   // The signature: Hummer buses, newest first, those with a photograph.
   const hummers = buses.filter((b) => /hum+er/i.test(b.model) && b.cover);
@@ -96,7 +106,7 @@ export default async function Home() {
         }}
       />
 
-      <HeroShowcase slides={slides} videoUrl={videoUrl} />
+      <HeroShowcase slides={slides} videoUrl={videoUrl} allVerified={allVerified} />
 
       {/* Is this real? Facts, live from the inventory and the register. */}
       <section aria-label="At a glance" className="relative z-10 -mt-12 md:-mt-16">

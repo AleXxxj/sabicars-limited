@@ -4,6 +4,7 @@ import type { AskAnswer } from "@/db/schema";
 import { formatNaira, money, percentOf } from "@/lib/money";
 import { publishedAnswers } from "@/lib/repositories/ask";
 import { publishedPosts, type PostCard } from "@/lib/repositories/blog";
+import { reportSummaries } from "@/lib/repositories/inspections";
 import { listedVehicles, type VehicleWithCover } from "@/lib/repositories/vehicles";
 import { clockStartsAt, isOpen, showroomHours } from "@/lib/showroom-hours";
 import { site } from "@/lib/site";
@@ -63,7 +64,7 @@ export function toAssistantCar(v: VehicleWithCover): AssistantCar {
   };
 }
 
-function vehicleEntry(v: VehicleWithCover, now: Date): string {
+function vehicleEntry(v: VehicleWithCover, now: Date, report: string | undefined): string {
   const deposit = depositMinor(v);
   const flags = [
     v.status === "reserved" ? "RESERVED (a buyer has paid a deposit; it may come free again)" : null,
@@ -93,6 +94,7 @@ function vehicleEntry(v: VehicleWithCover, now: Date): string {
     notes
       ? `Listing notes (the dealer's own words; may contain errors): ${notes.length > NOTES_CHARS ? `${notes.slice(0, NOTES_CHARS)}…` : notes}`
       : null,
+    report ?? "No Sabicars Verified report yet: do not call it inspected or verified.",
   ]
     .filter(Boolean)
     .join("\n");
@@ -128,6 +130,7 @@ export const knowledge = cache(async () => {
   const now = new Date();
   // Day granularity for "new arrival", so the text (and the prompt cache) stays stable within a day.
   now.setUTCHours(0, 0, 0, 0);
+  const reports = await reportSummaries(stock.map((v) => v.id), now);
   const bySlug = new Map(stock.map((v) => [v.slug, v]));
 
   const text = `# Sabicars
@@ -167,7 +170,7 @@ ${published.length ? `\n## Answers Sabicars has published (answer consistently w
 ## The stock, cheapest first
 ${stockSummary(stock)}
 
-${stock.map((v) => vehicleEntry(v, now)).join("\n\n")}
+${stock.map((v) => vehicleEntry(v, now, reports.get(v.id))).join("\n\n")}
 `;
 
   return { text, stock, bySlug };

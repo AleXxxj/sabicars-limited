@@ -234,6 +234,25 @@ const rv = await db.query(`INSERT INTO reviews (dealer_id, name, rating, message
 expect("new reviews wait for approval before publishing", rv.rows[0].is_approved === false);
 await rejects(db, "refuses a published post with no publish date", `INSERT INTO blog_posts (dealer_id, slug, title, category, excerpt, content, is_published) VALUES (${D}, 's', 't', 'c', 'e', 'b', true)`, "blog_posts_published_has_date");
 
+// ── Sabicars Verified ──────────────────────────────────────────────────────
+console.log("\nSabicars Verified");
+const VV = "'a0000000-0000-0000-0000-000000000009'";
+const complete = "inspected_at = now(), inspector_name = 'Tunde (mechanic)', odometer_km = 94000, published_at = now()";
+await allows(db, "starts a draft report with only its code", `${vehicle({ id: VV, slug: "'2013-toyota-hiace-hummer-1'" })}; INSERT INTO inspections (dealer_id, vehicle_id, code) VALUES (${D}, ${VV}, '7K3P9Q')`);
+await rejects(db, "refuses a code with a misreadable character (0 or O, 1 or I)", `INSERT INTO inspections (dealer_id, vehicle_id, code) VALUES (${D}, ${VV}, '7K3P0Q')`, "inspections_code_format");
+await rejects(db, "refuses a lower-case code", `INSERT INTO inspections (dealer_id, vehicle_id, code) VALUES (${D}, ${VV}, '7k3p9q')`, "inspections_code_format");
+await rejects(db, "refuses a code another report holds", `INSERT INTO inspections (dealer_id, vehicle_id, code) VALUES (${D}, ${VV}, '7K3P9Q')`, "inspections_code_idx");
+await rejects(db, "refuses publishing without a date, inspector or odometer reading", `UPDATE inspections SET status = 'published', published_at = now() WHERE code = '7K3P9Q'`, "inspections_published_complete");
+await rejects(db, "refuses publishing with a blank inspector name", `UPDATE inspections SET status = 'published', inspected_at = now(), inspector_name = '  ', odometer_km = 94000, published_at = now() WHERE code = '7K3P9Q'`, "inspections_published_complete");
+await allows(db, "publishes a complete report", `UPDATE inspections SET status = 'published', ${complete} WHERE code = '7K3P9Q'`);
+await rejects(db, "refuses a second live report for the same car", `INSERT INTO inspections (dealer_id, vehicle_id, code, status, inspected_at, inspector_name, odometer_km, published_at) VALUES (${D}, ${VV}, '8M4R2T', 'published', now(), 'Tunde', 95000, now())`, "inspections_one_published_idx");
+await allows(db, "a newer report replaces the old one once it is superseded", `UPDATE inspections SET status = 'superseded' WHERE code = '7K3P9Q'; INSERT INTO inspections (dealer_id, vehicle_id, code, status, inspected_at, inspector_name, odometer_km, published_at) VALUES (${D}, ${VV}, '8M4R2T', 'published', now(), 'Tunde', 95000, now())`);
+await rejects(db, "refuses a negative odometer reading", `INSERT INTO inspections (dealer_id, vehicle_id, code, odometer_km) VALUES (${D}, ${VV}, '9N5S3U', -1)`, "inspections_odometer_range");
+await rejects(db, "refuses a title status outside the vocabulary", `INSERT INTO inspections (dealer_id, vehicle_id, code, history_title) VALUES (${D}, ${VV}, '9N5S3U', 'probably fine')`, "invalid input value for enum history_title");
+await allows(db, "deleting a vehicle removes its reports", `DELETE FROM vehicles WHERE id = ${VV}`);
+const left = await db.query(`SELECT count(*)::int AS n FROM inspections`);
+expect("no report outlives its vehicle", left.rows[0].n === 0, JSON.stringify(left.rows[0]));
+
 console.log(
   `\n${passed} passed, ${failed} failed.` +
     (failed ? "  \x1b[31mSCHEMA NOT VERIFIED\x1b[0m\n" : "  \x1b[32mSchema verified.\x1b[0m\n"),

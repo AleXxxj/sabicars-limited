@@ -5,6 +5,8 @@ import { PhotoManager } from "@/components/admin/PhotoManager";
 import { VehicleForm } from "@/components/admin/VehicleForm";
 import { can, requireStaff } from "@/lib/auth";
 import { formOptions, vehicleForEdit } from "@/lib/repositories/admin-vehicles";
+import { isFresh } from "@/lib/inspection/checklist";
+import { reportsForVehicle } from "@/lib/repositories/inspections";
 import { attentionFor } from "@/lib/vehicle-quality";
 import { priceLabel, vehicleTitle } from "@/lib/vehicle";
 
@@ -20,6 +22,10 @@ const ACTION_LABEL: Record<string, string> = {
   photo_removed: "Photo removed",
   photos_reordered: "Photos reordered",
   import: "Imported from the old site",
+  inspection_started: "Inspection started",
+  inspection_published: "Inspection report published",
+  inspection_withdrawn: "Inspection report withdrawn",
+  inspection_discarded: "Inspection draft discarded",
 };
 
 export default async function EditVehicle({ params, searchParams }: Props) {
@@ -32,6 +38,9 @@ export default async function EditVehicle({ params, searchParams }: Props) {
   const { vehicle: v, media, history } = found;
   const [options, { created }] = await Promise.all([formOptions(me.dealerId), searchParams]);
   const attention = attentionFor(v, media.length);
+  const reports = await reportsForVehicle(me.dealerId, v.id);
+  const live = reports.find((r) => r.report.status === "published")?.report;
+  const draft = reports.find((r) => r.report.status === "draft")?.report;
   const isPublic = v.status === "available" || v.status === "reserved" || v.status === "sold";
 
   return (
@@ -66,6 +75,20 @@ export default async function EditVehicle({ params, searchParams }: Props) {
         </div>
 
         <aside className="space-y-10 lg:sticky lg:top-36 lg:self-start">
+          <section>
+            <h2 className="eyebrow">Sabicars Verified</h2>
+            <p className="mt-3 text-sm text-text-secondary">
+              {live
+                ? `Report SV-${live.code}, inspected ${live.inspectedAt?.toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric", timeZone: "Africa/Lagos" })}${live.inspectedAt && !isFresh(live.inspectedAt) ? " — older than four months, so the badge is off" : ""}.`
+                : draft
+                  ? "An inspection is in progress."
+                  : "No inspection report yet. Without one, the car shows no Verified badge."}
+            </p>
+            <Link href={`/admin/vehicles/${v.id}/inspection`} className="mt-3 inline-block text-sm font-semibold text-accent-text hover:text-text-primary">
+              {draft ? "Continue the inspection →" : live ? "Reports and seal →" : "Start the inspection →"}
+            </Link>
+          </section>
+
           <section>
             <h2 className="eyebrow">Needs attention</h2>
             {attention.length === 0 ? (

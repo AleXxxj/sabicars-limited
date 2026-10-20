@@ -41,6 +41,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import type { Block } from "../lib/blog/blocks";
+import type { Items } from "../lib/inspection/checklist";
 
 const createdAt = () => timestamp("created_at", { withTimezone: true }).notNull().defaultNow();
 const updatedAt = () => timestamp("updated_at", { withTimezone: true }).notNull().defaultNow();
@@ -322,6 +323,72 @@ export const vehicleMedia = pgTable(
     uniqueIndex("vehicle_media_position_idx").on(t.vehicleId, t.position),
     check("vehicle_media_position_nonnegative", sql`${t.position} >= 0`),
     check("vehicle_media_https", sql`${t.url} ~ '^https://'`),
+  ],
+);
+
+/* ── Sabicars Verified ─────────────────────────────────────────────────── */
+
+/** draft → published; publishing a newer report supersedes the old one; withdrawn takes one down. */
+export const inspectionStatus = pgEnum("inspection_status", ["draft", "published", "superseded", "withdrawn"]);
+
+/** What a history report (Carfax, an auction sheet…) says about the title. */
+export const historyTitle = pgEnum("history_title", ["clean", "salvage", "rebuilt", "flood", "other", "no_record"]);
+
+/**
+ * An inspection report: the evidence behind the Sabicars Verified seal.
+ *
+ * Each check's result lives in `items`, keyed by the stable keys in
+ * lib/inspection/checklist.ts, so the list of checks can grow without a
+ * migration. The rules that make a report publishable (every check answered,
+ * every problem with a note and a photo) are enforced when publishing; the
+ * database guards what must never be missing from a published report.
+ */
+export const inspections = pgTable(
+  "inspections",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    dealerId: uuid("dealer_id").notNull().references(() => dealers.id),
+    vehicleId: uuid("vehicle_id").notNull().references(() => vehicles.id, { onDelete: "cascade" }),
+    /** On the windscreen seal and in the address: /v/7K3P9Q. */
+    code: text("code").notNull(),
+    status: inspectionStatus("status").notNull().default("draft"),
+
+    inspectedAt: timestamp("inspected_at", { withTimezone: true }),
+    /** The person who did the inspection, who may be a mechanic rather than staff. */
+    inspectorName: text("inspector_name"),
+    odometerKm: integer("odometer_km"),
+    /** Read off the car during the inspection; shown in public with the last four characters hidden. */
+    vin: text("vin"),
+    /** The inspector's own summary, shown above the checks. */
+    summary: text("summary"),
+    items: jsonb("items").$type<Items>().notNull().default({}),
+
+    historySource: text("history_source"),
+    historyCheckedAt: timestamp("history_checked_at", { withTimezone: true }),
+    historyTitle: historyTitle("history_title"),
+    historyAccidents: integer("history_accidents"),
+    historyLastOdometerKm: integer("history_last_odometer_km"),
+    historyNotes: text("history_notes"),
+
+    createdBy: uuid("created_by").references(() => staff.id, { onDelete: "set null" }),
+    publishedBy: uuid("published_by").references(() => staff.id, { onDelete: "set null" }),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+    publishedAt: timestamp("published_at", { withTimezone: true }),
+  },
+  (t) => [
+    uniqueIndex("inspections_code_idx").on(t.code),
+    /** One live report per car: publishing a new one supersedes the old in the same transaction. */
+    uniqueIndex("inspections_one_published_idx").on(t.vehicleId).where(sql`${t.status} = 'published'`),
+    index("inspections_vehicle_idx").on(t.vehicleId, t.createdAt),
+    check("inspections_code_format", sql`${t.code} ~ '^[23456789ABCDEFGHJKMNPQRSTUVWXYZ]{6}$'`),
+    check("inspections_odometer_range", sql`${t.odometerKm} IS NULL OR ${t.odometerKm} BETWEEN 0 AND 2000000`),
+    check("inspections_history_odometer_range", sql`${t.historyLastOdometerKm} IS NULL OR ${t.historyLastOdometerKm} BETWEEN 0 AND 2000000`),
+    check("inspections_history_accidents_range", sql`${t.historyAccidents} IS NULL OR ${t.historyAccidents} BETWEEN 0 AND 50`),
+    check(
+      "inspections_published_complete",
+      sql`${t.status} IN ('draft', 'withdrawn') OR (${t.inspectedAt} IS NOT NULL AND ${t.inspectorName} IS NOT NULL AND length(btrim(${t.inspectorName})) > 0 AND ${t.odometerKm} IS NOT NULL AND ${t.publishedAt} IS NOT NULL)`,
+    ),
   ],
 );
 
@@ -890,3 +957,4 @@ export type BlogComment = typeof blogComments.$inferSelect;
 export type AssistantConversation = typeof assistantConversations.$inferSelect;
 export type AssistantMessage = typeof assistantMessages.$inferSelect;
 export type AskAnswer = typeof askAnswers.$inferSelect;
+export type Inspection = typeof inspections.$inferSelect;

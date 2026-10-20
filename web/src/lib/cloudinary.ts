@@ -39,11 +39,14 @@ export interface UploadTicket {
   fields: Record<string, string>;
 }
 
-/** Everything the browser needs to upload one photo into this vehicle's folder. */
-export function uploadTicket(vehicleId: string): UploadTicket {
+/**
+ * Everything the browser needs to upload one photo into this vehicle's folder,
+ * or a named folder inside it (inspection evidence goes in `inspection`).
+ */
+export function uploadTicket(vehicleId: string, sub?: "inspection"): UploadTicket {
   const { cloudName, apiKey, apiSecret, folder } = config();
   const params = {
-    folder: `${folder}/${vehicleId}`,
+    folder: sub ? `${folder}/${vehicleId}/${sub}` : `${folder}/${vehicleId}`,
     timestamp: Math.floor(Date.now() / 1000),
     allowed_formats: "jpg,jpeg,png,webp,avif,heic",
   };
@@ -67,12 +70,12 @@ export interface UploadedAsset {
  * vehicle's folder. Cloudinary signs every upload response with
  * sha1("public_id=…&version=…" + secret).
  */
-export function isGenuineUpload(asset: UploadedAsset, vehicleId: string): boolean {
+export function isGenuineUpload(asset: UploadedAsset, vehicleId: string, sub?: "inspection"): boolean {
   const { cloudName, apiSecret, folder } = config();
   const expected = sign({ public_id: asset.public_id, version: asset.version }, apiSecret);
   return (
     expected === asset.signature &&
-    asset.public_id.startsWith(`${folder}/${vehicleId}/`) &&
+    asset.public_id.startsWith(sub ? `${folder}/${vehicleId}/${sub}/` : `${folder}/${vehicleId}/`) &&
     asset.secure_url.startsWith(`https://res.cloudinary.com/${cloudName}/image/upload/`)
   );
 }

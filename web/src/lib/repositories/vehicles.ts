@@ -4,6 +4,7 @@ import { and, asc, count, desc, eq, gte, inArray, lte, ne, sql, type SQL } from 
 import { db } from "@/db";
 import { dealers, locations, settings, vehicleMedia, vehicles, type Vehicle, type VehicleMedia } from "@/db/schema";
 import { CAR_BODIES, type InventoryFilters } from "@/lib/inventory-filters";
+import { verificationMap, type Verification } from "@/lib/repositories/inspections";
 import { wantWords } from "@/lib/matching";
 import { modelFamily, termFor, type Term } from "@/lib/seo/search-terms";
 import { vehicleTitle } from "@/lib/vehicle";
@@ -24,7 +25,11 @@ const HAS_PAGE = ["available", "reserved", "sold"] as const;
 
 export const PAGE_SIZE = 24;
 
-export type VehicleWithCover = Vehicle & { cover: Pick<VehicleMedia, "url" | "alt" | "width" | "height"> | null };
+export type VehicleWithCover = Vehicle & {
+  cover: Pick<VehicleMedia, "url" | "alt" | "width" | "height"> | null;
+  /** The car's live Sabicars Verified report, if it has one. */
+  verification: Verification | null;
+};
 
 /**
  * Exactly what a vehicle card shows, and nothing else. Anything sent to the
@@ -34,11 +39,11 @@ export type VehicleWithCover = Vehicle & { cover: Pick<VehicleMedia, "url" | "al
 export type CardVehicle = Pick<
   Vehicle,
   "id" | "slug" | "year" | "make" | "model" | "priceMinor" | "status" | "badge" | "createdAt" | "condition" | "mileageKm" | "transmission" | "drivetrain" | "fuel"
-> & { cover: VehicleWithCover["cover"] };
+> & { cover: VehicleWithCover["cover"]; verification: VehicleWithCover["verification"] };
 
 export function toCard(v: VehicleWithCover): CardVehicle {
-  const { id, slug, year, make, model, priceMinor, status, badge, createdAt, condition, mileageKm, transmission, drivetrain, fuel, cover } = v;
-  return { id, slug, year, make, model, priceMinor, status, badge, createdAt, condition, mileageKm, transmission, drivetrain, fuel, cover };
+  const { id, slug, year, make, model, priceMinor, status, badge, createdAt, condition, mileageKm, transmission, drivetrain, fuel, cover, verification } = v;
+  return { id, slug, year, make, model, priceMinor, status, badge, createdAt, condition, mileageKm, transmission, drivetrain, fuel, cover, verification };
 }
 
 /** The dealer every public page belongs to until the dealer network opens (architecture §2.3). */
@@ -50,12 +55,16 @@ const sabicarsId = cache(async (): Promise<string> => {
 
 async function withCovers(rows: Vehicle[]): Promise<VehicleWithCover[]> {
   if (!rows.length) return [];
-  const covers = await db
-    .select({ vehicleId: vehicleMedia.vehicleId, url: vehicleMedia.url, alt: vehicleMedia.alt, width: vehicleMedia.width, height: vehicleMedia.height })
-    .from(vehicleMedia)
-    .where(and(inArray(vehicleMedia.vehicleId, rows.map((r) => r.id)), eq(vehicleMedia.position, 0), eq(vehicleMedia.kind, "photo")));
+  const ids = rows.map((r) => r.id);
+  const [covers, verified] = await Promise.all([
+    db
+      .select({ vehicleId: vehicleMedia.vehicleId, url: vehicleMedia.url, alt: vehicleMedia.alt, width: vehicleMedia.width, height: vehicleMedia.height })
+      .from(vehicleMedia)
+      .where(and(inArray(vehicleMedia.vehicleId, ids), eq(vehicleMedia.position, 0), eq(vehicleMedia.kind, "photo"))),
+    verificationMap(ids),
+  ]);
   const byVehicle = new Map(covers.map(({ vehicleId, ...c }) => [vehicleId, c]));
-  return rows.map((r) => ({ ...r, cover: byVehicle.get(r.id) ?? null }));
+  return rows.map((r) => ({ ...r, cover: byVehicle.get(r.id) ?? null, verification: verified.get(r.id) ?? null }));
 }
 
 /** Featured first, then newest — what the homepage and showcases lead with. */
@@ -493,6 +502,16 @@ export async function listedVehicles(): Promise<VehicleWithCover[]> {
     .where(and(eq(vehicles.dealerId, await sabicarsId()), inArray(vehicles.status, [...LISTED])))
     .orderBy(sql`${vehicles.priceMinor} asc nulls last`, asc(vehicles.slug));
   return withCovers(rows);
+}
+
+/**
+ * True only when every car on sale has a fresh, published Sabicars Verified
+ * report: the one condition under which the homepage may say "Every car
+ * verified".
+ */
+export async function everyListedCarVerified(): Promise<boolean> {
+  const listed = await listedVehicles();
+  return listed.length > 0 && listed.every((v) => v.verification?.fresh);
 }
 
 /** Vehicles by slug that still have a page (listed or sold), in the order asked. */

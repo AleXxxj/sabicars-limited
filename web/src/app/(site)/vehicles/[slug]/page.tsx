@@ -11,7 +11,9 @@ import { SaveButton } from "@/components/saved/SaveButton";
 import { WatchForm } from "@/components/saved/WatchForm";
 import { RecentlyViewed, RecordView } from "@/components/saved/RecentlyViewed";
 import { Gallery } from "@/components/vehicle/Gallery";
+import { VerifiedPanel } from "@/components/vehicle/VerifiedPanel";
 import { comparePath } from "@/lib/assistant/parts";
+import { liveReportFor } from "@/lib/repositories/inspections";
 import { listedVehicleSlugs, similarVehicles, vehicleBySlug } from "@/lib/repositories/vehicles";
 import { shareImageUrl } from "@/lib/media";
 import { breadcrumbJsonLd, dealerJsonLd, jsonLdScript, vehicleJsonLd } from "@/lib/seo/structured-data";
@@ -91,7 +93,7 @@ export default async function VehiclePage({ params }: Props) {
   const deposit = drivePlanDeposit(v);
   const balance = drivePlanBalance(v);
   const sold = v.status === "sold";
-  const similar = await similarVehicles(v);
+  const [similar, live] = await Promise.all([similarVehicles(v), liveReportFor(v.id)]);
 
   return (
     <article className="pb-20 lg:pb-0">
@@ -144,6 +146,8 @@ export default async function VehiclePage({ params }: Props) {
               <p className="text-sm font-medium text-text-muted">Price</p>
               <p className="figures mt-2 text-[2rem] font-semibold leading-none tracking-tight">{priceLabel(v)}</p>
             </div>
+
+            {live && <VerifiedPanel report={live.report} tally={live.tally} />}
 
             {deposit && balance && !sold && (
               <div id="drive-plan" className="surface-card relative mt-6 scroll-mt-24 overflow-hidden p-6">

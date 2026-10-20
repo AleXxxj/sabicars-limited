@@ -480,8 +480,31 @@ A comparison with Jiji, Cars45, Autochek and Cars.ng graded Sabicars 5.2/10 (Aut
 - **Privacy notice at /privacy (Nigeria Data Protection Act 2023).** It covers every form, chat, cookie, device store and provider the platform actually uses. Supabase and Vercel are in London; Anthropic, Resend, OneSignal and Google are in the US. Every form links to it beside its send button, and so do the chat footer and the site footer. Ask Sabicars knows where it is. **Change the code and this page together.** Have the company's lawyer read it before launch.
 - **Google Analytics** (G-K5ZRJ8WNXW, the same property as the legacy site) runs on public pages in Vercel production only. Google's advertising features are denied, so visitor numbers carry across the switch.
 
+**Security (done):** Next.js went from 16.3.0 to 16.3.8, which fixes three critical advisories, including remote code execution in the image optimiser, plus SSRF and cache poisoning. sharp went to 0.35.5. What `npm audit` still reports is development tooling only.
+
+**Stage 2, proof: Sabicars Verified (built):**
+- **The standard.** A 60-check inspection in `lib/inspection/checklist.ts`, in eight groups: papers and identity, body, accident and flood signs, engine, gearbox, brakes and tyres, cabin, and road test. Results are Good, Needs attention, Fault or Not applicable. Keys are permanent, and a retired check keeps its key. **The owner's mechanic should review the list.**
+- **The rules.** Every check needs a result before a report can be published. Every Needs attention or Fault needs a note and a photo. Publishing requires a date, an inspector and today's odometer reading. Only owners and managers publish; anyone can fill in a draft.
+- **In the database (`inspections`, migration 0008).**
+  - One live report per car. A new one supersedes the old in the same transaction.
+  - Codes use the characters 2–9 and A–Z, without O, I or L, so a sticker is never misread.
+  - A published report cannot be edited. Start a new inspection instead.
+  - There are 13 new schema assertions.
+- **For staff.** The car's admin page links to `/admin/vehicles/[id]/inspection`, which works on a phone: one tap per result, autosaved, with a camera button per check. The page also offers the report history, the public link, withdraw (two-step), and a printable 90 × 130 mm windscreen seal at `/admin/seal/[id]`. The seal carries a QR code to the report and uses the seal's deep tones. It warns that seals should be printed only after the switch to sabicars.com.
+- **For buyers.** The report lives at `/v/CODE`, kept out of search. It shows:
+  - what was found first, with photos
+  - the chassis number with its last four characters hidden
+  - the history (source, title, accidents, last odometer on record), flagging an odometer lower than the history records
+  - every check
+  - "not a warranty"
+- **Where it shows.**
+  - The car page has a Verified panel under the price.
+  - Every card shows "Sabicars Verified" while the report is under 120 days old.
+  - The homepage says "Every car verified" automatically once every car on sale has a fresh report.
+  - Ask Sabicars reads each car's report, findings included. It never calls a car without a report inspected.
+- **Needs the business.** Who inspects at the park. A VIN-history provider account (LegitCar's Carfax report was ₦5,500). A print shop for face-mounted stickers.
+
 **Later stages, in order** (each needs the business where marked):
-- **Stage 2, proof:** Sabicars Verified report per car. It covers the inspection checklist with a photo per check, the VIN matched to the customs papers and plate, and VIN history for US and Canada imports. A report code goes on the windscreen seal. *Needs: who inspects at the park, and a VIN-history provider account.*
 - **Stage 3, commit online:** reservations with a refundable deposit, and viewing slots. *Needs: the Paystack account and the reservation policy (§8 item 2).*
 - **Stage 4, money:** Autochek's indicative monthly figure per car, and prequalify.
 - **Stage 5, supply:** "sell or trade in your car".

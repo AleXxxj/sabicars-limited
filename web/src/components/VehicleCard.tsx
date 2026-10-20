@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Gauge, Wallet } from "lucide-react";
+import { Gauge, ShieldCheck, Wallet } from "lucide-react";
 import type { CardVehicle } from "@/lib/repositories/vehicles";
 import { VEHICLE_PLACEHOLDER } from "@/lib/media";
 import { VehicleImage } from "@/components/VehicleImage";
@@ -51,6 +51,12 @@ export function VehicleCard({
           <span className="glass absolute left-3 top-3 rounded-full px-3 py-1 text-[0.72rem] font-semibold tracking-[0.04em] text-green-200">{badge}</span>
         )}
         {href && <SaveButton slug={v.slug} title={`${v.year} ${v.make} ${v.model}`} className="absolute right-3 top-3 z-[2]" />}
+        {/* Only a fresh, published inspection report earns the mark. */}
+        {v.verification?.fresh && (
+          <span className="glass absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[0.72rem] font-semibold text-green-200">
+            <ShieldCheck aria-hidden size={14} /> Sabicars Verified
+          </span>
+        )}
       </div>
 
       <div className="flex flex-1 flex-col gap-4 p-5 md:p-6">

@@ -282,6 +282,8 @@ rmSync(join(PUBLIC, "seal-gold.svg"), { force: true });
 // Email clients do not all render SVG: a PNG logo on the emails' own Night.
 await png(logo(green, orange, night), join(PUBLIC, "logo-email.png"), 440, wmH(440));
 write(join(PUBLIC, "seal.svg"), masters["seal-on-dark.svg"]);
+// The deep tones, for the printed windscreen seal (admin/seal): the bright ones are for dark grounds only.
+write(join(PUBLIC, "seal-on-light.svg"), masters["seal-on-light.svg"]);
 await png(tile(192, { fill: 0.64, radius: 0.22 }), join(PUBLIC, "icon-192.png"), 192, 192);
 await png(tile(512, { fill: 0.64, radius: 0.22 }), join(PUBLIC, "icon-512.png"), 512, 512);
 await png(tile(512, { fill: 0.5 }), join(PUBLIC, "icon-maskable-512.png"), 512, 512);

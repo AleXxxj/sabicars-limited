@@ -11,6 +11,7 @@ import { audit, changes } from "@/lib/audit";
 import { can, requireStaff, type StaffMember } from "@/lib/auth";
 import { isGenuineUpload, uploadTicket, type UploadedAsset, type UploadTicket } from "@/lib/cloudinary";
 import { slugify } from "@/lib/legacy/normalise";
+import { refreshPublicPages } from "@/lib/public-pages";
 import { offerVehicle } from "@/lib/sourcing-engine";
 import { announcePriceDrop } from "@/lib/watch-engine";
 import { announceArrival, announcePriceCut } from "@/lib/notifications";
@@ -91,20 +92,6 @@ const schema = z.object({
 /* ── Helpers ───────────────────────────────────────────────────────────── */
 
 /** Every public page a vehicle change can affect. */
-function refreshPublicPages(slug: string) {
-  revalidatePath("/");
-  revalidatePath(`/vehicles/${slug}`);
-  revalidatePath("/vehicles");
-  revalidatePath("/about"); // live stock count
-  revalidatePath("/fleet"); // cover photo comes from the bus stock
-  revalidatePath("/partners"); // commission examples use real prices
-  revalidatePath("/drive-plan"); // the finder and the worked example use live stock
-  revalidatePath("/hummer-bus");
-  revalidatePath("/buy/[term]", "page"); // every make and model landing page
-  revalidatePath("/sitemap.xml");
-  revalidatePath("/admin/vehicles");
-}
-
 /**
  * Everyone waiting on an available vehicle hears about it: Sourcing Desk
  * requests it now answers, watchers whose last-known price it now beats, and
