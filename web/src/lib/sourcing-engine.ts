@@ -129,7 +129,7 @@ function matchEmail(m: {
     ``,
     `You asked Sabicars to find a ${m.want} (reference ${m.reference}). One has just arrived:`,
     ``,
-    `${m.title} — ${m.price}${m.deposit ? ` (${m.deposit} deposit on the 40% Drive Plan)` : ""}`,
+    `${m.title} — ${m.price}${m.deposit ? ` (${m.deposit} deposit on the Drive Plan)` : ""}`,
     m.url,
     ``,
     `Found your car already? Reply to this email and we will close your request.`,
@@ -144,7 +144,7 @@ function matchEmail(m: {
 <tr><td style="font-size:16px;line-height:1.6;color:#CFD2CC">Hello ${esc(m.firstName)},<br><br>You asked us to find a <strong style="color:#F2F2EC">${esc(m.want)}</strong> (reference ${esc(m.reference)}). One has just arrived.</td></tr>
 ${m.imageUrl ? `<tr><td style="padding:24px 0 0"><a href="${esc(m.url)}"><img src="${esc(m.imageUrl)}" width="560" alt="${esc(m.title)}" style="display:block;width:100%;height:auto;border:0"></a></td></tr>` : ""}
 <tr><td style="padding:20px 0 0;font-family:Helvetica,Arial,sans-serif;font-weight:bold;letter-spacing:-0.4px;font-size:26px;line-height:1.2;color:#F2F2EC">${esc(m.title)}</td></tr>
-<tr><td style="padding:8px 0 0;font-size:18px;color:#F2F2EC"><strong>${esc(m.price)}</strong>${m.deposit ? `<span style="color:#8DC74D"> · ${esc(m.deposit)} deposit on the 40% Drive Plan</span>` : ""}</td></tr>
+<tr><td style="padding:8px 0 0;font-size:18px;color:#F2F2EC"><strong>${esc(m.price)}</strong>${m.deposit ? `<span style="color:#8DC74D"> · ${esc(m.deposit)} deposit on the Drive Plan</span>` : ""}</td></tr>
 <tr><td style="padding:28px 0"><a href="${esc(m.url)}" style="display:inline-block;background:#F7801E;color:#090E0A;padding:16px 28px;font-size:13px;font-weight:bold;letter-spacing:2px;text-decoration:none">SEE THE VEHICLE</a></td></tr>
 <tr><td style="font-size:13px;line-height:1.6;color:#9FA59E">Found your car already? Reply to this email and we will close your request.<br><br>${esc(site.legalName)} · CAC RC ${esc(site.rcNumber)}</td></tr>
 </table></td></tr></table></body></html>`;

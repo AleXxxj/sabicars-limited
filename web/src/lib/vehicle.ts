@@ -1,5 +1,6 @@
 import type { Vehicle } from "@/db/schema";
-import { formatNaira, money, percentOf } from "@/lib/money";
+import { depositMinorFor, depositPercentLabel } from "@/lib/drive-plan";
+import { formatNaira } from "@/lib/money";
 
 /** The words a Nigerian buyer uses, not the database's. */
 export const CONDITION_LABEL: Record<Vehicle["condition"], string> = {
@@ -29,9 +30,6 @@ export const DRIVETRAIN_LABEL: Record<NonNullable<Vehicle["drivetrain"]>, string
   "4wd": "4WD",
 };
 
-/** The 40% Drive Plan deposit, in basis points. */
-export const DRIVE_PLAN_DEPOSIT_BPS = 4000;
-
 /** A vehicle listed within this many days is a "new arrival". Derived, never stored, so it cannot go stale. */
 const NEW_ARRIVAL_DAYS = 21;
 
@@ -43,10 +41,20 @@ export function priceLabel(v: Pick<Vehicle, "priceMinor">): string {
   return v.priceMinor ? formatNaira(v.priceMinor) : "Price on request";
 }
 
-/** What a buyer pays today on the 40% Drive Plan, or null when there is no price to take 40% of. */
-export function drivePlanDeposit(v: Pick<Vehicle, "priceMinor">): string | null {
-  if (!v.priceMinor) return null;
-  return formatNaira(percentOf(money(v.priceMinor, "NGN"), DRIVE_PLAN_DEPOSIT_BPS).minor);
+/**
+ * What a buyer pays today on the Drive Plan: 40% of the price for a car from
+ * 2010, 50% for 2008–2009. Null when there is no price, or when Autochek would
+ * not finance a car this old (lib/drive-plan.ts).
+ */
+export function drivePlanDeposit(v: Pick<Vehicle, "priceMinor" | "year">): string | null {
+  const minor = depositMinorFor(v.priceMinor, v.year);
+  return minor === null ? null : formatNaira(minor);
+}
+
+/** "40% deposit" or "50% deposit", for the label beside the figure; null when the car cannot go on the plan. */
+export function drivePlanDepositLabel(v: Pick<Vehicle, "year">): string | null {
+  const pct = depositPercentLabel(v.year);
+  return pct ? `${pct} deposit` : null;
 }
 
 /** "Foreign used · 84,000 km · Automatic · AWD" — only the facts that are actually recorded. */
@@ -86,13 +94,13 @@ export function specRows(v: Vehicle): { label: string; value: string }[] {
 }
 
 /**
- * The 60% Autochek finances after the 40% deposit. Autochek sets the tenor and
- * rate when it assesses the buyer, so neither is invented here.
+ * What Autochek finances after the deposit: 60% for a car from 2010, 50% for
+ * 2008–2009. Autochek's lender sets the tenure and rate when it assesses the
+ * buyer, so neither is invented here.
  */
-export function drivePlanBalance(v: Pick<Vehicle, "priceMinor">): string | null {
-  if (!v.priceMinor) return null;
-  const price = money(v.priceMinor, "NGN");
-  return formatNaira(price.minor - percentOf(price, DRIVE_PLAN_DEPOSIT_BPS).minor);
+export function drivePlanBalance(v: Pick<Vehicle, "priceMinor" | "year">): string | null {
+  const deposit = depositMinorFor(v.priceMinor, v.year);
+  return deposit === null || !v.priceMinor ? null : formatNaira(v.priceMinor - deposit);
 }
 
 /**

@@ -8,6 +8,7 @@ import { ButtonLink } from "@/components/ui/Button";
 import { VehicleImage } from "@/components/VehicleImage";
 import { comparePath } from "@/lib/assistant/parts";
 import { compareSummary, compareTitle, comparisonPairs, differences, slugsFromPair, suits } from "@/lib/compare";
+import { drivePlanTerms } from "@/lib/drive-plan";
 import { shareImageUrl } from "@/lib/media";
 import { vehiclesWithPages, type VehicleWithCover } from "@/lib/repositories/vehicles";
 import { breadcrumbJsonLd, itemListJsonLd, jsonLdScript } from "@/lib/seo/structured-data";
@@ -142,7 +143,7 @@ export default async function ComparePage({ params }: Props) {
                   {c.status !== "sold" && <SaveButton slug={c.slug} title={vehicleTitle(c)} className="-mt-1 -mr-1 shrink-0" />}
                 </div>
                 <p className="figures mt-3 text-lg font-semibold text-green-300 md:text-2xl">{priceLabel(c)}</p>
-                {c.priceMinor && c.status !== "sold" && (
+                {c.priceMinor && c.status !== "sold" && drivePlanDeposit(c) && (
                   <p className="figures mt-1 text-xs text-text-muted md:text-sm">{drivePlanDeposit(c)} down on the Drive Plan</p>
                 )}
                 <Link
@@ -225,11 +226,11 @@ export default async function ComparePage({ params }: Props) {
               </tr>
               <tr className="border-t border-white/[0.06]">
                 <th scope="row" className="px-4 py-3 text-sm font-medium text-text-muted">
-                  40% Drive Plan deposit
+                  Drive Plan deposit
                 </th>
                 {cars.map((c) => (
                   <td key={c.id} className="figures px-4 py-3 text-text-secondary">
-                    {drivePlanDeposit(c) ?? "—"}
+                    {drivePlanDeposit(c) ?? (drivePlanTerms(c.year).eligible ? "On request" : "Cash only")}
                   </td>
                 ))}
               </tr>

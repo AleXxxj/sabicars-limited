@@ -1,4 +1,5 @@
 import { comparisonPairs } from "@/lib/compare";
+import { DRIVE_PLAN, DRIVE_PLAN_RULE } from "@/lib/drive-plan";
 import { formatNaira } from "@/lib/money";
 import { publishedAnswers } from "@/lib/repositories/ask";
 import { publishedPosts } from "@/lib/repositories/blog";
@@ -27,7 +28,7 @@ export async function GET() {
 
   const body = `# Sabicars
 
-> ${site.legalName} (CAC RC ${site.rcNumber}) is a car dealership in Lagos, Nigeria, selling luxury cars, SUVs, Toyota Hiace "Hummer" buses and trucks, with fleet supply for companies and government. Buyers can pay 40% and have Autochek finance the other 60% (the 40% Drive Plan). Every car can be inspected at the showroom before any money changes hands.
+> ${site.legalName} (CAC RC ${site.rcNumber}) is a car dealership in Lagos, Nigeria, selling luxury cars, SUVs, Toyota Hiace "Hummer" buses and trucks, with fleet supply for companies and government. Buyers can put down a deposit and have Autochek finance the rest (the 40% Drive Plan). ${DRIVE_PLAN_RULE} Cars older than ${DRIVE_PLAN.minYear} are sold for cash only. Those tiers are the rule as Autochek’s team told Sabicars on 20 October 2026 (Autochek’s own listings show “40% minimum”); Autochek’s lender sets the rate and term when it assesses the buyer, within the ${DRIVE_PLAN.maxAnnualRatePercent}% a year and ${DRIVE_PLAN.tenureMonths.min}–${DRIVE_PLAN.tenureMonths.max} months Autochek publishes. Every car can be inspected at the showroom before any money changes hands.
 
 - Showroom: ${site.address.line1}, ${site.address.line2}, ${site.address.city}
 - Hours: ${site.hours.map((h) => `${h.days} ${h.time}`).join("; ")}
@@ -36,7 +37,7 @@ export async function GET() {
 
 ## Key pages
 - [Inventory](${base}/vehicles): every car for sale, with photos, specifications and prices
-- [The 40% Drive Plan](${base}/drive-plan): pay 40%, Autochek finances 60%
+- [The 40% Drive Plan](${base}/drive-plan): pay 40% down on a car from ${DRIVE_PLAN.standardYear} (50% on a ${DRIVE_PLAN.minYear} or ${DRIVE_PLAN.standardYear - 1} car), Autochek finances the rest
 - [Toyota Hiace Hummer buses](${base}/hummer-bus)
 - [Compare cars side by side](${base}/compare)
 - [Sourcing Desk](${base}/find): request a car that is not in stock
@@ -47,10 +48,10 @@ export async function GET() {
 
 ## For sale now (${stock.length} vehicles; prices in Nigerian naira)
 ${stock
-  .map(
-    (v) =>
-      `- [${vehicleTitle(v)}](${base}/vehicles/${v.slug}): ${v.priceMinor ? formatNaira(v.priceMinor) : "price on request"}${v.priceMinor ? `, or ${drivePlanDeposit(v)} down on the Drive Plan` : ""} · ${CONDITION_LABEL[v.condition]}${v.mileageKm ? ` · ${v.mileageKm.toLocaleString("en-NG")} km` : ""}${v.status === "reserved" ? " · reserved" : ""}`,
-  )
+  .map((v) => {
+    const deposit = drivePlanDeposit(v);
+    return `- [${vehicleTitle(v)}](${base}/vehicles/${v.slug}): ${v.priceMinor ? formatNaira(v.priceMinor) : "price on request"}${deposit ? `, or ${deposit} down on the Drive Plan` : v.priceMinor ? ", cash only (not financed by Autochek)" : ""} · ${CONDITION_LABEL[v.condition]}${v.mileageKm ? ` · ${v.mileageKm.toLocaleString("en-NG")} km` : ""}${v.status === "reserved" ? " · reserved" : ""}`;
+  })
   .join("\n")}
 
 ## Questions buyers ask

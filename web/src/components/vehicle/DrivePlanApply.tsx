@@ -11,14 +11,23 @@ import { FieldError, PrivacyLink, SpamGuard } from "@/components/forms/shared";
  * The Drive Plan's next step on a vehicle's page.
  *
  * Listed on Autochek: two fields, then straight on to this car's Autochek
- * listing, where Autochek profiles the buyer and the loan terms are already
- * set. Sabicars keeps the record on the way through — for the follow-up, and
+ * listing, where Autochek profiles the buyer and its lender sets the rate
+ * and term. Sabicars keeps the record on the way through — for the follow-up, and
  * so a referring partner keeps their commission. "Go straight to Autochek"
  * stays available: nobody is made to fill a form to reach their loan.
  *
  * Not listed yet: the same two fields become a request to list it.
  */
-export function DrivePlanApply({ vehicleId, autochekUrl }: { vehicleId: string; autochekUrl: string | null }) {
+export function DrivePlanApply({
+  vehicleId,
+  autochekUrl,
+  financedPercent,
+}: {
+  vehicleId: string;
+  autochekUrl: string | null;
+  /** What Autochek finances on this car: 60% from 2010, 50% on a 2008 or 2009 car (lib/drive-plan.ts). */
+  financedPercent: 60 | 50;
+}) {
   const [open, setOpen] = useState(false);
   const [state, action, pending] = useActionState(startDrivePlan, null);
   const v = state?.values ?? {};
@@ -44,7 +53,7 @@ export function DrivePlanApply({ vehicleId, autochekUrl }: { vehicleId: string; 
     return (
       <div className="mt-5 grid gap-3">
         <Button type="button" variant="secondary" onClick={() => setOpen(true)} arrow className="w-full">
-          {autochekUrl ? "Apply for the 60% on Autochek" : "Apply for the Drive Plan"}
+          {autochekUrl ? `Apply for the ${financedPercent}% on Autochek` : "Apply for the Drive Plan"}
         </Button>
         {autochekUrl && (
           <a href={autochekUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-1 text-xs text-text-muted hover:text-text-primary">

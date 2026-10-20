@@ -13,7 +13,7 @@ const STEPS: { title: string; text: string; who: Who[] }[] = [
   },
   {
     title: "Apply on Autochek",
-    text: "From the car’s page you go straight to its listing on Autochek, Sabicars’ financing partner. The loan terms are set there.",
+    text: "From the car’s page you go straight to its listing on Autochek, Sabicars’ financing partner. Its lender sets the rate and term when it assesses you.",
     who: ["You", "Autochek"],
   },
   {
@@ -21,8 +21,16 @@ const STEPS: { title: string; text: string; who: Who[] }[] = [
     text: "Autochek checks who you are and what you earn. Its application tells you exactly what it needs.",
     who: ["Autochek"],
   },
-  { title: "Autochek approves", text: "The 60% is approved. Until this point the car stays in the showroom.", who: ["Autochek"] },
-  { title: "Pay your 40%", text: "You pay Sabicars your 40% deposit, and the paperwork is completed.", who: ["You", "Sabicars"] },
+  {
+    title: "Autochek approves",
+    text: "The balance is approved — 60% of a car from 2010, 50% of a 2008 or 2009 car. Until this point the car stays in the showroom.",
+    who: ["Autochek"],
+  },
+  {
+    title: "Pay your deposit",
+    text: "You pay Sabicars your deposit (40%, or 50% on a 2008 or 2009 car), and the paperwork is completed.",
+    who: ["You", "Sabicars"],
+  },
   {
     title: "Drive it home",
     text: "The car leaves the showroom with you. You repay Autochek monthly, on the terms you agreed.",

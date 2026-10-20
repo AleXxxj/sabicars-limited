@@ -25,6 +25,13 @@ const schema = z.object({
   /** Whole naira, not kobo — this is what a person types or a link carries. */
   minPrice: naira.optional().catch(undefined),
   maxPrice: naira.optional().catch(undefined),
+  /**
+   * Whole naira: the most a buyer can put down on the Drive Plan. Keeps only
+   * cars Autochek would finance whose own deposit (40% from 2010, 50% on a
+   * 2008 or 2009 car) is within it — a price ceiling cannot say that, because
+   * the same money reaches a different price at each tier.
+   */
+  maxDeposit: naira.optional().catch(undefined),
   sort: z.enum(SORTS).catch("newest").default("newest"),
   page: z.coerce.number().int().min(1).max(500).catch(1).default(1),
 });
@@ -90,5 +97,5 @@ export function filtersHref(current: InventoryFilters, change: Partial<Record<ke
 }
 
 export function hasActiveFilters(f: InventoryFilters): boolean {
-  return Boolean(f.body || f.segment || f.make || f.condition || f.minPrice || f.maxPrice);
+  return Boolean(f.body || f.segment || f.make || f.condition || f.minPrice || f.maxPrice || f.maxDeposit);
 }

@@ -15,6 +15,8 @@ import {
   SORT_LABEL,
   type InventoryFilters,
 } from "@/lib/inventory-filters";
+import { DRIVE_PLAN } from "@/lib/drive-plan";
+import { formatNaira } from "@/lib/money";
 import { pageAddress } from "@/lib/site";
 import { BODY_LABEL, CONDITION_LABEL } from "@/lib/vehicle";
 
@@ -77,6 +79,16 @@ export default async function InventoryPage({ searchParams }: Props) {
           <p className="figures mt-4 text-text-secondary">
             {result.total} {result.total === 1 ? "vehicle" : "vehicles"} in stock
           </p>
+          {f.maxDeposit && (
+            // From the Drive Plan finder: say what this list is, since no dropdown shows it.
+            <p className="mt-2 text-sm text-text-secondary">
+              On the Drive Plan with up to <span className="figures text-text-primary">{formatNaira(f.maxDeposit * 100)}</span> down — each car at its own
+              deposit, 40% from {DRIVE_PLAN.standardYear} and 50% on a {DRIVE_PLAN.minYear} or {DRIVE_PLAN.standardYear - 1} car.{" "}
+              <Link href="/drive-plan" className="text-green-300 underline-offset-4 hover:underline">
+                How the plan works
+              </Link>
+            </p>
+          )}
 
           {/* Shape first: it is how most buyers start ("I need a bus"). */}
           <nav aria-label="Vehicle type" className="-mx-5 mt-10 flex gap-2 overflow-x-auto px-5 [scrollbar-width:none] md:mx-0 md:flex-wrap md:px-0 [&::-webkit-scrollbar]:hidden">
@@ -104,6 +116,7 @@ export default async function InventoryPage({ searchParams }: Props) {
           <AutoSubmitForm className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-[repeat(4,minmax(0,1fr))_auto]">
             {f.body && <input type="hidden" name="body" value={f.body} />}
             {f.segment && <input type="hidden" name="segment" value={f.segment} />}
+            {f.maxDeposit && <input type="hidden" name="maxDeposit" value={f.maxDeposit} />}
             <label>
               <span className="sr-only">Make</span>
               <select name="make" defaultValue={f.make ?? ""} className={select}>

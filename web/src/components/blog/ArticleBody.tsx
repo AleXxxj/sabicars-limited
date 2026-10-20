@@ -4,11 +4,11 @@ import { AlertTriangle, ArrowRight, CheckCircle2, Info, Lightbulb } from "lucide
 import { VehicleCard } from "@/components/VehicleCard";
 import { anchorFor, type Block } from "@/lib/blog/blocks";
 import { videoSource } from "@/lib/blog/video";
-import { money, percentOf } from "@/lib/money";
 import { carsForBlock } from "@/lib/repositories/blog";
 import { catalogueWithShape, drivePlanCatalogue, hummerBuses, listedVehicles } from "@/lib/repositories/vehicles";
 import { familyOf } from "@/lib/hiace-family";
-import { DRIVE_PLAN_DEPOSIT_BPS, vehicleTitle } from "@/lib/vehicle";
+import { depositMinorFor, depositPercentLabel } from "@/lib/drive-plan";
+import { vehicleTitle } from "@/lib/vehicle";
 import { Inline } from "./Inline";
 import { BudgetQuiz } from "./illustrations/BudgetQuiz";
 import { ChassisMatch } from "./illustrations/ChassisMatch";
@@ -41,6 +41,14 @@ const hummersInStock = cache(async () => (await hummerBuses()).filter((v) => /hu
 
 /** Everything on sale, fetched once per article. */
 const stockOnce = cache(listedVehicles);
+
+/** Every priced car on sale, cheapest first — what cash reaches, including the older cars Autochek would not finance. */
+async function cashStock(): Promise<StoryCar[]> {
+  return (await stockOnce())
+    .filter((v) => v.status === "available" && v.priceMinor)
+    .sort((a, b) => a.priceMinor! - b.priceMinor!)
+    .map((v) => ({ slug: v.slug, title: vehicleTitle(v), priceMinor: v.priceMinor!, coverUrl: v.cover?.url ?? null }));
+}
 
 /** Listed cars of one model family, cheapest first, as the illustrations take them. */
 async function modelStock(pattern: RegExp): Promise<StoryCar[]> {
@@ -95,15 +103,19 @@ async function familyStock(): Promise<FamilyStock> {
   return out;
 }
 
-/** The bus an illustration works its numbers on: the most affordable Hummer in the showroom. */
+/** The bus an illustration works its numbers on: the most affordable Hummer in the showroom that can go on the Drive Plan. */
 async function exampleBus() {
-  const [bus] = [...(await hummersInStock())].sort((a, b) => a.priceMinor! - b.priceMinor!);
+  const [bus] = [...(await hummersInStock())]
+    .filter((b) => depositMinorFor(b.priceMinor, b.year) !== null)
+    .sort((a, b) => a.priceMinor! - b.priceMinor!);
   if (!bus) return null;
   return {
     title: vehicleTitle(bus),
     slug: bus.slug,
+    year: bus.year,
     priceMinor: bus.priceMinor!,
-    depositMinor: percentOf(money(bus.priceMinor!, "NGN"), DRIVE_PLAN_DEPOSIT_BPS).minor,
+    depositMinor: depositMinorFor(bus.priceMinor, bus.year)!,
+    depositPercent: depositPercentLabel(bus.year)!,
   };
 }
 
@@ -144,7 +156,7 @@ async function Illustration({ block }: { block: Extract<Block, { type: "illustra
       body = <DrivePlanJourney />;
       break;
     case "deposit-stretch":
-      body = <DepositStretch cars={await drivePlanCatalogue()} />;
+      body = <DepositStretch cars={await drivePlanCatalogue()} cashCars={await cashStock()} />;
       break;
     case "repayment-comfort":
       body = <RepaymentComfort />;
@@ -247,7 +259,7 @@ const CALLOUT = {
 const CTA = {
   "drive-plan": {
     title: "Pay 40%. Autochek finances the rest.",
-    text: "See what your deposit can drive home today.",
+    text: "40% down on a car from 2010, 50% on a 2008 or 2009 car. See what your deposit can drive home today.",
     href: "/drive-plan",
     label: "Start with the Drive Plan",
   },

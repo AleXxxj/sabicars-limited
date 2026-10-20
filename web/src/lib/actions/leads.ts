@@ -328,8 +328,8 @@ export interface DrivePlanStart extends LeadFormResult {
 
 /**
  * A buyer starting the Drive Plan on a particular vehicle. Autochek profiles
- * them and finances the 60% — but only for vehicles on Sabicars' Autochek
- * store. Either way Sabicars keeps the record first: the buyer is followed up,
+ * them and finances the balance (60% of a car from 2010, 50% of a 2008 or
+ * 2009 car) — but only for vehicles on Sabicars' Autochek store. Either way Sabicars keeps the record first: the buyer is followed up,
  * and a partner who sent them keeps their commission even though the loan is
  * processed elsewhere.
  */

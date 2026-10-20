@@ -5,12 +5,13 @@ import { ScrollReveal } from "@/components/ScrollReveal";
 import { PageIntro } from "@/components/site/PageIntro";
 import { ButtonLink } from "@/components/ui/Button";
 import { VehicleCard } from "@/components/VehicleCard";
-import { formatNaira, money, percentOf } from "@/lib/money";
+import { formatNaira } from "@/lib/money";
 import { searchTerms, vehiclesForTerm } from "@/lib/repositories/vehicles";
 import { termHref } from "@/lib/seo/search-terms";
 import { breadcrumbJsonLd, itemListJsonLd, jsonLdScript } from "@/lib/seo/structured-data";
 import { pageAddress } from "@/lib/site";
-import { DRIVE_PLAN_DEPOSIT_BPS, vehicleTitle } from "@/lib/vehicle";
+import { depositMinorFor } from "@/lib/drive-plan";
+import { vehicleTitle } from "@/lib/vehicle";
 
 export const revalidate = 300;
 
@@ -60,7 +61,8 @@ export default async function TermPage({ params }: Props) {
   const cars = await vehiclesForTerm(term);
   const title = `${noun(term)} for sale in Lagos`;
   const cover = cars.find((c) => c.cover)?.cover?.url ?? null;
-  const deposit = term.fromMinor ? percentOf(money(term.fromMinor, "NGN"), DRIVE_PLAN_DEPOSIT_BPS).minor : null;
+  // The lowest deposit among these cars, each at its own tier (lib/drive-plan.ts); none if every one is too old for the plan.
+  const deposit = cars.map((c) => depositMinorFor(c.priceMinor, c.year)).filter((d): d is number => d !== null).sort((a, b) => a - b)[0] ?? null;
   const related = term.family
     ? all.filter((t) => t.make === term.make && t.family && t.slug !== term.slug && t.inStock > 0)
     : all.filter((t) => t.make === term.make && t.family && t.inStock > 0);
@@ -89,7 +91,7 @@ export default async function TermPage({ params }: Props) {
             <>
               {term.inStock === 1 ? "One" : term.inStock} {term.inStock === 1 ? "is" : "are"} in the Sabicars showroom now
               {term.fromMinor ? <>, from {formatNaira(term.fromMinor)}</> : null}
-              {deposit ? <> — or {formatNaira(deposit)} down on the 40% Drive Plan</> : null}. Every one photographed, priced and
+              {deposit ? <> — or from {formatNaira(deposit)} down on the Drive Plan</> : null}. Every one photographed, priced and
               ready to inspect before you pay.
             </>
           ) : (

@@ -8,26 +8,40 @@ export const ASK_ANSWERS: { slug: string; question: string; answer: string }[] =
   {
     slug: "how-does-the-40-percent-drive-plan-work",
     question: "How does the 40% Drive Plan work?",
-    answer: `You pay 40% of the car’s price, and Autochek — Sabicars’ financing partner — finances the other 60%, which you repay to Autochek monthly.
+    answer: `You pay a deposit — 40% of the car’s price on a car from 2010, or 50% on a 2008 or 2009 car — and Autochek, Sabicars’ financing partner, finances the rest, which you repay to Autochek monthly. Autochek’s lenders do not finance cars older than 2008, so those are cash purchases.
 
 1. Choose the car at the showroom, and inspect and test-drive it.
 2. Apply on the car’s Autochek listing (the Drive Plan button on every car’s page).
-3. Autochek profiles you and decides the approval.
-4. Once Autochek approves and your 40% is paid, the car is yours to drive home.
+3. Autochek’s lender assesses you, decides the approval, and sets the rate and term in your offer.
+4. Once the lender approves and your deposit is paid, the car is yours to drive home.
 
-As a deposit, your money reaches a car two and a half times its size: ₦10 million reaches a car priced up to ₦25 million. [How the Drive Plan works](/drive-plan).`,
+As a deposit, your money reaches a car up to two and a half times its size: ₦10 million reaches a car priced up to ₦25 million from 2010, or ₦20 million from 2008 or 2009. You can put down more than the minimum, up to 70% of the price. [How the Drive Plan works](/drive-plan).`,
   },
   {
     slug: "who-approves-drive-plan-finance-and-what-are-the-rates",
     question: "Who approves the finance, and what are the interest rate and term?",
-    answer: `Autochek approves it. It profiles every applicant — typically proof of identity and income — and decides.
+    answer: `Autochek’s lending partners, through Autochek — Sabicars’ financing partner. The lender assesses every applicant — your BVN and a valid ID, bank statements for the last six months, proof of income and a utility bill — and decides. Sabicars does not lend.
 
-The rate and the repayment term are set by Autochek on each car’s listing, and you see them when you apply, before you commit to anything. Sabicars does not set them, so we won’t guess at a figure: ask Autochek how a bigger deposit or a longer term changes the monthly amount.`,
+The lender sets the rate and the repayment term when it assesses you, and you see them in your offer before you commit to anything. Autochek publishes a ceiling of 30% a year over 6 to 48 months; on its listings the rate is “available on request”. Autochek’s own example: ₦1,000,000 over 12 months at 30% a year is about ₦97,487 a month. We won’t guess at your figure: ask Autochek how a bigger deposit or a longer term changes the monthly amount.`,
   },
   {
     slug: "when-can-i-take-the-car-home-on-the-drive-plan",
     question: "When can I take the car home on the Drive Plan?",
-    answer: `Once Autochek has approved your finance **and** your 40% deposit is paid. Until both have happened, the car stays in the showroom.`,
+    answer: `Once Autochek’s lender has approved your finance **and** your deposit is paid. Until both have happened, the car stays in the showroom.`,
+  },
+  {
+    slug: "why-is-the-drive-plan-deposit-50-percent-on-some-cars",
+    question: "Why is the deposit 50% on some cars?",
+    answer: `The deposit depends on the car’s model year. Autochek’s lenders ask for 40% on a car from 2010 and 50% on a 2008 or 2009 car, and they do not finance cars older than 2008 — those are cash purchases. This is the rule Autochek’s team gave Sabicars on 20 October 2026, and every car’s page shows its own deposit.
+
+You can always put down more than the minimum, up to 70% of the price — a bigger deposit means a smaller balance and smaller repayments.`,
+  },
+  {
+    slug: "can-i-apply-for-the-drive-plan-without-a-registered-business",
+    question: "I don’t have a registered business — can I still apply?",
+    answer: `Yes. Business owners need a CAC business registration as proof of income, and a registered business name is enough — you can register one yourself with the CAC for its published fee (about ₦21,700 in 2026), usually within a few working days. Autochek’s team told Sabicars in October 2026 that it can arrange one for about ₦35,000; ask when you apply.
+
+Salary earners don’t need one: an employment letter or recent payslips are your proof of income.`,
   },
   {
     slug: "can-i-inspect-a-car-before-i-pay",

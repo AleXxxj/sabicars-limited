@@ -28,7 +28,7 @@ export const hiaceHummerGuide = {
         "A “Hummer bus” is the **high-roof Toyota Hiace** — the same bus Toyota has built since 2004, through several face-lifts.",
         "At Sabicars, **Hummer 1** has the 2.0-litre engine; **Hummer 2 and 3** have the stronger 2.7, and Hummer 3 is the roomiest. Race them below.",
         "Check **six places** before you pay. The checklist below stays on your phone, so you can finish it at the showroom.",
-        "You can drive one away on the **40% Drive Plan**: you pay 40%, Autochek finances the 60% once it approves.",
+        "You can drive one away on the **40% Drive Plan**: you pay 40% — 50% on a 2008 or 2009 bus — and Autochek finances the rest once its lender approves.",
         "Run **your own route numbers** first — the calculator below does the arithmetic.",
       ],
     },
@@ -196,12 +196,12 @@ export const hiaceHummerGuide = {
     { type: "h2", text: "Buying one on the Drive Plan" },
     {
       type: "p",
-      text: "You do not need the full price to drive a bus home. On Sabicars’ 40% Drive Plan you pay 40% of the price, and Autochek — Sabicars’ financing partner — finances the remaining 60%, on the terms set on its listing and subject to its approval. Here is how it splits on a real bus in the showroom today:",
+      text: "You do not need the full price to drive a bus home. On Sabicars’ 40% Drive Plan you pay 40% of the price on a bus from 2010 — 50% on a 2008 or 2009 bus — and Autochek, Sabicars’ financing partner, finances the rest, on the rate and term its lender sets when it assesses you and subject to its approval. Buses older than 2008 are bought for cash. Here is how it splits on a real bus in the showroom today:",
     },
     { type: "illustration", name: "drive-plan-split" },
     {
       type: "p",
-      text: "Autochek profiles you and decides the approval. Once it approves and your 40% is paid, the bus is yours to drive away. If you are buying the bus to put it to work, run the numbers below first — the bus should be able to carry its own repayment.",
+      text: "Autochek’s lender assesses you and decides the approval. Once it approves and your deposit is paid, the bus is yours to drive away. If you are buying the bus to put it to work, run the numbers below first — the bus should be able to carry its own repayment.",
     },
     { type: "cta", kind: "drive-plan" },
 
@@ -245,7 +245,7 @@ export const hiaceHummerGuide = {
         },
         {
           q: "Can I pay in instalments?",
-          a: "Yes — on the [40% Drive Plan](/drive-plan). You pay 40% and Autochek finances the remaining 60%, subject to its approval. The bus leaves the showroom once Autochek approves and the 40% is paid.",
+          a: "Yes — on the [40% Drive Plan](/drive-plan), for a bus from 2008. You pay 40% — 50% on a 2008 or 2009 bus — and Autochek finances the rest, subject to its lender’s approval. The bus leaves the showroom once Autochek approves and the deposit is paid. Older buses are bought for cash.",
         },
         {
           q: "Can I inspect the bus before I pay?",

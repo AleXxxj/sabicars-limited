@@ -138,7 +138,7 @@ export const bestSuvsForNigerianRoads = {
         },
         {
           q: "Can I buy an SUV on the Drive Plan?",
-          a: "Yes, when it is listed on Sabicars’ Autochek store. You pay 40% and Autochek finances the rest, subject to its approval; the SUV leaves the showroom once Autochek approves and your 40% is paid. [How the Drive Plan works](/drive-plan).",
+          a: "Yes, when it is listed on Sabicars’ Autochek store and is a 2008 model or newer. You pay 40% — 50% on a 2008 or 2009 SUV — and Autochek finances the rest, subject to its lender’s approval; the SUV leaves the showroom once Autochek approves and your deposit is paid. [How the Drive Plan works](/drive-plan).",
         },
       ],
     },

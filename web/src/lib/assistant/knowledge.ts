@@ -1,14 +1,15 @@
 import "server-only";
 import { cache } from "react";
 import type { AskAnswer } from "@/db/schema";
-import { formatNaira, money, percentOf } from "@/lib/money";
+import { formatNaira } from "@/lib/money";
 import { publishedAnswers } from "@/lib/repositories/ask";
 import { publishedPosts, type PostCard } from "@/lib/repositories/blog";
 import { reportSummaries } from "@/lib/repositories/inspections";
 import { listedVehicles, type VehicleWithCover } from "@/lib/repositories/vehicles";
 import { clockStartsAt, isOpen, showroomHours } from "@/lib/showroom-hours";
 import { site } from "@/lib/site";
-import { BODY_LABEL, CONDITION_LABEL, DRIVE_PLAN_DEPOSIT_BPS, DRIVETRAIN_LABEL, vehicleTitle } from "@/lib/vehicle";
+import { DRIVE_PLAN, MONTHLY_INCLUDES, depositMinorFor, depositPercentLabel, drivePlanTerms } from "@/lib/drive-plan";
+import { BODY_LABEL, CONDITION_LABEL, DRIVETRAIN_LABEL, vehicleTitle } from "@/lib/vehicle";
 import type { AssistantCar } from "./parts";
 import { familyGuide } from "@/lib/hiace-family";
 
@@ -20,7 +21,7 @@ import { familyGuide } from "@/lib/hiace-family";
  * assistant that improvises stock will one day promise a buyer a car that was
  * sold last month.
  *
- * Prices arrive already formatted, and the 40% deposit already worked out —
+ * Prices arrive already formatted, and each car's own Drive Plan deposit already worked out —
  * arithmetic on money is not something a language model should be doing in
  * front of a customer.
  *
@@ -31,8 +32,9 @@ import { familyGuide } from "@/lib/hiace-family";
 const NEW_ARRIVAL_DAYS = 21;
 const NOTES_CHARS = 420;
 
-function depositMinor(v: Pick<VehicleWithCover, "priceMinor">): number | null {
-  return v.priceMinor ? percentOf(money(v.priceMinor, "NGN"), DRIVE_PLAN_DEPOSIT_BPS).minor : null;
+/** This car's Drive Plan deposit at its model year's tier; null when there is no price or Autochek would not finance it. */
+function depositMinor(v: Pick<VehicleWithCover, "priceMinor" | "year">): number | null {
+  return depositMinorFor(v.priceMinor, v.year);
 }
 
 function gearbox(v: VehicleWithCover): string | null {
@@ -44,12 +46,14 @@ function fuelLabel(v: VehicleWithCover): string | null {
 }
 
 export function toAssistantCar(v: VehicleWithCover): AssistantCar {
+  const terms = drivePlanTerms(v.year);
   return {
     slug: v.slug,
     title: vehicleTitle(v),
     priceMinor: v.priceMinor,
     wasPriceMinor: v.wasPriceMinor,
     depositMinor: depositMinor(v),
+    depositPercent: terms.eligible ? terms.depositPercent : null,
     year: v.year,
     condition: CONDITION_LABEL[v.condition],
     body: v.body ? BODY_LABEL[v.body] : null,
@@ -88,7 +92,9 @@ function vehicleEntry(v: VehicleWithCover, now: Date, report: string | undefined
   return [
     `### ${vehicleTitle(v)}${v.trim ? ` (${v.trim})` : ""}`,
     `slug: ${v.slug} · page: /vehicles/${v.slug}`,
-    `Price: ${v.priceMinor ? formatNaira(v.priceMinor) : "on request"}${deposit ? ` · 40% Drive Plan deposit: ${formatNaira(deposit)}` : ""}${flags.length ? ` · ${flags.join(" · ")}` : ""}`,
+    `Price: ${v.priceMinor ? formatNaira(v.priceMinor) : "on request"}${
+      deposit ? ` · Drive Plan deposit (${depositPercentLabel(v.year)}): ${formatNaira(deposit)}` : v.priceMinor ? ` · NOT on the Drive Plan (older than ${DRIVE_PLAN.minYear}): cash only` : ""
+    }${flags.length ? ` · ${flags.join(" · ")}` : ""}`,
     `Facts: ${facts.join(" · ")}`,
     v.features.length ? `Features: ${v.features.join(", ")}` : null,
     notes
@@ -145,11 +151,14 @@ ${site.legalName} (CAC RC ${site.rcNumber}) sells cars, SUVs, Toyota Hiace "Humm
 - Viewings: a buyer books a time on the car's own page (Book a viewing), choosing an hourly slot within opening hours, from two hours ahead up to a week ahead. They get a reference and a calendar file.
 - Privacy: chats and enquiries are kept so the team can follow up, and Sabicars does not sell personal data. Anyone can ask to see, correct or delete their details by emailing ${site.email}. The full notice is at /privacy.
 
-## The 40% Drive Plan
-- The buyer pays 40% of the price. Autochek, Sabicars' financing partner, finances the other 60%.
-- Autochek profiles the buyer and decides the approval, on the terms (rate and tenure) set on the car's Autochek listing. Sabicars does not set or know those terms.
-- The car leaves the showroom only once Autochek approves AND the 40% is paid.
+## The 40% Drive Plan (Autochek finances the balance)
+- The deposit depends on the car's model year: 40% for a car from ${DRIVE_PLAN.standardYear} (Autochek finances 60%); 50% for a ${DRIVE_PLAN.minYear} or ${DRIVE_PLAN.standardYear - 1} car (Autochek finances 50%). Autochek's lenders do not finance cars older than ${DRIVE_PLAN.minYear}: those are bought outright. Each car's entry below states its own deposit, or that it is not on the plan. A buyer may put down more than the minimum (up to ${DRIVE_PLAN.maxDepositBps / 100}%).
+- Autochek's lender sets the interest rate and the term when it assesses the buyer. Autochek publishes a ceiling of ${DRIVE_PLAN.maxAnnualRatePercent}% a year and terms of ${DRIVE_PLAN.tenureMonths.min} to ${DRIVE_PLAN.tenureMonths.max} months; the exact rate is given when the buyer applies. Never quote a rate or a monthly figure as fact: say "set by the lender, up to ${DRIVE_PLAN.maxAnnualRatePercent}% a year, over ${DRIVE_PLAN.tenureMonths.min} to ${DRIVE_PLAN.tenureMonths.max} months".
+- What Autochek asks for: a BVN, a valid ID, bank statements for the last ${DRIVE_PLAN.statementMonths} months from an active account, proof of income (an employment letter or payslips for salary earners; a CAC business registration for business owners, and a registered business name is enough), and a utility bill. A business owner without a CAC registration can register a business name first, at pre.cac.gov.ng for the CAC's published fee (about ₦21,700 in 2026, usually within a few working days); Autochek's team told Sabicars in October 2026 that it can arrange one for about ₦35,000 (say it exactly that way — it is what its team said, not a published Autochek price).
+- Fees: Autochek charges a processing fee (its published example is ${formatNaira(DRIVE_PLAN.published.processingFeeMinor)}), credited against the final payment if the loan goes through. The monthly repayment includes ${MONTHLY_INCLUDES}, as set out on the car's Autochek listing.
+- Timing: Autochek says offers come within ${DRIVE_PLAN.published.offerWithin} of a complete application. The car leaves the showroom only once Autochek's lender approves AND the deposit is paid.
 - How it works: /drive-plan. On each car's page there is a Drive Plan button.
+- These rules were given to Sabicars by Autochek's team on 20 October 2026; Autochek's lenders decide each application.
 
 ## Other ways Sabicars helps
 - The Sourcing Desk (/find): a buyer describes a car that is not in stock — make, model, year, budget — and is told the moment one arrives.

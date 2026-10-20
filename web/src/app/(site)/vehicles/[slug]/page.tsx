@@ -13,6 +13,7 @@ import { RecentlyViewed, RecordView } from "@/components/saved/RecentlyViewed";
 import { Gallery } from "@/components/vehicle/Gallery";
 import { VerifiedPanel } from "@/components/vehicle/VerifiedPanel";
 import { comparePath } from "@/lib/assistant/parts";
+import { DRIVE_PLAN, depositPercentLabel, drivePlanTerms } from "@/lib/drive-plan";
 import { bookedSlots } from "@/lib/leads";
 import { liveReportFor } from "@/lib/repositories/inspections";
 import { listedVehicleSlugs, similarVehicles, vehicleBySlug } from "@/lib/repositories/vehicles";
@@ -44,7 +45,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const description = [
     `${title} for sale in Lagos — ${priceLabel(v)}.`,
     specLine(v),
-    v.priceMinor ? `Drive it home with 40% down (${drivePlanDeposit(v)}).` : null,
+    drivePlanDeposit(v) ? `Drive it home with ${depositPercentLabel(v.year)} down (${drivePlanDeposit(v)}).` : null,
   ]
     .filter(Boolean)
     .join(" ");
@@ -93,6 +94,7 @@ export default async function VehiclePage({ params }: Props) {
   const specs = specRows(v);
   const deposit = drivePlanDeposit(v);
   const balance = drivePlanBalance(v);
+  const terms = drivePlanTerms(v.year);
   const sold = v.status === "sold";
   const [similar, live, taken] = await Promise.all([similarVehicles(v), liveReportFor(v.id), sold ? Promise.resolve({}) : bookedSlots(v.dealerId)]);
 
@@ -150,26 +152,40 @@ export default async function VehiclePage({ params }: Props) {
 
             {live && <VerifiedPanel report={live.report} tally={live.tally} />}
 
-            {deposit && balance && !sold && (
+            {deposit && balance && terms.eligible && !sold && (
               <div id="drive-plan" className="surface-card relative mt-6 scroll-mt-24 overflow-hidden p-6">
                 <div aria-hidden className="pointer-events-none absolute -right-16 -top-16 size-48 rounded-full bg-green-500/12 blur-3xl" />
-                <p className="kicker">40% Drive Plan</p>
+                <p className="kicker">The Drive Plan</p>
                 <dl className="mt-4 grid grid-cols-2 gap-4">
                   <div>
-                    <dt className="text-xs text-text-muted">Your 40% deposit</dt>
+                    <dt className="text-xs text-text-muted">Your {terms.depositPercent}% deposit</dt>
                     <dd className="figures mt-1 text-lg font-semibold text-accent-text">{deposit}</dd>
                   </div>
                   <div>
-                    <dt className="text-xs text-text-muted">60%, financed by Autochek</dt>
+                    <dt className="text-xs text-text-muted">{terms.financedPercent}%, financed by Autochek</dt>
                     <dd className="figures mt-1 text-lg font-semibold">{balance}</dd>
                   </div>
                 </dl>
-                <p className="mt-4 text-xs text-text-muted">Autochek profiles you and approves the financing on the terms set on its listing. Once approved, you pay the 40% and drive it home.</p>
-                <DrivePlanApply vehicleId={v.id} autochekUrl={v.autochekUrl} />
+                <p className="mt-4 text-xs text-text-muted">
+                  Autochek’s lender assesses you and sets the rate and term, up to {DRIVE_PLAN.maxAnnualRatePercent}% a year over {DRIVE_PLAN.tenureMonths.min} to{" "}
+                  {DRIVE_PLAN.tenureMonths.max} months. Once approved, you pay the {terms.depositPercent}% and drive it home.
+                </p>
+                <DrivePlanApply vehicleId={v.id} autochekUrl={v.autochekUrl} financedPercent={terms.financedPercent} />
                 <Link href="/drive-plan" className="group mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-green-300 hover:text-green-200">
                   How the Drive Plan works <ArrowRight aria-hidden size={16} className="transition-transform group-hover:translate-x-1" />
                 </Link>
               </div>
+            )}
+            {/* Autochek's lenders do not finance cars this old: say so, rather than leave a buyer wondering where the plan went. */}
+            {v.priceMinor && !terms.eligible && !sold && (
+              <p className="mt-6 rounded-xl border border-border-default bg-surface-1 px-4 py-3 text-sm leading-relaxed text-text-secondary">
+                <span className="font-semibold text-text-primary">Cash purchase.</span> Autochek’s lenders do not finance cars older than {DRIVE_PLAN.minYear}, so
+                the Drive Plan is not available on this one.{" "}
+                <Link href="/drive-plan#finder" className="text-green-300 underline-offset-4 hover:underline">
+                  See what your deposit reaches
+                </Link>
+                .
+              </p>
             )}
 
             <div className="mt-8 flex flex-col gap-3">

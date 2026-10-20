@@ -4,13 +4,16 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { useId, useState } from "react";
 import { VehicleImage } from "@/components/VehicleImage";
-import { formatNaira, money, percentOf } from "@/lib/money";
-import { DRIVE_PLAN_DEPOSIT_BPS } from "@/lib/vehicle";
+import { DRIVE_PLAN, depositPercentLabel, reachMinorFor } from "@/lib/drive-plan";
+import { formatNaira } from "@/lib/money";
 
 export interface FinderVehicle {
   slug: string;
   title: string;
+  year: number;
   priceMinor: number;
+  /** This car's own deposit: 40% from 2010, 50% for 2008–2009. Cars Autochek would not finance are not in the list. */
+  depositMinor: number;
   coverUrl: string | null;
 }
 
@@ -19,13 +22,13 @@ const PRESETS = [3_000_000, 5_000_000, 10_000_000, 20_000_000];
 const START = 10_000_000;
 
 const grouped = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-const depositOf = (priceMinor: number) => percentOf(money(priceMinor, "NGN"), DRIVE_PLAN_DEPOSIT_BPS).minor;
 
 /**
  * "What can I drive home with what I have?" — the question Sabicars' audience
  * actually arrives with, answered from live stock as they type. On the Drive
- * Plan a deposit goes two and a half times as far as cash; this makes that
- * concrete with real cars rather than a percentage.
+ * Plan a deposit goes up to two and a half times as far as cash; this makes
+ * that concrete with real cars, each at its own deposit, rather than a
+ * percentage.
  */
 export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicle[]; children: React.ReactNode }) {
   const [text, setText] = useState(grouped(START));
@@ -34,11 +37,11 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
   const budgetMinor = naira * 100;
 
   // `vehicles` is cheapest first, so the last few within reach are the most car for the money.
-  const within = vehicles.filter((v) => depositOf(v.priceMinor) <= budgetMinor);
+  const within = vehicles.filter((v) => v.depositMinor <= budgetMinor);
   const outright = vehicles.filter((v) => v.priceMinor <= budgetMinor).length;
   const picks = within.slice(-4).reverse();
-  const ceilingNaira = Math.floor((naira * 10_000) / DRIVE_PLAN_DEPOSIT_BPS);
-  const cheapest = vehicles[0];
+  const reachNaira = Math.floor(reachMinorFor(budgetMinor) / 100);
+  const cheapest = vehicles.reduce<FinderVehicle | null>((best, v) => (best === null || v.depositMinor < best.depositMinor ? v : best), null);
 
   return (
     <div className="grid gap-12 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-16">
@@ -80,6 +83,10 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
               </button>
             ))}
           </div>
+          <p className="mt-4 text-xs leading-relaxed text-text-muted">
+            Cars from {DRIVE_PLAN.standardYear} need 40% down; {DRIVE_PLAN.minYear} and {DRIVE_PLAN.standardYear - 1} cars need 50%. Autochek does not finance
+            older cars.
+          </p>
         </div>
       </div>
 
@@ -95,7 +102,7 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
               </span>
             </p>
             <p className="mt-4 text-sm leading-relaxed text-text-secondary">
-              Priced up to <span className="figures text-text-primary">{formatNaira(ceilingNaira * 100)}</span>.{" "}
+              Up to <span className="figures text-text-primary">{formatNaira(reachNaira * 100)}</span> for a car from {DRIVE_PLAN.standardYear}.{" "}
               {outright > 0 ? (
                 <>
                   <span className="figures">{outright}</span> of them you could buy outright.
@@ -122,7 +129,7 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
                     </div>
                     <p className="mt-2 truncate text-sm text-text-primary group-hover:text-accent-text">{v.title}</p>
                     <p className="figures text-xs text-text-muted">
-                      <span className="text-text-secondary">{formatNaira(depositOf(v.priceMinor))}</span> deposit
+                      <span className="text-text-secondary">{formatNaira(v.depositMinor)}</span> down ({depositPercentLabel(v.year)})
                     </p>
                   </Link>
                 </li>
@@ -130,8 +137,9 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
             </ul>
 
             <div className="mt-6 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-t border-border-subtle pt-5">
+              {/* The inventory filters on the same rule — each car's own deposit — so "see all" shows exactly these cars. */}
               {within.length > picks.length && (
-                <Link href={`/vehicles?maxPrice=${ceilingNaira}&sort=price_desc`} className="group inline-flex min-h-11 items-center gap-2 font-semibold text-green-300 hover:text-green-200">
+                <Link href={`/vehicles?maxDeposit=${naira}&sort=price_desc`} className="group inline-flex min-h-11 items-center gap-2 font-semibold text-green-300 hover:text-green-200">
                   See all {within.length} <ArrowRight aria-hidden size={17} className="transition-transform group-hover:translate-x-1" />
                 </Link>
               )}
@@ -148,8 +156,8 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
             {cheapest && (
               <p className="mt-4 text-text-secondary">
                 The lowest deposit in the showroom right now is{" "}
-                <button type="button" onClick={() => setText(grouped(Math.ceil(depositOf(cheapest.priceMinor) / 100)))} className="figures text-accent-text underline-offset-4 hover:underline">
-                  {formatNaira(depositOf(cheapest.priceMinor))}
+                <button type="button" onClick={() => setText(grouped(Math.ceil(cheapest.depositMinor / 100)))} className="figures text-accent-text underline-offset-4 hover:underline">
+                  {formatNaira(cheapest.depositMinor)}
                 </button>
                 .
               </p>

@@ -18,10 +18,11 @@ import {
   CalendarClock,
 } from "lucide-react";
 import { VehicleImage } from "@/components/VehicleImage";
+import { depositPercentLabel, reachMinorFor } from "@/lib/drive-plan";
 import { formatNaira } from "@/lib/money";
-import type { StoryCar } from "./DepositStretch";
+import type { PlanCar } from "./DepositStretch";
 
-export interface QuizCar extends StoryCar {
+export interface QuizCar extends PlanCar {
   body: string | null;
   segment: string;
   make: string;
@@ -74,12 +75,21 @@ const QUESTIONS = [
 
 type Answers = Partial<Record<(typeof QUESTIONS)[number]["key"], string>>;
 
+/** "₦4,400,000 down (40%)": the car's own deposit, on its own tier. */
+function down(c: QuizCar): string {
+  const pct = depositPercentLabel(c.year);
+  return `${formatNaira(c.depositMinor)} down${pct ? ` (${pct})` : ""}`;
+}
+
 function recommend(a: Required<Answers>, cars: QuizCar[]) {
   const use = a.use as Use;
   const priority = a.priority as Priority;
   const money = Number(a.money);
   const plan = a.plan === "plan";
-  const reach = plan ? Math.floor(money / 0.4) : money;
+  // The headline reach is for a car from 2010; each car below is tested on its own deposit.
+  const reach = plan ? Math.floor(reachMinorFor(money * 100) / 100) : money;
+  // What the reader must find for a car: its deposit on the plan, its price in cash.
+  const need = (c: QuizCar) => (plan ? c.depositMinor : c.priceMinor);
 
   const body: "sedan" | "suv" | "bus" =
     use === "earn" && priority === "space" ? "bus" : use === "family" || use === "long" || priority === "space" ? "suv" : "sedan";
@@ -108,11 +118,11 @@ function recommend(a: Required<Answers>, cars: QuizCar[]) {
   if (priority === "status") why.push("A premium badge costs more to keep — budget for it as well as for the price.");
   why.push(
     plan
-      ? `On the Drive Plan, ${formatNaira(money * 100, { compact: true })} as a 40% deposit reaches a car priced up to ${formatNaira(reach * 100, { compact: true })}.`
+      ? `On the Drive Plan, ${formatNaira(money * 100, { compact: true })} as a deposit reaches a car from 2010 priced up to ${formatNaira(reach * 100, { compact: true })} — a 2008 or 2009 car needs 50% down.`
       : `In cash, ${formatNaira(money * 100, { compact: true })} buys a car priced up to that.`,
   );
 
-  const pool = cars.filter((c) => c.priceMinor <= reach * 100);
+  const pool = cars.filter((c) => need(c) <= money * 100);
   const shaped = pool.filter((c) => c.body === body || (body === "bus" && /hiace|hum+er/i.test(c.title)));
   const branded =
     priority === "value" || priority === "cheap"
@@ -125,16 +135,18 @@ function recommend(a: Required<Answers>, cars: QuizCar[]) {
   const alt =
     !plan && !picks.length
       ? cars
-          .filter((c) => c.priceMinor <= Math.floor(money / 0.4) * 100 && (c.body === body || body === "bus"))
+          .filter((c) => c.depositMinor <= money * 100 && (c.body === body || body === "bus"))
           .slice(-3)
           .reverse()
       : [];
-  // Nothing within reach: the closest car of the right kind, and how far off it is.
+  // Nothing within reach: the closest car of the right kind — by its deposit on the plan — and how far off it is.
   const nearest =
     !picks.length && !alt.length
-      ? (cars.find((c) => c.priceMinor > reach * 100 && (c.body === body || (body === "bus" && /hiace|hum+er/i.test(c.title)))) ?? null)
+      ? (cars
+          .filter((c) => need(c) > money * 100 && (c.body === body || (body === "bus" && /hiace|hum+er/i.test(c.title))))
+          .sort((x, y) => need(x) - need(y))[0] ?? null)
       : null;
-  const gap = nearest ? (plan ? Math.ceil(nearest.priceMinor * 0.4) / 100 - money : nearest.priceMinor / 100 - money) : 0;
+  const gap = nearest ? need(nearest) / 100 - money : 0;
   return { headline, why, picks, alt, reach, plan, body, nearest, gap };
 }
 
@@ -244,7 +256,7 @@ export function BudgetQuiz({ cars }: { cars: QuizCar[] }) {
                         <span className="block truncate text-sm font-semibold text-text-primary group-hover:text-green-200">{c.title}</span>
                         <span className="figures block text-xs text-text-secondary">
                           {formatNaira(c.priceMinor)}
-                          {result.plan && <span className="text-green-300"> · {formatNaira(Math.ceil(c.priceMinor * 0.4))} down</span>}
+                          {result.plan && <span className="text-green-300"> · {down(c)}</span>}
                         </span>
                       </span>
                     </Link>
@@ -255,13 +267,13 @@ export function BudgetQuiz({ cars }: { cars: QuizCar[] }) {
               <div className="mt-8 rounded-2xl border border-green-500/30 bg-green-500/[0.06] p-4">
                 <p className="text-sm text-text-secondary">
                   In cash, this is the older-car market — below anything in the Sabicars showroom today. As a{" "}
-                  <span className="text-text-primary">40% Drive Plan deposit</span>, the same money reaches:
+                  <span className="text-text-primary">Drive Plan deposit</span>, the same money reaches:
                 </p>
                 <ul className="mt-3 grid gap-1 text-sm">
                   {result.alt.map((c) => (
                     <li key={c.slug}>
                       <Link href={`/vehicles/${c.slug}`}>{c.title}</Link>{" "}
-                      <span className="figures text-text-muted">· {formatNaira(Math.ceil(c.priceMinor * 0.4))} down</span>
+                      <span className="figures text-text-muted">· {down(c)}</span>
                     </li>
                   ))}
                 </ul>
@@ -279,9 +291,7 @@ export function BudgetQuiz({ cars }: { cars: QuizCar[] }) {
                     {result.nearest.title}
                   </Link>
                   <span className="figures">
-                    {result.plan
-                      ? `${formatNaira(Math.ceil(result.nearest.priceMinor * 0.4))} down`
-                      : formatNaira(result.nearest.priceMinor)}{" "}
+                    {result.plan ? down(result.nearest) : formatNaira(result.nearest.priceMinor)}{" "}
                     — <span className="text-text-primary">{formatNaira(Math.max(0, result.gap) * 100)} more</span> than your figure.
                   </span>
                   <span className="mt-2 block">

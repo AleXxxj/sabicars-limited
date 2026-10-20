@@ -3,7 +3,8 @@ import { cache } from "react";
 import { comparePath } from "@/lib/assistant/parts";
 import { formatNaira } from "@/lib/money";
 import { listedVehicles, type VehicleWithCover } from "@/lib/repositories/vehicles";
-import { BODY_LABEL, DRIVE_PLAN_DEPOSIT_BPS, DRIVETRAIN_LABEL, vehicleTitle } from "@/lib/vehicle";
+import { depositMinorFor } from "@/lib/drive-plan";
+import { BODY_LABEL, DRIVETRAIN_LABEL, vehicleTitle } from "@/lib/vehicle";
 
 /**
  * Side-by-side comparisons: one page for every pair (or three) of cars.
@@ -24,7 +25,8 @@ export function slugsFromPair(pair: string): string[] | null {
 }
 
 const short = (v: VehicleWithCover) => `the ${v.model}`;
-const deposit = (v: VehicleWithCover) => (v.priceMinor ? Math.round((v.priceMinor * DRIVE_PLAN_DEPOSIT_BPS) / 10_000) : null);
+/** Each car's own Drive Plan deposit; null when Autochek would not finance it (lib/drive-plan.ts). */
+const deposit = (v: VehicleWithCover) => depositMinorFor(v.priceMinor, v.year);
 
 /** Millions, as buyers say them: "₦5.5m". */
 function millions(minor: number): string {
@@ -45,9 +47,12 @@ export function differences(cars: VehicleWithCover[]): string[] {
     const sorted = [...priced].sort((a, b) => a.priceMinor! - b.priceMinor!);
     const [low, high] = [sorted[0], sorted.at(-1)!];
     const gap = high.priceMinor! - low.priceMinor!;
+    const [dLow, dHigh] = [deposit(low), deposit(high)];
     if (gap > 0)
       out.push(
-        `${cap(short(low))} is ${millions(gap)} cheaper than ${short(high)} — ${formatNaira(deposit(high)! - deposit(low)!)} less to put down on the 40% Drive Plan.`,
+        `${cap(short(low))} is ${millions(gap)} cheaper than ${short(high)}${
+          dLow !== null && dHigh !== null && dHigh > dLow ? ` — ${formatNaira(dHigh - dLow)} less to put down on the Drive Plan` : ""
+        }.`,
       );
     else out.push(`They are the same price: ${formatNaira(low.priceMinor!)}.`);
   }
@@ -135,7 +140,7 @@ export function compareTitle(cars: VehicleWithCover[]): string {
 }
 
 export function compareSummary(cars: VehicleWithCover[]): string {
-  return `${cap(joinNames(cars))} side by side: price, 40% deposit, age, mileage, engine and seats — and which one suits you.`;
+  return `${cap(joinNames(cars))} side by side: price, Drive Plan deposit, age, mileage, engine and seats — and which one suits you.`;
 }
 
 export interface ComparisonLink {

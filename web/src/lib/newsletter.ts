@@ -21,9 +21,14 @@ export interface EmailVehicle {
   id: string;
   title: string;
   slug: string;
+  year: number;
   priceMinor: number | null;
   coverUrl: string | null;
 }
+
+/** The Friday digest's opening line — shared with the staff preview, so what staff see is what subscribers get. */
+export const DIGEST_INTRO =
+  "Photographed, priced and ready to inspect at the showroom. Every one can be bought outright, and cars from 2008 can go on the Drive Plan — you pay 40% (50% on a 2008 or 2009 car), Autochek finances the rest once its lender approves.";
 
 async function withCovers(
   rows: { id: string; year: number; make: string; model: string; slug: string; priceMinor: number | null }[],
@@ -46,6 +51,7 @@ async function withCovers(
     id: r.id,
     title: vehicleTitle(r),
     slug: r.slug,
+    year: r.year,
     priceMinor: r.priceMinor,
     coverUrl: coverOf.get(r.id) ?? null,
   }));
@@ -117,12 +123,12 @@ export function renderNewsletter(c: NewsletterContent, unsubscribeUrl: string): 
     const price = v.priceMinor ? formatNaira(v.priceMinor) : "Price on request";
     const deposit = drivePlanDeposit(v);
     return {
-      text: `${v.title} — ${price}${deposit ? ` (${deposit} down on the 40% Drive Plan)` : ""}\n${url}`,
+      text: `${v.title} — ${price}${deposit ? ` (${deposit} down on the Drive Plan)` : ""}\n${url}`,
       html: `<tr><td style="padding:0 0 28px">
 ${v.coverUrl ? `<a href="${esc(url)}"><img src="${esc(shareImageUrl(v.coverUrl))}" width="560" alt="${esc(v.title)}" style="display:block;width:100%;height:auto;border:0;border-radius:14px"></a>` : ""}
 <div style="padding:14px 0 0;font-family:Helvetica,Arial,sans-serif;font-weight:bold;letter-spacing:-0.3px;font-size:22px;line-height:1.25;color:#F2F2EC">${esc(v.title)}</div>
 <div style="padding:6px 0 0;font-size:17px;color:#A5DB6F;font-weight:bold">${esc(price)}</div>
-${deposit ? `<div style="padding:2px 0 0;font-size:14px;color:#9FA59E">${esc(deposit)} down on the 40% Drive Plan</div>` : ""}
+${deposit ? `<div style="padding:2px 0 0;font-size:14px;color:#9FA59E">${esc(deposit)} down on the Drive Plan</div>` : ""}
 <div style="padding:12px 0 0"><a href="${esc(url)}" style="color:#A5DB6F;font-size:15px;font-weight:bold;text-decoration:none">See the vehicle &rarr;</a></div>
 </td></tr>`,
     };
@@ -204,8 +210,7 @@ async function contentOf(send: typeof newsletterSends.$inferSelect): Promise<New
     return {
       kicker: "New this week",
       headline: cars.length === 1 ? "One new arrival at Sabicars." : `${cars.length} new arrivals at Sabicars.`,
-      intro:
-        "Photographed, priced and ready to inspect at the showroom. Every one can be bought outright or on the 40% Drive Plan — you pay 40%, Autochek finances the rest once it approves.",
+      intro: DIGEST_INTRO,
       vehicles: cars,
       campaign: send.periodKey ?? "digest",
     };

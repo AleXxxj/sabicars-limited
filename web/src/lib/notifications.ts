@@ -147,7 +147,7 @@ export async function announceArrival(vehicleId: string): Promise<boolean> {
     title: `New arrival: ${title}`,
     message: [
       v.priceMinor ? formatNaira(v.priceMinor) : "Price on request",
-      deposit ? `${deposit} down on the 40% Drive Plan` : null,
+      deposit ? `${deposit} down on the Drive Plan` : null,
       "In the showroom now.",
     ]
       .filter(Boolean)

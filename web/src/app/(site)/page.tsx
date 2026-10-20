@@ -27,11 +27,12 @@ import { publishedReviews, reviewSummary } from "@/lib/repositories/reviews";
 import { ReviewsSection } from "@/components/reviews/ReviewsSection";
 import { PostCard } from "@/components/blog/PostCard";
 import { latestPosts } from "@/lib/repositories/blog";
-import { formatNaira, money, percentOf } from "@/lib/money";
+import { formatNaira } from "@/lib/money";
 import { dealerJsonLd, jsonLdScript } from "@/lib/seo/structured-data";
 import { pageAddress, site, siteUrl } from "@/lib/site";
 import { BUDGET_OPTIONS } from "@/lib/sourcing";
-import { DRIVE_PLAN_DEPOSIT_BPS, priceLabel, vehicleTitle } from "@/lib/vehicle";
+import { DRIVE_PLAN, depositMinorFor } from "@/lib/drive-plan";
+import { priceLabel, vehicleTitle } from "@/lib/vehicle";
 
 /**
  * Rebuilt every five minutes, and immediately whenever staff change a vehicle
@@ -90,8 +91,9 @@ export default async function Home() {
   const heroSource = (hero.length ? hero : featured).filter((v) => v.cover);
   const slides: HeroSlide[] = heroSource.map((v) => ({ url: v.cover!.url, title: vehicleTitle(v), price: priceLabel(v), href: `/vehicles/${v.slug}` }));
 
-  // The smallest deposit that drives a car home today, from the cheapest available vehicle.
-  const lowestDeposit = catalogue[0] ? percentOf(money(catalogue[0].priceMinor, "NGN"), DRIVE_PLAN_DEPOSIT_BPS).minor : null;
+  // The smallest deposit that drives a car home today: each car at its own tier, so a 2009 car at 50% is not mistaken for the cheapest.
+  const lowestDeposit = catalogue.length ? Math.min(...catalogue.map((v) => v.depositMinor)) : null;
+  const hummerDepositFrom = hummers.map((b) => depositMinorFor(b.priceMinor, b.year)).filter((d): d is number => d !== null).sort((a, b) => a - b)[0] ?? null;
   const busCover = tiles.find((t) => t.key === "buses")?.coverUrl;
 
   return (
@@ -113,7 +115,7 @@ export default async function Home() {
         <dl className="mx-auto grid max-w-7xl grid-cols-2 gap-3 px-5 md:grid-cols-4 md:gap-4 md:px-10">
           {[
             { value: String(stats.inStock), label: "Vehicles in stock today", icon: CarFront },
-            { value: lowestDeposit ? formatNaira(lowestDeposit, { compact: true }) : "—", label: "Lowest deposit on the 40% Drive Plan", icon: Wallet },
+            { value: lowestDeposit ? formatNaira(lowestDeposit, { compact: true }) : "—", label: "Lowest deposit on the Drive Plan", icon: Wallet },
             { value: String(stats.makes), label: "Makes, from Toyota to Mercedes-Benz", icon: Layers },
             { value: site.rcNumber, label: "CAC registered — verify it", href: site.cacSearchUrl, icon: ShieldCheck },
           ].map(({ value, label, href, icon: Icon }) => (
@@ -151,7 +153,7 @@ export default async function Home() {
                 {[
                   [String(hummers.length), "in stock now"],
                   [hummerFrom ? formatNaira(hummerFrom, { compact: true }) : "—", "starting price"],
-                  [hummerFrom ? formatNaira(percentOf(money(hummerFrom, "NGN"), DRIVE_PLAN_DEPOSIT_BPS).minor, { compact: true }) : "—", "40% deposit from"],
+                  [hummerDepositFrom ? formatNaira(hummerDepositFrom, { compact: true }) : "—", "Drive Plan deposit from"],
                 ].map(([value, label]) => (
                   <div key={label} className="surface-card !rounded-2xl p-4">
                     <dt className="sr-only">{label}</dt>
@@ -210,10 +212,11 @@ export default async function Home() {
           <div className="mx-auto max-w-7xl px-5 py-20 md:px-10 md:py-28">
             <DrivePlanFinder vehicles={catalogue}>
               <ScrollReveal>
-                <SectionHead eyebrow="The 40% Drive Plan" title="What can your 40% drive home?">
+                <SectionHead eyebrow="The 40% Drive Plan" title="What can your deposit drive home?">
                   <p>
-                    Pay 40% of the price. Autochek, Sabicars’ financing partner, finances the remaining 60%, subject to its approval.
-                    Tell us what you can put down — the answer comes from what is in stock right now.
+                    Pay 40% of the price on a car from {DRIVE_PLAN.standardYear} (50% on a {DRIVE_PLAN.minYear} or {DRIVE_PLAN.standardYear - 1} car), and Autochek,
+                    Sabicars’ financing partner, finances the rest, subject to its lender’s approval. Tell us what you can put down — the answer
+                    comes from what is in stock right now.
                   </p>
                 </SectionHead>
                 <ButtonLink href="/drive-plan" variant="quiet" className="mt-4">

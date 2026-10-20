@@ -18,12 +18,12 @@ const short = z.string().trim().min(1).max(300);
 /** Animated illustrations, drawn in code (components/blog/illustrations). */
 export const ILLUSTRATIONS = {
   "hummer-anatomy": "The Hummer bus, drawn and labelled: what to look at, where",
-  "drive-plan-split": "The 40% / 60% split on a real price, animated",
+  "drive-plan-split": "The deposit and what Autochek finances, split on a real price, animated",
   "inspection-checklist": "An inspection checklist the reader ticks off",
   "route-calculator": "Will a bus pay for itself? The reader's own numbers",
   "stock-chart": "The Hummer buses in stock, plotted by year and price",
   "drive-plan-journey": "The Drive Plan as a journey: a car drives the six steps as the reader scrolls",
-  "deposit-stretch": "Your money two ways: cash, or a 40% deposit, against live stock",
+  "deposit-stretch": "Your money two ways: cash, or a Drive Plan deposit, against live stock",
   "repayment-comfort": "Can you carry the repayment? Pay against Autochek's quote",
   "walkaround": "The 20-minute walk-around, played out as the reader scrolls",
   "flood-detective": "Has it been under water? A find-the-evidence game",

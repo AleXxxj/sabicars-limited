@@ -3,6 +3,7 @@ import { cache } from "react";
 import { and, asc, count, desc, eq, gte, inArray, lte, ne, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
 import { dealers, locations, settings, vehicleMedia, vehicles, type Vehicle, type VehicleMedia } from "@/db/schema";
+import { DRIVE_PLAN, depositMinorFor } from "@/lib/drive-plan";
 import { CAR_BODIES, type InventoryFilters } from "@/lib/inventory-filters";
 import { verificationMap, type Verification } from "@/lib/repositories/inspections";
 import { wantWords } from "@/lib/matching";
@@ -182,7 +183,10 @@ export async function categoryTiles(): Promise<CategoryTile[]> {
 export interface CatalogueItem {
   slug: string;
   title: string;
+  year: number;
   priceMinor: number;
+  /** What the buyer puts down on this car: 40% from 2010, 50% for 2008–2009 (lib/drive-plan.ts). */
+  depositMinor: number;
   coverUrl: string | null;
 }
 
@@ -195,12 +199,14 @@ export async function drivePlanCatalogue(): Promise<CatalogueItem[]> {
   const rows = await db
     .select()
     .from(vehicles)
-    .where(and(eq(vehicles.dealerId, await sabicarsId()), eq(vehicles.status, "available"), sql`${vehicles.priceMinor} IS NOT NULL`))
+    .where(and(eq(vehicles.dealerId, await sabicarsId()), eq(vehicles.status, "available"), sql`${vehicles.priceMinor} IS NOT NULL`, gte(vehicles.year, DRIVE_PLAN.minYear)))
     .orderBy(asc(vehicles.priceMinor));
   return (await withCovers(rows)).map((v) => ({
     slug: v.slug,
     title: vehicleTitle(v),
+    year: v.year,
     priceMinor: v.priceMinor!,
+    depositMinor: depositMinorFor(v.priceMinor, v.year)!,
     coverUrl: v.cover?.url ?? null,
   }));
 }
@@ -210,12 +216,14 @@ export async function catalogueWithShape(): Promise<(CatalogueItem & { body: str
   const rows = await db
     .select()
     .from(vehicles)
-    .where(and(eq(vehicles.dealerId, await sabicarsId()), eq(vehicles.status, "available"), sql`${vehicles.priceMinor} IS NOT NULL`))
+    .where(and(eq(vehicles.dealerId, await sabicarsId()), eq(vehicles.status, "available"), sql`${vehicles.priceMinor} IS NOT NULL`, gte(vehicles.year, DRIVE_PLAN.minYear)))
     .orderBy(asc(vehicles.priceMinor));
   return (await withCovers(rows)).map((v) => ({
     slug: v.slug,
     title: vehicleTitle(v),
+    year: v.year,
     priceMinor: v.priceMinor!,
+    depositMinor: depositMinorFor(v.priceMinor, v.year)!,
     coverUrl: v.cover?.url ?? null,
     body: v.body,
     segment: v.segment,
@@ -378,6 +386,16 @@ function filterConditions(dealerId: string, f: InventoryFilters, omit: Facet[] =
   if (f.condition) where.push(eq(vehicles.condition, f.condition));
   if (f.minPrice) where.push(gte(vehicles.priceMinor, f.minPrice * 100));
   if (f.maxPrice) where.push(lte(vehicles.priceMinor, f.maxPrice * 100));
+  if (f.maxDeposit) {
+    // Each car at its own tier, rounded to whole naira exactly as depositMinorFor() does, and available
+    // only (a reserved car cannot go on the plan today), so this list and the Drive Plan finder agree
+    // car for car. A car with no price has no deposit: excluded.
+    where.push(eq(vehicles.status, "available"));
+    // The tier constants are inlined (sql.raw) rather than bound: Postgres types a bound parameter inside CASE as text.
+    const n = (x: number) => sql.raw(String(x));
+    const bps = sql`(CASE WHEN ${vehicles.year} >= ${n(DRIVE_PLAN.standardYear)} THEN ${n(DRIVE_PLAN.standardDepositBps)} ELSE ${n(DRIVE_PLAN.olderDepositBps)} END)`;
+    where.push(gte(vehicles.year, DRIVE_PLAN.minYear), sql`round((${vehicles.priceMinor} * ${bps}) / 1000000.0) <= ${f.maxDeposit}::bigint`);
+  }
   return where;
 }
 

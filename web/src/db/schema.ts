@@ -271,8 +271,9 @@ export const vehicles = pgTable(
 
     /**
      * This vehicle on Sabicars' Autochek dealer store. Autochek profiles Drive
-     * Plan buyers and finances the 60%, but only for vehicles listed there —
-     * each listing already carries its loan configuration. (Legacy field:
+     * Plan buyers and finances the balance (60% of a car from 2010, 50% of a
+     * 2008 or 2009 car, nothing older — lib/drive-plan.ts), but only for
+     * vehicles listed there; its lender sets the rate and term. (Legacy field:
      * financeUrl.)
      */
     autochekUrl: text("autochek_url"),

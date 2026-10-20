@@ -43,7 +43,7 @@ available at that moment**, and every one of them is recorded:
 | Ask a question at 2am | WhatsApp, answered in the morning if seen | Assistant answers from the live inventory, takes name + phone, files a summarised lead |
 | Secure a specific car | Negotiate on WhatsApp | **Reserve online** with a refundable deposit (Paystack); the car shows as reserved and is held for a fixed window |
 | See the car in person | Arrange on WhatsApp | **Book a viewing** from real available slots; confirmation and reminder sent automatically |
-| Pay 40% and drive | Enquiry form that alerts nobody | **Drive Plan application** with documents, a staff decision queue, and an instalment ledger once approved |
+| Pay a deposit and drive | Enquiry form that alerts nobody | **Drive Plan application** with documents, a staff decision queue, and an instalment ledger once approved |
 | Buy 5–50 units for a company or government | Personal relationship only | **Fleet request** → formal quotation → delivery tracking |
 | Still wants WhatsApp | 48 buttons | One deliberate entry point, and the click is logged as a lead with the vehicle attached |
 
@@ -214,8 +214,9 @@ All in `web/`; see [`web/README.md`](../web/README.md) to run it.
   inventory.
 - **Schema.** 14 tables (§5, phases 1–3 subset). 42 assertions in
   `scripts/verify-schema.mjs` prove the database refuses invalid states.
-- **Money.** Integer kobo in `bigint`; percentages in basis points. The 40%
-  deposit and 1.5% commission are verified to the kobo on every build.
+- **Money.** Integer kobo in `bigint`; percentages in basis points. The Drive
+  Plan deposit at both tiers (`scripts/verify-drive-plan.ts`) and the 1.5%
+  commission are verified to the kobo on every build.
 - **Staff auth.** Supabase session *and* an active `staff` row, checked on
   every admin request; roles owner / manager / sales. Inactive until the
   Supabase project exists, and says so rather than failing.
@@ -248,8 +249,10 @@ Decisions made while building, recorded so they are not re-litigated:
   plain links and a GET form, so it works with JavaScript blocked; facet
   counts on every option.
 - **A page for every vehicle** at `/vehicles/<year-make-model>`: swipeable
-  gallery with full-screen view; price and the 40% Drive Plan split (deposit
-  and balance only — no tenor or rate until the terms are confirmed); only the
+  gallery with full-screen view; price and the Drive Plan split at the car's
+  own tier (deposit and balance only — the rate and term are the lender's,
+  shown only as Autochek's published ceiling and range), or "Cash purchase"
+  on a car older than 2008; only the
   specifications actually recorded; `Car` + `AutoDealer` structured data;
   1200×630 share image for WhatsApp previews. Pre-rendered at build and
   refreshed every five minutes. Sold vehicles keep their page (not indexed).
@@ -352,15 +355,16 @@ and navigation are to understand. What changed, site-wide:
   (auto exposure and colour), chosen after comparing it with a stronger
   outdoor/vibrance treatment on real listings.
 - Featured cars swipe sideways on a phone instead of stacking 4,000px deep.
-- **/drive-plan** built on the confirmed structure (40% deposit, Autochek
-  finances 60%): finder, four steps, a worked example on a real car,
+- **/drive-plan** built on the confirmed structure (deposit by model year —
+  40% from 2010, 50% on a 2008 or 2009 car, nothing older financed — and
+  Autochek finances the rest): finder, four steps, a worked example on a real car,
   straight answers, and an application recorded as a Drive Plan lead.
 
 ### Search visibility (2026-09-26)
 
 The owner's aim: the inventory everywhere a related search happens. Built, taking effect once the platform is live and crawled:
 
-- **A landing page per make and model family** with stock (`/buy/toyota-highlander`, `/buy/lexus-rx-350`, `/buy/toyota` …), generated from the inventory: live count, price from, 40% deposit, cars, a Sourcing Desk prompt, related models, breadcrumbs and an ItemList. A family that sells out keeps its page, noindexed, off the sitemap. The Hiace Hummer family redirects to /hummer-bus.
+- **A landing page per make and model family** with stock (`/buy/toyota-highlander`, `/buy/lexus-rx-350`, `/buy/toyota` …), generated from the inventory: live count, price from, lowest Drive Plan deposit (each car at its own tier), cars, a Sourcing Desk prompt, related models, breadcrumbs and an ItemList. A family that sells out keeps its page, noindexed, off the sitemap. The Hiace Hummer family redirects to /hummer-bus.
 - **Image sitemap:** every vehicle entry lists all its photos (~380), as large colour-corrected JPEGs, so Google Images indexes the stock; photo alt text reads "… for sale in Lagos".
 - **Structured data:** vehicles are `["Product","Car"]` with offers (price, availability, condition), sku and all images; BreadcrumbList on vehicle and landing pages; the AutoDealer carries logo, image and price range.
 - Vehicle titles read "… for sale in Lagos"; a "Popular searches" row in the footer links the busiest model pages from every page.
@@ -388,7 +392,7 @@ The owner asked, rightly, where the live site's reviews, subscribe button, notif
 - **Newsletter.** There is a subscribe band in the footer of every page and one prompt (below). Existing subscribers carry over. Every **Friday at 9am** the week's new arrivals go out automatically; a week with none sends nothing. Managers can send a broadcast from **Admin → Audience**, which also previews this Friday's email. Every email carries a one-click unsubscribe, both a page and RFC 8058 from the mail app. The old newsletter had none.
 - **Notification bell and push.** The bell is in the header on every page and shows the latest 20 posts. **Nobody types "New arrival" any more.** Listing a car, or its first photo on a listed car, posts it once. So does a price cut on a listed car. Each post is pushed through the **same OneSignal account** the old site uses, with the same `OneSignalSDKWorker.js` at the same address, so existing subscribers keep receiving alerts without opting in again. Managers can post offers by hand. The 32 old posts carry over, linked to their cars' new pages.
 - **One prompt per visit**, instead of the old site's four popups (newsletter, review, OneSignal, install). It appears after 25 seconds plus a second page or some reading, in this order: subscribe, phone alerts, add to home screen (Android's install prompt, or the iPhone Share hint), then — from the third visit — a review. Each is skipped once done and rests after "Not now".
-- Also restored: **recently viewed** (on the device; on the inventory and every car page), **recently sold** (last 90 days; hidden while there are none), and the **any-price calculator** on /drive-plan. The calculator shows the 40% and Autochek's 60% for any price or car. It shows no monthly figure, because Autochek sets the terms.
+- Also restored: **recently viewed** (on the device; on the inventory and every car page), **recently sold** (last 90 days; hidden while there are none), and the **any-price calculator** on /drive-plan. The calculator shows the deposit and what Autochek finances for any price or car, at the tier the model year carries (40/60 from 2010, 50/50 for 2008–2009). It shows no monthly figure, because Autochek's lender sets the terms.
 
 At cutover, set in Vercel:
 - `NEXT_PUBLIC_ONESIGNAL_APP_ID` (the old site's app, `6f283e9c-…`) and `ONESIGNAL_REST_API_KEY` (from the OneSignal dashboard; the owner has access)
@@ -407,11 +411,11 @@ The owner's brief: magazine-grade, articles you finish once you start, with anim
 - **Animated illustrations, drawn in code** (`components/blog/illustrations`):
   - the Hummer bus anatomy, which draws itself and has six tappable inspection points
   - a live chart of every Hummer in stock by year and price
-  - the 40/60 Drive Plan split on a real bus
+  - the Drive Plan split on a real bus, at the bus's own tier (40/60 or 50/50)
   - an inspection checklist that stays ticked on the reader's phone
   - a route calculator on the reader's own numbers
   - the Drive Plan journey: a pinned scroll story in which a car drives six steps along a road
-  - the deposit stretch: cash vs a 40% deposit, racing against live stock to the best car each reaches
+  - the deposit stretch: cash vs a Drive Plan deposit (each car at its own tier; cash also reaches the older cars the plan does not cover), racing against live stock to the best car each reaches
   - repayment comfort: the reader's pay, a 30% ring, and a verdict on Autochek's quote
   - the walk-around: a pinned scroll story round a top-down car, seven stops, with the minutes for each
   - the flood detective: water rises and drains, then the reader hunts the six marks it leaves
@@ -433,7 +437,7 @@ The owner's brief: magazine-grade, articles you finish once you start, with anim
 - **Articles in code** (`src/content/articles`, `npm run blog:seed`):
   - Flagship: "The Toyota Hiace Hummer bus: the complete buyer's guide". Every price in it is live from stock, and it carries the owner's Instagram reel of a manual Hummer 2.
   - The six standalone `blog/*.html` articles of the old site: three are rewritten (Highlander vs GX 460, the best SUVs for Nigerian roads, buying a tokunbo truck), and three redirect into newer articles or `/fleet`.
-  - The three old posts, rewritten at their original addresses so links, reads, reactions, comments and dates carry over: "Drive now, pay monthly" (now the Autochek 40/60 arrangement), "How to inspect a used car in Lagos in 20 minutes", and "Best cars under ₦5 million" (the old model list kept, without market prices that date).
+  - The three old posts, rewritten at their original addresses so links, reads, reactions, comments and dates carry over: "Drive now, pay monthly" (now the Autochek arrangement, with the deposit by model year), "How to inspect a used car in Lagos in 20 minutes", and "Best cars under ₦5 million" (the old model list kept, without market prices that date).
   - The seeder inserts new articles, rewrites an old-site row once (one with no hook line yet), and otherwise leaves admin edits alone unless run with `--force`. The legacy importer now updates only reads, shares and reactions on posts that already exist, so a final import cannot undo the rewrites.
 - **Admin → Insights:** a block editor with direct photo upload to Cloudinary (`sabicars/blog`) and draft preview. The first publish announces the article once: bell, push, and an email to blog subscribers. Published articles cannot be deleted, only unpublished, so links never break.
 - "Insights" is in the site navigation, the latest articles are on the homepage, and the Hummer bus page links to the guide.
@@ -444,7 +448,7 @@ Still open: more video. One Instagram reel is in (the Hummer guide). YouTube and
 
 The owner's brief: suggest cars straight from the inventory from what the buyer says, compare cars, sound warm, human and real, work as marketing, and help Google ranking. Built on the Adedayo engine, extended:
 
-- **Knowledge, live** (`lib/assistant/knowledge.ts`): every listed car with its price, 40% deposit, recorded facts, features and the dealer's own notes (marked as possibly wrong), plus hours, contacts, the Drive Plan rules, the Sourcing Desk, Refer & Earn, the articles and the published answers. Built identically for the same stock, so the provider's prompt cache holds it between chats.
+- **Knowledge, live** (`lib/assistant/knowledge.ts`): every listed car with its price, its own Drive Plan deposit (or that it is cash only), recorded facts, features and the dealer's own notes (marked as possibly wrong), plus hours, contacts, the Drive Plan rules, the Sourcing Desk, Refer & Earn, the articles and the published answers. Built identically for the same stock, so the provider's prompt cache holds it between chats.
 - **Voice and limits** (`lib/assistant/prompt.ts`): the best salesperson on the lot. Short, warm, one question at a time; answers in Pidgin, or greets back in Yoruba, Igbo or Hausa, when the buyer does; says it is an AI if asked. Never invents a car, price or spec; never negotiates; never states finance approval, rate or monthly repayment; never takes a BVN, card or ID; never claims a condition the listing does not state.
 - **It shows, not only tells**: the model writes `[[cars: …]]`, `[[compare: …]]` or `[[callback]]`; the server (`lib/assistant/parts.ts`, `api/assistant`) checks every slug against live stock and streams car cards, a side-by-side comparison or a call-me-back form in their place.
 - **Every chat is kept** (`assistant_conversations`, `assistant_messages`, migration 0007). A small model summarises it; once the buyer gives a name and number, it becomes one lead in the Enquiries inbox (channel "Ask Sabicars"), alerted like any other, never duplicated. Rate limits per address and per day protect the bill.
@@ -559,6 +563,8 @@ These block content and go-live, not architecture. Building continues without th
 1. **Staff list** — who handles sales, who approves Drive Plans, who is owner. Names, phones, emails. Each person's role decides what they see; managers are the ones alerted when an enquiry waits 15 minutes. Every salesperson then installs "Sabicars Staff" on their phone and turns alerts on.
 2. **Reservation policy** — deposit amount, how long a car is held, and whether the deposit is refundable.
 3. **Drive Plan terms** — *Answered 2026-09-26:* the buyer pays 40%; **Autochek finances the remaining 60%**. Sabicars has an Autochek dealer store; its stock is listed there and each listing already carries its loan configuration (tenor, interest). Loan buyers are profiled and processed by Autochek, and the vehicle must be on the store. Built: a per-vehicle Autochek link (legacy `financeUrl`, empty on all 48 today), "Apply for the 60% on Autochek" on each vehicle (records the buyer first, then sends them to the listing), a request path for vehicles not yet listed, and an admin flag on available vehicles with no link. *Answered 2026-09-26:* the car leaves the showroom only after Autochek approves; the buyer pays the 40% then.
+
+   *Answered 2026-10-20 — the terms depend on the car's year.* Autochek's team told Sabicars: its lenders finance nothing older than 2008; a 2008 or 2009 car needs 50% down; a car from 2010 needs 40%; the buyer shows six months of bank statements; a business owner shows a CAC registration, and a registered business name is enough — Autochek can arrange one for about ₦35,000; the interest rate is "on the site". Verified against Autochek's own pages the same day: every listing, including 2004–2009 cars, shows "40% minimum", so the year tiers and the 50% rule are its lenders' rule, not something Autochek's website states; listings give the rate as "available on request", and the only published figures are in its app-store listing: the 30% a year ceiling, 6–48 month terms, a worked example (₦1,000,000 over 12 months at 30% ≈ ₦97,487 a month, which the build checks is an ordinary amortised loan) and a ₦20,000 processing fee, which the pages quote as Autochek's own; its listings also say "40% minimum (max 70%)"; six months of statements matches its financing pages; the CAC requirement (a BN1 business-name registration) is confirmed; the ₦35,000 could not be verified anywhere Autochek publishes. Decision: the site publishes the stricter lender rule, attributed and dated — the deposit tiers and the year floor "as Autochek's team gave them to Sabicars on 20 October 2026", and only the rate ceiling, the terms, the documents and the fee "as Autochek publishes", never implying Autochek's website states the tiers — never states a rate or a monthly figure as fact, and never offers the plan or computes a deposit on a car older than 2008. `web/src/lib/drive-plan.ts` is the source of record for every figure, and `web/scripts/verify-drive-plan.ts` gates the build (`npm run test:drive-plan`) so no page can state a different rule. The published answers and the Drive Plan article are seeded content: a change to `content/ask-answers.ts` or `content/articles/*.ts` reaches production only with `ask:seed -- --force` / `blog:seed -- --force` against the production database, since the seeders keep existing rows otherwise. Still needed from the business, in writing from Autochek: the year tiers and the 50% rule for 2008–2009 cars.
 4. **Consignment terms** — what the truck importer is paid, and what they should be able to see.
 5. **Real delivery photos** — the Highlander, Lexus and Hummer supplies, including the LCDA order.
 6. **Which claims are true** — "500+ vehicles sold", "8 years", "36 states", "warranty on every car". Unverifiable claims are a liability, and an institution only publishes what it can stand behind.

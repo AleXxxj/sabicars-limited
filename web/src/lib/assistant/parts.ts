@@ -24,6 +24,8 @@ export interface AssistantCar {
   priceMinor: number | null;
   wasPriceMinor: number | null;
   depositMinor: number | null;
+  /** 40 for a car from 2010, 50 for 2008–2009, null when Autochek would not finance it. */
+  depositPercent: 40 | 50 | null;
   year: number;
   condition: string;
   body: string | null;

@@ -141,7 +141,7 @@ export const highlanderVsGx460 = {
         },
         {
           q: "Can I buy either on the Drive Plan?",
-          a: "Yes, when the car is listed on Sabicars’ Autochek store — ask if you are not sure. You pay 40% and Autochek finances the rest, subject to its approval; the car leaves the showroom once Autochek approves and your 40% is paid. [How the Drive Plan works](/drive-plan).",
+          a: "Yes, when the car is listed on Sabicars’ Autochek store and is a 2008 model or newer — ask if you are not sure. You pay 40% — 50% on a 2008 or 2009 car — and Autochek finances the rest, subject to its lender’s approval; the car leaves the showroom once Autochek approves and your deposit is paid. [How the Drive Plan works](/drive-plan).",
         },
       ],
     },

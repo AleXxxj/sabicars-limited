@@ -64,7 +64,7 @@ export const isZero = (m: Money): boolean => m.minor === 0;
 
 /**
  * A percentage of an amount, with the rate in basis points (100 bps = 1%).
- * The 40% Drive Plan deposit is 4000 bps; the referral commission is 150 bps.
+ * A Drive Plan deposit is 4000 or 5000 bps by model year (lib/drive-plan.ts); the referral commission is 150 bps.
  * Integer basis points keep rates out of floating point, the same way minor
  * units keep amounts out of it. Rounds half away from zero, to the kobo.
  */

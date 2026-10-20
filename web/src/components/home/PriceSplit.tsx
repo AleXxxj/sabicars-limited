@@ -2,29 +2,39 @@
 
 import { useId, useState } from "react";
 import Link from "next/link";
-import { formatNaira, money, percentOf, subtract } from "@/lib/money";
-import { DRIVE_PLAN_DEPOSIT_BPS } from "@/lib/vehicle";
+import { DRIVE_PLAN, depositMinorFor, drivePlanTerms } from "@/lib/drive-plan";
+import { formatNaira } from "@/lib/money";
 import type { FinderVehicle } from "./DrivePlanFinder";
 
 const grouped = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
+/** The two tiers a buyer can choose between for a price typed by hand; a car chosen from stock sets its own. */
+const TIERS = [
+  { year: DRIVE_PLAN.standardYear, label: `${DRIVE_PLAN.standardYear} or newer`, deposit: "40% down" },
+  { year: DRIVE_PLAN.minYear, label: `${DRIVE_PLAN.minYear}–${DRIVE_PLAN.standardYear - 1}`, deposit: "50% down" },
+] as const;
+
 /**
- * Any price, split: what you pay and what Autochek finances. For a car seen
- * elsewhere, a figure someone quoted, or one in stock. No monthly figure is
- * shown — Autochek sets the tenor and rate on each listing, and a guess here
- * would be a promise Sabicars cannot keep.
+ * Any price, split: what you pay and what Autochek finances, at the deposit
+ * the car's model year carries. For a car seen elsewhere, a figure someone
+ * quoted, or one in stock. No monthly figure is shown — Autochek's lender sets
+ * the tenure and rate when it assesses the buyer, and a guess here would be a
+ * promise Sabicars cannot keep.
  */
 export function PriceSplit({ vehicles }: { vehicles: FinderVehicle[] }) {
   const id = useId();
-  const [text, setText] = useState(
-    vehicles[Math.floor(vehicles.length / 2)] ? grouped(Math.round(vehicles[Math.floor(vehicles.length / 2)].priceMinor / 100)) : "",
-  );
+  const middle = vehicles[Math.floor(vehicles.length / 2)];
+  const [text, setText] = useState(middle ? grouped(Math.round(middle.priceMinor / 100)) : "");
   const [slug, setSlug] = useState("");
+  const [tierYear, setTierYear] = useState<number>(middle?.year ?? DRIVE_PLAN.standardYear);
   const naira = Number(text.replace(/\D/g, "")) || 0;
-  const price = money(naira * 100, "NGN");
-  const deposit = percentOf(price, DRIVE_PLAN_DEPOSIT_BPS);
-  const financed = subtract(price, deposit);
+  const priceMinor = naira * 100;
+  const terms = drivePlanTerms(tierYear);
+  // The same whole-naira rounding as every car page, so the two halves shown here always add up to the price.
+  const depositMinor = terms.eligible ? (depositMinorFor(priceMinor, tierYear) ?? 0) : 0;
+  const financedMinor = priceMinor - depositMinor;
   const chosen = vehicles.find((v) => v.slug === slug);
+  const tier = TIERS.find((t) => tierYear >= t.year) ?? TIERS[0];
 
   return (
     <div className="surface-card grid gap-8 p-6 md:grid-cols-2 md:p-10">
@@ -39,7 +49,10 @@ export function PriceSplit({ vehicles }: { vehicles: FinderVehicle[] }) {
           onChange={(e) => {
             setSlug(e.target.value);
             const v = vehicles.find((x) => x.slug === e.target.value);
-            if (v) setText(grouped(Math.round(v.priceMinor / 100)));
+            if (v) {
+              setText(grouped(Math.round(v.priceMinor / 100)));
+              setTierYear(v.year);
+            }
           }}
           className="mt-2 min-h-12 w-full rounded-xl border border-border-default bg-surface-1 px-4 text-text-primary outline-none focus:border-green-500"
         >
@@ -71,23 +84,49 @@ export function PriceSplit({ vehicles }: { vehicles: FinderVehicle[] }) {
             className="figures w-full min-w-0 bg-transparent font-display text-[2rem] leading-none text-text-primary outline-none placeholder:text-text-muted"
           />
         </div>
+        <p className="mt-6 text-sm text-text-secondary">The car&rsquo;s model year</p>
+        <div role="radiogroup" aria-label="The car's model year" className="mt-2 flex flex-wrap gap-2">
+          {TIERS.map((t) => {
+            const on = tier.year === t.year;
+            return (
+              <button
+                key={t.year}
+                type="button"
+                role="radio"
+                aria-checked={on}
+                onClick={() => {
+                  setTierYear(t.year);
+                  setSlug("");
+                }}
+                className={`min-h-11 rounded-full border px-4 text-sm font-semibold transition-colors ${
+                  on ? "border-green-400 bg-green-500/15 text-green-100" : "border-border-default text-text-secondary hover:border-border-strong"
+                }`}
+              >
+                {t.label} · {t.deposit}
+              </button>
+            );
+          })}
+        </div>
+        <p className="mt-3 text-xs text-text-muted">Autochek does not finance cars older than {DRIVE_PLAN.minYear}.</p>
       </div>
 
       <dl aria-live="polite" className="grid content-center gap-5 md:border-l md:border-white/[0.06] md:pl-8">
         <div>
-          <dt className="text-sm text-text-muted">You pay (40%)</dt>
+          <dt className="text-sm text-text-muted">You pay ({terms.eligible ? `${terms.depositPercent}%` : "—"})</dt>
           <dd className="figures text-brand mt-1 font-display text-[2.6rem] leading-none md:text-[3.2rem]">
-            {naira ? formatNaira(deposit.minor) : "—"}
+            {naira && terms.eligible ? formatNaira(depositMinor) : "—"}
           </dd>
         </div>
         <div>
-          <dt className="text-sm text-text-muted">Autochek finances (60%), once it approves</dt>
+          <dt className="text-sm text-text-muted">Autochek finances ({terms.eligible ? `${terms.financedPercent}%` : "—"}), once it approves</dt>
           <dd className="figures mt-1 font-display text-[1.9rem] leading-none text-text-primary">
-            {naira ? formatNaira(financed.minor) : "—"}
+            {naira && terms.eligible ? formatNaira(financedMinor) : "—"}
           </dd>
         </div>
         <p className="text-sm leading-relaxed text-text-secondary">
-          Autochek sets the repayment terms on each listing. The vehicle leaves the showroom once Autochek approves and the 40% is paid.
+          Autochek&rsquo;s lender sets the repayment terms when it assesses you: up to {DRIVE_PLAN.maxAnnualRatePercent}% a year, over{" "}
+          {DRIVE_PLAN.tenureMonths.min} to {DRIVE_PLAN.tenureMonths.max} months. The vehicle leaves the showroom once Autochek approves and the
+          deposit is paid.
         </p>
         {chosen && (
           <Link href={`/vehicles/${chosen.slug}#drive-plan`} className="text-sm font-semibold text-green-300 hover:text-green-200">

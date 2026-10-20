@@ -3,6 +3,7 @@
 import { useId, useState } from "react";
 import Link from "next/link";
 import { VehicleImage } from "@/components/VehicleImage";
+import { depositPercentLabel, reachMinorFor } from "@/lib/drive-plan";
 import { formatNaira } from "@/lib/money";
 import { useInView, useTween } from "./motion";
 
@@ -13,6 +14,15 @@ export interface StoryCar {
   coverUrl: string | null;
 }
 
+/** A car that can go on the Drive Plan, with its own deposit: 40% from 2010, 50% for 2008–2009 (lib/drive-plan.ts). */
+export interface PlanCar extends StoryCar {
+  year: number;
+  depositMinor: number;
+}
+
+/** A car in a lane: the cash lane takes any priced car, the plan lane only cars with a deposit. */
+type LaneCar = StoryCar & Partial<Pick<PlanCar, "year" | "depositMinor">>;
+
 const PRESETS = [3_000_000, 5_000_000, 8_000_000, 12_000_000, 20_000_000];
 const grouped = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
@@ -20,26 +30,30 @@ function Lane({
   label,
   note,
   reachNaira,
-  cars,
+  inReach,
   maxNaira,
   gold,
+  plan,
   seen,
   shortfall,
 }: {
   label: string;
   note: string;
   reachNaira: number;
-  cars: StoryCar[];
+  /** The cars in the showroom this money reaches, cheapest first. */
+  inReach: LaneCar[];
   maxNaira: number;
   gold: boolean;
+  /** The Drive Plan lane shows each car's own deposit beside its price. */
+  plan: boolean;
   seen: boolean;
   shortfall: React.ReactNode;
 }) {
   // Counts up from nothing when first seen, then glides with every change of amount.
   const shown = useTween(seen ? reachNaira : 0, 900);
-  const inReach = cars.filter((c) => c.priceMinor <= reachNaira * 100);
   // The most car the money reaches — the last one it can afford.
   const pick = inReach[inReach.length - 1];
+  const pct = pick?.year !== undefined ? depositPercentLabel(pick.year) : null;
   const width = shown > 0 ? Math.max(3, Math.min(100, (shown / maxNaira) * 100)) : 0;
 
   return (
@@ -90,7 +104,15 @@ function Lane({
             <span className="min-w-0">
               <span className="block text-xs text-text-muted">The most it reaches today</span>
               <span className="block truncate font-semibold text-text-primary group-hover:text-green-200">{pick.title}</span>
-              <span className="figures block text-sm text-text-secondary">{formatNaira(pick.priceMinor)}</span>
+              <span className="figures block text-sm text-text-secondary">
+                {formatNaira(pick.priceMinor)}
+                {plan && pick.depositMinor !== undefined && (
+                  <span className="text-green-300">
+                    {" "}
+                    · {formatNaira(pick.depositMinor)} down{pct ? ` (${pct})` : ""}
+                  </span>
+                )}
+              </span>
             </span>
           </Link>
         ) : (
@@ -103,19 +125,28 @@ function Lane({
 
 /**
  * The same money, two ways. The reader sets an amount; one lane shows what it
- * buys in cash, the other what it reaches as a 40% Drive Plan deposit — both
- * against the cars actually in the showroom, and the best car each reaches.
+ * buys in cash, the other what it reaches as a Drive Plan deposit (40% on a car
+ * from 2010, 50% on a 2008 or 2009 car) — both against the cars actually in the
+ * showroom, each tested on its own deposit, and the best car each reaches.
+ *
+ * `cars` are the ones Autochek would finance; `cashCars` is every priced car,
+ * because cash also buys the older cars the plan does not cover.
  */
-export function DepositStretch({ cars, start = 5_000_000 }: { cars: StoryCar[]; start?: number }) {
+export function DepositStretch({ cars, cashCars = cars, start = 5_000_000 }: { cars: PlanCar[]; cashCars?: StoryCar[]; start?: number }) {
   const id = useId();
   const [ref, seen] = useInView<HTMLDivElement>(0.3);
   const [text, setText] = useState(grouped(start));
   const naira = Number(text.replace(/\D/g, "")) || 0;
   const cashReach = naira;
-  const planReach = Math.floor(naira / 0.4);
-  const cheapest = cars[0];
-  const cheapestDeposit = cheapest ? Math.ceil((cheapest.priceMinor * 0.4) / 100) : 0;
-  const maxNaira = Math.max(planReach, (cars[cars.length - 1]?.priceMinor ?? 0) / 100) || 1;
+  // The headline figure is the reach on a car from 2010; the cars themselves are tested on their own deposit.
+  const planReach = Math.floor(reachMinorFor(naira * 100) / 100);
+  const inCash = cashCars.filter((c) => c.priceMinor <= naira * 100);
+  const onPlan = cars.filter((c) => c.depositMinor <= naira * 100);
+  // The car needing the least down — not always the cheapest, since a 2008 or 2009 car needs 50%.
+  const easiest = cars.reduce<PlanCar | null>((a, c) => (a && a.depositMinor <= c.depositMinor ? a : c), null);
+  const easiestPct = easiest ? depositPercentLabel(easiest.year) : null;
+  const dearest = Math.max(cars[cars.length - 1]?.priceMinor ?? 0, cashCars[cashCars.length - 1]?.priceMinor ?? 0);
+  const maxNaira = Math.max(planReach, dearest / 100) || 1;
 
   return (
     <div ref={ref} className="surface-card p-5 md:p-8">
@@ -157,27 +188,29 @@ export function DepositStretch({ cars, start = 5_000_000 }: { cars: StoryCar[]; 
           label="Pay cash"
           note="A car up to"
           reachNaira={cashReach}
-          cars={cars}
+          inReach={inCash}
           maxNaira={maxNaira}
           gold={false}
+          plan={false}
           seen={seen}
           shortfall="At this amount, cash is older-car money — below anything in the Sabicars showroom today."
         />
         <Lane
           label="40% Drive Plan"
-          note="Your deposit reaches a car up to"
+          note="Your deposit reaches a car from 2010 up to"
           reachNaira={planReach}
-          cars={cars}
+          inReach={onPlan}
           maxNaira={maxNaira}
           gold
+          plan
           seen={seen}
           shortfall={
-            cheapest ? (
+            easiest ? (
               <>
-                Not quite yet: a deposit of{" "}
-                <span className="figures font-semibold text-text-primary">{formatNaira(cheapestDeposit * 100)}</span> reaches the{" "}
-                <Link href={`/vehicles/${cheapest.slug}`}>{cheapest.title}</Link> —{" "}
-                <span className="figures">{formatNaira(Math.max(0, cheapestDeposit - naira) * 100)}</span> more.
+                Not quite yet: a{easiestPct ? ` ${easiestPct}` : ""} deposit of{" "}
+                <span className="figures font-semibold text-text-primary">{formatNaira(easiest.depositMinor)}</span> reaches the{" "}
+                <Link href={`/vehicles/${easiest.slug}`}>{easiest.title}</Link> —{" "}
+                <span className="figures">{formatNaira(Math.max(0, easiest.depositMinor - naira * 100))}</span> more.
               </>
             ) : (
               "Nothing listed right now."
@@ -186,8 +219,8 @@ export function DepositStretch({ cars, start = 5_000_000 }: { cars: StoryCar[]; 
         />
       </div>
       <p className="mt-5 text-xs leading-relaxed text-text-muted">
-        On the Drive Plan, Autochek finances the other 60% once it approves, on the terms set on the car’s listing. Prices are the
-        showroom’s today.
+        On the Drive Plan, Autochek finances the rest — 60% of a car from 2010, 50% of a 2008 or 2009 car — once it approves, on terms
+        its lender sets when it assesses you. Prices are the showroom’s today.
       </p>
     </div>
   );

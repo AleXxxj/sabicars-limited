@@ -79,8 +79,8 @@ export default async function StylePage() {
             Real cars, real prices. <span className="text-green-300">Every deal</span> on record.
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-[var(--hero-text-secondary)]">
-            Luxury cars, Toyota Hiace buses and trucks — photographed, priced and documented. Enquire online, or pay 40% on the
-            Drive Plan.
+            Luxury cars, Toyota Hiace buses and trucks — photographed, priced and documented. Enquire online, or put your deposit
+            down on the Drive Plan.
           </p>
           <div className="mt-10 flex flex-wrap gap-4">
             <Button size="lg">View inventory</Button>

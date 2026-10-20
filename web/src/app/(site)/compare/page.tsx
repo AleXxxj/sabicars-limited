@@ -13,7 +13,7 @@ export const revalidate = 300;
 export const metadata: Metadata = {
   title: "Compare cars side by side",
   description:
-    "Compare any cars in the Sabicars showroom side by side — price, 40% Drive Plan deposit, year, mileage, engine, seats and features — and see which one suits you.",
+    "Compare any cars in the Sabicars showroom side by side — price, Drive Plan deposit, year, mileage, engine, seats and features — and see which one suits you.",
   ...pageAddress("/compare"),
 };
 

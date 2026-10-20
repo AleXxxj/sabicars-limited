@@ -42,7 +42,9 @@ function CarCard({ car, wide }: { car: AssistantCar; wide: boolean }) {
           {car.priceMinor ? formatNaira(car.priceMinor) : "Price on request"}
         </span>
         {car.depositMinor && (
-          <span className="figures block text-xs text-text-muted">{formatNaira(car.depositMinor)} down on the Drive Plan</span>
+          <span className="figures block text-xs text-text-muted">
+            {formatNaira(car.depositMinor)} down ({car.depositPercent}%) on the Drive Plan
+          </span>
         )}
         <span className="mt-2 block truncate text-xs text-text-secondary">{specs(car)}</span>
       </span>
@@ -67,7 +69,12 @@ type Row = { label: string; value: (c: AssistantCar) => string | null; best?: "l
 
 const ROWS: Row[] = [
   { label: "Price", value: (c) => (c.priceMinor ? formatNaira(c.priceMinor) : null), best: "low", num: (c) => c.priceMinor },
-  { label: "40% down", value: (c) => (c.depositMinor ? formatNaira(c.depositMinor) : null), best: "low", num: (c) => c.depositMinor },
+  {
+    label: "Drive Plan deposit",
+    value: (c) => (c.depositMinor && c.depositPercent ? `${formatNaira(c.depositMinor)} (${c.depositPercent}%)` : c.priceMinor ? "Not on the plan" : null),
+    best: "low",
+    num: (c) => c.depositMinor,
+  },
   { label: "Year", value: (c) => String(c.year), best: "high", num: (c) => c.year },
   { label: "Condition", value: (c) => c.condition },
   {

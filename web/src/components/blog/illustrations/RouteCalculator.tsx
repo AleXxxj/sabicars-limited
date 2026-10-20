@@ -48,9 +48,14 @@ const show = (f: Field, v: number) => (f.unit === "naira" ? formatNaira(v * 100)
 /**
  * Will a Hummer bus pay for itself? Not our answer — the reader's, from their
  * own route, fares and costs. The result is what is left each month, and how
- * long it takes to earn back the 40% deposit on a real bus in the showroom.
+ * long it takes to earn back the deposit on a real bus in the showroom — 40%
+ * on a bus from 2010, 50% on a 2008 or 2009 bus (lib/drive-plan.ts).
  */
-export function RouteCalculator({ car }: { car: { title: string; slug: string; depositMinor: number } | null }) {
+export function RouteCalculator({
+  car,
+}: {
+  car: { title: string; slug: string; depositMinor: number; depositPercent: string } | null;
+}) {
   const id = useId();
   const [ref, seen] = useInView<HTMLDivElement>(0.25);
   const [v, setV] = useState<Inputs>(START);
@@ -106,7 +111,7 @@ export function RouteCalculator({ car }: { car: { title: string; slug: string; d
           <p className="text-sm leading-relaxed text-text-secondary">
             {months ? (
               <>
-                At that rate, the 40% deposit on the{" "}
+                At that rate, the {car.depositPercent} deposit on the{" "}
                 <Link href={`/vehicles/${car.slug}`} className="text-text-primary underline-offset-4 hover:underline">
                   {car.title}
                 </Link>{" "}

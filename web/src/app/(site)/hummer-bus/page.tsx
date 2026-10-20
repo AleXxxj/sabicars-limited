@@ -5,10 +5,10 @@ import { ScrollReveal } from "@/components/ScrollReveal";
 import { PageIntro } from "@/components/site/PageIntro";
 import { ButtonLink } from "@/components/ui/Button";
 import { VehicleCard } from "@/components/VehicleCard";
-import { formatNaira, money, percentOf } from "@/lib/money";
+import { formatNaira } from "@/lib/money";
 import { hummerBuses } from "@/lib/repositories/vehicles";
 import { pageAddress } from "@/lib/site";
-import { DRIVE_PLAN_DEPOSIT_BPS } from "@/lib/vehicle";
+import { depositMinorFor } from "@/lib/drive-plan";
 
 export const revalidate = 300;
 
@@ -23,7 +23,7 @@ const WHY = [
   { icon: BadgeCheck, title: "What Sabicars is known for", text: "Hummer buses are Sabicars’ speciality — the vehicle the business built its name on." },
   { icon: Eye, title: "See it before you pay", text: "Every bus here is in stock. Walk in, sit in it, start it, and inspect it before any money moves." },
   { icon: Truck, title: "One bus or a whole fleet", text: "Staff transport, schools, churches, hotels, routes — one quotation and one accountable team for any number." },
-  { icon: Wallet, title: "Pay 40%", text: "Put down 40% and Autochek, Sabicars’ financing partner, finances the rest — subject to its approval." },
+  { icon: Wallet, title: "Pay 40%", text: "Put down 40% on a bus from 2010 (50% on a 2008 or 2009 bus) and Autochek, Sabicars’ financing partner, finances the rest — subject to its lender’s approval." },
 ];
 
 /**
@@ -41,6 +41,8 @@ export default async function HummerBusPage() {
   const priced = (hummers.length ? hummers : buses).filter((b) => b.priceMinor).sort((a, b) => a.priceMinor! - b.priceMinor!);
   const cover = hummers.find((b) => b.cover)?.cover?.url ?? buses.find((b) => b.cover)?.cover?.url ?? null;
   const from = priced[0]?.priceMinor ?? null;
+  // Each bus at its own deposit tier; a pre-2008 bus is cash only and does not set the figure.
+  const depositFrom = priced.map((b) => depositMinorFor(b.priceMinor, b.year)).filter((d): d is number => d !== null).sort((a, b) => a - b)[0] ?? null;
 
   return (
     <>
@@ -56,7 +58,7 @@ export default async function HummerBusPage() {
           {[
             [String(hummers.length || buses.length), hummers.length === 1 ? "Hummer bus in stock" : "Hummer buses in stock"],
             [from ? formatNaira(from, { compact: true }) : "—", "Starting price"],
-            [from ? formatNaira(percentOf(money(from, "NGN"), DRIVE_PLAN_DEPOSIT_BPS).minor, { compact: true }) : "—", "Lowest 40% deposit"],
+            [depositFrom ? formatNaira(depositFrom, { compact: true }) : "—", "Lowest Drive Plan deposit"],
           ].map(([value, label]) => (
             <div key={label} className="glass rounded-2xl p-4 md:p-6">
               <dt className="sr-only">{label}</dt>

@@ -64,7 +64,7 @@ async function deliverPriceDrop(watchId: string): Promise<"sent" | "pending" | "
     `Hello ${row.name.split(" ")[0]},`,
     ``,
     was ? `The ${title} you are watching has dropped from ${formatNaira(was)} to ${formatNaira(now)}.` : `The ${title} you are watching is now priced at ${formatNaira(now)}.`,
-    deposit ? `On the 40% Drive Plan that is ${deposit} down.` : "",
+    deposit ? `On the Drive Plan that is ${deposit} down.` : "",
     url,
     ``,
     `Reference ${reference}. Bought elsewhere? Reply and we will stop these alerts.`,
@@ -79,7 +79,7 @@ async function deliverPriceDrop(watchId: string): Promise<"sent" | "pending" | "
 ${cover ? `<tr><td><a href="${esc(url)}"><img src="${esc(shareImageUrl(cover.url))}" width="560" alt="${esc(title)}" style="display:block;width:100%;height:auto;border:0;border-radius:12px"></a></td></tr>` : ""}
 <tr><td style="padding:20px 0 0;font-family:Helvetica,Arial,sans-serif;font-weight:bold;letter-spacing:-0.4px;font-size:26px;line-height:1.2;color:#F2F2EC">${esc(title)}</td></tr>
 <tr><td style="padding:10px 0 0;font-size:20px">${was ? `<span style="color:#9FA59E;text-decoration:line-through">${esc(formatNaira(was))}</span>&nbsp; ` : ""}<strong style="color:#A5DB6F">${esc(formatNaira(now))}</strong></td></tr>
-${deposit ? `<tr><td style="padding:6px 0 0;font-size:14px;color:#CFD2CC">${esc(deposit)} down on the 40% Drive Plan</td></tr>` : ""}
+${deposit ? `<tr><td style="padding:6px 0 0;font-size:14px;color:#CFD2CC">${esc(deposit)} down on the Drive Plan</td></tr>` : ""}
 <tr><td style="padding:28px 0"><a href="${esc(url)}" style="display:inline-block;background:#F7801E;color:#090E0A;padding:16px 28px;border-radius:999px;font-size:15px;font-weight:bold;text-decoration:none">See the vehicle</a></td></tr>
 <tr><td style="font-size:13px;line-height:1.6;color:#9FA59E">Reference ${esc(reference)}. Bought elsewhere? Reply and we will stop these alerts.<br><br>${esc(site.legalName)} · CAC RC ${esc(site.rcNumber)}</td></tr>
 </table></td></tr></table></body></html>`;

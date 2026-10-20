@@ -10,6 +10,7 @@ const PAY = [150_000, 300_000, 500_000, 1_000_000, 2_000_000];
 
 /** The rule of thumb: a car repayment within 30% of take-home pay leaves room for everything else. */
 const COMFORT = 0.3;
+/** Up to 40% of pay is a stretch; past it, too heavy. A share of pay — nothing to do with the Drive Plan’s deposit tiers. */
 const STRETCH = 0.4;
 
 /**

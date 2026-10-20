@@ -1,5 +1,5 @@
 import { requireStaff } from "@/lib/auth";
-import { arrivalsSince, renderNewsletter } from "@/lib/newsletter";
+import { arrivalsSince, DIGEST_INTRO, renderNewsletter } from "@/lib/newsletter";
 
 /**
  * This Friday's newsletter, exactly as a subscriber will see it — built from
@@ -20,8 +20,7 @@ export async function GET() {
     {
       kicker: "New this week",
       headline: cars.length === 1 ? "One new arrival at Sabicars." : `${cars.length} new arrivals at Sabicars.`,
-      intro:
-        "Photographed, priced and ready to inspect at the showroom. Every one can be bought outright or on the 40% Drive Plan — you pay 40%, Autochek finances the rest once it approves.",
+      intro: DIGEST_INTRO,
       vehicles: cars,
       campaign: "preview",
     },

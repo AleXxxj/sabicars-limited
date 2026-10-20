@@ -4,7 +4,7 @@ import type { CardVehicle } from "@/lib/repositories/vehicles";
 import { VEHICLE_PLACEHOLDER } from "@/lib/media";
 import { VehicleImage } from "@/components/VehicleImage";
 import { SaveButton } from "@/components/saved/SaveButton";
-import { badgeFor, drivePlanDeposit, priceLabel, specLine } from "@/lib/vehicle";
+import { badgeFor, drivePlanDeposit, drivePlanDepositLabel, priceLabel, specLine } from "@/lib/vehicle";
 
 /**
  * A vehicle as it appears in a grid.
@@ -80,7 +80,7 @@ export function VehicleCard({
               <Wallet aria-hidden size={15} className="shrink-0 text-accent-text" />
               <span>
                 <span className="figures block font-semibold text-accent-text">{deposit}</span>
-                40% deposit
+                {drivePlanDepositLabel(v)}
               </span>
             </p>
           )}

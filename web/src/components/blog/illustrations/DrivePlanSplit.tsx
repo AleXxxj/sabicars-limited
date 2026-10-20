@@ -4,18 +4,26 @@ import Link from "next/link";
 import { formatNaira } from "@/lib/money";
 import { useCountUp, useInView } from "./motion";
 
-const STEPS = ["Choose the bus", "Apply on Autochek", "Autochek approves", "Pay your 40% and drive"];
+const STEPS = ["Choose the bus", "Apply on Autochek", "Autochek approves", "Pay your deposit and drive"];
 
 /**
  * The Drive Plan on a real bus from the showroom: the price splits into the
- * 40% the buyer pays and the 60% Autochek finances, the figures counting up
- * as the bar fills, then the four steps light up in order.
+ * deposit the buyer pays (40% on a bus from 2010, 50% on a 2008 or 2009 bus)
+ * and the rest Autochek finances, the figures counting up as the bar fills,
+ * then the four steps light up in order.
  */
-export function DrivePlanSplit({ car }: { car: { title: string; slug: string; priceMinor: number; depositMinor: number } | null }) {
+export function DrivePlanSplit({
+  car,
+}: {
+  car: { title: string; slug: string; priceMinor: number; depositMinor: number; depositPercent: string } | null;
+}) {
   const [ref, seen] = useInView<HTMLDivElement>(0.4);
   const deposit = useCountUp(car ? Math.round(car.depositMinor / 100) : 0, seen, 1600);
   const financed = useCountUp(car ? Math.round((car.priceMinor - car.depositMinor) / 100) : 0, seen, 2000);
   if (!car) return null;
+  // The bus's own tier, from lib/drive-plan.ts via exampleBus(): "40%" or "50%", and what is left for Autochek.
+  const depositPct = Number.parseInt(car.depositPercent, 10);
+  const financedPct = 100 - depositPct;
 
   return (
     <div ref={ref} className="surface-card relative overflow-hidden p-6 md:p-10">
@@ -30,32 +38,32 @@ export function DrivePlanSplit({ car }: { car: { title: string; slug: string; pr
 
       <div className="mt-8 grid gap-6 sm:grid-cols-[2fr_3fr]">
         <div>
-          <p className="text-xs font-semibold tracking-[0.16em] text-green-300 uppercase">You pay · 40%</p>
+          <p className="text-xs font-semibold tracking-[0.16em] text-green-300 uppercase">You pay · {depositPct}%</p>
           <p className="figures text-brand mt-2 font-display text-[2.6rem] leading-none md:text-[3.4rem]">
             ₦{deposit.toLocaleString("en-NG")}
           </p>
         </div>
         <div>
-          <p className="text-xs font-semibold tracking-[0.16em] text-text-muted uppercase">Autochek finances · 60%</p>
+          <p className="text-xs font-semibold tracking-[0.16em] text-text-muted uppercase">Autochek finances · {financedPct}%</p>
           <p className="figures mt-2 font-display text-[2.2rem] leading-none text-text-primary md:text-[2.8rem]">
             ₦{financed.toLocaleString("en-NG")}
           </p>
         </div>
       </div>
 
-      {/* The bar: 40% fills gold, then the 60% draws in beside it. */}
+      {/* The bar: the deposit fills gold, then what Autochek finances draws in beside it. */}
       <div
         role="img"
-        aria-label="40% paid by you, 60% financed by Autochek"
+        aria-label={`${depositPct}% paid by you, ${financedPct}% financed by Autochek`}
         className="mt-8 flex h-4 overflow-hidden rounded-full bg-white/[0.05]"
       >
         <div
           className="h-full rounded-l-full bg-[linear-gradient(90deg,var(--green-500),var(--green-300))] shadow-[0_0_24px_rgb(120_176_48/0.5)]"
-          style={{ width: seen ? "40%" : "0%", transition: "width 1600ms cubic-bezier(0.16,1,0.3,1)" }}
+          style={{ width: seen ? `${depositPct}%` : "0%", transition: "width 1600ms cubic-bezier(0.16,1,0.3,1)" }}
         />
         <div
           className="h-full border-y border-r border-dashed border-white/30"
-          style={{ width: seen ? "60%" : "0%", transition: "width 1400ms cubic-bezier(0.16,1,0.3,1) 700ms" }}
+          style={{ width: seen ? `${financedPct}%` : "0%", transition: "width 1400ms cubic-bezier(0.16,1,0.3,1) 700ms" }}
         />
       </div>
 
@@ -76,8 +84,8 @@ export function DrivePlanSplit({ car }: { car: { title: string; slug: string; pr
         ))}
       </ol>
       <p className="mt-6 text-xs leading-relaxed text-text-muted">
-        Autochek sets the repayment terms on its listing and decides the approval. The bus leaves the showroom once it approves and the 40%
-        is paid.
+        Autochek’s lender sets the rate and term when it assesses you, and Autochek decides the approval. The bus leaves the showroom
+        once it approves and the {depositPct}% deposit is paid.
       </p>
     </div>
   );

@@ -7,32 +7,92 @@ import { PriceSplit } from "@/components/home/PriceSplit";
 import { ContactForm } from "@/components/forms/ContactForm";
 import { PageIntro } from "@/components/site/PageIntro";
 import { VehicleImage } from "@/components/VehicleImage";
+import { DRIVE_PLAN, MONTHLY_INCLUDES, depositMinorFor, drivePlanTerms } from "@/lib/drive-plan";
+import { formatNaira } from "@/lib/money";
 import { drivePlanCatalogue, featuredVehicles } from "@/lib/repositories/vehicles";
 import { pageAddress, whatsappLink } from "@/lib/site";
 import { drivePlanBalance, drivePlanDeposit, priceLabel, vehicleTitle } from "@/lib/vehicle";
 
 export const revalidate = 3600;
 
+const { minYear, standardYear, statementMonths, maxAnnualRatePercent, tenureMonths, maxDepositBps, published } = DRIVE_PLAN;
+const olderYears = `${minYear} or ${standardYear - 1}`;
+
 export const metadata: Metadata = {
-  title: "The 40% Drive Plan — pay 40%, Autochek finances the rest",
-  description:
-    "Buy from Sabicars with 40% down. Autochek, Sabicars' financing partner, finances the remaining 60% on its own terms. See what your deposit can drive home from live stock.",
+  title: "The 40% Drive Plan — your deposit down, Autochek finances the rest",
+  description: `Buy from Sabicars with 40% down on a car from ${standardYear} (50% on a ${olderYears} car). Autochek, Sabicars' financing partner, finances the rest: up to ${maxAnnualRatePercent}% a year, over ${tenureMonths.min} to ${tenureMonths.max} months. What you need, and what your deposit reaches from live stock.`,
   ...pageAddress("/drive-plan"),
 };
 
 const STEPS = [
-  { icon: CarFront, title: "Choose your vehicle", text: "In the showroom or online. Every price already shows the 40% deposit and the 60% Autochek finances." },
-  { icon: FileSignature, title: "Apply on Autochek", text: "From the vehicle’s page, go to its listing on Sabicars’ Autochek dealer store. Autochek profiles you there." },
-  { icon: BadgeCheck, title: "Autochek approves", text: "The loan terms — tenor and interest — are already set on the listing. Autochek processes and approves the financing." },
-  { icon: KeyRound, title: "Pay 40% and drive", text: "Once approved, you pay the 40% deposit, take the keys, and repay the 60% to Autochek in instalments." },
+  {
+    icon: CarFront,
+    title: "Choose your vehicle",
+    text: `In the showroom or online. Every price shows the deposit for that car — 40% for a car from ${standardYear}, 50% for ${olderYears} — and what Autochek finances.`,
+  },
+  {
+    icon: FileSignature,
+    title: "Apply on Autochek",
+    text: "From the vehicle’s page, go to its listing on Sabicars’ Autochek dealer store. You pre-qualify in minutes; Autochek’s lenders then assess you.",
+  },
+  {
+    icon: BadgeCheck,
+    title: "The lender approves",
+    text: `The lender sets the rate and the term when it assesses you — up to ${maxAnnualRatePercent}% a year, over ${tenureMonths.min} to ${tenureMonths.max} months — and sends an offer, usually within ${published.offerWithin}.`,
+  },
+  {
+    icon: KeyRound,
+    title: "Pay your deposit and drive",
+    text: "Once approved, you pay the deposit, take the keys, and repay the balance to Autochek in monthly instalments.",
+  },
 ];
 
-const QUESTIONS = [
-  ["When can I drive it home?", "As soon as Autochek approves the financing. You pay the 40% deposit then, and the car leaves the showroom with you — it does not leave before approval."],
-  ["Who finances the 60%?", "Autochek, Sabicars’ financing partner for the Drive Plan. The balance is an Autochek facility, on Autochek’s terms — Sabicars does not lend."],
-  ["Can I find Sabicars cars on Autochek?", "Yes. Sabicars’ stock is also listed on its Autochek dealer store. Wherever you find the car, the loan is profiled and processed by Autochek."],
+/** What Autochek asks of the car. */
+const CAR_RULES: [string, string][] = [
+  [`${standardYear} or newer`, "40% down. Autochek finances 60%."],
+  [olderYears, "50% down. Autochek finances 50%."],
+  [`${minYear - 1} or older`, "Not financed. These are cash purchases."],
+];
+
+/** What Autochek asks of the buyer. */
+const DOCUMENTS: [string, string][] = [
+  ["BVN and a valid ID", "A national ID card, driver’s licence, passport or voter’s card."],
+  ["Bank statements", `The last ${statementMonths} months, from an active bank account. Autochek reads them digitally when you apply.`],
+  ["Proof of income", "Salary earners: an employment letter or recent payslips. Business owners: a CAC business registration — a registered business name is enough."],
+  ["A utility bill", "For the address you give."],
+];
+
+const QUESTIONS: [string, string][] = [
+  [
+    "When can I drive it home?",
+    "As soon as Autochek’s lender approves the financing and your deposit is paid. The car leaves the showroom with you then — it does not leave before approval.",
+  ],
+  [
+    "Who finances the balance?",
+    "Autochek’s lending partners, through Autochek, Sabicars’ financing partner. The balance is their facility, on their terms — Sabicars does not lend.",
+  ],
+  [
+    "What is the interest rate?",
+    `The lender sets it when it assesses you, and you see it in your offer before you commit to anything. Autochek publishes a ceiling of ${maxAnnualRatePercent}% a year over ${tenureMonths.min} to ${tenureMonths.max} months; on its listings the rate is “available on request”. Autochek’s own example: ${formatNaira(published.example.principalMinor)} over ${published.example.months} months at ${maxAnnualRatePercent}% a year is about ${formatNaira(published.example.monthlyMinor)} a month.`,
+  ],
+  [
+    "Why is the deposit 50% on some cars?",
+    `Autochek’s lenders ask for 50% on a ${olderYears} car and 40% on anything from ${standardYear}. Cars older than ${minYear} are not financed at all, so those are cash purchases — the finder above only shows cars that can go on the plan.`,
+  ],
+  [
+    "I don’t have a registered business. Can I still apply?",
+    "Business owners need a CAC registration, and a registered business name is enough. You can register one yourself at pre.cac.gov.ng for the CAC’s published fee (about ₦21,700 in 2026), usually within a few working days. Autochek’s team told Sabicars in October 2026 that it can arrange one for about ₦35,000 — ask when you apply.",
+  ],
+  [
+    "Are there fees?",
+    `Autochek charges a processing fee (its published example is ${formatNaira(published.processingFeeMinor)}), credited against your final payment if the loan goes through. The monthly repayment on the listing includes ${MONTHLY_INCLUDES}.`,
+  ],
+  ["Can I put down more than the minimum?", `Yes, up to ${maxDepositBps / 100}% of the price. A bigger deposit means a smaller balance and smaller repayments.`],
+  [
+    "Can I find Sabicars cars on Autochek?",
+    "Yes. Sabicars’ stock is also listed on its Autochek dealer store. Wherever you find the car, the loan is assessed and approved through Autochek.",
+  ],
   ["What if the car I want is not on Autochek?", "Press “Apply for the Drive Plan” on its page. Sabicars lists it on its Autochek store and sends you the link."],
-  ["What will I need?", "Autochek tells you exactly what it needs when you apply. Have a valid ID and your recent bank statements ready; they are what a lender asks for first."],
   ["Can I pay the full price instead?", "Yes. Every vehicle can be bought outright, and the finder above shows which ones your amount already covers."],
   ["Can I see the car before I apply?", "Please do. Walk in, inspect it, and apply once you are sure — the application is about the car you have chosen."],
 ];
@@ -41,23 +101,31 @@ const QUESTIONS = [
  * The 40% Drive Plan.
  *
  * Its one job: get a buyer who cannot pay all of it to a car they can apply
- * for. As the owner described it: Sabicars' stock is listed on its Autochek
- * dealer store; loan buyers are profiled and processed by Autochek, and each
- * listing already carries its loan configuration. The car leaves the
- * showroom only once Autochek has approved (confirmed by the owner, 2026-09-26).
- * Applications therefore
- * start from a vehicle's page (DrivePlanApply), which records the buyer and
- * sends them to that car's listing. No tenor or rate is published here —
- * Autochek sets them per listing.
+ * for. Sabicars' stock is listed on its Autochek dealer store; loan buyers
+ * are assessed by Autochek's lenders, and the car leaves the showroom only
+ * once a lender has approved (confirmed by the owner, 2026-09-26).
+ *
+ * The rules on this page — the deposit by model year, the documents, the
+ * rate ceiling and the fees — are what Autochek's team told Sabicars on
+ * 2026-10-20 and what Autochek publishes; they live in lib/drive-plan.ts.
+ * Autochek's own listings show "40% minimum" on every car, including cars
+ * older than 2008, so the stricter year tiers are stated here as the lenders'
+ * rule, which is the one a buyer will meet. No monthly figure is invented:
+ * Autochek's published example is quoted as its own.
  */
 export default async function DrivePlanPage() {
   const [catalogue, featured] = await Promise.all([drivePlanCatalogue(), featuredVehicles(6)]);
-  const example = featured.find((v) => v.priceMinor && v.segment !== "commercial" && v.cover) ?? featured.find((v) => v.priceMinor);
+  const onPlan = featured.filter((v) => depositMinorFor(v.priceMinor, v.year) !== null);
+  const example = onPlan.find((v) => v.segment !== "commercial" && v.cover) ?? onPlan[0];
+  const exampleTerms = example ? drivePlanTerms(example.year) : null;
 
   return (
     <>
       <PageIntro eyebrow="The 40% Drive Plan" title="Pay 40%. Autochek finances the rest." imageUrl={example?.cover?.url ?? null}>
-        <p>Choose any vehicle, put down 40% of the price, and Autochek — Sabicars’ financing partner — finances the remaining 60%.</p>
+        <p>
+          Choose any car from {standardYear}, put down 40% of the price, and Autochek — Sabicars’ financing partner — finances the remaining 60%.
+          On a {olderYears} car the deposit is 50%.
+        </p>
       </PageIntro>
 
       {catalogue.length > 0 && (
@@ -66,9 +134,9 @@ export default async function DrivePlanPage() {
             <DrivePlanFinder vehicles={catalogue}>
               <ScrollReveal>
                 <p className="kicker">Start here</p>
-                <h2 className="mt-4 text-display-2">What can your 40% drive home?</h2>
+                <h2 className="mt-4 text-display-2">What can your deposit drive home?</h2>
                 <p className="mt-5 text-lg leading-relaxed text-text-secondary">
-                  Type what you can put down. The answer comes from what is in the showroom right now.
+                  Type what you can put down. The answer comes from what is in the showroom right now, each car at its own deposit.
                 </p>
               </ScrollReveal>
             </DrivePlanFinder>
@@ -97,7 +165,7 @@ export default async function DrivePlanPage() {
             ))}
           </ol>
 
-          {example && (
+          {example && exampleTerms?.eligible && (
             <ScrollReveal className="mt-10">
               <Link href={`/vehicles/${example.slug}`} className="surface-card group grid overflow-hidden md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
                 {example.cover && (
@@ -114,11 +182,11 @@ export default async function DrivePlanPage() {
                       <dd className="figures mt-1 font-semibold">{priceLabel(example)}</dd>
                     </div>
                     <div>
-                      <dt className="text-xs text-text-muted">You pay (40%)</dt>
+                      <dt className="text-xs text-text-muted">You pay ({exampleTerms.depositPercent}%)</dt>
                       <dd className="figures mt-1 font-semibold text-accent-text">{drivePlanDeposit(example)}</dd>
                     </div>
                     <div>
-                      <dt className="text-xs text-text-muted">Autochek (60%)</dt>
+                      <dt className="text-xs text-text-muted">Autochek ({exampleTerms.financedPercent}%)</dt>
                       <dd className="figures mt-1 font-semibold">{drivePlanBalance(example)}</dd>
                     </div>
                   </dl>
@@ -132,6 +200,51 @@ export default async function DrivePlanPage() {
               <PriceSplit vehicles={catalogue} />
             </ScrollReveal>
           )}
+        </div>
+      </section>
+
+      <section id="eligibility" className="scroll-mt-24 border-t border-white/[0.06]">
+        <div className="mx-auto max-w-7xl px-5 py-20 md:px-10 md:py-28">
+          <ScrollReveal className="max-w-2xl">
+            <p className="kicker">Who qualifies</p>
+            <h2 className="mt-4 text-display-2">The car, and what to bring.</h2>
+            <p className="mt-5 text-lg leading-relaxed text-text-secondary">
+              Autochek’s lenders look at the car first, then at you. Have these ready and the application takes minutes.
+            </p>
+          </ScrollReveal>
+          <div className="mt-12 grid gap-4 lg:grid-cols-2">
+            <ScrollReveal className="surface-card p-6 md:p-8">
+              <p className="text-sm font-semibold text-text-primary">The car</p>
+              <dl className="mt-4 divide-y divide-border-subtle">
+                {CAR_RULES.map(([years, rule]) => (
+                  <div key={years} className="grid gap-1 py-3 sm:grid-cols-[9rem_minmax(0,1fr)] sm:gap-6">
+                    <dt className="figures font-semibold text-text-primary">{years}</dt>
+                    <dd className="text-text-secondary">{rule}</dd>
+                  </div>
+                ))}
+              </dl>
+              <p className="mt-4 text-sm text-text-muted">You may put down more than the minimum, up to {maxDepositBps / 100}% of the price.</p>
+            </ScrollReveal>
+            <ScrollReveal delay={80} className="surface-card p-6 md:p-8">
+              <p className="text-sm font-semibold text-text-primary">You</p>
+              <dl className="mt-4 divide-y divide-border-subtle">
+                {DOCUMENTS.map(([what, detail]) => (
+                  <div key={what} className="grid gap-1 py-3 sm:grid-cols-[9rem_minmax(0,1fr)] sm:gap-6">
+                    <dt className="font-semibold text-text-primary">{what}</dt>
+                    <dd className="text-text-secondary">{detail}</dd>
+                  </div>
+                ))}
+              </dl>
+              <p className="mt-4 text-sm text-text-muted">
+                No CAC registration yet? A business name can be registered in a few working days — see the questions below.
+              </p>
+            </ScrollReveal>
+          </div>
+          <p className="mt-6 max-w-3xl text-sm leading-relaxed text-text-muted">
+            The deposit tiers and the year floor are as Autochek’s team gave them to Sabicars on 20 October 2026; the rate ceiling, the terms and the
+            documents are as Autochek publishes. Its lenders decide each
+            application and may ask for more. Sabicars updates this page when Autochek’s terms change.
+          </p>
         </div>
       </section>
 

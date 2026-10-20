@@ -11,7 +11,7 @@ export const fiveMillionNaira = {
   title: "Best cars under ₦5 million in Nigeria (2026): what the money really buys",
   category: "Buying Guide",
   standfirst:
-    "₦5 million still buys a car in 2026 — an older one, bought carefully. Or it can be the 40% that drives home something newer. Here is how to choose, and what to buy either way.",
+    "₦5 million still buys a car in 2026 — an older one, bought carefully. Or it can be the deposit that drives home something newer. Here is how to choose, and what to buy either way.",
   coverImageUrl: "https://res.cloudinary.com/dbmtqpex2/image/upload/v1790185491/sabicars/x4uotw9pdeeaaiy4khgi.jpg",
   tags: ["budget", "drive-plan"],
   blocks: [
@@ -21,13 +21,13 @@ export const fiveMillionNaira = {
     },
     {
       type: "p",
-      text: "Spent in cash, it buys an older car — and there are good ones, if you know which to look for. Used as a 40% deposit, it reaches a car two and a half times the price. Neither answer is right for everyone. By the end of this guide you will know which is right for you.",
+      text: "Spent in cash, it buys an older car — and there are good ones, if you know which to look for. Used as a 40% deposit on a car from 2010, it reaches a car two and a half times the price. Neither answer is right for everyone. By the end of this guide you will know which is right for you.",
     },
     {
       type: "summary",
       items: [
         "In cash, ₦5 million is **older-car money**: think Toyota and Honda saloons from the 2000s, bought carefully.",
-        "As a **40% Drive Plan deposit**, the same money reaches a car priced up to **₦12.5 million**.",
+        "As a **40% Drive Plan deposit**, the same money reaches a car from 2010 priced up to **₦12.5 million** — or a 2008 or 2009 car up to ₦10 million, where the deposit is 50%.",
         "Take the **four-question quiz** below to match your money and your life to a plan — and to real cars.",
         "Whatever you buy, **inspect it first**.",
       ],
@@ -98,7 +98,7 @@ export const fiveMillionNaira = {
         },
         {
           q: "Does Sabicars sell cars under ₦5 million?",
-          a: "The showroom starts above that today. But ₦5 million as a 40% deposit reaches cars in it now — and the [Sourcing Desk](/find) can look for a specific car in your budget.",
+          a: "The showroom starts above that today. But ₦5 million as a Drive Plan deposit reaches cars in it now — and the [Sourcing Desk](/find) can look for a specific car in your budget.",
         },
       ],
     },
