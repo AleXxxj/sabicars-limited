@@ -526,6 +526,12 @@ A comparison with Jiji, Cars45, Autochek and Cars.ng graded Sabicars 5.2/10 (Aut
 - **Where it is linked.** The phone menu and the footer. The desktop header has no room for a ninth item. Also the Sourcing Desk page and the sitemap. Ask Sabicars knows it, and never quotes what a car is worth.
 - **Needs the owner's word:** that Sabicars buys cars outright and takes trade-ins, as well as selling on consignment. The three choices are in `lib/sell.ts`.
 
+**Stage 8 groundwork, sale prices (built):**
+- **Recording.** Marking a car sold now asks what the buyer actually paid: "Sold for" in the admin, owners and managers only. It is stored in `vehicles.sold_price_minor` (migration 0011). The database refuses it on a car that is not sold, and leaving "sold" clears it.
+- **The reminder.** A sold car without the figure appears on its "Needs attention" list.
+- **Privacy.** The figure is never shown on its own and no public code reads it.
+- **What comes later.** The Sabicars Price Index publishes averages per model family once enough sales are on record, at least three in a year, so no single buyer's price can be worked out. Every sale recorded from now on counts towards it.
+
 **Later stages, in order** (each needs the business where marked):
 - **Stage 3b, reservations:** reserving a car online with a refundable deposit. *Needs: the Paystack account and the reservation policy (§8 item 2).*
 - **Stage 4, money:** Autochek's indicative monthly figure per car, and prequalify.

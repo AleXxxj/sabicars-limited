@@ -67,6 +67,7 @@ const schema = z.object({
   seats: optInt(1, 80, "Between 1 and 80"),
   price: naira,
   wasPrice: naira,
+  soldPrice: naira,
   status: z.enum(["draft", "available", "reserved", "sold", "unlisted"]),
   badge: optEnum(["hot", "premium", "fleet_supply"]),
   isFeatured: z.preprocess((v) => v === "on" || v === "true", z.boolean()),
@@ -91,7 +92,6 @@ const schema = z.object({
 
 /* ── Helpers ───────────────────────────────────────────────────────────── */
 
-/** Every public page a vehicle change can affect. */
 /**
  * Everyone waiting on an available vehicle hears about it: Sourcing Desk
  * requests it now answers, watchers whose last-known price it now beats, and
@@ -214,6 +214,8 @@ export async function saveVehicle(_prev: ActionResult | null, formData: FormData
     slug,
     // Sold keeps its original date if it already had one; leaving "sold" clears it.
     soldAt: f.status === "sold" ? (before?.soldAt ?? now) : null,
+    // What it sold for is money: only owners and managers set it, and it goes with the sale.
+    soldPriceMinor: f.status === "sold" ? (pricing ? (f.soldPrice ?? null) : (before?.soldPriceMinor ?? null)) : null,
     publishedAt: before?.publishedAt ?? (listed ? now : null),
   };
 
@@ -389,6 +391,7 @@ export async function setVehicleStatus(vehicleId: string, status: "available" | 
   const next = {
     status,
     soldAt: status === "sold" ? (v.soldAt ?? now) : null,
+    soldPriceMinor: status === "sold" ? v.soldPriceMinor : null,
     publishedAt: v.publishedAt ?? (status === "available" || status === "reserved" ? now : null),
   };
   await db.update(vehicles).set({ ...next, updatedAt: now }).where(eq(vehicles.id, vehicleId));

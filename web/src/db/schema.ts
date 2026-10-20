@@ -262,6 +262,12 @@ export const vehicles = pgTable(
     priceMinor: bigint("price_minor", { mode: "number" }),
     /** Strike-through price, for genuine reductions only. */
     wasPriceMinor: bigint("was_price_minor", { mode: "number" }),
+    /**
+     * Kobo: what the buyer actually paid, recorded when the car is sold. Never
+     * shown on its own; it feeds the Sabicars Price Index, which publishes
+     * averages only (architecture, stage 8).
+     */
+    soldPriceMinor: bigint("sold_price_minor", { mode: "number" }),
 
     /**
      * This vehicle on Sabicars' Autochek dealer store. Autochek profiles Drive
@@ -301,6 +307,8 @@ export const vehicles = pgTable(
     check("vehicles_horsepower_range", sql`${t.horsepower} IS NULL OR ${t.horsepower} BETWEEN 20 AND 2500`),
     check("vehicles_consignor_matches_owner", sql`(${t.ownerKind} = 'consignor') = (${t.consignorId} IS NOT NULL)`),
     check("vehicles_sold_has_date", sql`${t.status} <> 'sold' OR ${t.soldAt} IS NOT NULL`),
+    check("vehicles_sold_price_positive", sql`${t.soldPriceMinor} IS NULL OR ${t.soldPriceMinor} > 0`),
+    check("vehicles_sold_price_only_when_sold", sql`${t.soldPriceMinor} IS NULL OR ${t.status} = 'sold'`),
     check("vehicles_slug_format", sql`${t.slug} ~ '^[a-z0-9]+(-[a-z0-9]+)*$'`),
   ],
 );

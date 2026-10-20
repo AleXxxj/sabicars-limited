@@ -1,0 +1,3 @@
+ALTER TABLE "vehicles" ADD COLUMN "sold_price_minor" bigint;--> statement-breakpoint
+ALTER TABLE "vehicles" ADD CONSTRAINT "vehicles_sold_price_positive" CHECK ("vehicles"."sold_price_minor" IS NULL OR "vehicles"."sold_price_minor" > 0);--> statement-breakpoint
+ALTER TABLE "vehicles" ADD CONSTRAINT "vehicles_sold_price_only_when_sold" CHECK ("vehicles"."sold_price_minor" IS NULL OR "vehicles"."status" = 'sold');

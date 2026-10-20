@@ -16,10 +16,11 @@ export interface Attention {
 const MIN_PHOTOS = 5;
 
 export function attentionFor(
-  v: Pick<Vehicle, "year" | "condition" | "body" | "description" | "priceMinor" | "mileageKm" | "createdAt" | "autochekUrl" | "status">,
+  v: Pick<Vehicle, "year" | "condition" | "body" | "description" | "priceMinor" | "mileageKm" | "createdAt" | "autochekUrl" | "status" | "soldPriceMinor">,
   photoCount: number,
 ): Attention[] {
   const out: Attention[] = [];
+  if (v.status === "sold" && !v.soldPriceMinor) out.push({ level: "fix", message: "Sold — record what it sold for (private, for the Price Index)" });
   if (photoCount === 0) out.push({ level: "fix", message: "No photos — buyers skip listings without them" });
   else if (photoCount < MIN_PHOTOS) out.push({ level: "fix", message: `Only ${photoCount} photo${photoCount === 1 ? "" : "s"} — add at least ${MIN_PHOTOS}` });
   if (!v.body) out.push({ level: "fix", message: "Body type not set — the car is missing from type filters" });

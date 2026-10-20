@@ -202,6 +202,17 @@ export function VehicleForm({ vehicle: v, options, canSetPrices }: { vehicle?: V
         <Field error={err("status")} label="Status">
           <Select invalid={Boolean(err("status"))} name="status" options={STATUS} value={v?.status ?? "draft"} />
         </Field>
+        <Field
+          error={err("soldPrice")}
+          label="Sold for (₦), when sold"
+          hint={
+            canSetPrices
+              ? "What the buyer actually paid. Private: it only feeds the Sabicars Price Index, which publishes averages."
+              : "Only an owner or manager records the sale price."
+          }
+        >
+          <input name="soldPrice" inputMode="numeric" disabled={!canSetPrices} defaultValue={nairaText(v?.soldPriceMinor)} className={`figures ${input}`} />
+        </Field>
         <Field error={err("badge")} label="Label on the listing (optional)">
           <Select invalid={Boolean(err("badge"))} name="badge" options={BADGE} value={v?.badge} blankLabel="None" />
         </Field>

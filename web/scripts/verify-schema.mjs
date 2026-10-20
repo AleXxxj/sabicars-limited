@@ -138,6 +138,9 @@ await rejects(db, "refuses a consignor commission above 100%", `INSERT INTO cons
 console.log("\nLifecycle");
 await rejects(db, "refuses marking a car sold without the date it sold", `UPDATE vehicles SET status = 'sold' WHERE id = ${V}`, "vehicles_sold_has_date");
 await allows(db, "marks a car sold with its date", `UPDATE vehicles SET status = 'sold', sold_at = now() WHERE id = ${V}`);
+await allows(db, "records what a sold car sold for", `UPDATE vehicles SET sold_price_minor = 3700000000 WHERE id = ${V}`);
+await rejects(db, "refuses a sale price on a car that has not sold", vehicle({ sold_price_minor: "3700000000" }), "vehicles_sold_price_only_when_sold");
+await rejects(db, "refuses a sale price of zero", `UPDATE vehicles SET sold_price_minor = 0 WHERE id = ${V}`, "vehicles_sold_price_positive");
 
 // ── Media ──────────────────────────────────────────────────────────────────
 console.log("\nMedia");
