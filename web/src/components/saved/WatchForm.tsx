@@ -5,7 +5,7 @@ import { BellRing } from "lucide-react";
 import { watchVehicles } from "@/lib/actions/saved";
 import { Button } from "@/components/ui/Button";
 import { fieldClass } from "@/components/forms/field";
-import { FieldError, SpamGuard } from "@/components/forms/shared";
+import { FieldError, PrivacyLink, SpamGuard } from "@/components/forms/shared";
 
 const REPLY_BY = [
   ["whatsapp", "WhatsApp"],
@@ -73,6 +73,7 @@ export function WatchForm({ slugs, landingPath, compact = false }: { slugs: stri
       <Button type="submit" disabled={pending} className="w-full sm:w-auto">
         <BellRing aria-hidden size={18} /> {pending ? "Saving…" : "Alert me if the price drops"}
       </Button>
+      <p className="text-xs text-text-muted">Your details are used only to tell you about this car. <PrivacyLink /></p>
     </form>
   );
 }

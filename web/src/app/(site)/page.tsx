@@ -134,7 +134,7 @@ export default async function Home() {
               <SectionHead eyebrow="The signature" title="The home of the Hummer bus.">
                 <p>
                   The Toyota Hiace high-roof — for staff, schools, churches, hotels and routes — is what Sabicars is known for. In stock,
-                  inspected, supplied one at a time or as a fleet, and on the 40% Drive Plan.
+                  open to inspection, supplied one at a time or as a fleet, and on the 40% Drive Plan.
                 </p>
               </SectionHead>
               <dl className="mt-8 grid grid-cols-3 gap-3">
@@ -356,8 +356,7 @@ export default async function Home() {
             <p className="kicker">The founder</p>
             <blockquote className="mt-6">
               <p className="font-display text-[1.9rem] leading-[1.25] text-text-primary md:text-[2.4rem]">
-                “Every vehicle that leaves our plaza carries my name on it — accident-free, verified, and exactly as described. That’s not
-                a slogan, it’s how I built this.”
+                “Every vehicle that leaves our plaza carries my name on it … That’s not a slogan, it’s how I built this.”
               </p>
               <footer className="mt-8">
                 <p className="font-medium text-text-primary">Ccristian Dee</p>

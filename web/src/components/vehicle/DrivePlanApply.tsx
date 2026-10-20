@@ -5,7 +5,7 @@ import { ArrowUpRight } from "lucide-react";
 import { startDrivePlan } from "@/lib/actions/leads";
 import { Button } from "@/components/ui/Button";
 import { fieldClass } from "@/components/forms/field";
-import { FieldError, SpamGuard } from "@/components/forms/shared";
+import { FieldError, PrivacyLink, SpamGuard } from "@/components/forms/shared";
 
 /**
  * The Drive Plan's next step on a vehicle's page.
@@ -78,6 +78,10 @@ export function DrivePlanApply({ vehicleId, autochekUrl }: { vehicleId: string; 
       <Button type="submit" disabled={pending} arrow className="w-full">
         {pending ? "One moment…" : autochekUrl ? "Continue to Autochek" : "Send my request"}
       </Button>
+      <p className="text-xs text-text-muted">
+        {autochekUrl ? "We note your request, then Autochek takes your application on its own site, under its own privacy policy." : "Your details are used only to help with this application."}{" "}
+        <PrivacyLink />
+      </p>
     </form>
   );
 }

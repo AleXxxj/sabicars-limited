@@ -6,7 +6,7 @@ import { submitSourcingRequest } from "@/lib/actions/leads";
 import { BUDGET_OPTIONS, PAYMENT_OPTIONS, YEAR_OPTIONS } from "@/lib/sourcing";
 import { Button } from "@/components/ui/Button";
 import { VehicleImage } from "@/components/VehicleImage";
-import { Confirmation, FieldError, fieldClass, Label, SpamGuard } from "./shared";
+import { Confirmation, FieldError, fieldClass, Label, PrivacyLink, SpamGuard } from "./shared";
 
 const REPLY_BY = [
   ["whatsapp", "WhatsApp"],
@@ -189,7 +189,7 @@ export function SourcingForm({ whatsappBase, initial }: { whatsappBase: string; 
         <Button type="submit" size="lg" disabled={pending} className="w-full sm:w-auto">
           {pending ? "Saving…" : "Put it on the desk"}
         </Button>
-        <p className="mt-4 text-xs text-text-muted">Your details are used only to tell you about vehicles that match this request.</p>
+        <p className="mt-4 text-xs text-text-muted">Your details are used only to tell you about vehicles that match this request. <PrivacyLink /></p>
       </div>
     </form>
   );

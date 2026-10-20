@@ -144,7 +144,7 @@ export function HeroShowcase({ slides, videoUrl }: { slides: HeroSlide[]; videoU
       <div className="mx-auto w-full max-w-7xl px-5 pb-20 pt-14 md:px-10 md:pb-28 md:pt-28">
         <p className="kicker">CAC registered · RC 1560100</p>
         <h1 className="mt-6 max-w-4xl text-display-1 text-[var(--hero-text)]">
-          Every car verified.
+          Real cars, real prices.
           <br />
           <em className="text-green-300">Every deal</em> on record.
         </h1>

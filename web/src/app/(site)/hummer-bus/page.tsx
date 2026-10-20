@@ -15,7 +15,7 @@ export const revalidate = 300;
 export const metadata: Metadata = {
   title: "Toyota Hiace Hummer bus for sale in Lagos",
   description:
-    "Toyota Hiace Hummer (Humer) buses for sale in Lagos from Sabicars Limited — in stock, inspected, priced, supplied as fleets, and available on the 40% Drive Plan with Autochek.",
+    "Toyota Hiace Hummer (Humer) buses for sale in Lagos from Sabicars Limited — in stock, priced, open to inspection, supplied as fleets, and available on the 40% Drive Plan with Autochek.",
   ...pageAddress("/hummer-bus"),
 };
 

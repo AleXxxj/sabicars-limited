@@ -465,6 +465,31 @@ The owner's brief: suggest cars straight from the inventory from what the buyer 
 - **System status.** `/admin/status` and `npm run check:launch` form the launch checklist, and later the health page.
 - **Runbook.** `docs/LAUNCH.md` covers before the day, switch day (only the `@` A record and the `www` CNAME change; never the MX), switching back, and the weeks after.
 
+### Market scorecard follow-through (2026-10-20)
+
+A comparison with Jiji, Cars45, Autochek and Cars.ng graded Sabicars 5.2/10 (Autochek 5.9, Cars45 5.6, Jiji 5.3, Cars.ng 3.6). We lead on listing quality, the phone experience, smart tools and the partner network. We trail on stock depth, proof of inspection, selling and trade-in, and life after the sale. The owner asked for every finding to be built, in stages.
+
+**Stage 1, launch blockers (done):**
+- **Claims we could not prove are gone.**
+  - The hero now reads "Real cars, real prices. Every deal on record." It used to read "Every car verified."
+  - "Inspected" became "open to inspection".
+  - "Verified luxury cars" is gone from the description, manifest, footer and partner share text.
+  - The founder quote is trimmed, with an ellipsis where "accident-free, verified, and exactly as described" was.
+  - "Every car verified" may return once every listed car has a published Sabicars Verified report (stage 2).
+  - The About page's four Sabicars Verified promises stay, because each is true today.
+- **Privacy notice at /privacy (Nigeria Data Protection Act 2023).** It covers every form, chat, cookie, device store and provider the platform actually uses. Supabase and Vercel are in London; Anthropic, Resend, OneSignal and Google are in the US. Every form links to it beside its send button, and so do the chat footer and the site footer. Ask Sabicars knows where it is. **Change the code and this page together.** Have the company's lawyer read it before launch.
+- **Google Analytics** (G-K5ZRJ8WNXW, the same property as the legacy site) runs on public pages in Vercel production only. Google's advertising features are denied, so visitor numbers carry across the switch.
+
+**Later stages, in order** (each needs the business where marked):
+- **Stage 2, proof:** Sabicars Verified report per car. It covers the inspection checklist with a photo per check, the VIN matched to the customs papers and plate, and VIN history for US and Canada imports. A report code goes on the windscreen seal. *Needs: who inspects at the park, and a VIN-history provider account.*
+- **Stage 3, commit online:** reservations with a refundable deposit, and viewing slots. *Needs: the Paystack account and the reservation policy (§8 item 2).*
+- **Stage 4, money:** Autochek's indicative monthly figure per car, and prequalify.
+- **Stage 5, supply:** "sell or trade in your car".
+- **Stage 6:** partner payouts through Paystack.
+- **Stage 7:** My Sabicars, covering papers, renewals and the service log.
+- **Stage 8:** the Sabicars Price Index from recorded sale prices.
+- **Stage 9:** the dealer network pilot (Phase 7).
+
 ### What Sabicars has that Adedayo does not
 
 Consignment and custody (§2.2), youth scout and creator programmes on top of

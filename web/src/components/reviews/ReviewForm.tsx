@@ -3,7 +3,7 @@
 import { useActionState, useEffect, useState } from "react";
 import { Star } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { FieldError, fieldClass, Label, SpamGuard } from "@/components/forms/shared";
+import { FieldError, fieldClass, Label, PrivacyLink, SpamGuard } from "@/components/forms/shared";
 import { submitBuyerReview, submitReview } from "@/lib/actions/reviews";
 
 const WORDS = ["", "Poor", "Fair", "Good", "Very good", "Excellent"];
@@ -127,7 +127,7 @@ export function ReviewForm({ token, defaultName, onDone }: { token?: string; def
         <Button type="submit" size="lg" disabled={pending} className="w-full sm:w-auto">
           {pending ? "Sending…" : "Post my review"}
         </Button>
-        <p className="mt-4 text-xs text-text-muted">Your review, name and location appear on the site once the team has read it.</p>
+        <p className="mt-4 text-xs text-text-muted">Your review, name and location appear on the site once the team has read it. <PrivacyLink /></p>
       </div>
     </form>
   );

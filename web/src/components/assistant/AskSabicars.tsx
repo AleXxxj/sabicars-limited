@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { ArrowUp, MessageCircle, Phone, PhoneCall, RotateCcw, X } from "lucide-react";
+import { PrivacyLink } from "@/components/forms/shared";
 import { Mark } from "@/components/Logo";
 import { ASK_EVENT, type AskRequest } from "@/lib/assistant/open";
 import type { Part } from "@/lib/assistant/parts";
@@ -466,7 +467,7 @@ export function AskSabicars() {
             </div>
             <p className="mt-1.5 px-1 text-[0.7rem] leading-snug text-text-muted">
               AI can make mistakes; stock and prices are live, and the team confirms every detail. Never share your BVN or card details in a
-              chat.
+              chat. Chats are kept so the team can follow up. <PrivacyLink />
             </p>
           </div>
         </div>

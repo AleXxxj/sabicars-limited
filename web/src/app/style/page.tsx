@@ -76,11 +76,11 @@ export default async function StylePage() {
         <div className="mx-auto w-full max-w-7xl px-5 pb-16 pt-32 md:px-10 md:pb-24">
           <p className="eyebrow !text-green-300">Sabicars Limited · Lagos · RC 1560100</p>
           <h1 className="mt-6 max-w-4xl text-display-1 text-[var(--hero-text)]">
-            Every car verified. <span className="text-green-300">Every deal</span> on record.
+            Real cars, real prices. <span className="text-green-300">Every deal</span> on record.
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-[var(--hero-text-secondary)]">
-            Luxury cars, Toyota Hiace buses and trucks — inspected, documented and ready. Reserve online, or drive today on the
-            40% Drive Plan.
+            Luxury cars, Toyota Hiace buses and trucks — photographed, priced and documented. Enquire online, or pay 40% on the
+            Drive Plan.
           </p>
           <div className="mt-10 flex flex-wrap gap-4">
             <Button size="lg">View inventory</Button>
@@ -124,7 +124,7 @@ export default async function StylePage() {
           <div className="space-y-8">
             <p className="font-display text-display-1">Unmatched.</p>
             <p className="font-display text-display-2">The Hiace, done properly.</p>
-            <p className="font-display text-display-3">Inspected, documented, delivered.</p>
+            <p className="font-display text-display-3">Photographed, priced, on record.</p>
             <p className="max-w-2xl text-lg leading-relaxed text-text-secondary">
               Everything is Archivo. Headlines are set heavy and a touch wide — engineered, confident, the register of a marque.
               Body copy is set for reading on a phone, with generous leading so a paragraph about financing terms does not feel like

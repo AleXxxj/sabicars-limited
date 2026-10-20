@@ -3,7 +3,7 @@
 import { useActionState, useEffect, useState } from "react";
 import { Check, Link2, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { FieldError, fieldClass, Label, SpamGuard } from "@/components/forms/shared";
+import { FieldError, fieldClass, Label, PrivacyLink, SpamGuard } from "@/components/forms/shared";
 import { react, recordShare, submitComment } from "@/lib/actions/blog";
 import { REACTIONS, type Reaction } from "@/lib/blog/reactions";
 
@@ -189,6 +189,7 @@ export function CommentForm({ slug }: { slug: string }) {
           {pending ? "Posting…" : "Post comment"}
         </Button>
       </div>
+      <p className="text-xs text-text-muted">Your name and comment appear under the article once the team has read them. <PrivacyLink /></p>
     </form>
   );
 }

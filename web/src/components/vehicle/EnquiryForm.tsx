@@ -4,6 +4,7 @@ import { useActionState, useEffect, useRef, useState } from "react";
 import { submitEnquiry } from "@/lib/actions/enquiry";
 import { Button, ButtonAnchor } from "@/components/ui/Button";
 import { fieldClass as field } from "@/components/forms/field";
+import { PrivacyLink } from "@/components/forms/shared";
 
 function FieldError({ message }: { message?: string }) {
   return message ? <p className="text-sm text-danger">{message}</p> : null;
@@ -150,7 +151,7 @@ export function EnquiryForm({
         <Button type="submit" size="lg" disabled={pending} className="w-full sm:w-auto">
           {pending ? "Sending…" : type === "viewing" ? "Request a viewing" : "Send enquiry"}
         </Button>
-        <p className="mt-4 text-xs text-text-muted">Your details are used only to reply to this enquiry.</p>
+        <p className="mt-4 text-xs text-text-muted">Your details are used only to reply to this enquiry. <PrivacyLink /></p>
       </div>
     </form>
   );

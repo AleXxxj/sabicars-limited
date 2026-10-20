@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { submitContact } from "@/lib/actions/leads";
 import { Button } from "@/components/ui/Button";
-import { Confirmation, FieldError, fieldClass, Label, SpamGuard } from "./shared";
+import { Confirmation, FieldError, fieldClass, Label, PrivacyLink, SpamGuard } from "./shared";
 
 const TOPICS: { value: "buying" | "drive_plan" | "fleet" | "general"; label: string }[] = [
   { value: "buying", label: "Buying a vehicle" },
@@ -101,7 +101,7 @@ export function ContactForm({
         <Button type="submit" size="lg" disabled={pending} className="w-full sm:w-auto">
           {pending ? "Sending…" : "Send message"}
         </Button>
-        <p className="mt-4 text-xs text-text-muted">Your details are used only to reply to this message.</p>
+        <p className="mt-4 text-xs text-text-muted">Your details are used only to reply to this message. <PrivacyLink /></p>
       </div>
     </form>
   );

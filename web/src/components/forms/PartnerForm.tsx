@@ -4,7 +4,7 @@ import { useActionState, useEffect, useRef, useState } from "react";
 import { registerPartner } from "@/lib/actions/partners";
 import { PARTNER_REACH } from "@/lib/referral";
 import { Button, ButtonAnchor } from "@/components/ui/Button";
-import { FieldError, fieldClass, Label, SpamGuard } from "./shared";
+import { FieldError, fieldClass, Label, PrivacyLink, SpamGuard } from "./shared";
 
 /** What a partner sees once registered: their code, their link, and the two ways they will use it. */
 function Welcome({ name, code, link, returning }: { name?: string; code: string; link: string; returning?: boolean }) {
@@ -15,7 +15,7 @@ function Welcome({ name, code, link, returning }: { name?: string; code: string;
     ref.current?.scrollIntoView({ behavior: still ? "auto" : "smooth", block: "center" });
   }, []);
 
-  const share = `Looking for a car? Sabicars has verified luxury cars, Hiace buses, SUVs and trucks — and you can drive home on 40%. See what's in stock: ${link}`;
+  const share = `Looking for a car? Sabicars has luxury cars, Hiace buses, SUVs and trucks in Lagos, with the 40% Drive Plan through Autochek. See what's in stock: ${link}`;
 
   return (
     <div ref={ref} role="status" className="surface-card scroll-mt-24 !border-green-500/30 p-7 md:p-9">
@@ -116,7 +116,7 @@ export function PartnerForm() {
         <Button type="submit" size="lg" disabled={pending} className="w-full sm:w-auto">
           {pending ? "Registering…" : "Register as a partner"}
         </Button>
-        <p className="mt-4 text-xs text-text-muted">Your number is used to identify you and to pay your commission. It is never shared.</p>
+        <p className="mt-4 text-xs text-text-muted">Your number is used to identify you and to pay your commission. It is never shared. <PrivacyLink /></p>
       </div>
     </form>
   );

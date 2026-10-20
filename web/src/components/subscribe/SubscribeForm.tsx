@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { fieldClass, SpamGuard } from "@/components/forms/shared";
+import { fieldClass, PrivacyLink, SpamGuard } from "@/components/forms/shared";
 import { subscribe } from "@/lib/actions/subscribe";
 
 export const SUBSCRIBED_KEY = "sabicars:subscribed";
@@ -67,7 +67,7 @@ export function SubscribeForm({ source, onDone }: { source: "prompt" | "footer" 
           {state.error}
         </p>
       )}
-      <p className="text-xs text-text-muted">New arrivals every Friday. One click to unsubscribe, any time.</p>
+      <p className="text-xs text-text-muted">New arrivals every Friday. One click to unsubscribe, any time. <PrivacyLink /></p>
     </form>
   );
 }

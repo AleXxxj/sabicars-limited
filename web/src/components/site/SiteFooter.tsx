@@ -44,7 +44,7 @@ export async function SiteFooter() {
         <div>
           <Logo />
           <p className="mt-6 max-w-xs text-sm leading-relaxed text-text-secondary">
-            Toyota Hiace Hummer buses, verified luxury cars, SUVs and trucks from Lagos — with the 40% Drive Plan and fleet supply
+            Toyota Hiace Hummer buses, luxury cars, SUVs and trucks from Lagos — with the 40% Drive Plan and fleet supply
             for companies and government.
           </p>
           <a
@@ -143,9 +143,14 @@ export async function SiteFooter() {
           <p>
             © {year} {site.legalName}. All rights reserved.
           </p>
-          <a href={site.cacSearchUrl} target="_blank" rel="noopener noreferrer" className="hover:text-text-primary">
-            Verify RC {site.rcNumber} on the CAC register ↗
-          </a>
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+            <Link href="/privacy" className="hover:text-text-primary">
+              Privacy notice
+            </Link>
+            <a href={site.cacSearchUrl} target="_blank" rel="noopener noreferrer" className="hover:text-text-primary">
+              Verify RC {site.rcNumber} on the CAC register ↗
+            </a>
+          </div>
         </div>
       </div>
     </footer>

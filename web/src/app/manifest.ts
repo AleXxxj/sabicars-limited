@@ -6,7 +6,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Sabicars",
     short_name: "Sabicars",
-    description: "Toyota Hiace Hummer buses, verified luxury cars, SUVs and trucks from Lagos — with the 40% Drive Plan.",
+    description: "Toyota Hiace Hummer buses, luxury cars, SUVs and trucks from Lagos — with the 40% Drive Plan.",
     id: "/",
     start_url: "/",
     // Lets Chrome tell the site when it is already installed, so it never offers to install it again.

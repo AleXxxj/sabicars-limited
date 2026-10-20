@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     template: "%s · Sabicars",
   },
   description:
-    "Sabicars Limited (RC 1560100) sells Toyota Hiace Hummer buses, verified luxury cars, SUVs and trucks from Lagos — with fleet supply and the 40% Drive Plan financed by Autochek.",
+    "Sabicars Limited (RC 1560100) sells Toyota Hiace Hummer buses, luxury cars, SUVs and trucks from Lagos — with fleet supply and the 40% Drive Plan financed by Autochek.",
   applicationName: site.legalName,
   openGraph: { siteName: site.legalName, type: "website", locale: "en_NG" },
 };

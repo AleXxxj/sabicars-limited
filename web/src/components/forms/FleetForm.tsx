@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import { submitFleetRequest } from "@/lib/actions/leads";
 import { FLEET_QUANTITIES, FLEET_TIMEFRAMES, FLEET_VEHICLES } from "@/lib/fleet";
 import { Button } from "@/components/ui/Button";
-import { Confirmation, FieldError, fieldClass, Label, SpamGuard } from "./shared";
+import { Confirmation, FieldError, fieldClass, Label, PrivacyLink, SpamGuard } from "./shared";
 
 /**
  * A procurement brief, not a chat: organisation, what, how many, when and
@@ -129,7 +129,7 @@ export function FleetForm({ whatsappBase }: { whatsappBase: string }) {
         <Button type="submit" size="lg" disabled={pending} className="w-full sm:w-auto">
           {pending ? "Sending…" : "Request a quotation"}
         </Button>
-        <p className="mt-4 text-xs text-text-muted">Your details are used only to prepare and discuss this quotation.</p>
+        <p className="mt-4 text-xs text-text-muted">Your details are used only to prepare and discuss this quotation. <PrivacyLink /></p>
       </div>
     </form>
   );

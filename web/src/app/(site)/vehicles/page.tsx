@@ -27,7 +27,7 @@ function headingFor(f: InventoryFilters): string {
   const noun = f.body ? (PLURAL[f.body] ?? BODY_LABEL[f.body as keyof typeof BODY_LABEL]) : "vehicles";
   const words = [f.segment === "luxury" ? "Luxury" : f.segment === "commercial" ? "Commercial" : null, f.make, noun].filter(Boolean);
   const phrase = words.join(" ");
-  return f.body || f.segment || f.make ? phrase.charAt(0).toUpperCase() + phrase.slice(1) : "Verified vehicles";
+  return f.body || f.segment || f.make ? phrase.charAt(0).toUpperCase() + phrase.slice(1) : "Cars, SUVs, buses and trucks";
 }
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {

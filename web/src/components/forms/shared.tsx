@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { ButtonAnchor } from "@/components/ui/Button";
 
@@ -12,6 +13,15 @@ export function FieldError({ message }: { message?: string }) {
 
 export function Label({ children }: { children: React.ReactNode }) {
   return <span className="text-sm font-medium text-text-secondary">{children}</span>;
+}
+
+/** Every form that takes personal details links to the privacy notice beside its send button. */
+export function PrivacyLink() {
+  return (
+    <Link href="/privacy" className="underline underline-offset-2 hover:text-text-primary">
+      How we handle your data
+    </Link>
+  );
 }
 
 /**
