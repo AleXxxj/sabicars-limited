@@ -13,6 +13,9 @@ export const PRIMARY_NAV = [
 /** In the phone menu, after the sections: the visitor's own shortlist. */
 export const SAVED_NAV = { href: "/saved", label: "Saved cars", hint: "Your shortlist, with price-drop alerts" } as const;
 
+/** Selling rather than buying: in the phone menu and the footer, kept out of the desktop bar, which is full. */
+export const SELL_NAV = { href: "/sell", label: "Sell or trade in", hint: "Sell your car, trade it in, or have us sell it" } as const;
+
 /** The phone's bottom bar: the five things a visitor comes to do, one thumb away. */
 export const TAB_BAR = [
   { href: "/", label: "Home" },

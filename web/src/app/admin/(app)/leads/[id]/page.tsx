@@ -56,6 +56,8 @@ function subject(d: LeadDetail): string {
       return car ? `the ${car} you are watching` : "the car you are watching";
     case "contact":
       return "your message";
+    case "sell":
+      return "the car you want to sell";
     default:
       return car ? `your enquiry about the ${car}` : "your enquiry";
   }

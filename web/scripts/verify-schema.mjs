@@ -234,6 +234,10 @@ const rv = await db.query(`INSERT INTO reviews (dealer_id, name, rating, message
 expect("new reviews wait for approval before publishing", rv.rows[0].is_approved === false);
 await rejects(db, "refuses a published post with no publish date", `INSERT INTO blog_posts (dealer_id, slug, title, category, excerpt, content, is_published) VALUES (${D}, 's', 't', 'c', 'e', 'b', true)`, "blog_posts_published_has_date");
 
+// ── Sell or trade in ───────────────────────────────────────────────────────
+console.log("\nSell or trade in");
+await allows(db, "records someone offering their own car", `INSERT INTO leads (dealer_id, type, channel, name, phone, message) VALUES (${D}, 'sell', 'web_form', 'Ada', '+2348000000031', 'Car: 2015 Toyota Camry')`);
+
 // ── Viewing slots ──────────────────────────────────────────────────────────
 console.log("\nViewing slots");
 await allows(db, "books a viewing for a time", `INSERT INTO leads (dealer_id, type, channel, name, phone, viewing_at) VALUES (${D}, 'viewing', 'web_form', 'Ada', '+2348000000021', '2026-10-24T09:00:00Z')`);

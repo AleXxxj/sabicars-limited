@@ -71,6 +71,13 @@
       "when": 1792503790461,
       "tag": "0009_viewing_slots",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1792506581233,
+      "tag": "0010_sell_requests",
+      "breakpoints": true
     }
   ]
 }

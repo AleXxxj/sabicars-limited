@@ -33,7 +33,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/`, lastModified: newest, changeFrequency: "daily", priority: 1 },
     { url: `${base}/vehicles`, lastModified: newest, changeFrequency: "daily", priority: 1 },
     { url: `${base}/hummer-bus`, lastModified: newest, changeFrequency: "daily", priority: 0.9 },
-    ...["/drive-plan", "/find", "/partners", "/fleet", "/about", "/contact"].map((path) => ({ url: `${base}${path}`, changeFrequency: "monthly" as const, priority: 0.6 })),
+    ...["/drive-plan", "/find", "/sell", "/partners", "/fleet", "/about", "/contact"].map((path) => ({ url: `${base}${path}`, changeFrequency: "monthly" as const, priority: 0.6 })),
     { url: `${base}/privacy`, changeFrequency: "yearly" as const, priority: 0.2 },
     ...INVENTORY_SHORTCUTS.filter((s) => s.href !== "/hummer-bus").map((s) => ({ url: `${base}${s.href}`, lastModified: newest, changeFrequency: "daily" as const, priority: 0.8 })),
     ...terms

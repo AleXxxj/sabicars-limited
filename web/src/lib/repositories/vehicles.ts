@@ -504,6 +504,16 @@ export async function listedVehicles(): Promise<VehicleWithCover[]> {
   return withCovers(rows);
 }
 
+/** One car on sale, by id: for checking a choice a form sent back, such as the car someone wants to trade towards. */
+export async function listedVehicleById(dealerId: string, id: string): Promise<Vehicle | null> {
+  const [row] = await db
+    .select()
+    .from(vehicles)
+    .where(and(eq(vehicles.id, id), eq(vehicles.dealerId, dealerId), inArray(vehicles.status, [...LISTED])))
+    .limit(1);
+  return row ?? null;
+}
+
 /**
  * True only when every car on sale has a fresh, published Sabicars Verified
  * report: the one condition under which the homepage may say "Every car

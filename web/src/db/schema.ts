@@ -109,6 +109,8 @@ export const leadType = pgEnum("lead_type", [
   "sourcing",
   /** Watching a vehicle for a price drop. */
   "watch",
+  /** Someone offering their own car: to sell, trade in, or have sold for them (/sell). */
+  "sell",
 ]);
 
 export const leadChannel = pgEnum("lead_channel", [

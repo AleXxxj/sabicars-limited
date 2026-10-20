@@ -10,6 +10,7 @@ export const LEAD_TYPE_LABEL: Record<Lead["type"], string> = {
   contact: "Message",
   sourcing: "Find-me-a-car request",
   watch: "Price watch",
+  sell: "Sell or trade-in",
 };
 
 export const LEAD_STATUS_LABEL: Record<Lead["status"], string> = {
@@ -34,7 +35,7 @@ export const LOST_REASONS = [
 ] as const;
 
 /** Leads that need a person now. A price watch waits quietly for a price cut. */
-export const ALERTING_TYPES: Lead["type"][] = ["question", "viewing", "reservation", "drive_plan", "fleet", "contact", "sourcing"];
+export const ALERTING_TYPES: Lead["type"][] = ["question", "viewing", "reservation", "drive_plan", "fleet", "contact", "sourcing", "sell"];
 
 /** How long a new lead may wait, during opening hours, before managers are told. */
 export const RESPONSE_TARGET_MINUTES = 15;

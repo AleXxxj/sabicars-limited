@@ -82,7 +82,11 @@ export default async function FindPage({ searchParams }: Props) {
             <Link href="/vehicles" className="text-text-secondary underline-offset-4 hover:text-text-primary hover:underline">
               inventory
             </Link>
-            ? Enquire on its page — it tells us exactly which one you mean.
+            ? Enquire on its page — it tells us exactly which one you mean. Selling a car instead?{" "}
+            <Link href="/sell" className="text-text-secondary underline-offset-4 hover:text-text-primary hover:underline">
+              Sell or trade it in
+            </Link>
+            .
           </p>
         </div>
 

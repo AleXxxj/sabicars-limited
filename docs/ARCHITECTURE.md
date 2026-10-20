@@ -518,10 +518,17 @@ A comparison with Jiji, Cars45, Autochek and Cars.ng graded Sabicars 5.2/10 (Aut
   - After any error, React reset the tab radios, so re-sending a viewing went in as a plain question. The type now comes from state.
   - The emails' headlines were still in a serif from the gold era. They are now Helvetica bold in Bone.
 
+**Stage 5, sell or trade in (built):**
+- **The page.** `/sell` takes the car (make, model, year, mileage, where it is, condition, papers, a price in mind), what the owner wants, and how to reach them. They can sell it to Sabicars, trade it in towards a car on sale (chosen from live stock), or have Sabicars sell it for them.
+- **The record.** It lands in the inbox as a new enquiry type, "Sell or trade-in" (migration 0010, `lead_type` gains `sell`), alerted like any other. The details form one readable brief, and the car they want is attached.
+- **Photos** are asked for afterwards on WhatsApp with the reference. Public uploads into the Cloudinary account would invite abuse.
+- **The promises.** The page promises nothing beyond "we come back to you; nothing is final until we have seen the car". It warns that Sabicars never charges to look at a car.
+- **Where it is linked.** The phone menu and the footer. The desktop header has no room for a ninth item. Also the Sourcing Desk page and the sitemap. Ask Sabicars knows it, and never quotes what a car is worth.
+- **Needs the owner's word:** that Sabicars buys cars outright and takes trade-ins, as well as selling on consignment. The three choices are in `lib/sell.ts`.
+
 **Later stages, in order** (each needs the business where marked):
 - **Stage 3b, reservations:** reserving a car online with a refundable deposit. *Needs: the Paystack account and the reservation policy (§8 item 2).*
 - **Stage 4, money:** Autochek's indicative monthly figure per car, and prequalify.
-- **Stage 5, supply:** "sell or trade in your car".
 - **Stage 6:** partner payouts through Paystack.
 - **Stage 7:** My Sabicars, covering papers, renewals and the service log.
 - **Stage 8:** the Sabicars Price Index from recorded sale prices.

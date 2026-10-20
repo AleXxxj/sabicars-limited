@@ -4,7 +4,9 @@ import { z } from "zod";
 import { FLEET_QUANTITIES, FLEET_TIMEFRAMES, FLEET_VEHICLES } from "@/lib/fleet";
 import { DECOY_REFERENCE, looksAutomated, recordShownMatches, sabicarsDealerId, saveLead, saveVehicleRequest, tooManyFrom } from "@/lib/leads";
 import { normalisePhone } from "@/lib/phone";
-import { stockMatching, vehicleForDrivePlan } from "@/lib/repositories/vehicles";
+import { formatNaira } from "@/lib/money";
+import { SELL_INTENTS, SELL_PAPERS } from "@/lib/sell";
+import { listedVehicleById, stockMatching, vehicleForDrivePlan } from "@/lib/repositories/vehicles";
 import { budgetLabel, budgetMaxMinor, PAYMENT_OPTIONS } from "@/lib/sourcing";
 import { drivePlanDeposit, priceLabel, vehicleTitle } from "@/lib/vehicle";
 
@@ -225,6 +227,87 @@ export async function submitSourcingRequest(_prev: SourcingResult | null, formDa
   } catch (e) {
     console.error("[sourcing] insert failed", e);
     return { ok: false, error: "Something went wrong saving your request. Please call 0810 188 5558.", values };
+  }
+}
+
+/* ── Sell or trade in your car ─────────────────────────────────────────── */
+
+const thisYear = new Date().getFullYear();
+
+const sellSchema = z.object({
+  intent: z.enum(["sell", "trade_in", "consign"]).catch("sell"),
+  make: z.string().trim().min(2, "Enter the make, e.g. Toyota").max(40),
+  model: z.string().trim().min(1, "Enter the model, e.g. Camry").max(80),
+  year: z.coerce.number("Enter the year").int("Enter the year").min(1980, "Enter a real year").max(thisYear + 1, `No later than ${thisYear + 1}`),
+  mileageKm: z.preprocess(
+    (v) => (typeof v === "string" ? (v.replace(/[,\s]/g, "") === "" ? undefined : v.replace(/[,\s]/g, "")) : v),
+    z.coerce.number().int("Kilometres as a whole number").min(0).max(2_000_000).optional(),
+  ),
+  condition: z.enum(["nigerian_used", "foreign_used"]).catch("nigerian_used"),
+  location: optional(80),
+  price: z.preprocess(
+    (v) => (typeof v === "string" ? (v.replace(/[₦,\s]/g, "") === "" ? undefined : v.replace(/[₦,\s]/g, "")) : v),
+    z.string().regex(/^\d{1,12}$/, "Digits only, e.g. 6,500,000").optional(),
+  ),
+  papers: z.enum(["all", "some", "none"]).catch("all"),
+  tradeFor: z.preprocess((v) => (v === "" ? undefined : v), z.uuid().optional()).catch(undefined),
+  name: z.string().trim().min(2, "Please tell us your name").max(120),
+  phone: z.string().trim().max(40),
+  email: z.union([z.literal(""), z.email("That email does not look right").max(200)]),
+  preferredContact: z.enum(["phone", "whatsapp", "email"]).catch("whatsapp"),
+  notes: optional(1500),
+  website: z.string().optional(),
+  renderedAt: z.coerce.number().optional(),
+});
+
+/**
+ * Someone offering their own car. The details go to staff as one readable
+ * brief; a car they want in exchange is attached, so the inbox shows it.
+ * Nothing is promised here: Sabicars replies after looking at the car.
+ */
+export async function submitSellRequest(_prev: LeadFormResult | null, formData: FormData): Promise<LeadFormResult> {
+  const values = submitted(formData);
+  const parsed = sellSchema.safeParse(Object.fromEntries(formData.entries()));
+  if (!parsed.success) return { ok: false, fieldErrors: firstErrors(parsed.error), values };
+  const v = parsed.data;
+  if (looksAutomated(v.website, v.renderedAt)) return { ok: true, reference: DECOY_REFERENCE, name: v.name };
+
+  const phone = normalisePhone(v.phone);
+  if (!phone) return { ok: false, fieldErrors: { phone: "Please enter a phone number we can reach, e.g. 0803 123 4567" }, values };
+  if (v.preferredContact === "email" && !v.email) return { ok: false, fieldErrors: { email: "Add your email, or choose another way to hear from us" }, values };
+  if (await tooManyFrom(phone)) return { ok: false, error: "We already have several messages from this number in the last hour — our team will be in touch.", values };
+
+  const dealerId = await sabicarsDealerId();
+  // Only a car actually on sale can be the one they trade towards.
+  const wanted = v.intent === "trade_in" && v.tradeFor ? await listedVehicleById(dealerId, v.tradeFor) : null;
+  const brief = [
+    `Car: ${v.year} ${v.make} ${v.model}${v.mileageKm !== undefined ? ` · ${v.mileageKm.toLocaleString("en-NG")} km` : ""} · ${v.condition === "foreign_used" ? "foreign used" : "Nigerian used"}`,
+    v.location && `Where it is: ${v.location}`,
+    wanted ? `Wants to: Trade it in for the ${vehicleTitle(wanted)} (${priceLabel(wanted)})` : `Wants to: ${SELL_INTENTS[v.intent]}`,
+    v.price && `Price in mind: ${formatNaira(Number(v.price) * 100)}`,
+    `Papers: ${SELL_PAPERS[v.papers]}`,
+    v.notes && `Notes: ${v.notes}`,
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  try {
+    const reference = await saveLead({
+      dealerId,
+      type: "sell",
+      channel: "web_form",
+      vehicleId: wanted?.id ?? null,
+      name: v.name,
+      phone,
+      email: v.email || null,
+      message: brief,
+      preferredContact: v.preferredContact,
+      landingPath: "/sell",
+    });
+    return { ok: true, reference, name: v.name.split(" ")[0] };
+  } catch (e) {
+    console.error("[sell] insert failed", e);
+    return { ok: false, error: "Something went wrong sending your details. Please call 0810 188 5558.", values };
   }
 }
 

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Logo } from "@/components/Logo";
 import { Address } from "@/components/site/Address";
 import { SubscribeForm } from "@/components/subscribe/SubscribeForm";
-import { INVENTORY_SHORTCUTS, PRIMARY_NAV } from "@/lib/navigation";
+import { INVENTORY_SHORTCUTS, PRIMARY_NAV, SELL_NAV } from "@/lib/navigation";
 import { searchTerms } from "@/lib/repositories/vehicles";
 import { termHref } from "@/lib/seo/search-terms";
 import { site, whatsappLink } from "@/lib/site";
@@ -81,6 +81,11 @@ export async function SiteFooter() {
               </Link>
             </li>
           ))}
+          <li>
+            <Link href={SELL_NAV.href} className={link}>
+              {SELL_NAV.label}
+            </Link>
+          </li>
           <li>
             <Link href="/compare" className={link}>
               Compare cars

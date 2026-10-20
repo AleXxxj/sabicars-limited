@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Menu, Phone, X } from "lucide-react";
 import { ButtonAnchor } from "@/components/ui/Button";
-import { PRIMARY_NAV, SAVED_NAV } from "@/lib/navigation";
+import { PRIMARY_NAV, SAVED_NAV, SELL_NAV } from "@/lib/navigation";
 import { site, whatsappLink } from "@/lib/site";
 import { Address } from "./Address";
 import { NAV_ICON } from "./nav-icons";
@@ -91,7 +91,7 @@ export function MobileMenu() {
             </div>
 
             <nav className="mt-6 grid gap-1">
-              {[...PRIMARY_NAV, SAVED_NAV].map((item) => {
+              {[...PRIMARY_NAV, SELL_NAV, SAVED_NAV].map((item) => {
                 const Icon = NAV_ICON[item.href];
                 const current = !item.href.includes("#") && pathname.startsWith(item.href);
                 return (
