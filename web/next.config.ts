@@ -15,6 +15,12 @@ const nextConfig: NextConfig = {
   async redirects() {
     return legacyRedirects();
   },
+  // Vercel's own address (sabicars.vercel.app) serves the same pages as
+  // sabicars.com. It must keep working — link previews and the rehearsal use
+  // it — but it must never compete with sabicars.com on Google.
+  async headers() {
+    return [{ source: "/:path*", has: [{ type: "host", value: "(?<sub>.+)\\.vercel\\.app" }], headers: [{ key: "X-Robots-Tag", value: "noindex" }] }];
+  },
 };
 
 export default nextConfig;

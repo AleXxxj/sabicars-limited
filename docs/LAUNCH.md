@@ -34,7 +34,7 @@ needing attention, or missing. `npm run check:launch` prints the same list.
    - Email: `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `RESEND_FROM_NAME`
    - Customer push: `NEXT_PUBLIC_ONESIGNAL_APP_ID`, `ONESIGNAL_REST_API_KEY`
    - Assistant: `ANTHROPIC_API_KEY`. Use a separate "Sabicars production" key.
-   - Do not set `NEXT_PUBLIC_SITE_URL`: it defaults to `https://sabicars.com`.
+   - Do not set `NEXT_PUBLIC_SITE_URL`. The site uses the project's production address from Vercel: `sabicars.vercel.app` during the rehearsal, so shared links preview, and `sabicars.com` once that domain is added. Vercel's own address is never indexed (`X-Robots-Tag: noindex`).
 4. **Resend:** verify `sabicars.com`.
    - Add the DNS records Resend gives *alongside* the existing ones.
    - **Never touch the MX records.** sabicars.com's email runs on Google Workspace.
@@ -70,6 +70,7 @@ needing attention, or missing. `npm run check:launch` prints the same list.
 
    Leave the MX, TXT (SPF/DKIM) and all other records alone.
 4. **Wait** for Vercel to show the domain as valid and issue the HTTPS certificate. This usually takes minutes.
+   Then **Redeploy** the latest production deployment. Pages built before the domain was added still name `sabicars.vercel.app` as their address. After the redeploy, canonical links and link previews say `sabicars.com`.
 5. **Check** (a few minutes' work, on a phone and a computer):
    - `https://sabicars.com` and `https://www.sabicars.com` both open the new site.
    - `/cars.html`, `/financing.html`, `/blog.html` and an old `car-detail.html?id=…` link each land on their new pages.

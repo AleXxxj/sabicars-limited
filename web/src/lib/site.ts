@@ -61,8 +61,19 @@ export const site = {
   },
 } as const;
 
+/**
+ * The site's own address: canonical links, link previews, the sitemap, emails.
+ *
+ * NEXT_PUBLIC_SITE_URL wins when it is set. Otherwise, on Vercel, it is the
+ * project's production address, which Vercel supplies: sabicars.vercel.app
+ * until sabicars.com is added as the project's domain, sabicars.com after. A
+ * page must name an address that serves it — WhatsApp follows the canonical
+ * link to build a preview, and before the switch sabicars.com/vehicles/… is a
+ * 404 on the old site, so the preview came out empty. Elsewhere, sabicars.com.
+ */
 export function siteUrl(): string {
-  return (process.env.NEXT_PUBLIC_SITE_URL ?? "https://sabicars.com").replace(/\/+$/, "");
+  const production = process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL ?? process.env.VERCEL_PROJECT_PRODUCTION_URL;
+  return (process.env.NEXT_PUBLIC_SITE_URL ?? (production ? `https://${production}` : "https://sabicars.com")).replace(/\/+$/, "");
 }
 
 export function whatsappLink(message?: string): string {
