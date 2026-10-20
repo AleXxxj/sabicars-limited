@@ -4,22 +4,25 @@ import { and, eq, inArray } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
 import { vehicles } from "@/db/schema";
-import { DECOY_REFERENCE, looksAutomated, saveLead, tooManyFrom } from "@/lib/leads";
+import { DECOY_REFERENCE, looksAutomated, saveLead, saveViewing, SlotTaken, tooManyFrom } from "@/lib/leads";
 import { normalisePhone } from "@/lib/phone";
+import { isBookableSlot } from "@/lib/viewings";
 
 export interface EnquiryResult {
   ok: boolean;
   /** Shown to the customer and quoted on WhatsApp, so a chat can be matched to its record. */
   reference?: string;
   name?: string;
+  /** For a booked viewing: when (ISO), so the confirmation and the calendar file can say so. */
+  viewingAt?: string;
   error?: string;
-  fieldErrors?: Partial<Record<"name" | "phone" | "email" | "message", string>>;
+  fieldErrors?: Partial<Record<"name" | "phone" | "email" | "message" | "viewingAt", string>>;
   /**
    * What was submitted, returned on failure. React resets a form after every
    * submission, so without this a customer who mistypes their phone number
    * would have to type everything again.
    */
-  values?: Partial<Record<"name" | "phone" | "email" | "message" | "preferredContact", string>>;
+  values?: Partial<Record<"name" | "phone" | "email" | "message" | "preferredContact" | "type" | "viewingAt", string>>;
 }
 
 const schema = z.object({
@@ -30,6 +33,7 @@ const schema = z.object({
   email: z.union([z.literal(""), z.email("That email does not look right").max(200)]),
   preferredContact: z.enum(["phone", "whatsapp"]).catch("phone"),
   message: z.string().trim().max(2000).optional(),
+  viewingAt: z.string().max(40).optional(),
   landingPath: z.string().max(300).optional(),
   website: z.string().optional(),
   renderedAt: z.coerce.number().optional(),
@@ -37,7 +41,15 @@ const schema = z.object({
 
 export async function submitEnquiry(_prev: EnquiryResult | null, formData: FormData): Promise<EnquiryResult> {
   const text = (k: string) => String(formData.get(k) ?? "");
-  const values = { name: text("name"), phone: text("phone"), email: text("email"), message: text("message"), preferredContact: text("preferredContact") };
+  const values = {
+    name: text("name"),
+    phone: text("phone"),
+    email: text("email"),
+    message: text("message"),
+    preferredContact: text("preferredContact"),
+    type: text("type"),
+    viewingAt: text("viewingAt"),
+  };
   const parsed = schema.safeParse(Object.fromEntries(formData.entries()));
   if (!parsed.success) {
     const flat = z.flattenError(parsed.error).fieldErrors;
@@ -50,6 +62,12 @@ export async function submitEnquiry(_prev: EnquiryResult | null, formData: FormD
   }
   const v = parsed.data;
   if (looksAutomated(v.website, v.renderedAt)) return { ok: true, reference: DECOY_REFERENCE, name: v.name };
+
+  // A viewing is for a real slot: one the showroom can keep, checked here as well as in the form.
+  const viewingAt = v.type === "viewing" && v.viewingAt ? new Date(v.viewingAt) : null;
+  if (v.type === "viewing" && (!viewingAt || !isBookableSlot(viewingAt))) {
+    return { ok: false, fieldErrors: { viewingAt: "Choose a day and time for your viewing." }, values };
+  }
 
   const phone = normalisePhone(v.phone);
   if (!phone) return { ok: false, fieldErrors: { phone: "Please enter a phone number we can call, e.g. 0803 123 4567" }, values };
@@ -64,21 +82,29 @@ export async function submitEnquiry(_prev: EnquiryResult | null, formData: FormD
     .limit(1);
   if (!vehicle) return { ok: false, error: "This vehicle is no longer listed. Please reload the page.", values };
 
+  const lead = {
+    dealerId: vehicle.dealerId,
+    type: v.type,
+    channel: "web_form" as const,
+    vehicleId: vehicle.id,
+    name: v.name,
+    phone,
+    email: v.email || null,
+    message: v.message || null,
+    preferredContact: v.preferredContact,
+    landingPath: v.landingPath ?? null,
+  };
   try {
-    const reference = await saveLead({
-      dealerId: vehicle.dealerId,
-      type: v.type,
-      channel: "web_form",
-      vehicleId: vehicle.id,
-      name: v.name,
-      phone,
-      email: v.email || null,
-      message: v.message || null,
-      preferredContact: v.preferredContact,
-      landingPath: v.landingPath ?? null,
-    });
+    if (viewingAt) {
+      const reference = await saveViewing({ ...lead, viewingAt });
+      return { ok: true, reference, name: v.name.split(" ")[0], viewingAt: viewingAt.toISOString() };
+    }
+    const reference = await saveLead(lead);
     return { ok: true, reference, name: v.name.split(" ")[0] };
   } catch (e) {
+    if (e instanceof SlotTaken) {
+      return { ok: false, fieldErrors: { viewingAt: "That time has just been booked. Please choose another." }, values };
+    }
     console.error("[enquiry] insert failed", e);
     return { ok: false, error: "Something went wrong saving your enquiry. Please call 0810 188 5558 and we will help straight away.", values };
   }

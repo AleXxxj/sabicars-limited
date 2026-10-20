@@ -77,7 +77,7 @@ async function deliverPriceDrop(watchId: string): Promise<"sent" | "pending" | "
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px">
 <tr><td style="padding:0 0 28px"><img src="${esc(siteUrl())}/brand/logo-email.png" width="220" height="45" alt="Sabicars" style="display:block;border:0"><div style="padding-top:14px;font-size:12px;letter-spacing:3px;color:#8DC74D">PRICE ALERT</div></td></tr>
 ${cover ? `<tr><td><a href="${esc(url)}"><img src="${esc(shareImageUrl(cover.url))}" width="560" alt="${esc(title)}" style="display:block;width:100%;height:auto;border:0;border-radius:12px"></a></td></tr>` : ""}
-<tr><td style="padding:20px 0 0;font-family:Georgia,serif;font-size:28px;line-height:1.2">${esc(title)}</td></tr>
+<tr><td style="padding:20px 0 0;font-family:Helvetica,Arial,sans-serif;font-weight:bold;letter-spacing:-0.4px;font-size:26px;line-height:1.2;color:#F2F2EC">${esc(title)}</td></tr>
 <tr><td style="padding:10px 0 0;font-size:20px">${was ? `<span style="color:#9FA59E;text-decoration:line-through">${esc(formatNaira(was))}</span>&nbsp; ` : ""}<strong style="color:#A5DB6F">${esc(formatNaira(now))}</strong></td></tr>
 ${deposit ? `<tr><td style="padding:6px 0 0;font-size:14px;color:#CFD2CC">${esc(deposit)} down on the 40% Drive Plan</td></tr>` : ""}
 <tr><td style="padding:28px 0"><a href="${esc(url)}" style="display:inline-block;background:#F7801E;color:#090E0A;padding:16px 28px;border-radius:999px;font-size:15px;font-weight:bold;text-decoration:none">See the vehicle</a></td></tr>

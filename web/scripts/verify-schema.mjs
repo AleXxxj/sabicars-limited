@@ -234,6 +234,11 @@ const rv = await db.query(`INSERT INTO reviews (dealer_id, name, rating, message
 expect("new reviews wait for approval before publishing", rv.rows[0].is_approved === false);
 await rejects(db, "refuses a published post with no publish date", `INSERT INTO blog_posts (dealer_id, slug, title, category, excerpt, content, is_published) VALUES (${D}, 's', 't', 'c', 'e', 'b', true)`, "blog_posts_published_has_date");
 
+// ── Viewing slots ──────────────────────────────────────────────────────────
+console.log("\nViewing slots");
+await allows(db, "books a viewing for a time", `INSERT INTO leads (dealer_id, type, channel, name, phone, viewing_at) VALUES (${D}, 'viewing', 'web_form', 'Ada', '+2348000000021', '2026-10-24T09:00:00Z')`);
+await rejects(db, "refuses a viewing time on an enquiry that is not a viewing", `INSERT INTO leads (dealer_id, type, channel, name, phone, viewing_at) VALUES (${D}, 'question', 'web_form', 'Ada', '+2348000000022', '2026-10-24T09:00:00Z')`, "leads_viewing_time_only_on_viewings");
+
 // ── Sabicars Verified ──────────────────────────────────────────────────────
 console.log("\nSabicars Verified");
 const VV = "'a0000000-0000-0000-0000-000000000009'";

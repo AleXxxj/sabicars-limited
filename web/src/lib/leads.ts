@@ -1,12 +1,13 @@
 import "server-only";
 import { cookies } from "next/headers";
 import { after } from "next/server";
-import { and, eq, gte, sql } from "drizzle-orm";
+import { and, eq, gte, ne, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { dealers, leads, requestMatches, vehicleRequests, vehicleWatches, type NewLead } from "@/db/schema";
 import { escalateStaleLeads, notifyNewLead } from "@/lib/alerts";
 import { activePartnerByCode, PARTNER_COOKIE } from "@/lib/partners";
 import { referenceFor } from "@/lib/reference";
+import { SLOT_CAPACITY } from "@/lib/viewings";
 
 /**
  * The rules every enquiry form shares — vehicle enquiries, the contact page,
@@ -92,6 +93,43 @@ export async function saveLead(values: NewLead): Promise<string> {
     .returning({ id: leads.id });
   alertStaff(row.id);
   return referenceFor(row.id);
+}
+
+/** The chosen viewing slot filled up between the buyer opening the page and sending the form. */
+export class SlotTaken extends Error {}
+
+/**
+ * Saves a viewing booking for its slot, refusing one already at capacity.
+ * The slot is locked for the length of the transaction, so two buyers taking
+ * its last place at the same moment cannot both succeed.
+ */
+export async function saveViewing(values: NewLead & { viewingAt: Date }): Promise<string> {
+  const partnerId = values.partnerId ?? (await referringPartnerId(values.dealerId, values.phone));
+  const id = await db.transaction(async (tx) => {
+    await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${`viewing:${values.dealerId}:${values.viewingAt.toISOString()}`}))`);
+    const [{ booked }] = await tx
+      .select({ booked: sql<number>`count(*)::int` })
+      .from(leads)
+      .where(and(eq(leads.dealerId, values.dealerId), eq(leads.type, "viewing"), eq(leads.viewingAt, values.viewingAt), ne(leads.status, "lost")));
+    if (booked >= SLOT_CAPACITY) throw new SlotTaken();
+    const [row] = await tx
+      .insert(leads)
+      .values({ ...values, partnerId })
+      .returning({ id: leads.id });
+    return row.id;
+  });
+  alertStaff(id);
+  return referenceFor(id);
+}
+
+/** How many viewings each upcoming slot already holds, by slot start (ISO). A lost lead frees its place. */
+export async function bookedSlots(dealerId: string, now = new Date()): Promise<Record<string, number>> {
+  const rows = await db
+    .select({ at: leads.viewingAt, booked: sql<number>`count(*)::int` })
+    .from(leads)
+    .where(and(eq(leads.dealerId, dealerId), eq(leads.type, "viewing"), gte(leads.viewingAt, now), ne(leads.status, "lost")))
+    .groupBy(leads.viewingAt);
+  return Object.fromEntries(rows.filter((r) => r.at).map((r) => [r.at!.toISOString(), r.booked]));
 }
 
 /** A Sourcing Desk request: the lead and the criteria it will be matched on, saved together or not at all. */

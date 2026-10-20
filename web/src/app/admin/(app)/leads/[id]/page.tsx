@@ -14,6 +14,7 @@ import { displayPhone } from "@/lib/phone";
 import { assignableStaff, leadDetail, type LeadDetail } from "@/lib/repositories/leads";
 import { formatWait } from "@/lib/showroom-hours";
 import { siteUrl } from "@/lib/site";
+import { slotLabel } from "@/lib/viewings";
 
 export const metadata: Metadata = { title: "Enquiry · Admin", robots: { index: false, follow: false } };
 
@@ -231,6 +232,12 @@ export default async function LeadPage({ params }: Props) {
 
         <section aria-label="What they asked" className="min-w-0 border border-border-subtle bg-surface-1 p-5 md:p-6 lg:col-start-1">
           <p className="eyebrow !text-text-muted">What they asked</p>
+          {lead.viewingAt && (
+            <p className="mt-3 border-l-2 border-green-500 pl-3 text-text-primary">
+              Viewing booked for <strong>{slotLabel(lead.viewingAt)}</strong>
+              {lead.viewingAt < new Date() && <span className="ml-2 text-sm text-text-muted">(past)</span>}
+            </p>
+          )}
           {d.vehicle && (
             <p className="mt-3 flex flex-wrap items-baseline gap-x-3">
               <Link

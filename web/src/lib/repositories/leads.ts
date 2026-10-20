@@ -74,7 +74,7 @@ function searchWhere(q: string): SQL | undefined {
 
 export interface InboxLead extends Pick<
   Lead,
-  "id" | "type" | "status" | "channel" | "name" | "phone" | "email" | "createdAt" | "firstResponseAt" | "escalatedAt"
+  "id" | "type" | "status" | "channel" | "name" | "phone" | "email" | "createdAt" | "firstResponseAt" | "escalatedAt" | "viewingAt"
 > {
   reference: string;
   /** The car they asked about, or the first line of what they wrote. */
@@ -114,6 +114,7 @@ export async function inbox(dealerId: string, me: string, view: LeadView, q = ""
     createdAt: lead.createdAt,
     firstResponseAt: lead.firstResponseAt,
     escalatedAt: lead.escalatedAt,
+    viewingAt: lead.viewingAt,
     reference: referenceFor(lead.id),
     about: vehicle?.make ? `${vehicle.year} ${vehicle.make} ${vehicle.model}` : (lead.message ?? "").split("\n")[0].slice(0, 120),
     vehicleSlug: vehicle?.slug ?? null,

@@ -303,7 +303,7 @@ export default async function ReportPage({ params }: Props) {
           {hasPage && v.status !== "sold" && (
             <div className="mt-8 flex flex-wrap gap-3">
               <ButtonLink href={`/vehicles/${v.slug}`}>See the car</ButtonLink>
-              <ButtonLink href={`/vehicles/${v.slug}#enquire`} variant="secondary">
+              <ButtonLink href={`/vehicles/${v.slug}#book-viewing`} variant="secondary">
                 Book a viewing
               </ButtonLink>
             </div>

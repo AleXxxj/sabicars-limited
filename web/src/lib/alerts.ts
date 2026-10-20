@@ -9,6 +9,7 @@ import { displayPhone } from "@/lib/phone";
 import { referenceFor } from "@/lib/reference";
 import { showroomHours } from "@/lib/showroom-hours";
 import { site, siteUrl } from "@/lib/site";
+import { slotLabel } from "@/lib/viewings";
 
 /**
  * Telling staff, the moment a buyer asks.
@@ -113,7 +114,7 @@ async function payloadFor(
     type: lead.type,
     payload: {
       title: headline(`${LEAD_TYPE_LABEL[lead.type].toLowerCase()} — ${lead.name}`),
-      body: [about, reach, referenceFor(lead.id)].filter(Boolean).join(" · "),
+      body: [lead.viewingAt ? `Viewing ${slotLabel(lead.viewingAt)}` : null, about, reach, referenceFor(lead.id)].filter(Boolean).join(" · "),
       url: `/admin/leads/${lead.id}`,
       tag: `lead-${lead.id}`,
     },

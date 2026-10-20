@@ -504,8 +504,22 @@ A comparison with Jiji, Cars45, Autochek and Cars.ng graded Sabicars 5.2/10 (Aut
   - Ask Sabicars reads each car's report, findings included. It never calls a car without a report inspected.
 - **Needs the business.** Who inspects at the park. A VIN-history provider account (LegitCar's Carfax report was ₦5,500). A print shop for face-mounted stickers.
 
+**Stage 3a, viewing slots (built):**
+- **The rules** live in `lib/viewings.ts` and are tested by `npm run test:viewings` (27 checks, part of the build):
+  - Hourly slots from the showroom's hours, from opening until an hour before closing.
+  - At least two hours ahead, and up to a week ahead.
+  - Two viewings per hour.
+- **The buyer.** "Book a viewing" on the car's page, or any link to `#book-viewing`, opens a day-and-time picker. The times are worked out in the browser, so they are right even on a cached page. The server checks the slot again. A lock on the slot means two buyers cannot take its last place. The confirmation gives the time, the place, the reference and an add-to-calendar file.
+- **Staff.** The phone alert, the inbox row and the enquiry page lead with the booked time, and the inbox opens with "Viewings today".
+- **Each morning,** `/api/cron/viewings` emails each buyer with an email address, once, and sends staff the day's list, once (docs/LAUNCH.md has the schedule).
+- **Migration 0009** adds `leads.viewing_at` and `leads.viewing_reminded_at`, and the database refuses a time on anything but a viewing.
+- **Fixed on the way:**
+  - The car page's enquiry section could grow wider than a phone: the column grew to its widest content, and a fieldset grows to its contents.
+  - After any error, React reset the tab radios, so re-sending a viewing went in as a plain question. The type now comes from state.
+  - The emails' headlines were still in a serif from the gold era. They are now Helvetica bold in Bone.
+
 **Later stages, in order** (each needs the business where marked):
-- **Stage 3, commit online:** reservations with a refundable deposit, and viewing slots. *Needs: the Paystack account and the reservation policy (§8 item 2).*
+- **Stage 3b, reservations:** reserving a car online with a refundable deposit. *Needs: the Paystack account and the reservation policy (§8 item 2).*
 - **Stage 4, money:** Autochek's indicative monthly figure per car, and prequalify.
 - **Stage 5, supply:** "sell or trade in your car".
 - **Stage 6:** partner payouts through Paystack.

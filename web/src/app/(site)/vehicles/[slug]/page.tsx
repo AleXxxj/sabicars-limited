@@ -13,6 +13,7 @@ import { RecentlyViewed, RecordView } from "@/components/saved/RecentlyViewed";
 import { Gallery } from "@/components/vehicle/Gallery";
 import { VerifiedPanel } from "@/components/vehicle/VerifiedPanel";
 import { comparePath } from "@/lib/assistant/parts";
+import { bookedSlots } from "@/lib/leads";
 import { liveReportFor } from "@/lib/repositories/inspections";
 import { listedVehicleSlugs, similarVehicles, vehicleBySlug } from "@/lib/repositories/vehicles";
 import { shareImageUrl } from "@/lib/media";
@@ -93,7 +94,7 @@ export default async function VehiclePage({ params }: Props) {
   const deposit = drivePlanDeposit(v);
   const balance = drivePlanBalance(v);
   const sold = v.status === "sold";
-  const [similar, live] = await Promise.all([similarVehicles(v), liveReportFor(v.id)]);
+  const [similar, live, taken] = await Promise.all([similarVehicles(v), liveReportFor(v.id), sold ? Promise.resolve({}) : bookedSlots(v.dealerId)]);
 
   return (
     <article className="pb-20 lg:pb-0">
@@ -181,7 +182,7 @@ export default async function VehiclePage({ params }: Props) {
                   <ButtonLink href="#enquire" size="lg">
                     Enquire about this vehicle
                   </ButtonLink>
-                  <ButtonLink href="#enquire" size="lg" variant="secondary">
+                  <ButtonLink href="#book-viewing" size="lg" variant="secondary">
                     Book a viewing
                   </ButtonLink>
                 </>
@@ -275,7 +276,7 @@ export default async function VehiclePage({ params }: Props) {
 
         {!sold && (
           <section id="enquire" className="scroll-mt-24 border-t border-border-subtle bg-surface-1 py-14 md:py-20">
-            <div className="mx-auto grid max-w-7xl gap-12 px-5 md:px-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
+            <div className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)] gap-12 px-5 md:px-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
               <div>
                 <p className="kicker">Enquire</p>
                 <h2 className="mt-3 text-display-3">Interested in the {v.model}?</h2>
@@ -290,7 +291,18 @@ export default async function VehiclePage({ params }: Props) {
                   </a>
                 </p>
               </div>
-              <EnquiryForm vehicleId={v.id} vehicleTitle={title} landingPath={`/vehicles/${v.slug}`} whatsappBase={whatsappLink()} />
+              <EnquiryForm
+                vehicleId={v.id}
+                vehicleTitle={title}
+                landingPath={`/vehicles/${v.slug}`}
+                whatsappBase={whatsappLink()}
+                taken={taken}
+                address={
+                  location
+                    ? [location.addressLine1, location.addressLine2, location.city].filter(Boolean).join(", ")
+                    : `${site.address.line1}, ${site.address.line2}, ${site.address.city}`
+                }
+              />
             </div>
           </section>
         )}

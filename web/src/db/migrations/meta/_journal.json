@@ -64,6 +64,13 @@
       "when": 1792500063238,
       "tag": "0008_sabicars_verified",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1792503790461,
+      "tag": "0009_viewing_slots",
+      "breakpoints": true
     }
   ]
 }

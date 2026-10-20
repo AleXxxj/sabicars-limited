@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npm run tokens && npm run check:contrast && npm run test:schema && npm run test:money && npm run test:hours && next build",
+    "build": "npm run tokens && npm run check:contrast && npm run test:schema && npm run test:money && npm run test:hours && npm run test:viewings && next build",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
@@ -22,6 +22,7 @@
     "test:schema": "node scripts/verify-schema.mjs",
     "test:money": "tsx scripts/verify-money.ts",
     "test:hours": "tsx scripts/verify-hours.ts",
+    "test:viewings": "tsx scripts/verify-viewings.ts",
     "auth:check": "node --env-file=.env.local scripts/check-auth.mjs",
     "brand": "node scripts/build-brand.mjs"
   },

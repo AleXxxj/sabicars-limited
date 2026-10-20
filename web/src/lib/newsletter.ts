@@ -120,7 +120,7 @@ export function renderNewsletter(c: NewsletterContent, unsubscribeUrl: string): 
       text: `${v.title} — ${price}${deposit ? ` (${deposit} down on the 40% Drive Plan)` : ""}\n${url}`,
       html: `<tr><td style="padding:0 0 28px">
 ${v.coverUrl ? `<a href="${esc(url)}"><img src="${esc(shareImageUrl(v.coverUrl))}" width="560" alt="${esc(v.title)}" style="display:block;width:100%;height:auto;border:0;border-radius:14px"></a>` : ""}
-<div style="padding:14px 0 0;font-family:Georgia,serif;font-size:24px;line-height:1.25;color:#F2F2EC">${esc(v.title)}</div>
+<div style="padding:14px 0 0;font-family:Helvetica,Arial,sans-serif;font-weight:bold;letter-spacing:-0.3px;font-size:22px;line-height:1.25;color:#F2F2EC">${esc(v.title)}</div>
 <div style="padding:6px 0 0;font-size:17px;color:#A5DB6F;font-weight:bold">${esc(price)}</div>
 ${deposit ? `<div style="padding:2px 0 0;font-size:14px;color:#9FA59E">${esc(deposit)} down on the 40% Drive Plan</div>` : ""}
 <div style="padding:12px 0 0"><a href="${esc(url)}" style="color:#A5DB6F;font-size:15px;font-weight:bold;text-decoration:none">See the vehicle &rarr;</a></div>
@@ -138,7 +138,7 @@ ${deposit ? `<div style="padding:2px 0 0;font-size:14px;color:#9FA59E">${esc(dep
 <tr><td style="padding:0 0 28px"><a href="${esc(tagged("/", c.campaign))}"><img src="${esc(siteUrl())}/brand/logo-email.png" width="200" alt="Sabicars" style="display:block;border:0"></a></td></tr>
 ${c.image ? `<tr><td style="padding:0 0 24px"><a href="${esc(tagged(c.image.href, c.campaign))}"><img src="${esc(shareImageUrl(c.image.url))}" width="560" alt="" style="display:block;width:100%;height:auto;border:0;border-radius:14px"></a></td></tr>` : ""}
 <tr><td style="font-size:12px;letter-spacing:3px;color:#8DC74D;text-transform:uppercase">${esc(c.kicker)}</td></tr>
-<tr><td style="padding:10px 0 0;font-family:Georgia,serif;font-size:32px;line-height:1.15;color:#F2F2EC">${esc(c.headline)}</td></tr>
+<tr><td style="padding:10px 0 0;font-family:Helvetica,Arial,sans-serif;font-weight:bold;letter-spacing:-0.5px;font-size:30px;line-height:1.15;color:#F2F2EC">${esc(c.headline)}</td></tr>
 ${paragraphs.map((p) => `<tr><td style="padding:14px 0 0;font-size:16px;line-height:1.65;color:#CFD2CC">${esc(p)}</td></tr>`).join("\n")}
 <tr><td style="padding:28px 0 0"></td></tr>
 ${cars.map((x) => x.html).join("\n")}

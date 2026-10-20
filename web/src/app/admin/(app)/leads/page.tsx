@@ -11,6 +11,8 @@ import { LEAD_STATUS_LABEL, LEAD_TYPE_LABEL, RESPONSE_TARGET_MINUTES } from "@/l
 import { displayPhone } from "@/lib/phone";
 import { inbox, inboxCounts, LEAD_VIEWS, myAlertSettings, responseStats, type InboxLead, type LeadView } from "@/lib/repositories/leads";
 import { formatWait } from "@/lib/showroom-hours";
+import { viewingsOn } from "@/lib/viewing-reminders";
+import { slotLabel } from "@/lib/viewings";
 
 export const metadata: Metadata = { title: "Enquiries · Admin", robots: { index: false, follow: false } };
 
@@ -45,11 +47,12 @@ export default async function LeadsInbox({ searchParams }: Props) {
   const sp = await searchParams;
   const q = (sp.q ?? "").trim().slice(0, 80);
   const view: LeadView = sp.view && sp.view in LEAD_VIEWS ? (sp.view as LeadView) : "waiting";
-  const [rows, counts, stats, alerts] = await Promise.all([
+  const [rows, counts, stats, alerts, today] = await Promise.all([
     inbox(me.dealerId, me.id, view, q),
     inboxCounts(me.dealerId, me.id),
     responseStats(me.dealerId),
     myAlertSettings(me.id),
+    viewingsOn(me.dealerId),
   ]);
   // Someone is looking: a good moment to check nothing has been left too long.
   after(() => escalateStaleLeads().catch((e) => console.error("[leads] escalation sweep failed", e)));
@@ -106,6 +109,27 @@ export default async function LeadsInbox({ searchParams }: Props) {
           waiting={counts.waiting}
         />
       </div>
+
+      {today.length > 0 && (
+        <section aria-labelledby="today-viewings" className="mt-6 border border-green-700 bg-surface-1 p-4 md:p-5">
+          <h2 id="today-viewings" className="eyebrow">
+            Viewings today
+          </h2>
+          <ul className="mt-3 divide-y divide-border-subtle">
+            {today.map((t) => (
+              <li key={t.id}>
+                <Link href={`/admin/leads/${t.id}`} className="flex flex-wrap items-baseline gap-x-4 gap-y-1 py-2.5 hover:text-accent-text">
+                  <span className="figures font-semibold text-green-300">
+                    {t.viewingAt!.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "Africa/Lagos" })}
+                  </span>
+                  <span className="text-text-primary">{t.name}</span>
+                  {t.vehicle && <span className="text-sm text-text-secondary">{`${t.vehicle.year} ${t.vehicle.make} ${t.vehicle.model}`}</span>}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <dl className="mt-6 grid grid-cols-2 gap-px border border-border-subtle bg-border-subtle lg:grid-cols-4">
         {figures.map((f) => (
@@ -168,6 +192,7 @@ export default async function LeadsInbox({ searchParams }: Props) {
                     <span className="text-xs text-text-secondary">{LEAD_TYPE_LABEL[l.type]}</span>
                     <span className="figures text-xs text-text-muted">{l.reference}</span>
                   </p>
+                  {l.viewingAt && <p className="mt-1 text-sm font-semibold text-green-300">Viewing {slotLabel(l.viewingAt)}</p>}
                   {l.about && <p className="mt-1 truncate text-sm text-text-secondary">{l.about}</p>}
                   <p className="figures mt-1 text-xs text-text-muted">{l.phone ? displayPhone(l.phone) : l.email}</p>
                 </div>

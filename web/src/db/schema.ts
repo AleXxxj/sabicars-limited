@@ -412,6 +412,10 @@ export const leads = pgTable(
     message: text("message"),
     /** phone | whatsapp | email */
     preferredContact: text("preferred_contact"),
+    /** The slot a viewing was booked for (lib/viewings.ts). Only a viewing has one. */
+    viewingAt: timestamp("viewing_at", { withTimezone: true }),
+    /** When the buyer was reminded on the morning of the viewing, so a re-run never reminds twice. */
+    viewingRemindedAt: timestamp("viewing_reminded_at", { withTimezone: true }),
 
     /** Attribution: which page, campaign or partner produced the lead. */
     landingPath: text("landing_path"),
@@ -449,6 +453,9 @@ export const leads = pgTable(
     index("leads_assigned_idx").on(t.assignedTo, t.status),
     check("leads_reachable", sql`${t.phone} IS NOT NULL OR ${t.email} IS NOT NULL`),
     check("leads_name_present", sql`length(btrim(${t.name})) > 0`),
+    /** Counting bookings per slot, and the morning's list of viewings. */
+    index("leads_viewing_idx").on(t.dealerId, t.viewingAt),
+    check("leads_viewing_time_only_on_viewings", sql`${t.viewingAt} IS NULL OR ${t.type} = 'viewing'`),
   ],
 );
 

@@ -141,6 +141,7 @@ ${site.legalName} (CAC RC ${site.rcNumber}) sells cars, SUVs, Toyota Hiace "Humm
 - Hours: ${site.hours.map((h) => `${h.days} ${h.time}`).join("; ")} (Lagos time).
 - Phone: ${site.phones.map((p) => p.display).join(" or ")}. WhatsApp: ${site.whatsapp.display}. Email: ${site.email}.
 - Every car can be inspected at the showroom before any money changes hands, and buyers are welcome to bring their own mechanic.
+- Viewings: a buyer books a time on the car's own page (Book a viewing), choosing an hourly slot within opening hours, from two hours ahead up to a week ahead. They get a reference and a calendar file.
 - Privacy: chats and enquiries are kept so the team can follow up, and Sabicars does not sell personal data. Anyone can ask to see, correct or delete their details by emailing ${site.email}. The full notice is at /privacy.
 
 ## The 40% Drive Plan

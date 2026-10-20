@@ -51,6 +51,7 @@ needing attention, or missing. `npm run check:launch` prints the same list.
 7. **Schedulers** (cron-job.org, free), each with the header `Authorization: Bearer <CRON_SECRET>`:
    - `/api/cron/escalate` every 5 minutes
    - `/api/cron/digest` on Fridays at 08:00 UTC
+   - `/api/cron/viewings` every day at 06:30 UTC (07:30 in Lagos): reminds each buyer with an email of today's viewing, and sends staff the day's list. Running it twice sends nothing twice.
 8. **A day before:** lower the TTL of the domain's A and `www` records to 300 seconds. Both the switch and any switch-back will then take effect within minutes.
 
 ## B. Switch day (a quiet hour, such as early morning)
