@@ -4,14 +4,14 @@ import { ScrollReveal } from "@/components/ScrollReveal";
 import { SourcingForm } from "@/components/forms/SourcingForm";
 import { PageIntro } from "@/components/site/PageIntro";
 import { mostRequested } from "@/lib/repositories/sourcing";
-import { whatsappLink } from "@/lib/site";
+import { pageAddress, whatsappLink } from "@/lib/site";
 import { BUDGET_OPTIONS } from "@/lib/sourcing";
 
 export const metadata: Metadata = {
   title: "Find me a car — the Sourcing Desk",
   description:
     "Can't find the car you want in stock? Tell Sabicars the vehicle, year and budget. Your request is recorded with a reference, and you are told the moment a match arrives.",
-  alternates: { canonical: "/find" },
+  ...pageAddress("/find"),
 };
 
 const STEPS = [

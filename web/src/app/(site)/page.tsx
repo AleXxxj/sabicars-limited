@@ -20,7 +20,7 @@ import { PostCard } from "@/components/blog/PostCard";
 import { latestPosts } from "@/lib/repositories/blog";
 import { formatNaira, money, percentOf } from "@/lib/money";
 import { dealerJsonLd, jsonLdScript } from "@/lib/seo/structured-data";
-import { site, siteUrl } from "@/lib/site";
+import { pageAddress, site, siteUrl } from "@/lib/site";
 import { BUDGET_OPTIONS } from "@/lib/sourcing";
 import { DRIVE_PLAN_DEPOSIT_BPS, priceLabel, vehicleTitle } from "@/lib/vehicle";
 
@@ -33,7 +33,7 @@ export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: { absolute: "Sabicars — Toyota Hiace Hummer Buses, Luxury Cars & SUVs in Lagos" },
-  alternates: { canonical: "/" },
+  ...pageAddress("/"),
 };
 
 function SectionHead({ eyebrow, title, children }: { eyebrow: string; title: string; children?: React.ReactNode }) {

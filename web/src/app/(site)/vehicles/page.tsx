@@ -15,6 +15,7 @@ import {
   SORT_LABEL,
   type InventoryFilters,
 } from "@/lib/inventory-filters";
+import { pageAddress } from "@/lib/site";
 import { BODY_LABEL, CONDITION_LABEL } from "@/lib/vehicle";
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
@@ -38,7 +39,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   return {
     title,
     description: `${title} from Sabicars Limited (RC 1560100), a CAC-registered dealer in Lagos, Nigeria. Every vehicle with photos, specifications and prices.`,
-    alternates: { canonical },
+    ...pageAddress(canonical),
   };
 }
 

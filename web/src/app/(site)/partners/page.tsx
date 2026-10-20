@@ -5,7 +5,7 @@ import { EarningsExamples, PartnerRules } from "@/components/referral/Referral";
 import { PARTNER_TERMS } from "@/lib/referral";
 import { PageIntro } from "@/components/site/PageIntro";
 import { drivePlanCatalogue } from "@/lib/repositories/vehicles";
-import { site } from "@/lib/site";
+import { pageAddress, site } from "@/lib/site";
 
 export const revalidate = 3600;
 
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   title: "Refer & Earn — 1.5% on every buyer you send",
   description:
     "Register free as a Sabicars partner, share your personal link, and earn 1.5% of the price when a buyer you sent completes a purchase. Paid on sales only — never for recruiting.",
-  alternates: { canonical: "/partners" },
+  ...pageAddress("/partners"),
 };
 
 const HOW = [

@@ -3,13 +3,13 @@ import { ScrollReveal } from "@/components/ScrollReveal";
 import { ContactForm } from "@/components/forms/ContactForm";
 import { Address } from "@/components/site/Address";
 import { PageIntro } from "@/components/site/PageIntro";
-import { site, whatsappLink } from "@/lib/site";
+import { pageAddress, site, whatsappLink } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Contact Sabicars — showroom, phone and hours",
   description:
     "Visit the Sabicars showroom at Amazing Grace Shopping Complex, Km 16, Lasu Road, Igando, Lagos — or call 0810 188 5558. Open every day.",
-  alternates: { canonical: "/contact" },
+  ...pageAddress("/contact"),
 };
 
 function Channel({ title, children }: { title: string; children: React.ReactNode }) {

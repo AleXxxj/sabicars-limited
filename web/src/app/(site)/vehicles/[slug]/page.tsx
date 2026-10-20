@@ -16,7 +16,7 @@ import { listedVehicleSlugs, similarVehicles, vehicleBySlug } from "@/lib/reposi
 import { shareImageUrl } from "@/lib/media";
 import { breadcrumbJsonLd, dealerJsonLd, jsonLdScript, vehicleJsonLd } from "@/lib/seo/structured-data";
 import { modelFamily, termFor, termHref } from "@/lib/seo/search-terms";
-import { site, siteUrl, whatsappLink } from "@/lib/site";
+import { pageAddress, site, siteUrl, whatsappLink } from "@/lib/site";
 import { drivePlanBalance, drivePlanDeposit, priceLabel, specLine, specRows, vehicleTitle } from "@/lib/vehicle";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -48,16 +48,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${title} for sale in Lagos`,
     description,
-    alternates: { canonical: `/vehicles/${v.slug}` },
     // A sold car keeps its page for anyone holding the link, but is not offered
     // to search engines as something to buy.
     robots: v.status === "sold" ? { index: false, follow: true } : undefined,
-    openGraph: {
+    ...pageAddress(`/vehicles/${v.slug}`, {
       title: `${title} · ${priceLabel(v)}`,
       description,
-      type: "website",
       images: cover ? [{ url: shareImageUrl(cover.url), width: 1200, height: 630, alt: title }] : undefined,
-    },
+    }),
   };
 }
 

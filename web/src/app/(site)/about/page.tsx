@@ -7,7 +7,7 @@ import { ButtonLink } from "@/components/ui/Button";
 import { ReviewsSection } from "@/components/reviews/ReviewsSection";
 import { publishedReviews, reviewSummary } from "@/lib/repositories/reviews";
 import { inventoryStats } from "@/lib/repositories/vehicles";
-import { site } from "@/lib/site";
+import { pageAddress, site } from "@/lib/site";
 
 export const revalidate = 3600;
 
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   title: "About Sabicars — founded by Ccristian Dee",
   description:
     "Sabicars Limited (RC 1560100) was founded by Ccristian Dee — Prince Emmanuel Abisoye — on a simple principle: Nigerian car buyers deserve dealers who tell the truth about what they sell.",
-  alternates: { canonical: "/about" },
+  ...pageAddress("/about"),
 };
 
 /**

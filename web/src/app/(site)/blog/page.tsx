@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PostCard } from "@/components/blog/PostCard";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { publishedPosts } from "@/lib/repositories/blog";
+import { pageAddress } from "@/lib/site";
 
 export const revalidate = 300;
 
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
   title: "Insights — buying, financing and running a vehicle in Nigeria",
   description:
     "Straight answers about buying, financing and running a vehicle in Nigeria, from people who sell them every day: buyer's guides, the 40% Drive Plan, inspections and the Toyota Hiace Hummer bus.",
-  alternates: { canonical: "/blog" },
+  ...pageAddress("/blog"),
 };
 
 type Props = { searchParams: Promise<{ category?: string }> };

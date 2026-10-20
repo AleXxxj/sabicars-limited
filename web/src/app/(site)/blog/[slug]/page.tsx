@@ -10,9 +10,10 @@ import { SubscribeForm } from "@/components/subscribe/SubscribeForm";
 import { Cover } from "@/components/blog/Cover";
 import { anchorFor, plainText, readingMinutes } from "@/lib/blog/blocks";
 import { videoSource } from "@/lib/blog/video";
+import { shareImageUrl } from "@/lib/media";
 import { approvedComments, postBySlug, publishedPosts, relatedPosts } from "@/lib/repositories/blog";
 import { articleJsonLd, breadcrumbJsonLd, faqJsonLd, jsonLdScript } from "@/lib/seo/structured-data";
-import { siteUrl } from "@/lib/site";
+import { pageAddress, siteUrl } from "@/lib/site";
 
 export const revalidate = 300;
 
@@ -29,14 +30,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: post.title,
     description,
-    alternates: { canonical: `/blog/${post.slug}` },
-    openGraph: {
+    ...pageAddress(`/blog/${post.slug}`, {
       type: "article",
       title: post.title,
       description,
       publishedTime: post.publishedAt?.toISOString(),
-      images: post.coverImageUrl ? [{ url: post.coverImageUrl }] : undefined,
-    },
+      // The share-sized copy: WhatsApp drops a preview image over 600 KB, and
+      // two covers were uploaded at 0.8 and 2 MB.
+      images: post.coverImageUrl ? [{ url: shareImageUrl(post.coverImageUrl), width: 1200, height: 630, alt: post.title }] : undefined,
+    }),
   };
 }
 

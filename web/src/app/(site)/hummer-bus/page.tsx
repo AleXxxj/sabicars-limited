@@ -7,6 +7,7 @@ import { ButtonLink } from "@/components/ui/Button";
 import { VehicleCard } from "@/components/VehicleCard";
 import { formatNaira, money, percentOf } from "@/lib/money";
 import { hummerBuses } from "@/lib/repositories/vehicles";
+import { pageAddress } from "@/lib/site";
 import { DRIVE_PLAN_DEPOSIT_BPS } from "@/lib/vehicle";
 
 export const revalidate = 300;
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
   title: "Toyota Hiace Hummer bus for sale in Lagos",
   description:
     "Toyota Hiace Hummer (Humer) buses for sale in Lagos from Sabicars Limited — in stock, inspected, priced, supplied as fleets, and available on the 40% Drive Plan with Autochek.",
-  alternates: { canonical: "/hummer-bus" },
+  ...pageAddress("/hummer-bus"),
 };
 
 const WHY = [

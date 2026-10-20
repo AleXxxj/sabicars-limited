@@ -8,7 +8,7 @@ import { ContactForm } from "@/components/forms/ContactForm";
 import { PageIntro } from "@/components/site/PageIntro";
 import { VehicleImage } from "@/components/VehicleImage";
 import { drivePlanCatalogue, featuredVehicles } from "@/lib/repositories/vehicles";
-import { whatsappLink } from "@/lib/site";
+import { pageAddress, whatsappLink } from "@/lib/site";
 import { drivePlanBalance, drivePlanDeposit, priceLabel, vehicleTitle } from "@/lib/vehicle";
 
 export const revalidate = 3600;
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   title: "The 40% Drive Plan — pay 40%, Autochek finances the rest",
   description:
     "Buy from Sabicars with 40% down. Autochek, Sabicars' financing partner, finances the remaining 60% on its own terms. See what your deposit can drive home from live stock.",
-  alternates: { canonical: "/drive-plan" },
+  ...pageAddress("/drive-plan"),
 };
 
 const STEPS = [

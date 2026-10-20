@@ -5,6 +5,7 @@ import { ComparePicker } from "@/components/compare/ComparePicker";
 import { PageIntro } from "@/components/site/PageIntro";
 import { comparisonPairs } from "@/lib/compare";
 import { listedVehicles } from "@/lib/repositories/vehicles";
+import { pageAddress } from "@/lib/site";
 import { BODY_LABEL, priceLabel, vehicleTitle } from "@/lib/vehicle";
 
 export const revalidate = 300;
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
   title: "Compare cars side by side",
   description:
     "Compare any cars in the Sabicars showroom side by side — price, 40% Drive Plan deposit, year, mileage, engine, seats and features — and see which one suits you.",
-  alternates: { canonical: "/compare" },
+  ...pageAddress("/compare"),
 };
 
 export default async function CompareIndex() {

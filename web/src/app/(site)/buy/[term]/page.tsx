@@ -9,6 +9,7 @@ import { formatNaira, money, percentOf } from "@/lib/money";
 import { searchTerms, vehiclesForTerm } from "@/lib/repositories/vehicles";
 import { termHref } from "@/lib/seo/search-terms";
 import { breadcrumbJsonLd, itemListJsonLd, jsonLdScript } from "@/lib/seo/structured-data";
+import { pageAddress } from "@/lib/site";
 import { DRIVE_PLAN_DEPOSIT_BPS, vehicleTitle } from "@/lib/vehicle";
 
 export const revalidate = 300;
@@ -36,7 +37,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description: term.inStock
       ? `${noun(term)} for sale in Lagos: ${term.inStock} in stock at Sabicars${from} — photographed, priced and ready to inspect, with the 40% Drive Plan and fleet supply. CAC RC 1560100.`
       : `${noun(term)} for sale in Lagos: tell Sabicars the year and budget you want and hear the moment one arrives.`,
-    alternates: { canonical: termHref(term.slug) },
+    ...pageAddress(termHref(term.slug)),
     // A sold-out family keeps its page for people who search for it, but is not offered to search engines empty.
     robots: term.inStock ? undefined : { index: false, follow: true },
   };

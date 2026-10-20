@@ -5,6 +5,7 @@ import { AskButton } from "@/components/assistant/AskButton";
 import { PageIntro } from "@/components/site/PageIntro";
 import { publishedAnswers } from "@/lib/repositories/ask";
 import { faqJsonLd, jsonLdScript } from "@/lib/seo/structured-data";
+import { pageAddress } from "@/lib/site";
 
 /** Refreshed as staff publish answers (and on their save). */
 export const revalidate = 600;
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
   title: "Straight answers for car buyers in Lagos",
   description:
     "Buying a car in Lagos? Straight answers to what buyers ask Sabicars most: the 40% Drive Plan, inspections, Hummer buses, the showroom, sourcing a car and more — or ask your own.",
-  alternates: { canonical: "/ask" },
+  ...pageAddress("/ask"),
 };
 
 const excerpt = (s: string) => {

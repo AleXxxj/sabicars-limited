@@ -11,6 +11,7 @@ import { compareSummary, compareTitle, comparisonPairs, differences, slugsFromPa
 import { shareImageUrl } from "@/lib/media";
 import { vehiclesWithPages, type VehicleWithCover } from "@/lib/repositories/vehicles";
 import { breadcrumbJsonLd, itemListJsonLd, jsonLdScript } from "@/lib/seo/structured-data";
+import { pageAddress } from "@/lib/site";
 import { drivePlanDeposit, priceLabel, specRows, vehicleTitle } from "@/lib/vehicle";
 
 type Props = { params: Promise<{ pair: string }> };
@@ -39,15 +40,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${title}: price, specs and which to buy`,
     description,
-    alternates: { canonical: comparePath(cars.map((c) => c.slug)) },
     // Only a comparison of cars that are still for sale is worth a search result.
     robots: cars.some((c) => c.status === "sold") ? { index: false, follow: true } : undefined,
-    openGraph: {
+    ...pageAddress(comparePath(cars.map((c) => c.slug)), {
       title,
       description,
-      type: "website",
       images: cover ? [{ url: shareImageUrl(cover.url), width: 1200, height: 630, alt: title }] : undefined,
-    },
+    }),
   };
 }
 

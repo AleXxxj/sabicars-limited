@@ -3,7 +3,7 @@ import { ScrollReveal } from "@/components/ScrollReveal";
 import { FleetForm } from "@/components/forms/FleetForm";
 import { PageIntro } from "@/components/site/PageIntro";
 import { categoryTiles } from "@/lib/repositories/vehicles";
-import { site, whatsappLink } from "@/lib/site";
+import { pageAddress, site, whatsappLink } from "@/lib/site";
 
 export const revalidate = 3600;
 
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   title: "Fleet & government vehicle supply",
   description:
     "Toyota Hiace buses, Coasters, SUVs, staff cars and trucks supplied in volume to companies and government bodies by Sabicars Limited (RC 1560100), Lagos.",
-  alternates: { canonical: "/fleet" },
+  ...pageAddress("/fleet"),
 };
 
 const SUPPLY = [

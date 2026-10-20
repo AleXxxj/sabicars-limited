@@ -6,6 +6,7 @@ import { AskButton } from "@/components/assistant/AskButton";
 import { MessageText } from "@/components/assistant/MessageText";
 import { answerBySlug, publishedAnswers } from "@/lib/repositories/ask";
 import { breadcrumbJsonLd, faqJsonLd, jsonLdScript } from "@/lib/seo/structured-data";
+import { pageAddress } from "@/lib/site";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -29,8 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: a.question,
     description,
-    alternates: { canonical: `/ask/${a.slug}` },
-    openGraph: { title: a.question, description, type: "article" },
+    ...pageAddress(`/ask/${a.slug}`, { title: a.question, description, type: "article" }),
   };
 }
 

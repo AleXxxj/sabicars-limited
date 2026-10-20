@@ -5,6 +5,8 @@
  * Where the legacy site contradicted itself, the choice and the reason are
  * noted — see docs/ARCHITECTURE.md §8 for what still needs the owner's word.
  */
+import type { Metadata } from "next";
+
 const MAP_QUERY = "Sabicars+Autos+Amazing+Grace+Shopping+Complex+Alhaji+Ede+Bus+Stop+Km+16+Igando+Lagos+100267";
 
 export const site = {
@@ -74,6 +76,35 @@ export const site = {
 export function siteUrl(): string {
   const production = process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL ?? process.env.VERCEL_PROJECT_PRODUCTION_URL;
   return (process.env.NEXT_PUBLIC_SITE_URL ?? (production ? `https://${production}` : "https://sabicars.com")).replace(/\/+$/, "");
+}
+
+type OpenGraph = NonNullable<Metadata["openGraph"]>;
+
+/** The preview image for a page that has no photo of its own (app/opengraph-image.png). */
+const SHARE_IMAGE = { url: "/opengraph-image.png", width: 1200, height: 630, type: "image/png", alt: site.legalName };
+
+/**
+ * A page's address for search engines and for link previews, which must agree.
+ *
+ * WhatsApp draws a preview only when og:title, og:description and og:url are
+ * all in the head, and Next does not derive og:url from the canonical. A
+ * page's `openGraph` also replaces the layout's whole instead of merging with
+ * it, so the shared fields and the default image are restated here. Without
+ * this, an answer page went out with no image at all and an article without
+ * the site's name.
+ */
+export function pageAddress(path: string, openGraph: OpenGraph = {}): Pick<Metadata, "alternates" | "openGraph"> {
+  return {
+    alternates: { canonical: path },
+    openGraph: {
+      siteName: site.legalName,
+      locale: "en_NG",
+      type: "website",
+      ...openGraph,
+      images: openGraph.images ?? SHARE_IMAGE,
+      url: path,
+    },
+  };
 }
 
 export function whatsappLink(message?: string): string {

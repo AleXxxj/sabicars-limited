@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { SavedList } from "@/components/saved/SavedList";
 import { PageIntro } from "@/components/site/PageIntro";
+import { pageAddress } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Saved cars",
   // Personal to each visitor's device: nothing here for a search engine.
   robots: { index: false, follow: true },
-  alternates: { canonical: "/saved" },
+  ...pageAddress("/saved"),
 };
 
 /**
