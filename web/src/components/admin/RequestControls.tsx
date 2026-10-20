@@ -11,7 +11,7 @@ const STATUSES = [
   ["closed", "Closed"],
 ] as const;
 
-const control = "min-h-11 w-full border border-border-default bg-surface-0 px-3 text-sm text-text-primary outline-none focus:border-gold-500";
+const control = "min-h-11 w-full border border-border-default bg-surface-0 px-3 text-sm text-text-primary outline-none focus:border-green-500";
 
 /** Staff's verdict on a request: its status and a note on the buyer. */
 export function RequestControls({ requestId, status, staffNote }: { requestId: string; status: string; staffNote: string | null }) {
@@ -62,7 +62,7 @@ export function NotifyOnWhatsApp({ matchId, watchId, href }: { matchId?: string;
         })
       }
       aria-disabled={pending}
-      className="inline-flex min-h-10 items-center bg-cta px-4 text-xs font-semibold text-cta-fg hover:bg-cta-hover"
+      className="inline-flex min-h-10 items-center rounded-full bg-cta px-4 text-xs font-semibold text-cta-fg hover:bg-cta-hover"
     >
       {pending ? "Recording…" : "Send on WhatsApp"}
     </a>

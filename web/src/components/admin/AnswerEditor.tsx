@@ -5,7 +5,7 @@ import { useState, useTransition } from "react";
 import { deleteAnswer, saveAnswer } from "@/lib/actions/ask-admin";
 
 const field =
-  "w-full rounded-lg border border-border-default bg-surface-0 px-3.5 py-2.5 text-text-primary outline-none focus:border-gold-500 focus:shadow-[0_0_0_3px_rgb(201_168_76/0.15)]";
+  "w-full rounded-lg border border-border-default bg-surface-0 px-3.5 py-2.5 text-text-primary outline-none focus:border-green-500 focus:shadow-[0_0_0_3px_rgb(120_176_48/0.15)]";
 
 /**
  * One answer for /ask: the question as a buyer would ask it, and the answer
@@ -69,7 +69,7 @@ export function AnswerEditor({
           type="checkbox"
           checked={publish}
           onChange={(e) => setPublish(e.target.checked)}
-          className="size-4 accent-[var(--gold-500)]"
+          className="size-4 accent-[var(--green-500)]"
         />
         Published on /ask
       </label>
@@ -83,7 +83,7 @@ export function AnswerEditor({
           type="button"
           onClick={save}
           disabled={pending}
-          className="inline-flex min-h-11 items-center rounded-full bg-[var(--cta-bg)] px-5 text-sm font-semibold text-[#0A0908] hover:bg-[var(--cta-bg-hover)] disabled:opacity-60"
+          className="inline-flex min-h-11 items-center rounded-full bg-[var(--cta-bg)] px-5 text-sm font-semibold text-[#090E0A] hover:bg-[var(--cta-bg-hover)] disabled:opacity-60"
         >
           {pending ? "Saving…" : initial?.id ? "Save changes" : "Save answer"}
         </button>

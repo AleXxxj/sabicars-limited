@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { archivo, cormorant } from "@/lib/fonts";
+import { archivo } from "@/lib/fonts";
 import { site, siteUrl } from "@/lib/site";
 import "./globals.css";
 
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0A0908",
+  themeColor: "#090E0A",
   colorScheme: "dark",
 };
 
@@ -32,7 +32,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     // not change colour with the visitor's phone settings; the light variant
     // read as a plain document and made car-park photography look cheap
     // (design pass, 2026-09-26). The light tokens remain for the /style page.
-    <html lang="en-NG" data-theme="dark" className={`${cormorant.variable} ${archivo.variable}`}>
+    <html lang="en-NG" data-theme="dark" className={archivo.variable}>
       <body>{children}</body>
     </html>
   );

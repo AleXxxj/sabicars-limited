@@ -101,7 +101,7 @@ export function HeroShowcase({ slides, videoUrl }: { slides: HeroSlide[]; videoU
     <section
       aria-roledescription="carousel"
       aria-label="Vehicles in stock"
-      className="relative isolate flex min-h-[calc(100svh-4rem)] items-end overflow-hidden bg-[#0B0A09] md:min-h-[calc(100svh-5rem)]"
+      className="relative isolate flex min-h-[calc(100svh-4rem)] items-end overflow-hidden bg-[#090E0A] md:min-h-[calc(100svh-5rem)]"
       style={{ ["--hero-interval" as string]: `${INTERVAL_MS}ms` }}
     >
       {/* The stock, drifting. */}
@@ -146,7 +146,7 @@ export function HeroShowcase({ slides, videoUrl }: { slides: HeroSlide[]; videoU
         <h1 className="mt-6 max-w-4xl text-display-1 text-[var(--hero-text)]">
           Every car verified.
           <br />
-          <em className="text-gold-300">Every deal</em> on record.
+          <em className="text-green-300">Every deal</em> on record.
         </h1>
         <p className="mt-5 max-w-xl text-base leading-relaxed text-[var(--hero-text-secondary)] md:mt-6 md:text-lg">
           Toyota Hiace Hummer buses, luxury cars, SUVs and trucks — photographed, priced and documented. Pay 40% and Autochek finances the
@@ -166,7 +166,7 @@ export function HeroShowcase({ slides, videoUrl }: { slides: HeroSlide[]; videoU
           {current && !videoOn ? (
             <Link href={current.href} aria-live="polite" className="glass group flex min-w-0 max-w-full items-center gap-3 rounded-full py-2 pl-4 pr-3 text-sm text-white">
               <span className="shrink-0 text-xs text-white/60">Now showing</span>
-              <span className="truncate transition-colors group-hover:text-gold-300">
+              <span className="truncate transition-colors group-hover:text-green-300">
                 {current.title} <span className="figures text-white/70">· {current.price}</span>
               </span>
               <ArrowRight aria-hidden size={16} className="shrink-0 transition-transform group-hover:translate-x-0.5" />
@@ -191,7 +191,7 @@ export function HeroShowcase({ slides, videoUrl }: { slides: HeroSlide[]; videoU
                             <span
                               key={`${index}-${generation[i]}`}
                               data-progress="running"
-                              className="absolute inset-0 origin-left bg-gold-300"
+                              className="absolute inset-0 origin-left bg-green-300"
                               style={{ animationPlayState: paused || hidden ? "paused" : "running" }}
                             />
                           )}

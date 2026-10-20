@@ -1,79 +1,94 @@
 {
   "$comment": "Single source of truth for Sabicars colour. Generates tokens.css (npm run tokens) and is validated by scripts/check-contrast.mjs, which fails the build on any illegible pair. Edit here, never in CSS.",
 
-  "gold": {
-    "$comment": "The brand. 500 is the existing Sabicars gold (#C9A84C), kept exact so the logo and the site agree. On dark it is the call to action; on light it is an accent only — gold text on white fails contrast at body sizes.",
-    "50":  "#FBF6E9",
-    "100": "#F4E9C8",
-    "200": "#EAD9A2",
-    "300": "#DFC67C",
-    "400": "#D4B55F",
-    "500": "#C9A84C",
-    "600": "#AD8E36",
-    "700": "#8A7029",
-    "800": "#66521D",
-    "900": "#433512"
+  "green": {
+    "$comment": "Sabi Green — the signature and the colour of trust: the logo's 'Sabi', labels, links, Verified, success. 500 is the logo colour, kept exact (#78B030, nearest Pantone 368 C). Built in OKLCH so each step is an even perceptual stride. On dark, text uses 300; on light, 700 and darker.",
+    "50":  "#F0FBE7",
+    "100": "#DCF5C8",
+    "200": "#C1EA9D",
+    "300": "#A5DB6F",
+    "400": "#8DC74D",
+    "500": "#78B030",
+    "600": "#5F911F",
+    "700": "#4A7314",
+    "800": "#38580F",
+    "900": "#263D0A"
+  },
+
+  "orange": {
+    "$comment": "Sabi Orange — the action, and only the action: the button you should press. 500 is the logo colour, kept exact (#F7801E, nearest Pantone 1495 C). A screen with orange in more than one or two places has lost its call to action.",
+    "50":  "#FFF3E8",
+    "100": "#FFE2CA",
+    "200": "#FFCAA1",
+    "300": "#FFB178",
+    "400": "#FF984D",
+    "500": "#F7801E",
+    "600": "#D96A03",
+    "700": "#B45400",
+    "800": "#8A4000",
+    "900": "#612D03"
   },
 
   "darkSurface": {
-    "$comment": "Luminance ladder with a warm undertone, so black reads as lacquer rather than dead grey. Neutralised in the 2026-09-26 design pass (less brown, so cards read as charcoal, not mud), each step the smallest that still clears the checker. Validated by the checker, not by eye.",
-    "0": "#0A0908",
-    "1": "#1D1B18",
-    "2": "#2A2825",
-    "3": "#353330",
-    "4": "#3F3D3A"
+    "$comment": "Night: near-black with a whisper of green, so the dark reads as material and belongs with the brand rather than as dead grey. Each rung is the smallest OKLCH step that clears 1.15 against the one below (2026-10-20).",
+    "0": "#090E0A",
+    "1": "#191F1A",
+    "2": "#262B26",
+    "3": "#303631",
+    "4": "#3A403B"
   },
 
   "darkText": {
-    "primary":   "#F5F2EA",
-    "secondary": "#D6CFC0",
-    "muted":     "#ABA394"
+    "$comment": "Bone, not white: a warm-neutral that is easy on the eye on Night at 17:1.",
+    "primary":   "#F2F2EC",
+    "secondary": "#CFD2CC",
+    "muted":     "#9FA59E"
   },
 
   "darkBorder": {
-    "subtle":  "#231F1B",
-    "default": "#342F29",
-    "strong":  "#7A7263"
+    "subtle":  "#171C18",
+    "default": "#29302A",
+    "strong":  "#6F7770"
   },
 
   "focus": {
     "$comment": "A dedicated token, never a border colour. Must clear 3:1 on every surface it can land on.",
-    "dark":  "#E4CF8E",
-    "light": "#66521D"
+    "dark":  "#A5DB6F",
+    "light": "#38580F"
   },
 
   "lightSurface": {
     "0": "#FFFFFF",
-    "1": "#F8F6F1",
-    "2": "#F0EDE5",
-    "3": "#E6E1D5",
-    "4": "#D8D2C3"
+    "1": "#F6F7F3",
+    "2": "#EEEFE9",
+    "3": "#E1E4DD",
+    "4": "#D2D6CE"
   },
 
   "lightText": {
-    "primary":   "#15130F",
-    "secondary": "#3E3930",
-    "muted":     "#6A6356"
+    "primary":   "#101511",
+    "secondary": "#383F39",
+    "muted":     "#586059"
   },
 
   "lightBorder": {
-    "subtle":  "#ECE8DF",
-    "default": "#D7D1C4",
-    "strong":  "#857D6E"
+    "subtle":  "#E6E9E3",
+    "default": "#CED3CB",
+    "strong":  "#767C75"
   },
 
   "ink": {
-    "$comment": "Light-theme call to action: a near-black button with an ivory label, the convention of luxury marques.",
-    "base":  "#15130F",
-    "hover": "#2A2620"
+    "$comment": "Light-theme call to action: a Night button with a white label. Orange text on white fails at body sizes.",
+    "base":  "#101511",
+    "hover": "#262B26"
   },
 
   "semantic": {
-    "successDark":  "#5BC794",
-    "warningDark":  "#F0B24A",
+    "successDark":  "#A5DB6F",
+    "warningDark":  "#F0C24A",
     "dangerDark":   "#FF7A6B",
     "infoDark":     "#78BDEB",
-    "successLight": "#1D6B45",
+    "successLight": "#4A7314",
     "warningLight": "#855A05",
     "dangerLight":  "#B0281C",
     "infoLight":    "#135F88"

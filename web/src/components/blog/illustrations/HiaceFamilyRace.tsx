@@ -211,7 +211,7 @@ export function HiaceFamilyRace({ stock }: { stock: FamilyStock }) {
               setOrder([]);
               setScenarioId(s.id);
             }}
-            className={`min-h-11 rounded-full border px-4 text-sm transition-all active:scale-95 ${s.id === scenarioId ? "border-gold-400 bg-gold-500/15 font-semibold text-gold-100" : "border-white/[0.12] text-text-secondary hover:border-gold-500/40 hover:text-text-primary"}`}
+            className={`min-h-11 rounded-full border px-4 text-sm transition-all active:scale-95 ${s.id === scenarioId ? "border-green-400 bg-green-500/15 font-semibold text-green-100" : "border-white/[0.12] text-text-secondary hover:border-green-500/40 hover:text-text-primary"}`}
           >
             {s.label}
           </button>
@@ -235,7 +235,7 @@ export function HiaceFamilyRace({ stock }: { stock: FamilyStock }) {
                 setPick(on ? null : m.id);
                 haptic(8);
               }}
-              className={`relative flex min-h-12 items-center gap-2 rounded-xl border px-3 text-left text-sm transition-all active:scale-95 disabled:cursor-default ${on ? "border-gold-400 bg-gold-500/15 text-gold-100" : "border-white/[0.1] text-text-secondary hover:border-gold-500/40 hover:text-text-primary"}`}
+              className={`relative flex min-h-12 items-center gap-2 rounded-xl border px-3 text-left text-sm transition-all active:scale-95 disabled:cursor-default ${on ? "border-green-400 bg-green-500/15 text-green-100" : "border-white/[0.1] text-text-secondary hover:border-green-500/40 hover:text-text-primary"}`}
             >
               <span aria-hidden className="h-3.5 w-6 shrink-0 rounded-[4px] border border-white/25" style={{ background: m.color }} />
               <span className="min-w-0 flex-1 leading-tight">
@@ -246,7 +246,7 @@ export function HiaceFamilyRace({ stock }: { stock: FamilyStock }) {
               </span>
               {phase === "done" && place >= 0 && (
                 <span
-                  className={`pop-in rounded-full px-1.5 py-px text-[0.65rem] font-bold ${place === 0 ? "bg-[linear-gradient(180deg,var(--gold-200),var(--gold-500))] text-[#0A0908]" : "bg-white/15 text-text-primary"}`}
+                  className={`pop-in rounded-full px-1.5 py-px text-[0.65rem] font-bold ${place === 0 ? "bg-[linear-gradient(180deg,var(--green-200),var(--green-500))] text-[#090E0A]" : "bg-white/15 text-text-primary"}`}
                 >
                   {["1st", "2nd", "3rd", "4th", "5th"][place]}
                 </span>
@@ -281,7 +281,7 @@ export function HiaceFamilyRace({ stock }: { stock: FamilyStock }) {
             track.current?.start();
           }}
           disabled={busy}
-          className="inline-flex min-h-12 items-center gap-2 rounded-full bg-[linear-gradient(180deg,var(--gold-300),var(--gold-500))] px-6 font-semibold text-[#0A0908] transition-transform active:scale-95 disabled:opacity-50"
+          className="inline-flex min-h-12 items-center gap-2 rounded-full bg-[linear-gradient(180deg,var(--orange-400),var(--orange-500))] px-6 font-semibold text-[#090E0A] transition-transform active:scale-95 disabled:opacity-50"
         >
           {phase === "done" ? <RotateCcw aria-hidden size={17} /> : <Flag aria-hidden size={17} />}
           {phase === "done"
@@ -299,7 +299,7 @@ export function HiaceFamilyRace({ stock }: { stock: FamilyStock }) {
               setHonk((h) => h + 1);
               haptic([8, 40, 8]);
             }}
-            className="inline-flex min-h-12 items-center gap-2 rounded-full border border-gold-500/50 px-5 text-sm font-semibold text-gold-200 transition-transform active:scale-90"
+            className="inline-flex min-h-12 items-center gap-2 rounded-full border border-green-500/50 px-5 text-sm font-semibold text-green-200 transition-transform active:scale-90"
           >
             <Megaphone aria-hidden size={16} /> Honk for yours
           </button>
@@ -356,7 +356,7 @@ function FamilyResult({
   return (
     <div className="mt-6 grid gap-6 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]" aria-live="polite">
       <div>
-        <p className="flex items-center gap-2 text-xs font-semibold tracking-[0.16em] text-gold-300 uppercase">
+        <p className="flex items-center gap-2 text-xs font-semibold tracking-[0.16em] text-green-300 uppercase">
           <Trophy aria-hidden size={15} /> {scenario.label}
         </p>
         <p className="relative mt-1 font-display text-[1.9rem] leading-tight text-text-primary">
@@ -366,12 +366,12 @@ function FamilyResult({
           </span>
         </p>
         {mover && (
-          <p className="mt-1 flex items-center gap-2 font-display text-[1.35rem] leading-tight text-gold-200">
+          <p className="mt-1 flex items-center gap-2 font-display text-[1.35rem] leading-tight text-green-200">
             <Users aria-hidden size={18} /> Most people moved: {mover.name}
           </p>
         )}
         {pick && (
-          <p className={`mt-2 text-sm font-semibold ${pickPlace === 0 ? "text-gold-200" : "text-text-secondary"}`}>
+          <p className={`mt-2 text-sm font-semibold ${pickPlace === 0 ? "text-green-200" : "text-text-secondary"}`}>
             {pickPlace === 0
               ? "You called it. You sabi!"
               : `Your pick, the ${pickName}, came ${["1st", "2nd", "3rd", "4th", "5th"][pickPlace]}.`}
@@ -388,7 +388,7 @@ function FamilyResult({
           const m = FAMILY.find((x) => x.id === id)!;
           return (
             <li key={id} className="flex items-center gap-3 rounded-xl bg-white/[0.03] px-3 py-2 text-sm">
-              <span className={`figures w-7 font-bold ${i === 0 ? "text-gold-300" : "text-text-muted"}`}>
+              <span className={`figures w-7 font-bold ${i === 0 ? "text-green-300" : "text-text-muted"}`}>
                 {["1st", "2nd", "3rd", "4th", "5th"][i]}
               </span>
               <span aria-hidden className="h-3 w-5 shrink-0 rounded-[3px] border border-white/25" style={{ background: m.color }} />
@@ -442,7 +442,7 @@ function FamilyFacts({ stock }: { stock: FamilyStock }) {
               {s?.count ? (
                 <Link
                   href={s.count === 1 ? `/vehicles/${s.slug}` : "/hummer-bus"}
-                  className="group mt-2.5 inline-flex min-h-9 items-center gap-1.5 text-xs font-semibold text-gold-300 hover:text-gold-200"
+                  className="group mt-2.5 inline-flex min-h-9 items-center gap-1.5 text-xs font-semibold text-green-300 hover:text-green-200"
                 >
                   {s.count} in the showroom{s.fromMinor ? `, from ${formatNaira(s.fromMinor)}` : ""}
                   <ArrowRight aria-hidden size={13} className="transition-transform group-hover:translate-x-1" />
@@ -450,7 +450,7 @@ function FamilyFacts({ stock }: { stock: FamilyStock }) {
               ) : (
                 <Link
                   href={`/find?want=${encodeURIComponent(`Toyota Hiace — ${m.name}`)}`}
-                  className="group mt-2.5 inline-flex min-h-9 items-center gap-1.5 text-xs font-semibold text-text-muted hover:text-gold-200"
+                  className="group mt-2.5 inline-flex min-h-9 items-center gap-1.5 text-xs font-semibold text-text-muted hover:text-green-200"
                 >
                   None in today — ask the Sourcing Desk
                   <ArrowRight aria-hidden size={13} className="transition-transform group-hover:translate-x-1" />

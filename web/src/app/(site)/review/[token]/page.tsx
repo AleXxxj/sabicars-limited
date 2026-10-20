@@ -55,7 +55,7 @@ export default async function BuyerReviewPage({ params }: Props) {
             ) : null}
             Your review helps the next buyer decide — the good and the not so good.
           </p>
-          <p className="mt-4 inline-flex items-center gap-2 text-sm text-gold-300">
+          <p className="mt-4 inline-flex items-center gap-2 text-sm text-green-300">
             <BadgeCheck aria-hidden size={17} /> It will show as a Verified buyer review.
           </p>
           <div className="surface-card mt-10 p-6 md:p-8">

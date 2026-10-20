@@ -54,7 +54,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <NavLink key={item.href} href={item.href}>
               {item.label}
               {(badges[item.href] ?? 0) > 0 && (
-                <span className="figures ml-2 inline-flex min-w-5 items-center justify-center rounded-full bg-gold-500 px-1.5 text-[0.7rem] font-bold text-[#0A0908]">
+                <span className="figures ml-2 inline-flex min-w-5 items-center justify-center rounded-full bg-green-500 px-1.5 text-[0.7rem] font-bold text-[#090E0A]">
                   <span className="sr-only">, </span>
                   {badges[item.href]}
                   <span className="sr-only"> waiting</span>

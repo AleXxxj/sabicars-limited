@@ -60,7 +60,7 @@ export default async function AskAnswerPage({ params }: Props) {
         </Link>
       </nav>
       <h1 className="mt-5 text-display-2">{a.question}</h1>
-      <div className="mt-8 text-lg leading-relaxed text-text-secondary [&_a]:text-gold-300 [&_a]:underline [&_a]:decoration-gold-500/40 [&_a]:underline-offset-4 hover:[&_a]:text-gold-200 [&_strong]:font-semibold [&_strong]:text-text-primary">
+      <div className="mt-8 text-lg leading-relaxed text-text-secondary [&_a]:text-green-300 [&_a]:underline [&_a]:decoration-green-500/40 [&_a]:underline-offset-4 hover:[&_a]:text-green-200 [&_strong]:font-semibold [&_strong]:text-text-primary">
         <MessageText text={a.answer} />
       </div>
 
@@ -73,7 +73,7 @@ export default async function AskAnswerPage({ params }: Props) {
         </div>
         <AskButton
           prompt={a.question}
-          className="inline-flex min-h-12 items-center gap-2 rounded-full bg-[linear-gradient(180deg,var(--gold-300),var(--gold-500))] px-6 font-semibold text-[#0A0908]"
+          className="inline-flex min-h-12 items-center gap-2 rounded-full bg-[linear-gradient(180deg,var(--orange-400),var(--orange-500))] px-6 font-semibold text-[#090E0A]"
         >
           <Sparkles aria-hidden size={17} /> Ask a follow-up
         </AskButton>
@@ -87,17 +87,17 @@ export default async function AskAnswerPage({ params }: Props) {
               <li key={o.id}>
                 <Link
                   href={`/ask/${o.slug}`}
-                  className="group flex min-h-14 items-center justify-between gap-4 py-3 font-medium text-text-primary hover:text-gold-200"
+                  className="group flex min-h-14 items-center justify-between gap-4 py-3 font-medium text-text-primary hover:text-green-200"
                 >
                   {o.question}
-                  <ArrowRight aria-hidden size={17} className="shrink-0 text-gold-300 transition-transform group-hover:translate-x-1" />
+                  <ArrowRight aria-hidden size={17} className="shrink-0 text-green-300 transition-transform group-hover:translate-x-1" />
                 </Link>
               </li>
             ))}
           </ul>
           <Link
             href="/ask"
-            className="group mt-5 inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-gold-300 hover:text-gold-200"
+            className="group mt-5 inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-green-300 hover:text-green-200"
           >
             Every answer <ArrowRight aria-hidden size={15} className="transition-transform group-hover:translate-x-1" />
           </Link>

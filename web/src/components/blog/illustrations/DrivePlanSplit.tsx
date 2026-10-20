@@ -19,7 +19,7 @@ export function DrivePlanSplit({ car }: { car: { title: string; slug: string; pr
 
   return (
     <div ref={ref} className="surface-card relative overflow-hidden p-6 md:p-10">
-      <div aria-hidden className="pointer-events-none absolute -top-24 -right-24 size-72 rounded-full bg-gold-500/15 blur-3xl" />
+      <div aria-hidden className="pointer-events-none absolute -top-24 -right-24 size-72 rounded-full bg-green-500/15 blur-3xl" />
       <p className="text-sm text-text-muted">
         On the{" "}
         <Link href={`/vehicles/${car.slug}`} className="text-text-primary underline-offset-4 hover:underline">
@@ -30,8 +30,8 @@ export function DrivePlanSplit({ car }: { car: { title: string; slug: string; pr
 
       <div className="mt-8 grid gap-6 sm:grid-cols-[2fr_3fr]">
         <div>
-          <p className="text-xs font-semibold tracking-[0.16em] text-gold-300 uppercase">You pay · 40%</p>
-          <p className="figures text-gold mt-2 font-display text-[2.6rem] leading-none md:text-[3.4rem]">
+          <p className="text-xs font-semibold tracking-[0.16em] text-green-300 uppercase">You pay · 40%</p>
+          <p className="figures text-brand mt-2 font-display text-[2.6rem] leading-none md:text-[3.4rem]">
             ₦{deposit.toLocaleString("en-NG")}
           </p>
         </div>
@@ -50,7 +50,7 @@ export function DrivePlanSplit({ car }: { car: { title: string; slug: string; pr
         className="mt-8 flex h-4 overflow-hidden rounded-full bg-white/[0.05]"
       >
         <div
-          className="h-full rounded-l-full bg-[linear-gradient(90deg,var(--gold-500),var(--gold-300))] shadow-[0_0_24px_rgb(201_168_76/0.5)]"
+          className="h-full rounded-l-full bg-[linear-gradient(90deg,var(--green-500),var(--green-300))] shadow-[0_0_24px_rgb(120_176_48/0.5)]"
           style={{ width: seen ? "40%" : "0%", transition: "width 1600ms cubic-bezier(0.16,1,0.3,1)" }}
         />
         <div
@@ -65,7 +65,7 @@ export function DrivePlanSplit({ car }: { car: { title: string; slug: string; pr
             key={s}
             className="relative border-t-2 pt-4 text-sm"
             style={{
-              borderColor: seen ? "var(--gold-400)" : "rgb(255 255 255 / 0.1)",
+              borderColor: seen ? "var(--green-400)" : "rgb(255 255 255 / 0.1)",
               color: seen ? "var(--text-primary)" : "var(--text-muted)",
               transition: `border-color 500ms ease ${1800 + i * 450}ms, color 500ms ease ${1800 + i * 450}ms`,
             }}

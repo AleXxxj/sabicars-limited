@@ -42,7 +42,7 @@ const BADGE: Option[] = [
 ];
 
 const input =
-  "min-h-12 w-full border border-border-strong bg-surface-0 px-4 text-text-primary outline-none transition-colors placeholder:text-text-muted focus:border-gold-500 disabled:opacity-60";
+  "min-h-12 w-full border border-border-strong bg-surface-0 px-4 text-text-primary outline-none transition-colors placeholder:text-text-muted focus:border-green-500 disabled:opacity-60";
 
 /** Kobo -> "38,000,000" for the price box. */
 const nairaText = (kobo: number | null | undefined) => (kobo ? (kobo / 100).toLocaleString("en-NG") : "");
@@ -207,11 +207,11 @@ export function VehicleForm({ vehicle: v, options, canSetPrices }: { vehicle?: V
         </Field>
         <div className="grid gap-3 sm:col-span-2">
           <label className="inline-flex min-h-11 items-center gap-3 text-text-secondary">
-            <input type="checkbox" name="isFeatured" defaultChecked={v?.isFeatured} className="size-4 accent-[var(--gold-500)]" />
+            <input type="checkbox" name="isFeatured" defaultChecked={v?.isFeatured} className="size-4 accent-[var(--green-500)]" />
             Feature on the homepage and at the top of the inventory
           </label>
           <label className="inline-flex min-h-11 items-center gap-3 text-text-secondary">
-            <input type="checkbox" name="inHero" defaultChecked={v?.inHero} className="size-4 accent-[var(--gold-500)]" />
+            <input type="checkbox" name="inHero" defaultChecked={v?.inHero} className="size-4 accent-[var(--green-500)]" />
             Use in the homepage hero (needs a strong exterior cover photo)
           </label>
         </div>

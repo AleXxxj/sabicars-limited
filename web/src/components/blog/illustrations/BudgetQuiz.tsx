@@ -152,13 +152,13 @@ export function BudgetQuiz({ cars }: { cars: QuizCar[] }) {
 
   return (
     <div className="surface-card relative overflow-hidden p-5 md:p-10">
-      <div aria-hidden className="pointer-events-none absolute -top-32 -right-24 size-80 rounded-full bg-gold-500/10 blur-3xl" />
+      <div aria-hidden className="pointer-events-none absolute -top-32 -right-24 size-80 rounded-full bg-green-500/10 blur-3xl" />
       <div className="flex items-center justify-between gap-4">
         <div className="flex gap-1.5" aria-hidden>
           {QUESTIONS.map((_, i) => (
             <span
               key={i}
-              className={`h-1.5 w-8 rounded-full transition-colors duration-500 ${i < step ? "bg-gold-400" : i === step ? "bg-gold-400/50" : "bg-white/10"}`}
+              className={`h-1.5 w-8 rounded-full transition-colors duration-500 ${i < step ? "bg-green-400" : i === step ? "bg-green-400/50" : "bg-white/10"}`}
             />
           ))}
         </div>
@@ -183,11 +183,11 @@ export function BudgetQuiz({ cars }: { cars: QuizCar[] }) {
                   }}
                   className={`group flex min-h-16 items-center gap-4 rounded-2xl border p-4 text-left transition-[border-color,background,transform] active:scale-[0.98] ${
                     chosen
-                      ? "border-gold-400 bg-gold-500/10"
-                      : "border-white/[0.09] bg-white/[0.02] hover:border-gold-500/50 hover:bg-gold-500/[0.05]"
+                      ? "border-green-400 bg-green-500/10"
+                      : "border-white/[0.09] bg-white/[0.02] hover:border-green-500/50 hover:bg-green-500/[0.05]"
                   }`}
                 >
-                  <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-gold-500/12 text-gold-300 transition-transform group-hover:scale-110">
+                  <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-green-500/12 text-green-300 transition-transform group-hover:scale-110">
                     <Icon aria-hidden size={20} strokeWidth={1.75} />
                   </span>
                   <span className="text-[1rem] text-text-primary">{o.label}</span>
@@ -208,12 +208,12 @@ export function BudgetQuiz({ cars }: { cars: QuizCar[] }) {
       ) : (
         result && (
           <div className="mt-6 animate-[prompt-in_var(--duration-slow)_var(--ease-out)]" aria-live="polite">
-            <p className="text-xs font-semibold tracking-[0.18em] text-gold-300 uppercase">Our suggestion</p>
+            <p className="text-xs font-semibold tracking-[0.18em] text-green-300 uppercase">Our suggestion</p>
             <p className="mt-2 font-display text-[2rem] leading-tight text-text-primary md:text-[2.6rem]">{result.headline}</p>
             <ul className="mt-5 grid gap-2.5">
               {result.why.map((w) => (
                 <li key={w} className="flex gap-3 text-[1rem] leading-relaxed text-text-secondary">
-                  <span aria-hidden className="mt-2.5 size-1.5 shrink-0 rounded-full bg-gold-400" />
+                  <span aria-hidden className="mt-2.5 size-1.5 shrink-0 rounded-full bg-green-400" />
                   {w}
                 </li>
               ))}
@@ -241,10 +241,10 @@ export function BudgetQuiz({ cars }: { cars: QuizCar[] }) {
                         )}
                       </span>
                       <span className="block p-3">
-                        <span className="block truncate text-sm font-semibold text-text-primary group-hover:text-gold-200">{c.title}</span>
+                        <span className="block truncate text-sm font-semibold text-text-primary group-hover:text-green-200">{c.title}</span>
                         <span className="figures block text-xs text-text-secondary">
                           {formatNaira(c.priceMinor)}
-                          {result.plan && <span className="text-gold-300"> · {formatNaira(Math.ceil(c.priceMinor * 0.4))} down</span>}
+                          {result.plan && <span className="text-green-300"> · {formatNaira(Math.ceil(c.priceMinor * 0.4))} down</span>}
                         </span>
                       </span>
                     </Link>
@@ -252,7 +252,7 @@ export function BudgetQuiz({ cars }: { cars: QuizCar[] }) {
                 </div>
               </>
             ) : result.alt.length > 0 ? (
-              <div className="mt-8 rounded-2xl border border-gold-500/30 bg-gold-500/[0.06] p-4">
+              <div className="mt-8 rounded-2xl border border-green-500/30 bg-green-500/[0.06] p-4">
                 <p className="text-sm text-text-secondary">
                   In cash, this is the older-car market — below anything in the Sabicars showroom today. As a{" "}
                   <span className="text-text-primary">40% Drive Plan deposit</span>, the same money reaches:
@@ -267,7 +267,7 @@ export function BudgetQuiz({ cars }: { cars: QuizCar[] }) {
                 </ul>
               </div>
             ) : result.nearest ? (
-              <div className="mt-8 flex flex-wrap items-center gap-4 rounded-2xl border border-gold-500/30 bg-gold-500/[0.06] p-4">
+              <div className="mt-8 flex flex-wrap items-center gap-4 rounded-2xl border border-green-500/30 bg-green-500/[0.06] p-4">
                 <span className="relative block aspect-[4/3] w-28 shrink-0 overflow-hidden rounded-xl bg-surface-2">
                   {result.nearest.coverUrl && (
                     <VehicleImage src={result.nearest.coverUrl} alt="" fill sizes="112px" className="object-cover" />
@@ -310,7 +310,7 @@ export function BudgetQuiz({ cars }: { cars: QuizCar[] }) {
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <Link
                 href={result.plan ? "/drive-plan" : "/vehicles"}
-                className="inline-flex min-h-12 items-center gap-2 rounded-full bg-[linear-gradient(180deg,var(--gold-300),var(--gold-500))] px-6 font-semibold text-[#0A0908] !no-underline"
+                className="inline-flex min-h-12 items-center gap-2 rounded-full bg-[linear-gradient(180deg,var(--orange-400),var(--orange-500))] px-6 font-semibold text-[#090E0A] !no-underline"
               >
                 {result.plan ? "See the Drive Plan" : "Browse the inventory"} <ArrowRight aria-hidden size={17} />
               </Link>

@@ -48,7 +48,7 @@ export function Reactions({ slug, initial }: { slug: string; initial: Record<str
               aria-pressed={on}
               aria-label={`${r.label}${counts[r.key] ? ` (${counts[r.key]})` : ""}`}
               className={`inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm transition-[background,border-color,transform] active:scale-95 ${
-                on ? "border-gold-500/50 bg-gold-500/15 text-gold-100" : "border-white/12 text-text-secondary hover:border-white/30"
+                on ? "border-green-500/50 bg-green-500/15 text-green-100" : "border-white/12 text-text-secondary hover:border-white/30"
               }`}
             >
               <span aria-hidden className="text-base">
@@ -123,7 +123,7 @@ export function ShareBar({ slug, title, url }: { slug: string; title: string; ur
           }}
           className={pill}
         >
-          {copied ? <Check aria-hidden size={16} className="text-gold-300" /> : <Link2 aria-hidden size={16} />}
+          {copied ? <Check aria-hidden size={16} className="text-green-300" /> : <Link2 aria-hidden size={16} />}
           {copied ? "Link copied" : "Copy link"}
         </button>
         {native && (
@@ -151,7 +151,7 @@ export function CommentForm({ slug }: { slug: string }) {
   if (state?.ok) {
     return (
       <p role="status" className="surface-card flex items-start gap-3 p-5 text-text-secondary">
-        <Check aria-hidden size={18} className="mt-1 shrink-0 text-gold-300" />
+        <Check aria-hidden size={18} className="mt-1 shrink-0 text-green-300" />
         Thank you. Your comment appears here once the team has read it.
       </p>
     );

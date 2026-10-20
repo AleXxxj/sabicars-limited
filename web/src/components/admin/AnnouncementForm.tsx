@@ -4,7 +4,7 @@ import { useActionState, useEffect, useRef } from "react";
 import { postAnnouncement } from "@/lib/actions/audience";
 
 const control =
-  "min-h-11 w-full border border-border-default bg-surface-0 px-3 text-sm text-text-primary outline-none focus:border-gold-500";
+  "min-h-11 w-full border border-border-default bg-surface-0 px-3 text-sm text-text-primary outline-none focus:border-green-500";
 
 /** Post an offer or news to the bell — and, if chosen, to phones and inboxes. */
 export function AnnouncementForm({
@@ -78,7 +78,7 @@ export function AnnouncementForm({
             name="push"
             defaultChecked={pushReady}
             disabled={!pushReady}
-            className="mt-1 size-4 accent-[var(--gold-500)]"
+            className="mt-1 size-4 accent-[var(--green-500)]"
           />
           <span>
             As a phone alert to everyone who turned alerts on
@@ -86,7 +86,7 @@ export function AnnouncementForm({
           </span>
         </label>
         <label className="flex items-start gap-3">
-          <input type="checkbox" name="email" disabled={!emailReady} className="mt-1 size-4 accent-[var(--gold-500)]" />
+          <input type="checkbox" name="email" disabled={!emailReady} className="mt-1 size-4 accent-[var(--green-500)]" />
           <span>
             By email to {subscribers} newsletter {subscribers === 1 ? "subscriber" : "subscribers"}
             {!emailReady && (
@@ -99,7 +99,7 @@ export function AnnouncementForm({
         <button
           type="submit"
           disabled={pending}
-          className="min-h-11 bg-cta px-5 text-sm font-semibold text-cta-fg hover:bg-cta-hover disabled:opacity-50"
+          className="min-h-11 rounded-full bg-cta px-5 text-sm font-semibold text-cta-fg hover:bg-cta-hover disabled:opacity-50"
         >
           {pending ? "Posting…" : "Post announcement"}
         </button>

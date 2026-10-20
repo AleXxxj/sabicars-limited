@@ -26,12 +26,12 @@ export const LEG_LABEL: Record<LegKind, string> = {
 /** Each leg's colour: on the road, on the map, on its sign. */
 export const LEG_TINT: Record<LegKind, { road: string; sign: string; ink: string }> = {
   stops: { road: "rgb(90 140 255 / 0.07)", sign: "#2f5fb3", ink: "#fff" },
-  goslow: { road: "rgb(255 90 70 / 0.08)", sign: "#e0a82e", ink: "#0A0908" },
+  goslow: { road: "rgb(255 90 70 / 0.08)", sign: "#e0a82e", ink: "#090E0A" },
   expressway: { road: "rgb(61 220 132 / 0.05)", sign: "#1f6b3a", ink: "#fff" },
   pump: { road: "rgb(240 170 40 / 0.08)", sign: "#b8322a", ink: "#fff" },
-  mechanic: { road: "rgb(170 180 200 / 0.08)", sign: "#f2d23c", ink: "#0A0908" },
-  city: { road: "rgb(201 168 76 / 0.04)", sign: "#4a4e55", ink: "#fff" },
-  potholes: { road: "rgb(120 84 50 / 0.16)", sign: "#e0702e", ink: "#0A0908" },
+  mechanic: { road: "rgb(170 180 200 / 0.08)", sign: "#f2d23c", ink: "#090E0A" },
+  city: { road: "rgb(120 176 48 / 0.04)", sign: "#4a4e55", ink: "#fff" },
+  potholes: { road: "rgb(120 84 50 / 0.16)", sign: "#e0702e", ink: "#090E0A" },
 };
 
 /** The Lagos skyline, one tile, drawn behind everything and scrolled slower than the road. */
@@ -119,7 +119,7 @@ export function Roadside({ kind, width, sky }: { kind: LegKind; width: number; s
           <span className="h-full w-1 bg-white/25" />
           {[0, 1].map((p) => (
             <span key={p} className="mb-0 flex h-5 w-3 flex-col items-center rounded-t-sm bg-white/40 pt-0.5">
-              <span className="h-1 w-2 rounded-[1px] bg-[#0A0908]/60" />
+              <span className="h-1 w-2 rounded-[1px] bg-[#090E0A]/60" />
             </span>
           ))}
           <span className="h-full w-1 bg-white/25" />
@@ -133,7 +133,7 @@ export function Roadside({ kind, width, sky }: { kind: LegKind; width: number; s
           <span key={i} className="relative block shrink-0 bg-white/[0.07]" style={{ width: 38, height: 22 + ((i * 7) % 3) * 6 }}>
             <span
               className="absolute inset-x-0 top-0 h-1.5"
-              style={{ background: ["#b8322a", "#2f5fb3", "#1f6b3a", "#c9a84c"][i % 4], opacity: 0.6 }}
+              style={{ background: ["#b8322a", "#2f5fb3", "#1f6b3a", "#F7801E"][i % 4], opacity: 0.6 }}
             />
             <span className="absolute bottom-0 left-1/2 h-2.5 w-2 -translate-x-1/2 bg-black/40" />
           </span>
@@ -150,7 +150,7 @@ export function Roadside({ kind, width, sky }: { kind: LegKind; width: number; s
     <div aria-hidden className="absolute bottom-0" style={{ left: width * 0.32, height: sky }}>
       <div className="absolute bottom-0 left-0 h-9 w-24 bg-white/[0.07]" />
       <div className="absolute bottom-9 left-0 h-3 w-24 bg-white/[0.12] [clip-path:polygon(0_100%,50%_0,100%_100%)]" />
-      <div className="absolute bottom-3 left-2 rounded-[2px] bg-[#f2d23c] px-1 text-[0.45rem] leading-[0.7rem] font-black tracking-wider text-[#0A0908]">
+      <div className="absolute bottom-3 left-2 rounded-[2px] bg-[#f2d23c] px-1 text-[0.45rem] leading-[0.7rem] font-black tracking-wider text-[#090E0A]">
         MECHANIC
       </div>
       <div className="absolute bottom-0 left-[4.6rem] flex flex-col items-center">

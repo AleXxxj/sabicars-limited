@@ -34,7 +34,7 @@ export function ReadingProgress({ targetId }: { targetId: string }) {
     <div aria-hidden className="pointer-events-none fixed inset-x-0 top-0 z-50 h-[3px]">
       <div
         ref={bar}
-        className="h-full origin-left scale-x-0 bg-[linear-gradient(90deg,var(--gold-500),var(--gold-200))] shadow-[0_0_12px_rgb(201_168_76/0.6)]"
+        className="h-full origin-left scale-x-0 bg-[linear-gradient(90deg,var(--green-500),var(--green-200))] shadow-[0_0_12px_rgb(120_176_48/0.6)]"
       />
     </div>
   );
@@ -94,10 +94,10 @@ export function Contents({ headings, variant }: { headings: Heading[]; variant: 
             onClick={() => setOpen(false)}
             aria-current={current === h.id ? "true" : undefined}
             className={`flex gap-3 rounded-lg px-3 py-2 text-sm leading-snug transition-colors ${
-              current === h.id ? "bg-gold-500/10 text-text-primary" : "text-text-muted hover:text-text-primary"
+              current === h.id ? "bg-green-500/10 text-text-primary" : "text-text-muted hover:text-text-primary"
             }`}
           >
-            <span className="figures shrink-0 text-gold-300/80">{String(i + 1).padStart(2, "0")}</span>
+            <span className="figures shrink-0 text-green-300/80">{String(i + 1).padStart(2, "0")}</span>
             {h.text}
           </a>
         </li>
@@ -127,7 +127,7 @@ export function Contents({ headings, variant }: { headings: Heading[]; variant: 
         <ChevronDown
           aria-hidden
           size={18}
-          className={`text-gold-300 transition-transform duration-[var(--duration-base)] ${open ? "rotate-180" : ""}`}
+          className={`text-green-300 transition-transform duration-[var(--duration-base)] ${open ? "rotate-180" : ""}`}
         />
       </button>
       {open && <div className="border-t border-white/[0.06] p-2">{list}</div>}

@@ -79,7 +79,7 @@ export function InspectionChecklist() {
             cy="32"
             r="26"
             fill="none"
-            stroke="var(--gold-400)"
+            stroke="var(--green-400)"
             strokeWidth="6"
             strokeLinecap="round"
             strokeDasharray={circumference}
@@ -102,7 +102,7 @@ export function InspectionChecklist() {
       <div className="mt-8 grid gap-8 md:grid-cols-3 md:gap-6">
         {GROUPS.map((g, gi) => (
           <fieldset key={g.title}>
-            <legend className="text-xs font-semibold tracking-[0.16em] text-gold-300 uppercase">{g.title}</legend>
+            <legend className="text-xs font-semibold tracking-[0.16em] text-green-300 uppercase">{g.title}</legend>
             <ul className="mt-3 grid gap-2">
               {g.items.map((item, ii) => {
                 const i = OFFSETS[gi] + ii;
@@ -117,12 +117,12 @@ export function InspectionChecklist() {
                     }}
                   >
                     <label
-                      className={`flex cursor-pointer gap-3 rounded-xl border p-3 text-sm leading-snug transition-colors ${on ? "border-gold-500/40 bg-gold-500/[0.08] text-text-primary" : "border-white/[0.07] text-text-secondary hover:border-white/20"}`}
+                      className={`flex cursor-pointer gap-3 rounded-xl border p-3 text-sm leading-snug transition-colors ${on ? "border-green-500/40 bg-green-500/[0.08] text-text-primary" : "border-white/[0.07] text-text-secondary hover:border-white/20"}`}
                     >
                       <input type="checkbox" checked={on} onChange={() => toggle(item)} className="peer sr-only" />
                       <span
                         aria-hidden
-                        className={`mt-0.5 grid size-5 shrink-0 place-items-center rounded-md border transition-colors peer-focus-visible:outline-2 peer-focus-visible:outline-[var(--focus)] ${on ? "border-gold-400 bg-gold-400 text-[#0A0908]" : "border-white/25"}`}
+                        className={`mt-0.5 grid size-5 shrink-0 place-items-center rounded-md border transition-colors peer-focus-visible:outline-2 peer-focus-visible:outline-[var(--focus)] ${on ? "border-green-400 bg-green-400 text-[#090E0A]" : "border-white/25"}`}
                       >
                         {on && <Check size={14} strokeWidth={3} />}
                       </span>

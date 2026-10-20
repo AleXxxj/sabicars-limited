@@ -39,7 +39,7 @@ function contrast(a, b) {
   return (hi + 0.05) / (lo + 0.05);
 }
 
-/** Resolve "gold.500" against the palette. */
+/** Resolve "green.500" against the palette. */
 function tok(path) {
   const value = path.split(".").reduce((acc, k) => (acc === undefined ? undefined : acc[k]), palette);
   if (typeof value !== "string") throw new Error(`Unknown palette token: ${path}`);
@@ -64,18 +64,23 @@ const checks = [
   ["darkText.muted", "darkSurface.1", AA_TEXT, "muted on card"],
   ["darkText.muted", "darkSurface.2", AA_TEXT, "muted on raised"],
 
-  // ── Dark theme: gold as the brand and the call to action ────────────────
-  ["gold.400", "darkSurface.0", AA_TEXT, "gold text/link on page"],
-  ["gold.400", "darkSurface.1", AA_TEXT, "gold text/link on card"],
-  ["gold.400", "darkSurface.2", AA_TEXT, "gold text/link on raised"],
-  ["darkSurface.0", "gold.500", AA_TEXT, "CTA label on gold button"],
-  ["darkSurface.0", "gold.400", AA_TEXT, "CTA label on gold hover"],
-  ["gold.500", "darkSurface.0", AA_UI, "gold button edge vs page"],
-  ["gold.500", "darkSurface.1", AA_UI, "gold button edge vs card"],
+  // ── Dark theme: green as the brand's voice, orange as the action ────────
+  ["green.300", "darkSurface.0", AA_TEXT, "green text/link on page"],
+  ["green.300", "darkSurface.1", AA_TEXT, "green text/link on card"],
+  ["green.300", "darkSurface.2", AA_TEXT, "green text/link on raised"],
+  ["green.300", "darkSurface.3", AA_TEXT, "green text/link on hover"],
+  ["green.400", "darkSurface.1", AA_TEXT, "green icon/label on card"],
+  ["green.500", "darkSurface.0", AA_UI, "logo green vs page"],
+  ["darkSurface.0", "orange.500", AA_TEXT, "CTA label on orange button"],
+  ["darkSurface.0", "orange.400", AA_TEXT, "CTA label on orange hover"],
+  ["orange.500", "darkSurface.0", AA_UI, "orange button edge vs page"],
+  ["orange.500", "darkSurface.1", AA_UI, "orange button edge vs card"],
+  ["orange.400", "darkSurface.1", AA_TEXT, "orange figure/price on card"],
 
   // ── Photography: labels and type laid over a vehicle photo ──────────────
   // Always the dark treatment, in both themes (badges, hero eyebrow).
-  ["gold.300", "darkSurface.0", AA_TEXT, "gold badge/eyebrow on dark photo chip"],
+  ["green.300", "darkSurface.0", AA_TEXT, "green badge/eyebrow on dark photo chip"],
+  ["darkSurface.0", "green.500", AA_TEXT, "dark label on green badge"],
   ["darkText.primary", "darkSurface.0", AA_TEXT, "hero headline on scrim"],
 
   // ── Dark theme: semantic ────────────────────────────────────────────────
@@ -102,13 +107,16 @@ const checks = [
   ["lightText.muted", "lightSurface.1", AA_TEXT, "muted on card"],
   ["lightText.muted", "lightSurface.2", AA_TEXT, "muted on raised"],
 
-  // ── Light theme: ink button, gold only where it can be read ────────────
+  // ── Light theme: ink button; the brand colours only where they can be read
   ["lightSurface.0", "ink.base", AA_TEXT, "CTA label on ink button"],
   ["lightSurface.0", "ink.hover", AA_TEXT, "CTA label on ink hover"],
-  ["gold.800", "lightSurface.0", AA_TEXT, "gold link on page"],
-  ["gold.800", "lightSurface.1", AA_TEXT, "gold link on card"],
-  ["lightText.primary", "gold.500", AA_TEXT, "dark label on gold fill"],
-  ["gold.700", "lightSurface.0", AA_UI, "gold rule/icon vs page"],
+  ["green.800", "lightSurface.0", AA_TEXT, "green link on page"],
+  ["green.800", "lightSurface.1", AA_TEXT, "green link on card"],
+  ["green.700", "lightSurface.0", AA_TEXT, "green text on page"],
+  ["orange.700", "lightSurface.0", AA_TEXT, "orange text on page"],
+  ["lightText.primary", "orange.500", AA_TEXT, "dark label on orange fill"],
+  ["lightText.primary", "green.500", AA_TEXT, "dark label on green fill"],
+  ["green.600", "lightSurface.0", AA_UI, "green rule/icon vs page"],
 
   // ── Light theme: semantic ───────────────────────────────────────────────
   ["semantic.successLight", "lightSurface.0", AA_TEXT, "success on page"],

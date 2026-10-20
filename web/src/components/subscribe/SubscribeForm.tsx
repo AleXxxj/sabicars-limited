@@ -24,7 +24,7 @@ export function SubscribeForm({ source, onDone }: { source: "prompt" | "footer" 
   if (state?.ok) {
     return (
       <p role="status" className="flex items-start gap-3 text-sm text-text-secondary">
-        <Check aria-hidden size={18} className="mt-0.5 shrink-0 text-gold-300" />
+        <Check aria-hidden size={18} className="mt-0.5 shrink-0 text-green-300" />
         <span>
           {state.already ? (
             <>

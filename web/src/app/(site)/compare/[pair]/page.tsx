@@ -106,7 +106,7 @@ export default async function ComparePage({ params }: Props) {
         <h1 className="mt-4 max-w-5xl text-display-2">{title}</h1>
         <p className="mt-5 max-w-2xl text-lg leading-relaxed text-text-secondary">{compareSummary(cars)}</p>
         {sold && (
-          <p className="mt-6 inline-block rounded-xl border border-gold-500/30 bg-gold-500/10 px-4 py-3 text-sm font-semibold text-gold-200">
+          <p className="mt-6 inline-block rounded-xl border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm font-semibold text-green-200">
             One of these has been sold. The comparison stays for reference.
           </p>
         )}
@@ -128,7 +128,7 @@ export default async function ComparePage({ params }: Props) {
                   />
                 )}
                 {c.status !== "available" && (
-                  <span className="absolute top-3 left-3 rounded-full bg-surface-0/85 px-3 py-1 text-xs font-semibold text-gold-200">
+                  <span className="absolute top-3 left-3 rounded-full bg-surface-0/85 px-3 py-1 text-xs font-semibold text-green-200">
                     {c.status === "sold" ? "Sold" : "Reserved"}
                   </span>
                 )}
@@ -136,19 +136,19 @@ export default async function ComparePage({ params }: Props) {
               <div className="p-4 md:p-6">
                 <div className="flex items-start justify-between gap-2">
                   <h2 className="font-sans text-[1.05rem] leading-snug font-semibold md:text-xl">
-                    <Link href={`/vehicles/${c.slug}`} className="hover:text-gold-200">
+                    <Link href={`/vehicles/${c.slug}`} className="hover:text-green-200">
                       {vehicleTitle(c)}
                     </Link>
                   </h2>
                   {c.status !== "sold" && <SaveButton slug={c.slug} title={vehicleTitle(c)} className="-mt-1 -mr-1 shrink-0" />}
                 </div>
-                <p className="figures mt-3 text-lg font-semibold text-gold-300 md:text-2xl">{priceLabel(c)}</p>
+                <p className="figures mt-3 text-lg font-semibold text-green-300 md:text-2xl">{priceLabel(c)}</p>
                 {c.priceMinor && c.status !== "sold" && (
                   <p className="figures mt-1 text-xs text-text-muted md:text-sm">{drivePlanDeposit(c)} down on the Drive Plan</p>
                 )}
                 <Link
                   href={`/vehicles/${c.slug}`}
-                  className="group mt-4 inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-gold-300 hover:text-gold-200"
+                  className="group mt-4 inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-green-300 hover:text-green-200"
                 >
                   See this car <ArrowRight aria-hidden size={15} className="transition-transform group-hover:translate-x-1" />
                 </Link>
@@ -165,7 +165,7 @@ export default async function ComparePage({ params }: Props) {
           <ul className="mt-6 grid gap-4 text-lg leading-relaxed text-text-secondary">
             {facts.map((f) => (
               <li key={f} className="flex gap-3">
-                <span aria-hidden className="mt-[0.7em] h-px w-4 shrink-0 bg-gold-500" />
+                <span aria-hidden className="mt-[0.7em] h-px w-4 shrink-0 bg-green-500" />
                 {f}
               </li>
             ))}
@@ -188,7 +188,7 @@ export default async function ComparePage({ params }: Props) {
           {!sold && (
             <AskButton
               prompt={`Help me choose between the ${cars.map(vehicleTitle).join(" and the ")}`}
-              className="group mt-7 inline-flex min-h-12 items-center gap-2 rounded-full border border-gold-500/40 px-5 text-sm font-semibold text-gold-200 hover:border-gold-400 hover:bg-gold-500/[0.06]"
+              className="group mt-7 inline-flex min-h-12 items-center gap-2 rounded-full border border-green-500/40 px-5 text-sm font-semibold text-green-200 hover:border-green-400 hover:bg-green-500/[0.06]"
             >
               <Sparkles aria-hidden size={16} /> Still torn? Ask Sabicars
             </AskButton>
@@ -275,7 +275,7 @@ export default async function ComparePage({ params }: Props) {
                     {featureSets.map((set, j) => (
                       <td key={j} className="px-4 py-2.5 text-sm">
                         {set.has(f) ? (
-                          <Check aria-label="Listed" size={17} className="text-gold-300" />
+                          <Check aria-label="Listed" size={17} className="text-green-300" />
                         ) : (
                           <span className="text-text-muted">Not listed</span>
                         )}
@@ -320,10 +320,10 @@ export default async function ComparePage({ params }: Props) {
               <li key={o.path}>
                 <Link
                   href={o.path}
-                  className="surface-card group flex h-full items-center justify-between gap-3 !rounded-2xl p-4 text-sm font-semibold hover:border-gold-500/30"
+                  className="surface-card group flex h-full items-center justify-between gap-3 !rounded-2xl p-4 text-sm font-semibold hover:border-green-500/30"
                 >
                   {o.title}
-                  <ArrowRight aria-hidden size={16} className="shrink-0 text-gold-300 transition-transform group-hover:translate-x-1" />
+                  <ArrowRight aria-hidden size={16} className="shrink-0 text-green-300 transition-transform group-hover:translate-x-1" />
                 </Link>
               </li>
             ))}

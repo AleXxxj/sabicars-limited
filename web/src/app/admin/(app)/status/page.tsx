@@ -49,7 +49,7 @@ export default async function StatusPage() {
                   <div className="min-w-0">
                     <p className="font-semibold text-text-primary">{c.label}</p>
                     <p className="mt-1 text-sm text-text-secondary">{c.detail}</p>
-                    {c.fix && <p className="mt-1.5 text-sm text-gold-200">{c.fix}</p>}
+                    {c.fix && <p className="mt-1.5 text-sm text-green-200">{c.fix}</p>}
                   </div>
                 </li>
               ))}

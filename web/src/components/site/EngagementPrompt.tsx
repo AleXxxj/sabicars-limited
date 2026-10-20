@@ -191,7 +191,7 @@ export function EngagementPrompt() {
           <X aria-hidden size={18} />
         </button>
         <div className="flex gap-4 pr-8">
-          <span aria-hidden className="grid size-11 shrink-0 place-items-center rounded-full bg-gold-500/15 text-gold-300">
+          <span aria-hidden className="grid size-11 shrink-0 place-items-center rounded-full bg-green-500/15 text-green-300">
             <Icon size={20} strokeWidth={1.75} />
           </span>
           <div className="min-w-0">
@@ -199,7 +199,7 @@ export function EngagementPrompt() {
             <p className="mt-1 text-sm leading-relaxed text-text-secondary">
               {body}
               {kind === "install" && !installEvent && (
-                <Share aria-label="Share" size={15} className="ml-1 inline align-[-2px] text-gold-300" />
+                <Share aria-label="Share" size={15} className="ml-1 inline align-[-2px] text-green-300" />
               )}
             </p>
           </div>

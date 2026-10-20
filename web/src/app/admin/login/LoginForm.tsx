@@ -6,7 +6,7 @@ import { signIn } from "@/lib/actions/auth";
 import { Button } from "@/components/ui/Button";
 
 const field =
-  "min-h-12 w-full border border-border-strong bg-surface-0 px-4 text-text-primary outline-none transition-colors focus:border-gold-500";
+  "min-h-12 w-full border border-border-strong bg-surface-0 px-4 text-text-primary outline-none transition-colors focus:border-green-500";
 
 export function LoginForm({ disabled }: { disabled: boolean }) {
   const search = useSearchParams();

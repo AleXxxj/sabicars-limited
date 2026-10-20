@@ -166,7 +166,7 @@ export function Walkaround() {
             <path
               d={`M${CX} ${CY - RY} A${RX} ${RY} 0 1 0 ${CX} ${CY + RY} A${RX} ${RY} 0 1 0 ${CX} ${CY - RY}`}
               fill="none"
-              stroke="var(--gold-400)"
+              stroke="var(--green-400)"
               strokeWidth="2"
               pathLength={1}
               strokeDasharray="1"
@@ -187,16 +187,16 @@ export function Walkaround() {
               <path
                 d="M160 118 Q200 108 240 118 Q262 126 264 160 L266 330 Q264 360 240 366 Q200 372 160 366 Q136 360 134 330 L136 160 Q138 126 160 118 Z"
                 fill="url(#walk-body)"
-                stroke="var(--gold-400)"
+                stroke="var(--green-400)"
                 strokeWidth="2"
               />
               {/* Sides and ends that light up as the walker reaches them. */}
-              <path d="M134 330 L136 160" stroke="var(--gold-200)" strokeWidth="4" strokeLinecap="round" style={glow(i === 1)} />
-              <path d="M266 330 L264 160" stroke="var(--gold-200)" strokeWidth="4" strokeLinecap="round" style={glow(i === 3)} />
+              <path d="M134 330 L136 160" stroke="var(--green-200)" strokeWidth="4" strokeLinecap="round" style={glow(i === 1)} />
+              <path d="M266 330 L264 160" stroke="var(--green-200)" strokeWidth="4" strokeLinecap="round" style={glow(i === 3)} />
               <path
                 d="M160 118 Q200 108 240 118"
                 fill="none"
-                stroke="var(--gold-200)"
+                stroke="var(--green-200)"
                 strokeWidth="4"
                 strokeLinecap="round"
                 style={glow(i === 0)}
@@ -204,7 +204,7 @@ export function Walkaround() {
               <path
                 d="M160 366 Q200 372 240 366"
                 fill="none"
-                stroke="var(--gold-200)"
+                stroke="var(--green-200)"
                 strokeWidth="4"
                 strokeLinecap="round"
                 style={glow(i === 2)}
@@ -213,17 +213,17 @@ export function Walkaround() {
               <path
                 d="M142 150 Q146 126 162 122 Q200 114 238 122 Q254 126 258 150 L256 192 L144 192 Z"
                 fill="rgb(223 198 124 / 0.22)"
-                stroke="var(--gold-300)"
+                stroke="var(--green-300)"
                 strokeWidth="1.5"
                 style={glow(i === 4)}
               />
               <g style={glow(i === 4)}>
-                <rect x="176" y="140" width="48" height="30" rx="4" fill="none" stroke="var(--gold-200)" strokeWidth="1.5" />
-                <circle cx="166" cy="178" r="4" fill="var(--gold-200)" />
-                <circle cx="234" cy="178" r="4" fill="var(--gold-200)" />
+                <rect x="176" y="140" width="48" height="30" rx="4" fill="none" stroke="var(--green-200)" strokeWidth="1.5" />
+                <circle cx="166" cy="178" r="4" fill="var(--green-200)" />
+                <circle cx="234" cy="178" r="4" fill="var(--green-200)" />
               </g>
               {/* Headlamps and tail lamps. */}
-              <g fill="#fffbe8" style={{ opacity: i === 0 || i === 6 ? 1 : 0.35, transition: "opacity 500ms ease" }}>
+              <g fill="#F0FBE7" style={{ opacity: i === 0 || i === 6 ? 1 : 0.35, transition: "opacity 500ms ease" }}>
                 <rect x="146" y="124" width="22" height="7" rx="3" />
                 <rect x="232" y="124" width="22" height="7" rx="3" />
               </g>
@@ -254,10 +254,10 @@ export function Walkaround() {
               <path d="M150 196 L250 196 L242 226 L158 226 Z" fill="rgb(160 190 220 / 0.14)" stroke="rgb(255 255 255 / 0.2)" />
               <path d="M158 314 L242 314 L250 340 L150 340 Z" fill="rgb(160 190 220 / 0.12)" stroke="rgb(255 255 255 / 0.2)" />
               <g style={glow(i >= 5)}>
-                <rect x="160" y="238" width="34" height="32" rx="7" fill="#3a352e" stroke="var(--gold-300)" />
-                <rect x="206" y="238" width="34" height="32" rx="7" fill="#3a352e" stroke="var(--gold-300)" />
-                <rect x="160" y="280" width="80" height="26" rx="7" fill="#3a352e" stroke="var(--gold-300)" />
-                <circle cx="177" cy="230" r="9" fill="none" stroke="var(--gold-300)" strokeWidth="2" />
+                <rect x="160" y="238" width="34" height="32" rx="7" fill="#343B35" stroke="var(--green-300)" />
+                <rect x="206" y="238" width="34" height="32" rx="7" fill="#343B35" stroke="var(--green-300)" />
+                <rect x="160" y="280" width="80" height="26" rx="7" fill="#343B35" stroke="var(--green-300)" />
+                <circle cx="177" cy="230" r="9" fill="none" stroke="var(--green-300)" strokeWidth="2" />
               </g>
               <rect
                 x="156"
@@ -273,7 +273,7 @@ export function Walkaround() {
               <path
                 d="M136 200 L124 196 L124 208 L136 210 Z M264 200 L276 196 L276 208 L264 210 Z"
                 fill="#2b2824"
-                stroke="var(--gold-400)"
+                stroke="var(--green-400)"
                 strokeWidth="1"
               />
             </g>
@@ -281,13 +281,13 @@ export function Walkaround() {
             {/* The walker. */}
             <g transform={`translate(${dot.x} ${dot.y})`}>
               <circle r="22" fill="url(#walk-glow)" />
-              <circle r="8" fill="var(--gold-300)" stroke="#0A0908" strokeWidth="2.5" />
+              <circle r="8" fill="var(--green-300)" stroke="#090E0A" strokeWidth="2.5" />
             </g>
           </svg>
 
           <div aria-live="polite" className="min-h-[14rem]">
             <div className="flex items-center justify-between gap-3">
-              <p className="figures text-xs font-semibold tracking-[0.18em] text-gold-300 uppercase">
+              <p className="figures text-xs font-semibold tracking-[0.18em] text-green-300 uppercase">
                 Stop {i + 1} of {STATIONS.length}
               </p>
               <p className="figures rounded-full border border-white/12 px-3 py-1 text-xs text-text-secondary">
@@ -299,7 +299,7 @@ export function Walkaround() {
               <ul className="mt-3 grid gap-2">
                 {s.checks.map((c) => (
                   <li key={c} className="flex gap-2.5 text-[0.98rem] leading-snug text-text-secondary">
-                    <span aria-hidden className="mt-2 size-1.5 shrink-0 rounded-full bg-gold-400" />
+                    <span aria-hidden className="mt-2 size-1.5 shrink-0 rounded-full bg-green-400" />
                     {c}
                   </li>
                 ))}
@@ -307,7 +307,7 @@ export function Walkaround() {
             </div>
             <div className="mt-6 h-1 overflow-hidden rounded-full bg-white/10" aria-hidden>
               <div
-                className="h-full rounded-full bg-gold-400"
+                className="h-full rounded-full bg-green-400"
                 style={{ width: `${Math.min(100, ((s.minutes[0] + (s.minutes[1] - s.minutes[0]) * (p - i)) / 20) * 100)}%` }}
               />
             </div>

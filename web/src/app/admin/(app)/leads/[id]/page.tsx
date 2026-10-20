@@ -108,7 +108,7 @@ export default async function LeadPage({ params }: Props) {
               <>
                 {" "}
                 ·{" "}
-                <Link href={`/admin/conversations/${chat.id}`} className="text-gold-300 hover:text-gold-200">
+                <Link href={`/admin/conversations/${chat.id}`} className="text-green-300 hover:text-green-200">
                   Read the chat →
                 </Link>
               </>
@@ -201,7 +201,7 @@ export default async function LeadPage({ params }: Props) {
         </aside>
 
         {lead.status === "won" && reviewLink && (
-          <section aria-label="Their review" className="min-w-0 border border-gold-700 bg-surface-1 p-5 md:p-6 lg:col-start-1">
+          <section aria-label="Their review" className="min-w-0 border border-green-700 bg-surface-1 p-5 md:p-6 lg:col-start-1">
             <p className="eyebrow !text-text-muted">Their review</p>
             {d.review ? (
               <p className="mt-3 text-sm text-text-secondary">
@@ -275,7 +275,7 @@ export default async function LeadPage({ params }: Props) {
           {(d.referredBy || d.buyerIsPartner || attribution.length > 0) && (
             <div className="mt-5 flex flex-wrap gap-2 border-t border-border-subtle pt-4 text-xs">
               {d.referredBy && (
-                <span className="border border-gold-700 px-2 py-1 text-accent-text">
+                <span className="border border-green-700 px-2 py-1 text-accent-text">
                   Referred by partner {d.referredBy.name} ({d.referredBy.code}) — 1.5% if it sells
                 </span>
               )}
@@ -303,7 +303,7 @@ export default async function LeadPage({ params }: Props) {
               <li key={a.id} className="relative">
                 <span
                   aria-hidden
-                  className={`absolute top-1.5 -left-[1.4rem] size-2 rounded-full ${a.kind === "escalated" ? "bg-danger" : a.kind === "note" ? "bg-gold-500" : "bg-border-strong"}`}
+                  className={`absolute top-1.5 -left-[1.4rem] size-2 rounded-full ${a.kind === "escalated" ? "bg-danger" : a.kind === "note" ? "bg-green-500" : "bg-border-strong"}`}
                 />
                 <p className={`text-sm ${a.kind === "note" ? "whitespace-pre-wrap text-text-primary" : "text-text-secondary"}`}>
                   {a.detail}

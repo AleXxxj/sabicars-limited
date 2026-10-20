@@ -32,7 +32,7 @@ export function BlogImageUpload({ onUploaded, label = "Upload a photo" }: { onUp
   return (
     <span className="inline-flex flex-wrap items-center gap-3">
       <label
-        className={`inline-flex min-h-10 cursor-pointer items-center border border-gold-700 px-3 text-xs font-semibold text-accent-text hover:bg-surface-2 ${state === "uploading" ? "pointer-events-none opacity-60" : ""}`}
+        className={`inline-flex min-h-10 cursor-pointer items-center border border-green-700 px-3 text-xs font-semibold text-accent-text hover:bg-surface-2 ${state === "uploading" ? "pointer-events-none opacity-60" : ""}`}
       >
         {state === "uploading" ? "Uploading…" : label}
         <input type="file" accept="image/*" className="sr-only" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />

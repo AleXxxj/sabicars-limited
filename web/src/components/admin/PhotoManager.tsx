@@ -154,7 +154,7 @@ export function PhotoManager({ vehicleId, photos: initial }: { vehicleId: string
           </h2>
           <p className="mt-2 text-sm text-text-muted">The first photo is the cover. Lead with an exterior three-quarter view in daylight.</p>
         </div>
-        <label className={`eyebrow inline-flex min-h-12 cursor-pointer items-center border border-gold-500 px-5 !text-accent-text hover:bg-surface-1 ${uploading ? "pointer-events-none opacity-60" : ""}`}>
+        <label className={`eyebrow inline-flex min-h-12 cursor-pointer items-center border border-green-500 px-5 !text-accent-text hover:bg-surface-1 ${uploading ? "pointer-events-none opacity-60" : ""}`}>
           {uploading ? `Uploading ${Math.min(done + failed.length + 1, outcomes.length)} of ${outcomes.length}…` : "Add photos"}
           <input
             ref={input}
@@ -195,7 +195,7 @@ export function PhotoManager({ vehicleId, photos: initial }: { vehicleId: string
             <li key={p.id} className="group relative border border-border-subtle bg-surface-1">
               <div className="relative aspect-[4/3] overflow-hidden">
                 <VehicleImage src={p.url} alt={p.alt ?? ""} fill sizes="(min-width: 640px) 220px, 45vw" className="object-cover" />
-                {i === 0 && <span className="eyebrow absolute left-2 top-2 bg-[#0B0A09]/80 px-2 py-1 !text-[0.6rem] !text-gold-300">Cover</span>}
+                {i === 0 && <span className="eyebrow absolute left-2 top-2 bg-[#090E0A]/80 px-2 py-1 !text-[0.6rem] !text-green-300">Cover</span>}
               </div>
               <div className="flex items-center justify-between gap-1 p-1.5">
                 <div className="flex">

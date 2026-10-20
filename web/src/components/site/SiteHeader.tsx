@@ -16,7 +16,7 @@ import { NotificationBell } from "./NotificationBell";
  */
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-40 border-b border-white/[0.06] bg-[#0A0908]/70 backdrop-blur-xl">
+    <header className="sticky top-0 z-40 border-b border-white/[0.06] bg-[#090E0A]/70 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-6 px-5 md:h-[4.5rem] md:px-10">
         <Logo />
         <nav aria-label="Main" className="hidden items-center gap-6 xl:flex 2xl:gap-8">
@@ -36,7 +36,7 @@ export function SiteHeader() {
           <a
             href={`tel:${site.phones[0].e164}`}
             aria-label={`Call Sabicars on ${site.phones[0].display}`}
-            className="glass inline-flex size-10 items-center justify-center rounded-full text-text-primary transition-colors hover:text-gold-300 sm:size-11 xl:hidden"
+            className="glass inline-flex size-10 items-center justify-center rounded-full text-text-primary transition-colors hover:text-green-300 sm:size-11 xl:hidden"
           >
             <Phone aria-hidden size={19} strokeWidth={1.75} />
           </a>

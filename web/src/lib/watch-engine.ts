@@ -72,16 +72,16 @@ async function deliverPriceDrop(watchId: string): Promise<"sent" | "pending" | "
   ]
     .filter((l) => l !== "")
     .join("\n");
-  const html = `<!doctype html><html><body style="margin:0;background:#0a0908;font-family:Helvetica,Arial,sans-serif;color:#f5f2ea">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0a0908"><tr><td align="center" style="padding:32px 16px">
+  const html = `<!doctype html><html><body style="margin:0;background:#090E0A;font-family:Helvetica,Arial,sans-serif;color:#F2F2EC">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#090E0A"><tr><td align="center" style="padding:32px 16px">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px">
-<tr><td style="padding:0 0 28px"><img src="${esc(siteUrl())}/brand/logo-email.png" width="220" height="45" alt="Sabicars" style="display:block;border:0"><div style="padding-top:14px;font-size:12px;letter-spacing:3px;color:#c9a84c">PRICE ALERT</div></td></tr>
+<tr><td style="padding:0 0 28px"><img src="${esc(siteUrl())}/brand/logo-email.png" width="220" height="45" alt="Sabicars" style="display:block;border:0"><div style="padding-top:14px;font-size:12px;letter-spacing:3px;color:#8DC74D">PRICE ALERT</div></td></tr>
 ${cover ? `<tr><td><a href="${esc(url)}"><img src="${esc(shareImageUrl(cover.url))}" width="560" alt="${esc(title)}" style="display:block;width:100%;height:auto;border:0;border-radius:12px"></a></td></tr>` : ""}
 <tr><td style="padding:20px 0 0;font-family:Georgia,serif;font-size:28px;line-height:1.2">${esc(title)}</td></tr>
-<tr><td style="padding:10px 0 0;font-size:20px">${was ? `<span style="color:#aba394;text-decoration:line-through">${esc(formatNaira(was))}</span>&nbsp; ` : ""}<strong style="color:#dfc67c">${esc(formatNaira(now))}</strong></td></tr>
-${deposit ? `<tr><td style="padding:6px 0 0;font-size:14px;color:#d6cfc0">${esc(deposit)} down on the 40% Drive Plan</td></tr>` : ""}
-<tr><td style="padding:28px 0"><a href="${esc(url)}" style="display:inline-block;background:#c9a84c;color:#0a0908;padding:16px 28px;border-radius:999px;font-size:15px;font-weight:bold;text-decoration:none">See the vehicle</a></td></tr>
-<tr><td style="font-size:13px;line-height:1.6;color:#aba394">Reference ${esc(reference)}. Bought elsewhere? Reply and we will stop these alerts.<br><br>${esc(site.legalName)} · CAC RC ${esc(site.rcNumber)}</td></tr>
+<tr><td style="padding:10px 0 0;font-size:20px">${was ? `<span style="color:#9FA59E;text-decoration:line-through">${esc(formatNaira(was))}</span>&nbsp; ` : ""}<strong style="color:#A5DB6F">${esc(formatNaira(now))}</strong></td></tr>
+${deposit ? `<tr><td style="padding:6px 0 0;font-size:14px;color:#CFD2CC">${esc(deposit)} down on the 40% Drive Plan</td></tr>` : ""}
+<tr><td style="padding:28px 0"><a href="${esc(url)}" style="display:inline-block;background:#F7801E;color:#090E0A;padding:16px 28px;border-radius:999px;font-size:15px;font-weight:bold;text-decoration:none">See the vehicle</a></td></tr>
+<tr><td style="font-size:13px;line-height:1.6;color:#9FA59E">Reference ${esc(reference)}. Bought elsewhere? Reply and we will stop these alerts.<br><br>${esc(site.legalName)} · CAC RC ${esc(site.rcNumber)}</td></tr>
 </table></td></tr></table></body></html>`;
 
   const result = await sendEmail({ to: row.email, subject, html, text, replyTo: site.email });

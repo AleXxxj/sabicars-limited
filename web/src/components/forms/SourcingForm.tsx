@@ -117,7 +117,7 @@ export function SourcingForm({ whatsappBase, initial }: { whatsappBase: string; 
                   name="payment"
                   value={p.value}
                   defaultChecked={(v.payment ?? "undecided") === p.value}
-                  className="size-4 accent-[var(--gold-500)]"
+                  className="size-4 accent-[var(--green-500)]"
                 />
                 {p.label}
               </label>
@@ -165,7 +165,7 @@ export function SourcingForm({ whatsappBase, initial }: { whatsappBase: string; 
                     name="preferredContact"
                     value={value}
                     defaultChecked={(v.preferredContact ?? "whatsapp") === value}
-                    className="size-4 accent-[var(--gold-500)]"
+                    className="size-4 accent-[var(--green-500)]"
                   />
                   {label}
                 </label>

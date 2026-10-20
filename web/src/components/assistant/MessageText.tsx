@@ -22,7 +22,7 @@ export function MessageText({ text }: { text: string }) {
             <ul key={i} className="grid gap-1.5">
               {lines.map((l, j) => (
                 <li key={j} className="relative pl-4">
-                  <span aria-hidden className="absolute top-[0.62em] left-0 size-1.5 rounded-full bg-gold-400" />
+                  <span aria-hidden className="absolute top-[0.62em] left-0 size-1.5 rounded-full bg-green-400" />
                   <Inline text={l.replace(BULLET, "")} />
                 </li>
               ))}
@@ -30,7 +30,7 @@ export function MessageText({ text }: { text: string }) {
           );
         if (lines.every((l) => NUMBERED.test(l)))
           return (
-            <ol key={i} className="grid list-decimal gap-1.5 pl-5 marker:font-semibold marker:text-gold-300">
+            <ol key={i} className="grid list-decimal gap-1.5 pl-5 marker:font-semibold marker:text-green-300">
               {lines.map((l, j) => (
                 <li key={j}>
                   <Inline text={l.replace(NUMBERED, "")} />

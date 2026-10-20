@@ -53,13 +53,13 @@ export default async function CompareIndex() {
                       <li key={p.path}>
                         <Link
                           href={p.path}
-                          className="group flex min-h-12 items-center justify-between gap-3 border-b border-border-subtle py-2 text-text-primary hover:text-gold-200"
+                          className="group flex min-h-12 items-center justify-between gap-3 border-b border-border-subtle py-2 text-text-primary hover:text-green-200"
                         >
                           {p.title}
                           <ArrowRight
                             aria-hidden
                             size={16}
-                            className="shrink-0 text-gold-300 transition-transform group-hover:translate-x-1"
+                            className="shrink-0 text-green-300 transition-transform group-hover:translate-x-1"
                           />
                         </Link>
                       </li>

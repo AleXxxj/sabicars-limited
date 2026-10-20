@@ -85,7 +85,7 @@ function tidy(b: Block): Block {
   }
 }
 
-const field = "min-h-10 w-full border border-border-default bg-surface-0 px-3 text-sm text-text-primary outline-none focus:border-gold-500";
+const field = "min-h-10 w-full border border-border-default bg-surface-0 px-3 text-sm text-text-primary outline-none focus:border-green-500";
 const area = `${field} py-2 leading-relaxed`;
 const small = "text-xs text-text-muted";
 
@@ -313,7 +313,7 @@ export function BlogEditor({
           type="button"
           onClick={save}
           disabled={pending}
-          className="min-h-11 bg-cta px-5 text-sm font-semibold text-cta-fg hover:bg-cta-hover disabled:opacity-50"
+          className="min-h-11 rounded-full bg-cta px-5 text-sm font-semibold text-cta-fg hover:bg-cta-hover disabled:opacity-50"
         >
           {pending ? "Working…" : dirty || !post.id ? "Save" : "Saved"}
         </button>
@@ -341,7 +341,7 @@ export function BlogEditor({
                 onClick={() => publish(true)}
                 disabled={pending || dirty}
                 title={dirty ? "Save first" : undefined}
-                className="min-h-11 border border-gold-500 px-4 text-sm font-semibold text-accent-text hover:bg-surface-1 disabled:opacity-50"
+                className="min-h-11 border border-green-500 px-4 text-sm font-semibold text-accent-text hover:bg-surface-1 disabled:opacity-50"
               >
                 Publish
               </button>
@@ -360,7 +360,7 @@ export function BlogEditor({
                     if (r.ok) setPost((p) => ({ ...p, announced: true }));
                   })
                 }
-                className="min-h-11 border border-gold-500 px-4 text-sm font-semibold text-accent-text hover:bg-surface-1"
+                className="min-h-11 border border-green-500 px-4 text-sm font-semibold text-accent-text hover:bg-surface-1"
               >
                 Announce to subscribers
               </button>
@@ -432,7 +432,7 @@ function AddBlock({ onAdd, compact = false }: { onAdd: (t: Kind) => void; compac
             onAdd(k.type);
             if (compact) setOpen(false);
           }}
-          className="border border-border-subtle bg-surface-0 px-3 py-2 text-left hover:border-gold-500"
+          className="border border-border-subtle bg-surface-0 px-3 py-2 text-left hover:border-green-500"
         >
           <span className="block text-sm text-text-primary">{k.label}</span>
           <span className="block text-xs text-text-muted">{k.hint}</span>

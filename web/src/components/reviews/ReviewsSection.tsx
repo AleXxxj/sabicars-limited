@@ -18,7 +18,7 @@ function ReviewCard({ r }: { r: PublicReview }) {
         <span className="block font-medium text-text-primary">{r.name}</span>
         <span className="block text-text-muted">{[r.location, month(r.createdAt)].filter(Boolean).join(" · ")}</span>
         {r.verifiedBuyer && (
-          <span className="mt-2 flex items-center gap-1.5 text-xs text-gold-300">
+          <span className="mt-2 flex items-center gap-1.5 text-xs text-green-300">
             <BadgeCheck aria-hidden size={15} />
             Verified buyer
             {r.vehicle && (

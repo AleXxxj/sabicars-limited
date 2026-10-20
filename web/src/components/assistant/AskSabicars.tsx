@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { ArrowUp, MessageCircle, Phone, PhoneCall, RotateCcw, X } from "lucide-react";
-import { SYMBOL } from "@/components/brand/marks";
+import { Mark } from "@/components/Logo";
 import { ASK_EVENT, type AskRequest } from "@/lib/assistant/open";
 import type { Part } from "@/lib/assistant/parts";
 import { site, whatsappLink } from "@/lib/site";
@@ -68,16 +68,15 @@ function suggestionsFor(path: string): string[] {
   ];
 }
 
+/** The mark on Night, ringed in green: the assistant wears the brand, not a stock chat bubble. */
 function Avatar({ size = 40 }: { size?: number }) {
   return (
     <span
       aria-hidden
-      className="inline-flex shrink-0 items-center justify-center rounded-full bg-[linear-gradient(160deg,var(--gold-200),var(--gold-500)_60%,var(--gold-700))] shadow-[inset_0_1px_0_rgb(255_255_255/0.4)]"
+      className="inline-flex shrink-0 items-center justify-center rounded-full bg-[radial-gradient(circle_at_50%_30%,#1d2a1e,var(--surface-0)_70%)] shadow-[inset_0_0_0_1.5px_rgb(120_176_48/0.55),0_6px_18px_-6px_rgb(0_0_0/0.8)]"
       style={{ width: size, height: size }}
     >
-      <svg viewBox="20 6 80 108" width={size * 0.6} height={size * 0.6}>
-        <path d={SYMBOL.solid} fill="#0A0908" />
-      </svg>
+      <Mark size={size * 0.62} />
     </span>
   );
 }
@@ -277,7 +276,7 @@ export function AskSabicars() {
         aria-expanded={open}
         aria-controls="ask-sabicars"
         aria-label={open ? "Close Ask Sabicars" : "Ask Sabicars a question"}
-        className={`ask-launcher group fixed right-4 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-40 flex items-center gap-2.5 rounded-full border border-gold-500/35 bg-surface-1/90 p-1.5 shadow-[0_18px_40px_-12px_rgb(0_0_0/0.8),0_0_0_6px_rgb(201_168_76/0.06)] backdrop-blur-md transition-[transform,opacity] duration-300 hover:border-gold-400/60 sm:pr-5 xl:right-6 xl:bottom-6 ${open ? "pointer-events-none scale-90 opacity-0" : ""}`}
+        className={`ask-launcher group fixed right-4 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-40 flex items-center gap-2.5 rounded-full border border-green-500/35 bg-surface-1/90 p-1.5 shadow-[0_18px_40px_-12px_rgb(0_0_0/0.8),0_0_0_6px_rgb(120_176_48/0.06)] backdrop-blur-md transition-[transform,opacity] duration-300 hover:border-green-400/60 sm:pr-5 xl:right-6 xl:bottom-6 ${open ? "pointer-events-none scale-90 opacity-0" : ""}`}
       >
         <Avatar size={44} />
         <span className="hidden text-left leading-tight sm:block">
@@ -356,7 +355,7 @@ export function AskSabicars() {
                         key={s}
                         type="button"
                         onClick={() => void send(s)}
-                        className="rounded-full border border-white/[0.1] bg-white/[0.03] px-3.5 py-2 text-left text-sm text-text-primary transition-colors hover:border-gold-500/45 hover:bg-gold-500/[0.06]"
+                        className="rounded-full border border-white/[0.1] bg-white/[0.03] px-3.5 py-2 text-left text-sm text-text-primary transition-colors hover:border-green-500/45 hover:bg-green-500/[0.06]"
                       >
                         {s}
                       </button>
@@ -368,7 +367,7 @@ export function AskSabicars() {
               {msgs.map((m) =>
                 m.role === "user" ? (
                   <div key={m.id} className="flex justify-end">
-                    <p className="max-w-[85%] rounded-2xl rounded-br-md border border-gold-500/25 bg-gold-500/[0.12] px-4 py-2.5 whitespace-pre-line text-text-primary">
+                    <p className="max-w-[85%] rounded-2xl rounded-br-md border border-green-500/25 bg-green-500/[0.12] px-4 py-2.5 whitespace-pre-line text-text-primary">
                       {m.parts[0]?.kind === "text" ? m.parts[0].text : ""}
                     </p>
                   </div>
@@ -396,7 +395,7 @@ export function AskSabicars() {
               {waiting && (
                 <span className="flex gap-1.5 py-2" role="status" aria-label="Ask Sabicars is typing">
                   {[0, 1, 2].map((i) => (
-                    <span key={i} className="ask-dot size-2 rounded-full bg-gold-400" style={{ animationDelay: `${i * 160}ms` }} />
+                    <span key={i} className="ask-dot size-2 rounded-full bg-green-400" style={{ animationDelay: `${i * 160}ms` }} />
                   ))}
                 </span>
               )}
@@ -415,7 +414,7 @@ export function AskSabicars() {
                 e.preventDefault();
                 void send(input);
               }}
-              className="flex items-end gap-2 rounded-2xl border border-border-default bg-surface-2/70 p-1.5 pl-4 focus-within:border-gold-500/70"
+              className="flex items-end gap-2 rounded-2xl border border-border-default bg-surface-2/70 p-1.5 pl-4 focus-within:border-green-500/70"
             >
               <textarea
                 ref={field}
@@ -441,7 +440,7 @@ export function AskSabicars() {
                 type="submit"
                 disabled={busy || !input.trim()}
                 aria-label="Send"
-                className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl bg-[linear-gradient(180deg,var(--gold-300),var(--gold-500))] text-[#0A0908] transition-opacity disabled:opacity-35"
+                className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl bg-[linear-gradient(180deg,var(--orange-400),var(--orange-500))] text-[#090E0A] transition-opacity disabled:opacity-35"
               >
                 <ArrowUp aria-hidden size={20} strokeWidth={2.4} />
               </button>

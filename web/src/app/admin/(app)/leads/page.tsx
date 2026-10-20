@@ -94,7 +94,7 @@ export default async function LeadsInbox({ searchParams }: Props) {
             type="search"
             defaultValue={q}
             placeholder="Name, phone or SC- reference"
-            className="min-h-11 w-full border border-border-default bg-surface-1 pr-3 pl-9 text-sm text-text-primary outline-none placeholder:text-text-muted focus:border-gold-500"
+            className="min-h-11 w-full border border-border-default bg-surface-1 pr-3 pl-9 text-sm text-text-primary outline-none placeholder:text-text-muted focus:border-green-500"
           />
         </Form>
       </div>
@@ -132,7 +132,7 @@ export default async function LeadsInbox({ searchParams }: Props) {
               href={v === "waiting" ? "/admin/leads" : `/admin/leads?view=${v}`}
               aria-current={view === v ? "true" : undefined}
               className={`inline-flex min-h-11 shrink-0 items-center gap-2 border-b-2 px-1 text-sm transition-colors ${
-                view === v ? "border-gold-500 text-text-primary" : "border-transparent text-text-muted hover:text-text-primary"
+                view === v ? "border-green-500 text-text-primary" : "border-transparent text-text-muted hover:text-text-primary"
               }`}
             >
               {LEAD_VIEWS[v]}{" "}

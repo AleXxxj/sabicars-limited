@@ -82,9 +82,9 @@ const TRAILER_WHEELS = [110, 160, 210];
 function Wheel({ x }: { x: number }) {
   return (
     <g>
-      <circle cx={x} cy="286" r="23" fill="#0B0A09" />
-      <circle cx={x} cy="286" r="14" fill="#2b2926" stroke="#6b645a" strokeWidth="2" />
-      <circle cx={x} cy="286" r="4" fill="#9a9184" />
+      <circle cx={x} cy="286" r="23" fill="#090E0A" />
+      <circle cx={x} cy="286" r="14" fill="#282E29" stroke="#626A63" strokeWidth="2" />
+      <circle cx={x} cy="286" r="4" fill="#8E958F" />
     </g>
   );
 }
@@ -94,17 +94,17 @@ function Cab() {
     <g>
       <path
         d="M700 276 L700 164 C700 155 706 149 716 149 L800 149 C812 149 820 155 824 165 L834 214 L836 262 C836 270 832 276 824 276 Z"
-        fill="#e8e4da"
+        fill="#E1E4DD"
         stroke="rgb(0 0 0 / 0.25)"
       />
       <path d="M760 159 L806 159 C811 159 814 161 815 165 L825 208 L760 208 Z" fill="#1b2630" />
       <line x1="756" y1="160" x2="756" y2="270" stroke="rgb(0 0 0 / 0.2)" />
       {[232, 242, 252].map((y) => (
-        <line key={y} x1="826" y1={y} x2="836" y2={y} stroke="#6b645a" strokeWidth="2.5" />
+        <line key={y} x1="826" y1={y} x2="836" y2={y} stroke="#626A63" strokeWidth="2.5" />
       ))}
-      <rect x="826" y="258" width="10" height="7" rx="2" fill="#fff4cf" />
-      <rect x="698" y="270" width="144" height="12" rx="3" fill="#3a3632" />
-      <rect x="744" y="222" width="12" height="4" rx="2" fill="#6b645a" />
+      <rect x="826" y="258" width="10" height="7" rx="2" fill="#DCF5C8" />
+      <rect x="698" y="270" width="144" height="12" rx="3" fill="#343B35" />
+      <rect x="744" y="222" width="12" height="4" rx="2" fill="#626A63" />
     </g>
   );
 }
@@ -208,7 +208,7 @@ export function TruckBuilder() {
             type="button"
             aria-pressed={x.id === kind}
             onClick={() => choose(x.id)}
-            className={`min-h-11 rounded-full border px-4 text-sm transition-all active:scale-95 ${x.id === kind ? "border-gold-400 bg-gold-500/15 font-semibold text-gold-100" : "border-white/[0.12] text-text-secondary hover:border-gold-500/40 hover:text-text-primary"}`}
+            className={`min-h-11 rounded-full border px-4 text-sm transition-all active:scale-95 ${x.id === kind ? "border-green-400 bg-green-500/15 font-semibold text-green-100" : "border-white/[0.12] text-text-secondary hover:border-green-500/40 hover:text-text-primary"}`}
           >
             {x.cargo}
           </button>
@@ -227,8 +227,8 @@ export function TruckBuilder() {
           {/* Trailer (containers only): rolls in and couples */}
           {articulated && (
             <g style={{ transform: `translateX(${(1 - hitch) * -70}px)`, opacity: leaving ? 0 : 1, transition: "opacity 260ms" }}>
-              <rect x="60" y="244" width="580" height="12" rx="2" fill="#3a3632" />
-              <rect x="530" y="256" width="8" height={active ? 44 : 30} fill="#6b645a" />
+              <rect x="60" y="244" width="580" height="12" rx="2" fill="#343B35" />
+              <rect x="530" y="256" width="8" height={active ? 44 : 30} fill="#626A63" />
               <g>
                 <rect x="70" y="118" width="550" height="126" rx="3" fill="#8e3b2f" stroke="rgb(0 0 0 / 0.3)" />
                 {Array.from({ length: 22 }, (_, i) => (
@@ -254,9 +254,9 @@ export function TruckBuilder() {
 
           {/* Chassis and running gear */}
           <g className={drop && !leaving ? "truck-squash" : ""}>
-            <rect x={articulated ? 520 : 110} y="262" width={articulated ? 310 : 720} height="14" rx="3" fill="#2b2926" />
-            <rect x="610" y="266" width="56" height="24" rx="8" fill="#4a4540" />
-            {articulated && <rect x="575" y="252" width="80" height="10" rx="3" fill="#6b645a" />}
+            <rect x={articulated ? 520 : 110} y="262" width={articulated ? 310 : 720} height="14" rx="3" fill="#282E29" />
+            <rect x="610" y="266" width="56" height="24" rx="8" fill="#444B45" />
+            {articulated && <rect x="575" y="252" width="80" height="10" rx="3" fill="#626A63" />}
             {wheels.map((x) => (
               <Wheel key={x} x={x} />
             ))}
@@ -274,13 +274,13 @@ export function TruckBuilder() {
                     y1="262"
                     x2={520 - 65 * tip}
                     y2={262 - 214 * tip}
-                    stroke="#9a9184"
+                    stroke="#8E958F"
                     strokeWidth="10"
                     strokeLinecap="round"
                     opacity={tip > 0.02 ? 1 : 0}
                   />
                   <g style={{ transform: `rotate(${-34 * tip}deg)`, transformOrigin: "140px 260px" }}>
-                    <path d="M140 260 L140 176 L644 176 L656 190 L656 260 Z" fill="#c9a84c" stroke="rgb(0 0 0 / 0.3)" />
+                    <path d="M140 260 L140 176 L644 176 L656 190 L656 260 Z" fill="#F7801E" stroke="rgb(0 0 0 / 0.3)" />
                     {[190, 240, 290, 340, 390, 440, 490, 540, 590].map((x) => (
                       <line key={x} x1={x} y1="180" x2={x} y2="256" stroke="rgb(0 0 0 / 0.18)" strokeWidth="4" />
                     ))}
@@ -340,13 +340,13 @@ export function TruckBuilder() {
                 <g>
                   <rect x="140" y="248" width="516" height="14" rx="2" fill="#6b4f36" />
                   {[150, 220, 290, 360, 430, 500, 570, 640].map((x) => (
-                    <rect key={x} x={x} y="230" width="7" height="18" fill="#4a4540" />
+                    <rect key={x} x={x} y="230" width="7" height="18" fill="#444B45" />
                   ))}
                   {active && (
                     <g className="truck-drop">
-                      <rect x="300" y="222" width="220" height="26" rx="13" fill="#2b2926" />
+                      <rect x="300" y="222" width="220" height="26" rx="13" fill="#282E29" />
                       {[315, 350, 385, 420, 455, 490].map((x) => (
-                        <circle key={x} cx={x} cy="235" r="7" fill="#4a4540" />
+                        <circle key={x} cx={x} cy="235" r="7" fill="#444B45" />
                       ))}
                       <rect x="380" y="160" width="92" height="62" rx="6" fill="#d9a62b" />
                       <rect x="404" y="168" width="44" height="30" rx="3" fill="#1b2630" />
@@ -358,7 +358,7 @@ export function TruckBuilder() {
                       <path
                         className="chain"
                         d="M300 248 L330 224 M520 248 L492 224"
-                        stroke="#9a9184"
+                        stroke="#8E958F"
                         strokeWidth="3"
                         strokeDasharray="4 3"
                       />
@@ -381,9 +381,9 @@ export function TruckBuilder() {
                     fill="rgb(150 205 255)"
                     opacity={Math.max(0, (28 - temp) / 46) * 0.28}
                   />
-                  <rect x="660" y="148" width="34" height="64" rx="4" fill="#3a3632" />
+                  <rect x="660" y="148" width="34" height="64" rx="4" fill="#343B35" />
                   {[160, 172, 184, 196].map((y) => (
-                    <line key={y} x1="664" y1={y} x2="690" y2={y} stroke="#6b645a" strokeWidth="2" />
+                    <line key={y} x1="664" y1={y} x2="690" y2={y} stroke="#626A63" strokeWidth="2" />
                   ))}
                   <rect x="330" y="176" width="140" height="48" rx="6" fill="#0b0d0c" />
                   <text
@@ -447,17 +447,17 @@ export function TruckBuilder() {
           <button
             type="button"
             onClick={act}
-            className="mt-4 inline-flex min-h-12 items-center gap-2 rounded-full bg-[linear-gradient(180deg,var(--gold-300),var(--gold-500))] px-6 font-semibold text-[#0A0908] transition-transform active:scale-95"
+            className="mt-4 inline-flex min-h-12 items-center gap-2 rounded-full bg-[linear-gradient(180deg,var(--orange-400),var(--orange-500))] px-6 font-semibold text-[#090E0A] transition-transform active:scale-95"
           >
             {active ? k.undo : k.action}
           </button>
         </div>
         <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4">
-          <p className="text-xs font-semibold tracking-[0.14em] text-gold-300 uppercase">Before you buy one</p>
+          <p className="text-xs font-semibold tracking-[0.14em] text-green-300 uppercase">Before you buy one</p>
           <ul className="mt-2 grid gap-2 text-sm text-text-secondary">
             {k.checks.map((c) => (
               <li key={c} className="flex gap-2">
-                <Check aria-hidden size={15} className="mt-0.5 shrink-0 text-gold-300" />
+                <Check aria-hidden size={15} className="mt-0.5 shrink-0 text-green-300" />
                 {c}
               </li>
             ))}

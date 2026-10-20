@@ -95,7 +95,7 @@ export default async function ArticlePage({ params }: Props) {
           <span aria-hidden className="mx-2">
             ›
           </span>
-          <span className="text-gold-300">{post.category}</span>
+          <span className="text-green-300">{post.category}</span>
         </nav>
         <h1 className="mt-6 max-w-4xl font-display text-[clamp(2.5rem,1.6rem+3.8vw,4.6rem)] leading-[1.02] tracking-[-0.02em] text-text-primary">
           {post.title}
@@ -195,7 +195,7 @@ export default async function ArticlePage({ params }: Props) {
               <h2 id="keep-reading" className="text-display-3">
                 Keep reading
               </h2>
-              <Link href="/blog" className="group inline-flex min-h-11 items-center gap-2 font-semibold text-gold-300 hover:text-gold-200">
+              <Link href="/blog" className="group inline-flex min-h-11 items-center gap-2 font-semibold text-green-300 hover:text-green-200">
                 All insights <ArrowRight aria-hidden size={17} className="transition-transform group-hover:translate-x-1" />
               </Link>
             </div>

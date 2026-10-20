@@ -21,9 +21,9 @@ export function WatchForm({ slugs, landingPath, compact = false }: { slugs: stri
 
   if (state?.ok) {
     return (
-      <div role="status" className="rounded-2xl border border-gold-500/30 bg-gold-500/10 p-5 text-text-primary">
+      <div role="status" className="rounded-2xl border border-green-500/30 bg-green-500/10 p-5 text-text-primary">
         <p className="flex items-center gap-2 font-semibold">
-          <BellRing aria-hidden size={18} className="text-gold-300" /> You’re on the list{state.name ? `, ${state.name}` : ""}.
+          <BellRing aria-hidden size={18} className="text-green-300" /> You’re on the list{state.name ? `, ${state.name}` : ""}.
         </p>
         <p className="mt-2 text-sm leading-relaxed text-text-secondary">
           If the price of {state.count === 1 ? "this car" : `any of these ${state.count} cars`} drops, you will be told straight away.
@@ -65,7 +65,7 @@ export function WatchForm({ slugs, landingPath, compact = false }: { slugs: stri
         <span className="font-medium">Tell me by</span>
         {REPLY_BY.map(([value, label]) => (
           <label key={value} className="inline-flex min-h-11 items-center gap-2">
-            <input type="radio" name="preferredContact" value={value} defaultChecked={(v.preferredContact ?? "whatsapp") === value} className="size-4 accent-[var(--gold-500)]" />
+            <input type="radio" name="preferredContact" value={value} defaultChecked={(v.preferredContact ?? "whatsapp") === value} className="size-4 accent-[var(--green-500)]" />
             {label}
           </label>
         ))}

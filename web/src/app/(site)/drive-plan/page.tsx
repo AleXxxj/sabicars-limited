@@ -86,7 +86,7 @@ export default async function DrivePlanPage() {
             {STEPS.map(({ icon: Icon, title, text }, i) => (
               <ScrollReveal as="li" key={title} delay={i * 80} className="surface-card p-6">
                 <div className="flex items-center justify-between">
-                  <span className="inline-flex size-11 items-center justify-center rounded-xl border border-gold-500/25 bg-gold-500/10 text-gold-300">
+                  <span className="inline-flex size-11 items-center justify-center rounded-xl border border-green-500/25 bg-green-500/10 text-green-300">
                     <Icon aria-hidden size={20} strokeWidth={1.75} />
                   </span>
                   <span className="figures text-sm text-text-muted">0{i + 1}</span>
@@ -107,7 +107,7 @@ export default async function DrivePlanPage() {
                 )}
                 <div className="p-6 md:p-10">
                   <p className="text-sm font-medium text-text-muted">For example</p>
-                  <p className="mt-1 text-[1.5rem] font-semibold leading-tight text-text-primary group-hover:text-gold-200">{vehicleTitle(example)}</p>
+                  <p className="mt-1 text-[1.5rem] font-semibold leading-tight text-text-primary group-hover:text-green-200">{vehicleTitle(example)}</p>
                   <dl className="mt-6 grid grid-cols-3 gap-4 border-t border-white/[0.06] pt-5">
                     <div>
                       <dt className="text-xs text-text-muted">Price</dt>
@@ -146,7 +146,7 @@ export default async function DrivePlanPage() {
               <details key={q} className="surface-card group p-5 md:p-6 [&_summary::-webkit-details-marker]:hidden">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-[1.05rem] font-semibold text-text-primary">
                   <span>{q}</span>
-                  <span aria-hidden className="text-gold-300 transition-transform group-open:rotate-45">+</span>
+                  <span aria-hidden className="text-green-300 transition-transform group-open:rotate-45">+</span>
                 </summary>
                 <p className="mt-3 leading-relaxed text-text-secondary">{a}</p>
               </details>
@@ -162,7 +162,7 @@ export default async function DrivePlanPage() {
             <h2 className="mt-4 text-display-2">Ask before you apply.</h2>
             <p className="mt-5 text-lg leading-relaxed text-text-secondary">
               Applications start from the vehicle you choose — use the finder above, or{" "}
-              <Link href="/vehicles" className="text-gold-300 underline-offset-4 hover:underline">
+              <Link href="/vehicles" className="text-green-300 underline-offset-4 hover:underline">
                 browse the inventory
               </Link>
               , then press “Apply” on its page. Anything you want to know first, ask here: it is recorded with a reference.

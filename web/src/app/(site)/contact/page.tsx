@@ -38,7 +38,7 @@ export default function ContactPage() {
           <div className="grid content-start gap-px bg-border-subtle sm:grid-cols-2 lg:grid-cols-1">
             <Channel title="Visit">
               <Address />
-              <a href={site.mapsUrl} target="_blank" rel="noopener noreferrer" className="group inline-flex min-h-11 items-center gap-1.5 text-[0.95rem] font-semibold text-gold-300 hover:text-gold-200 mt-3">
+              <a href={site.mapsUrl} target="_blank" rel="noopener noreferrer" className="group inline-flex min-h-11 items-center gap-1.5 text-[0.95rem] font-semibold text-green-300 hover:text-green-200 mt-3">
                 Get directions →
               </a>
             </Channel>

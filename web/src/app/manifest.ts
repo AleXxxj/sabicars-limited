@@ -13,8 +13,8 @@ export default function manifest(): MetadataRoute.Manifest {
     related_applications: [{ platform: "webapp", url: `${siteUrl()}/manifest.webmanifest` }],
     prefer_related_applications: false,
     display: "standalone",
-    background_color: "#0A0908",
-    theme_color: "#0A0908",
+    background_color: "#090E0A",
+    theme_color: "#090E0A",
     icons: [
       { src: "/brand/icon-192.png", sizes: "192x192", type: "image/png" },
       { src: "/brand/icon-512.png", sizes: "512x512", type: "image/png" },

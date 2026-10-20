@@ -90,7 +90,7 @@ export function ContactForm({
             ["email", "Email"],
           ].map(([value, label]) => (
             <label key={value} className="inline-flex min-h-11 items-center gap-3">
-              <input type="radio" name="preferredContact" value={value} defaultChecked={(v.preferredContact ?? "phone") === value} className="size-4 accent-[var(--gold-500)]" />
+              <input type="radio" name="preferredContact" value={value} defaultChecked={(v.preferredContact ?? "phone") === value} className="size-4 accent-[var(--green-500)]" />
               {label}
             </label>
           ))}

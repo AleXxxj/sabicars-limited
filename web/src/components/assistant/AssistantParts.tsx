@@ -19,26 +19,26 @@ function CarCard({ car, wide }: { car: AssistantCar; wide: boolean }) {
   return (
     <Link
       href={`/vehicles/${car.slug}`}
-      className={`group block shrink-0 snap-start overflow-hidden rounded-2xl border border-white/[0.08] bg-surface-2/60 transition-colors hover:border-gold-500/40 ${wide ? "w-full" : "w-[15.5rem]"}`}
+      className={`group block shrink-0 snap-start overflow-hidden rounded-2xl border border-white/[0.08] bg-surface-2/60 transition-colors hover:border-green-500/40 ${wide ? "w-full" : "w-[15.5rem]"}`}
     >
       <span className="relative block aspect-[16/10] bg-surface-3">
         {car.coverUrl && (
           <VehicleImage src={car.coverUrl} alt={car.title} fill sizes="(max-width: 640px) 80vw, 250px" className="object-cover" />
         )}
         {car.reserved && (
-          <span className="absolute top-2 left-2 rounded-full bg-surface-0/85 px-2.5 py-1 text-[0.7rem] font-semibold text-gold-200">
+          <span className="absolute top-2 left-2 rounded-full bg-surface-0/85 px-2.5 py-1 text-[0.7rem] font-semibold text-green-200">
             Reserved
           </span>
         )}
         {car.wasPriceMinor && !car.reserved && (
-          <span className="absolute top-2 left-2 rounded-full bg-surface-0/85 px-2.5 py-1 text-[0.7rem] font-semibold text-gold-200">
+          <span className="absolute top-2 left-2 rounded-full bg-surface-0/85 px-2.5 py-1 text-[0.7rem] font-semibold text-green-200">
             Price reduced
           </span>
         )}
       </span>
       <span className="block p-3.5">
         <span className="block truncate font-semibold text-text-primary">{car.title}</span>
-        <span className="figures mt-1 block text-[0.95rem] font-semibold text-gold-300">
+        <span className="figures mt-1 block text-[0.95rem] font-semibold text-green-300">
           {car.priceMinor ? formatNaira(car.priceMinor) : "Price on request"}
         </span>
         {car.depositMinor && (
@@ -108,7 +108,7 @@ export function CompareCard({ cars, href }: { cars: AssistantCar[]; href: string
                 <span className="relative block aspect-[16/10] overflow-hidden rounded-xl bg-surface-3">
                   {c.coverUrl && <VehicleImage src={c.coverUrl} alt={c.title} fill sizes="160px" className="object-cover" />}
                 </span>
-                <span className="mt-2 line-clamp-2 block text-[0.82rem] leading-snug font-semibold text-text-primary group-hover:text-gold-200">
+                <span className="mt-2 line-clamp-2 block text-[0.82rem] leading-snug font-semibold text-text-primary group-hover:text-green-200">
                   {c.title}
                 </span>
               </Link>
@@ -130,7 +130,7 @@ export function CompareCard({ cars, href }: { cars: AssistantCar[]; href: string
                     return (
                       <dd
                         key={c.slug}
-                        className={`figures text-[0.82rem] ${v ? (win === i ? "font-semibold text-gold-200" : "text-text-secondary") : "text-text-muted italic"}`}
+                        className={`figures text-[0.82rem] ${v ? (win === i ? "font-semibold text-green-200" : "text-text-secondary") : "text-text-muted italic"}`}
                       >
                         {v ?? "Not stated"}
                       </dd>
@@ -144,7 +144,7 @@ export function CompareCard({ cars, href }: { cars: AssistantCar[]; href: string
       </div>
       <Link
         href={href}
-        className="group flex items-center justify-between gap-3 border-t border-white/[0.06] px-4 py-3 text-sm font-semibold text-gold-300 hover:bg-white/[0.03] hover:text-gold-200"
+        className="group flex items-center justify-between gap-3 border-t border-white/[0.06] px-4 py-3 text-sm font-semibold text-green-300 hover:bg-white/[0.03] hover:text-green-200"
       >
         Open the full comparison <ArrowRight aria-hidden size={16} className="transition-transform group-hover:translate-x-1" />
       </Link>
@@ -164,8 +164,8 @@ export function CallbackForm({ conversationId, path }: { conversationId: string 
 
   if (done)
     return (
-      <div role="status" className="flex gap-3 rounded-2xl border border-gold-500/30 bg-gold-500/[0.07] p-4 text-sm text-text-secondary">
-        <Check aria-hidden size={18} className="mt-0.5 shrink-0 text-gold-300" />
+      <div role="status" className="flex gap-3 rounded-2xl border border-green-500/30 bg-green-500/[0.07] p-4 text-sm text-text-secondary">
+        <Check aria-hidden size={18} className="mt-0.5 shrink-0 text-green-300" />
         <p>
           Thank you, {done.name.split(" ")[0]}. Someone from the team will call you — during showroom hours if it’s late. Your reference is{" "}
           <span className="figures font-semibold text-text-primary">{done.reference}</span>.
@@ -188,7 +188,7 @@ export function CallbackForm({ conversationId, path }: { conversationId: string 
       }}
     >
       <p className="flex items-center gap-2 text-sm font-semibold text-text-primary">
-        <PhoneCall aria-hidden size={16} className="text-gold-300" /> Have someone call you
+        <PhoneCall aria-hidden size={16} className="text-green-300" /> Have someone call you
       </p>
       <label className="grid gap-1.5">
         <span className="sr-only">Your name</span>
@@ -229,7 +229,7 @@ export function CallbackForm({ conversationId, path }: { conversationId: string 
       <button
         type="submit"
         disabled={pending}
-        className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[linear-gradient(180deg,var(--gold-300),var(--gold-500))] px-5 font-semibold text-[#0A0908] disabled:opacity-60"
+        className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[linear-gradient(180deg,var(--orange-400),var(--orange-500))] px-5 font-semibold text-[#090E0A] disabled:opacity-60"
       >
         {pending ? "Sending…" : "Call me back"}
       </button>

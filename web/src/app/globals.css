@@ -13,18 +13,19 @@
  * most of what makes a page feel set rather than typed.
  */
 @theme inline {
-  --font-display: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  --font-display: var(--font-archivo), "Archivo", ui-sans-serif, system-ui, sans-serif;
   --font-sans: var(--font-archivo), "Archivo", ui-sans-serif, system-ui, sans-serif;
 
-  --text-display-1: clamp(3rem, 1.9rem + 5.2vw, 6.5rem);
-  --text-display-1--line-height: 0.95;
-  --text-display-1--letter-spacing: -0.02em;
-  --text-display-2: clamp(2.4rem, 1.7rem + 3.2vw, 4.5rem);
-  --text-display-2--line-height: 1;
-  --text-display-2--letter-spacing: -0.015em;
-  --text-display-3: clamp(1.9rem, 1.5rem + 1.8vw, 3rem);
-  --text-display-3--line-height: 1.08;
-  --text-display-3--letter-spacing: -0.01em;
+  /* Set heavy and a touch wide, a headline needs less size than a hairline serif did to carry the page. */
+  --text-display-1: clamp(2.6rem, 1.7rem + 4.3vw, 5.4rem);
+  --text-display-1--line-height: 0.98;
+  --text-display-1--letter-spacing: -0.03em;
+  --text-display-2: clamp(2.05rem, 1.5rem + 2.6vw, 3.7rem);
+  --text-display-2--line-height: 1.03;
+  --text-display-2--letter-spacing: -0.025em;
+  --text-display-3: clamp(1.6rem, 1.3rem + 1.4vw, 2.45rem);
+  --text-display-3--line-height: 1.1;
+  --text-display-3--letter-spacing: -0.02em;
 }
 
 /*
@@ -42,7 +43,7 @@
   color: var(--accent-text);
 }
 
-/* A section's label, led by a short gold rule — the signature detail. */
+/* A section's label, led by a short green rule — the signature detail. */
 @utility kicker {
   display: inline-flex;
   align-items: center;
@@ -53,12 +54,12 @@
   font-weight: 600;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--gold-300);
+  color: var(--green-300);
   &::before {
     content: "";
     width: 1.75rem;
     height: 1px;
-    background: linear-gradient(90deg, var(--gold-500), transparent);
+    background: linear-gradient(90deg, var(--green-500), transparent);
   }
 }
 
@@ -83,9 +84,9 @@
   backdrop-filter: blur(18px) saturate(140%);
 }
 
-/* Brushed-gold type, for the few numbers that are the point of a section. */
-@utility text-gold {
-  background: linear-gradient(180deg, var(--gold-200) 0%, var(--gold-400) 55%, var(--gold-600) 100%);
+/* The brand's light on the few numbers that are the point of a section. */
+@utility text-brand {
+  background: linear-gradient(180deg, var(--green-200) 0%, var(--green-400) 55%, var(--green-600) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -104,10 +105,10 @@
   }
 
   body {
-    /* Not flat black: a warm light from above the page, like a showroom. */
+    /* Not flat black: a cool light from above the page, like a showroom at night. */
     background:
-      radial-gradient(1100px 520px at 78% -140px, rgb(201 168 76 / 0.09), transparent 70%),
-      radial-gradient(900px 480px at -10% 30%, rgb(201 168 76 / 0.035), transparent 70%),
+      radial-gradient(1100px 520px at 78% -140px, rgb(120 176 48 / 0.07), transparent 70%),
+      radial-gradient(900px 480px at -10% 30%, rgb(242 242 236 / 0.025), transparent 70%),
       var(--surface-0);
     color: var(--text-primary);
     font-family: var(--font-sans);
@@ -119,9 +120,15 @@
     text-rendering: optimizeLegibility;
   }
 
-  h1, h2, h3 {
+  /* The display voice: heavy, slightly wide, tightly tracked. Anything set in the
+     display face gets the same treatment unless it asks for a weight itself. */
+  h1, h2, h3, .font-display {
     font-family: var(--font-display);
-    font-weight: 500;
+    font-weight: 780;
+    font-stretch: 106%;
+    letter-spacing: -0.02em;
+  }
+  h1, h2, h3 {
     text-wrap: balance;
   }
 
@@ -152,7 +159,7 @@
   }
 
   ::selection {
-    background: var(--gold-500);
+    background: var(--green-500);
     color: var(--surface-0);
   }
 }

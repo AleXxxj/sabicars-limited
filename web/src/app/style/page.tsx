@@ -43,7 +43,8 @@ export default async function StylePage() {
   await connection(); // live data on every request, never baked in at build
   const [hero] = await heroVehicles(1);
   const cards = await featuredVehicles(3);
-  const gold = Object.entries(palette.gold).filter(([k]) => !k.startsWith("$"));
+  const green = Object.entries(palette.green).filter(([k]) => !k.startsWith("$")) as [string, string][];
+  const orange = Object.entries(palette.orange).filter(([k]) => !k.startsWith("$")) as [string, string][];
   const surfaces = Object.entries(palette.darkSurface).filter(([k]) => !k.startsWith("$"));
 
   return (
@@ -59,7 +60,7 @@ export default async function StylePage() {
       </header>
 
       {/* Hero — always the dark photographic treatment, whatever the theme. */}
-      <section className="relative isolate flex min-h-[88svh] items-end overflow-hidden bg-[#0B0A09]">
+      <section className="relative isolate flex min-h-[88svh] items-end overflow-hidden bg-[#090E0A]">
         {hero?.cover && (
           <VehicleImage
             src={hero.cover.url}
@@ -73,16 +74,16 @@ export default async function StylePage() {
         <div aria-hidden className="absolute inset-0 -z-10" style={{ background: "var(--hero-scrim)" }} />
         <div aria-hidden className="absolute inset-0 -z-10" style={{ background: "var(--hero-scrim-bottom)" }} />
         <div className="mx-auto w-full max-w-7xl px-5 pb-16 pt-32 md:px-10 md:pb-24">
-          <p className="eyebrow !text-gold-300">Sabicars Limited · Lagos · RC 1560100</p>
+          <p className="eyebrow !text-green-300">Sabicars Limited · Lagos · RC 1560100</p>
           <h1 className="mt-6 max-w-4xl text-display-1 text-[var(--hero-text)]">
-            Every car verified. <em className="text-gold-300">Every deal</em> on record.
+            Every car verified. <span className="text-green-300">Every deal</span> on record.
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-[var(--hero-text-secondary)]">
             Luxury cars, Toyota Hiace buses and trucks — inspected, documented and ready. Reserve online, or drive today on the
             40% Drive Plan.
           </p>
           <div className="mt-10 flex flex-wrap gap-4">
-            <Button size="lg" className="!bg-gold-500 !text-[#0B0A09] hover:!bg-gold-400">View inventory</Button>
+            <Button size="lg">View inventory</Button>
             <Button size="lg" variant="secondary" className="!border-white/40 !text-white hover:!border-white">
               How the Drive Plan works
             </Button>
@@ -91,15 +92,23 @@ export default async function StylePage() {
         </div>
       </section>
 
-      <Section label="Colour" title="Black, gold, and nothing that fights them">
+      <Section label="Colour" title="Night leads. Green speaks. Orange acts.">
         <p className="max-w-2xl text-text-secondary">
-          Gold 500 is the existing Sabicars gold, kept exact. On dark it carries the one action that matters on a screen; on light it
-          becomes a rule or an icon, because gold text on white cannot be read at body size. Every pairing here is checked against
-          WCAG contrast at build time — 56 checks, and the build fails if one does.
+          Night — near-black with a whisper of green — is most of every screen. Sabi Green is the brand&rsquo;s voice: the logo&rsquo;s
+          &ldquo;Sabi&rdquo;, labels, links, Verified. Sabi Orange is the action, and only the action: the button you should press. Each 500 is
+          the logo colour, kept exact; the ramps are built in OKLCH so every step is an even stride. Every pairing is checked
+          against WCAG contrast at build time — 66 checks, and the build fails if one does.
         </p>
-        <div className="mt-10 grid grid-cols-5 gap-4 md:grid-cols-10">
-          {gold.map(([k, hex]) => (
-            <Swatch key={k} name={`gold ${k}`} hex={hex} dark={k === "500"} />
+        <p className="eyebrow mt-10 !text-text-muted">Sabi Green</p>
+        <div className="mt-4 grid grid-cols-5 gap-4 md:grid-cols-10">
+          {green.map(([k, hex]) => (
+            <Swatch key={k} name={`green ${k}`} hex={hex} dark={Number(k) >= 300 && Number(k) <= 500} />
+          ))}
+        </div>
+        <p className="eyebrow mt-10 !text-text-muted">Sabi Orange</p>
+        <div className="mt-4 grid grid-cols-5 gap-4 md:grid-cols-10">
+          {orange.map(([k, hex]) => (
+            <Swatch key={k} name={`orange ${k}`} hex={hex} dark={Number(k) >= 300 && Number(k) <= 500} />
           ))}
         </div>
         <p className="eyebrow mt-14 !text-text-muted">Surface ladder — each step measurably lifts off the last</p>
@@ -110,15 +119,16 @@ export default async function StylePage() {
         </div>
       </Section>
 
-      <Section label="Type" title="Two voices, each with one job">
+      <Section label="Type" title="One family, two voices">
         <div className="grid gap-16 lg:grid-cols-[1fr_20rem]">
           <div className="space-y-8">
             <p className="font-display text-display-1">Unmatched.</p>
             <p className="font-display text-display-2">The Hiace, done properly.</p>
             <p className="font-display text-display-3">Inspected, documented, delivered.</p>
             <p className="max-w-2xl text-lg leading-relaxed text-text-secondary">
-              Body copy is Archivo — set for reading on a phone, with generous leading so a paragraph about financing terms does not
-              feel like a contract. Headlines are Cormorant Garamond, the same face as the Sabicars wordmark.
+              Everything is Archivo. Headlines are set heavy and a touch wide — engineered, confident, the register of a marque.
+              Body copy is set for reading on a phone, with generous leading so a paragraph about financing terms does not feel like
+              a contract. The logo&rsquo;s lettering (Exo 2) lives only in the logo, as outlines.
             </p>
           </div>
           <div className="space-y-6 border-l border-border-subtle pl-8">
@@ -168,11 +178,11 @@ export default async function StylePage() {
         <form className="grid max-w-xl gap-6">
           <label className="grid gap-2">
             <span className="eyebrow !text-text-secondary">Your name</span>
-            <input className="min-h-12 border border-border-strong bg-surface-1 px-4 text-text-primary outline-none transition-colors focus:border-gold-500" placeholder="Adaeze Okafor" />
+            <input className="min-h-12 border border-border-strong bg-surface-1 px-4 text-text-primary outline-none transition-colors focus:border-green-500" placeholder="Adaeze Okafor" />
           </label>
           <label className="grid gap-2">
             <span className="eyebrow !text-text-secondary">Phone or WhatsApp number</span>
-            <input inputMode="tel" className="figures min-h-12 border border-border-strong bg-surface-1 px-4 text-text-primary outline-none transition-colors focus:border-gold-500" placeholder="0803 000 0000" />
+            <input inputMode="tel" className="figures min-h-12 border border-border-strong bg-surface-1 px-4 text-text-primary outline-none transition-colors focus:border-green-500" placeholder="0803 000 0000" />
           </label>
           <div>
             <Button type="button">Request a call back</Button>

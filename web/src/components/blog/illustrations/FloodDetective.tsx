@@ -92,7 +92,7 @@ export function FloodDetective() {
             "Watch the water…"
           )}
         </p>
-        <p className="figures rounded-full border border-gold-500/40 px-3 py-1 text-sm font-semibold text-gold-200">
+        <p className="figures rounded-full border border-green-500/40 px-3 py-1 text-sm font-semibold text-green-200">
           {found.length} of {CLUES.length} found
         </p>
       </div>
@@ -176,7 +176,7 @@ export function FloodDetective() {
         </g>
 
         {/* The car. */}
-        <g fill="none" stroke="var(--gold-400)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+        <g fill="none" stroke="var(--green-400)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M60 280 L70 230 Q80 214 120 208 L230 196 Q270 150 330 130 L500 126 Q560 130 610 190 L700 208 Q740 216 744 250 L748 280 Q748 296 730 298 L680 298 A46 46 0 0 0 588 298 L250 298 A46 46 0 0 0 158 298 L80 298 Q60 296 60 280 Z" />
           <path
             d="M252 196 L330 140 L410 138 L410 196 Z M422 138 L498 134 L592 192 L422 196 Z"
@@ -244,8 +244,8 @@ export function FloodDetective() {
                   cx={c.x}
                   cy={c.y}
                   r="13"
-                  fill={last === i ? "var(--gold-200)" : "var(--gold-400)"}
-                  stroke="#0A0908"
+                  fill={last === i ? "var(--green-200)" : "var(--green-400)"}
+                  stroke="#090E0A"
                   strokeWidth="3"
                 />
                 <text
@@ -254,7 +254,7 @@ export function FloodDetective() {
                   textAnchor="middle"
                   fontSize="12"
                   fontWeight="700"
-                  fill="#0A0908"
+                  fill="#090E0A"
                   style={{ fontFamily: "var(--font-sans)" }}
                 >
                   {i + 1}
@@ -269,7 +269,7 @@ export function FloodDetective() {
         {last !== null ? (
           <div
             key={last}
-            className="animate-[prompt-in_var(--duration-base)_var(--ease-out)] rounded-xl border border-gold-500/30 bg-gold-500/[0.06] p-4"
+            className="animate-[prompt-in_var(--duration-base)_var(--ease-out)] rounded-xl border border-green-500/30 bg-green-500/[0.06] p-4"
           >
             <p className="font-semibold text-text-primary">
               {last + 1}. {CLUES[last].title}
@@ -288,7 +288,7 @@ export function FloodDetective() {
           {CLUES.map((c, i) =>
             found.includes(i) ? (
               <li key={c.title} className="flex gap-2 text-text-secondary">
-                <span className="figures text-gold-300">{i + 1}.</span>
+                <span className="figures text-green-300">{i + 1}.</span>
                 <button type="button" onClick={() => setLast(i)} className="text-left hover:text-text-primary">
                   {c.title}
                 </button>

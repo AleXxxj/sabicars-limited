@@ -129,7 +129,7 @@ export default async function VehiclePage({ params }: Props) {
 
           <div className="lg:sticky lg:top-28 lg:self-start">
             {v.status !== "available" && (
-              <p className="mb-6 rounded-xl border border-gold-500/30 bg-gold-500/10 px-4 py-3 text-sm font-semibold text-gold-200">
+              <p className="mb-6 rounded-xl border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm font-semibold text-green-200">
                 {sold ? "This vehicle has been sold" : "Reserved — a buyer has placed a deposit"}
               </p>
             )}
@@ -149,7 +149,7 @@ export default async function VehiclePage({ params }: Props) {
 
             {deposit && balance && !sold && (
               <div id="drive-plan" className="surface-card relative mt-6 scroll-mt-24 overflow-hidden p-6">
-                <div aria-hidden className="pointer-events-none absolute -right-16 -top-16 size-48 rounded-full bg-gold-500/12 blur-3xl" />
+                <div aria-hidden className="pointer-events-none absolute -right-16 -top-16 size-48 rounded-full bg-green-500/12 blur-3xl" />
                 <p className="kicker">40% Drive Plan</p>
                 <dl className="mt-4 grid grid-cols-2 gap-4">
                   <div>
@@ -163,7 +163,7 @@ export default async function VehiclePage({ params }: Props) {
                 </dl>
                 <p className="mt-4 text-xs text-text-muted">Autochek profiles you and approves the financing on the terms set on its listing. Once approved, you pay the 40% and drive it home.</p>
                 <DrivePlanApply vehicleId={v.id} autochekUrl={v.autochekUrl} />
-                <Link href="/drive-plan" className="group mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-gold-300 hover:text-gold-200">
+                <Link href="/drive-plan" className="group mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-green-300 hover:text-green-200">
                   How the Drive Plan works <ArrowRight aria-hidden size={16} className="transition-transform group-hover:translate-x-1" />
                 </Link>
               </div>
@@ -191,21 +191,21 @@ export default async function VehiclePage({ params }: Props) {
               {!sold && (
                 <AskButton
                   prompt={`Tell me about the ${title}`}
-                  className="surface-card group flex items-center justify-between gap-3 !rounded-2xl p-4 text-left text-sm font-semibold text-text-primary hover:border-gold-500/30"
+                  className="surface-card group flex items-center justify-between gap-3 !rounded-2xl p-4 text-left text-sm font-semibold text-text-primary hover:border-green-500/30"
                 >
                   <span className="flex items-center gap-2">
-                    <Sparkles aria-hidden size={17} className="text-gold-300" /> Ask Sabicars about this car — answers instantly
+                    <Sparkles aria-hidden size={17} className="text-green-300" /> Ask Sabicars about this car — answers instantly
                   </span>
-                  <ArrowRight aria-hidden size={16} className="text-gold-300 transition-transform group-hover:translate-x-1" />
+                  <ArrowRight aria-hidden size={16} className="text-green-300 transition-transform group-hover:translate-x-1" />
                 </AskButton>
               )}
               {!sold && v.priceMinor && (
                 <details className="surface-card group !rounded-2xl p-4 [&_summary::-webkit-details-marker]:hidden">
                   <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-text-primary">
                     <span className="flex items-center gap-2">
-                      <BellRing aria-hidden size={17} className="text-gold-300" /> Not ready yet? Get an alert if the price drops
+                      <BellRing aria-hidden size={17} className="text-green-300" /> Not ready yet? Get an alert if the price drops
                     </span>
-                    <span aria-hidden className="text-gold-300 transition-transform group-open:rotate-45">+</span>
+                    <span aria-hidden className="text-green-300 transition-transform group-open:rotate-45">+</span>
                   </summary>
                   <div className="mt-4">
                     <WatchForm slugs={[v.slug]} landingPath={`/vehicles/${v.slug}`} compact />
@@ -214,12 +214,12 @@ export default async function VehiclePage({ params }: Props) {
               )}
               <Link
                 href={`/find?want=${encodeURIComponent(`${v.make} ${v.model}`)}`}
-                className="surface-card group flex items-center justify-between gap-3 !rounded-2xl p-4 text-sm font-semibold text-text-primary hover:border-gold-500/30"
+                className="surface-card group flex items-center justify-between gap-3 !rounded-2xl p-4 text-sm font-semibold text-text-primary hover:border-green-500/30"
               >
                 <span className="flex items-center gap-2">
-                  <Search aria-hidden size={17} className="text-gold-300" /> {sold ? "Tell me when another one arrives" : "Want a different year or colour? Tell us"}
+                  <Search aria-hidden size={17} className="text-green-300" /> {sold ? "Tell me when another one arrives" : "Want a different year or colour? Tell us"}
                 </span>
-                <ArrowRight aria-hidden size={16} className="text-gold-300 transition-transform group-hover:translate-x-1" />
+                <ArrowRight aria-hidden size={16} className="text-green-300 transition-transform group-hover:translate-x-1" />
               </Link>
             </div>
 
@@ -257,7 +257,7 @@ export default async function VehiclePage({ params }: Props) {
             <ul className="grid gap-x-10 gap-y-3 sm:grid-cols-2">
               {v.features.map((f) => (
                 <li key={f} className="flex items-baseline gap-3 text-text-secondary">
-                  <span aria-hidden className="inline-block h-px w-3 shrink-0 translate-y-[-0.3em] bg-gold-500" />
+                  <span aria-hidden className="inline-block h-px w-3 shrink-0 translate-y-[-0.3em] bg-green-500" />
                   {f}
                 </li>
               ))}
@@ -307,7 +307,7 @@ export default async function VehiclePage({ params }: Props) {
                 <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
                   <span className="text-text-muted">Compare side by side:</span>
                   {similar.map((s) => (
-                    <Link key={s.id} href={comparePath([v.slug, s.slug])} className="group inline-flex min-h-10 items-center gap-1.5 font-semibold text-gold-300 hover:text-gold-200">
+                    <Link key={s.id} href={comparePath([v.slug, s.slug])} className="group inline-flex min-h-10 items-center gap-1.5 font-semibold text-green-300 hover:text-green-200">
                       {v.model} vs {s.model} <ArrowRight aria-hidden size={15} className="transition-transform group-hover:translate-x-1" />
                     </Link>
                   ))}
@@ -335,7 +335,7 @@ export default async function VehiclePage({ params }: Props) {
             <AskButton
               prompt={`Tell me about the ${title}`}
               label={`Ask Sabicars about the ${title}`}
-              className="inline-flex min-h-12 items-center gap-1.5 rounded-full border border-gold-500/40 px-4 text-sm font-semibold text-gold-200"
+              className="inline-flex min-h-12 items-center gap-1.5 rounded-full border border-green-500/40 px-4 text-sm font-semibold text-green-200"
             >
               <Sparkles aria-hidden size={16} /> Ask
             </AskButton>

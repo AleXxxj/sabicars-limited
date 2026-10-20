@@ -239,7 +239,7 @@ async function Cars({ block }: { block: Extract<Block, { type: "cars" }> }) {
 }
 
 const CALLOUT = {
-  tip: { icon: Lightbulb, label: "Tip", tone: "border-gold-500/40 bg-gold-500/[0.06]" },
+  tip: { icon: Lightbulb, label: "Tip", tone: "border-green-500/40 bg-green-500/[0.06]" },
   warning: { icon: AlertTriangle, label: "Watch out", tone: "border-danger/40 bg-danger/[0.06]" },
   note: { icon: Info, label: "Good to know", tone: "border-white/15 bg-white/[0.03]" },
 } as const;
@@ -313,7 +313,7 @@ function render(b: Block, i: number, isLede: boolean): React.ReactNode {
       return (
         <figure key={i} className="wide spaced py-4 text-center">
           <blockquote className="mx-auto max-w-3xl font-display text-[1.9rem] leading-[1.25] text-text-primary italic md:text-[2.5rem]">
-            <span aria-hidden className="mb-2 block font-display text-[4rem] leading-none text-gold-400 not-italic">
+            <span aria-hidden className="mb-2 block font-display text-[4rem] leading-none text-green-400 not-italic">
               “
             </span>
             <Inline text={b.text} />
@@ -327,7 +327,7 @@ function render(b: Block, i: number, isLede: boolean): React.ReactNode {
       return (
         <aside key={i} className={`spaced rounded-2xl border p-5 text-[1.02rem] leading-relaxed ${c.tone}`}>
           <p className="flex items-center gap-2 text-sm font-semibold text-text-primary">
-            <Icon aria-hidden size={17} className={b.tone === "warning" ? "text-danger" : "text-gold-300"} />
+            <Icon aria-hidden size={17} className={b.tone === "warning" ? "text-danger" : "text-green-300"} />
             {b.title ?? c.label}
           </p>
           <p className="mt-2">
@@ -340,13 +340,13 @@ function render(b: Block, i: number, isLede: boolean): React.ReactNode {
       return (
         <aside
           key={i}
-          className="spaced rounded-2xl border border-gold-500/30 bg-[linear-gradient(160deg,rgb(201_168_76/0.08),transparent_60%)] p-6 md:p-7"
+          className="spaced rounded-2xl border border-green-500/30 bg-[linear-gradient(160deg,rgb(120_176_48/0.08),transparent_60%)] p-6 md:p-7"
         >
           <p className="kicker">{b.title ?? "The short version"}</p>
           <ul className="mt-4 grid gap-3 text-[1.02rem] leading-relaxed">
             {b.items.map((it, j) => (
               <li key={j} className="flex gap-3">
-                <CheckCircle2 aria-hidden size={19} className="mt-1 shrink-0 text-gold-300" />
+                <CheckCircle2 aria-hidden size={19} className="mt-1 shrink-0 text-green-300" />
                 <span>
                   <Inline text={it} />
                 </span>
@@ -422,7 +422,7 @@ function render(b: Block, i: number, isLede: boolean): React.ReactNode {
                 {f.q}
                 <span
                   aria-hidden
-                  className="text-2xl leading-none text-gold-300 transition-transform duration-[var(--duration-base)] group-open:rotate-45"
+                  className="text-2xl leading-none text-green-300 transition-transform duration-[var(--duration-base)] group-open:rotate-45"
                 >
                   +
                 </span>
@@ -446,7 +446,7 @@ function render(b: Block, i: number, isLede: boolean): React.ReactNode {
             <span className="block font-display text-[1.7rem] leading-tight text-text-primary">{c.title}</span>
             <span className="mt-1 block text-[1rem] text-text-secondary">{c.text}</span>
           </span>
-          <span className="inline-flex items-center gap-2 rounded-full bg-[linear-gradient(180deg,var(--gold-300),var(--gold-500))] px-6 py-3 text-[0.95rem] font-semibold text-[#0A0908]">
+          <span className="inline-flex items-center gap-2 rounded-full bg-[linear-gradient(180deg,var(--orange-400),var(--orange-500))] px-6 py-3 text-[0.95rem] font-semibold text-[#090E0A]">
             {c.label} <ArrowRight aria-hidden size={17} className="transition-transform group-hover:translate-x-1" />
           </span>
         </Link>

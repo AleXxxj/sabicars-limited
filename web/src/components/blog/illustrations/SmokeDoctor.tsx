@@ -152,7 +152,7 @@ export function SmokeDoctor() {
           {ROUNDS.map((x, i) => (
             <span
               key={x.id}
-              className={`h-1.5 w-7 rounded-full ${i < round ? "bg-gold-400" : i === round && !finished ? "bg-gold-400/40" : "bg-white/10"}`}
+              className={`h-1.5 w-7 rounded-full ${i < round ? "bg-green-400" : i === round && !finished ? "bg-green-400/40" : "bg-white/10"}`}
             />
           ))}
         </div>
@@ -184,18 +184,18 @@ export function SmokeDoctor() {
                   <rect x="392" y="70" width="14" height="140" rx="4" fill="#b9b4aa" />
                   <rect x="388" y="64" width="22" height="12" rx="3" fill="#8e887c" />
                   {/* Chassis, cab, wheels */}
-                  <rect x="140" y="222" width="420" height="14" rx="3" fill="#2b2926" />
+                  <rect x="140" y="222" width="420" height="14" rx="3" fill="#282E29" />
                   <path
                     d="M410 238 L410 120 C410 110 417 104 428 104 L512 104 C525 104 533 111 537 121 L548 172 L550 226 C550 234 546 238 538 238 Z"
-                    fill="#e8e4da"
+                    fill="#E1E4DD"
                   />
                   <path d="M470 115 L520 115 C525 115 528 117 529 121 L539 168 L470 168 Z" fill="#1b2630" />
-                  <rect x="408" y="232" width="150" height="12" rx="3" fill="#3a3632" />
-                  <rect x="160" y="150" width="236" height="72" rx="4" fill="#c9a84c" opacity="0.85" />
+                  <rect x="408" y="232" width="150" height="12" rx="3" fill="#343B35" />
+                  <rect x="160" y="150" width="236" height="72" rx="4" fill="#F7801E" opacity="0.85" />
                   {[210, 300, 500].map((x) => (
                     <g key={x}>
-                      <circle cx={x} cy="246" r="22" fill="#0B0A09" />
-                      <circle cx={x} cy="246" r="12" fill="#2b2926" stroke="#6b645a" strokeWidth="2" />
+                      <circle cx={x} cy="246" r="22" fill="#090E0A" />
+                      <circle cx={x} cy="246" r="12" fill="#282E29" stroke="#626A63" strokeWidth="2" />
                     </g>
                   ))}
                 </g>
@@ -234,17 +234,17 @@ export function SmokeDoctor() {
                   }
                 }}
                 onKeyUp={(e) => (e.key === " " || e.key === "Enter") && stopCrank()}
-                className="relative inline-flex size-24 touch-none items-center justify-center rounded-full border-2 border-gold-400 bg-surface-0 text-gold-200 select-none active:scale-95"
+                className="relative inline-flex size-24 touch-none items-center justify-center rounded-full border-2 border-green-400 bg-surface-0 text-green-200 select-none active:scale-95"
                 aria-label="Hold to start the engine"
               >
                 <svg viewBox="0 0 100 100" className="absolute inset-0 -rotate-90" aria-hidden>
-                  <circle cx="50" cy="50" r="46" fill="none" stroke="rgb(201 168 76 / 0.15)" strokeWidth="6" />
+                  <circle cx="50" cy="50" r="46" fill="none" stroke="rgb(120 176 48 / 0.15)" strokeWidth="6" />
                   <circle
                     cx="50"
                     cy="50"
                     r="46"
                     fill="none"
-                    stroke="var(--gold-300)"
+                    stroke="var(--green-300)"
                     strokeWidth="6"
                     strokeLinecap="round"
                     strokeDasharray={289}
@@ -274,7 +274,7 @@ export function SmokeDoctor() {
                       type="button"
                       onClick={() => answer(o.id)}
                       disabled={phase === "answered"}
-                      className={`relative flex min-h-12 items-center justify-between gap-3 rounded-xl border px-4 py-2.5 text-left text-sm transition-colors ${correct ? "border-gold-400 bg-gold-500/15 font-semibold text-gold-100" : missed ? "border-danger/60 bg-danger/10 text-text-primary" : "border-white/[0.12] text-text-secondary hover:border-gold-500/40 hover:text-text-primary"} disabled:cursor-default`}
+                      className={`relative flex min-h-12 items-center justify-between gap-3 rounded-xl border px-4 py-2.5 text-left text-sm transition-colors ${correct ? "border-green-400 bg-green-500/15 font-semibold text-green-100" : missed ? "border-danger/60 bg-danger/10 text-text-primary" : "border-white/[0.12] text-text-secondary hover:border-green-500/40 hover:text-text-primary"} disabled:cursor-default`}
                     >
                       {o.label}
                       {correct && <Check aria-hidden size={17} />}
@@ -294,7 +294,7 @@ export function SmokeDoctor() {
                   <button
                     type="button"
                     onClick={next}
-                    className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full bg-[linear-gradient(180deg,var(--gold-300),var(--gold-500))] px-5 text-sm font-semibold text-[#0A0908] active:scale-95"
+                    className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full bg-[linear-gradient(180deg,var(--orange-400),var(--orange-500))] px-5 text-sm font-semibold text-[#090E0A] active:scale-95"
                   >
                     {round + 1 < ROUNDS.length ? "Start the next truck" : "See your score"}
                   </button>
@@ -304,8 +304,8 @@ export function SmokeDoctor() {
           )}
         </>
       ) : (
-        <div className="pop-in relative mt-6 rounded-2xl border border-gold-500/35 bg-gold-500/[0.06] p-6 text-center">
-          <p className="font-display text-[3rem] leading-none text-gold-200">
+        <div className="pop-in relative mt-6 rounded-2xl border border-green-500/35 bg-green-500/[0.06] p-6 text-center">
+          <p className="font-display text-[3rem] leading-none text-green-200">
             {score}/{ROUNDS.length}
           </p>
           <p className="mt-2 text-text-primary">
@@ -318,7 +318,7 @@ export function SmokeDoctor() {
           <button
             type="button"
             onClick={restart}
-            className="mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-gold-300 hover:text-gold-200"
+            className="mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-green-300 hover:text-green-200"
           >
             <RotateCcw aria-hidden size={15} /> Try again
           </button>

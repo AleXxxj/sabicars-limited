@@ -17,7 +17,7 @@ function Arrow({ dir, onClick, label }: { dir: "prev" | "next"; onClick: () => v
       type="button"
       onClick={onClick}
       aria-label={label}
-      className={`glass absolute top-1/2 z-10 grid size-12 -translate-y-1/2 place-items-center rounded-full text-white transition-colors hover:bg-[#0A0908]/80 ${
+      className={`glass absolute top-1/2 z-10 grid size-12 -translate-y-1/2 place-items-center rounded-full text-white transition-colors hover:bg-[#090E0A]/80 ${
         dir === "prev" ? "left-3" : "right-3"
       }`}
     >
@@ -86,7 +86,7 @@ export function Gallery({ images, title }: { images: GalleryImage[]; title: stri
             <button
               type="button"
               onClick={() => dialog.current?.showModal()}
-              className="glass rounded-full px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-[#0A0908]/80"
+              className="glass rounded-full px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-[#090E0A]/80"
             >
               Full screen
             </button>
@@ -104,7 +104,7 @@ export function Gallery({ images, title }: { images: GalleryImage[]; title: stri
               aria-label={`Photo ${n + 1}`}
               aria-current={n === i ? "true" : undefined}
               className={`relative aspect-[4/3] w-20 shrink-0 overflow-hidden rounded-lg border-2 transition-opacity md:w-24 ${
-                n === i ? "border-gold-500" : "border-transparent opacity-60 hover:opacity-100"
+                n === i ? "border-green-500" : "border-transparent opacity-60 hover:opacity-100"
               }`}
             >
               <VehicleImage src={p.url} alt="" fill sizes="96px" className="object-cover" />
@@ -116,7 +116,7 @@ export function Gallery({ images, title }: { images: GalleryImage[]; title: stri
       <dialog
         ref={dialog}
         onKeyDown={keys}
-        className="m-0 h-dvh max-h-none w-screen max-w-none bg-[#0B0A09] p-0 text-white backdrop:bg-black/90"
+        className="m-0 h-dvh max-h-none w-screen max-w-none bg-[#090E0A] p-0 text-white backdrop:bg-black/90"
         aria-label={`${title} — full screen photos`}
       >
         <div className="relative h-full w-full" {...swipe}>

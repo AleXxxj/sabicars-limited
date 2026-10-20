@@ -53,14 +53,14 @@ export default async function SourcingDeskAdmin({ searchParams }: Props) {
           <h1 className="mt-2 text-display-3">Buyer requests</h1>
         </div>
         {counts.toNotify > 0 && (
-          <p className="border border-gold-700 px-4 py-2 text-sm text-text-primary">
+          <p className="border border-green-700 px-4 py-2 text-sm text-text-primary">
             <span className="figures font-semibold text-accent-text">{counts.toNotify}</span> {counts.toNotify === 1 ? "buyer is" : "buyers are"} waiting to hear from you
           </p>
         )}
       </div>
 
       {drops.length > 0 && (
-        <section aria-label="Price drops to tell buyers" className="mt-8 border border-gold-700 bg-surface-1 p-5 md:p-6">
+        <section aria-label="Price drops to tell buyers" className="mt-8 border border-green-700 bg-surface-1 p-5 md:p-6">
           <p className="text-sm font-semibold text-text-primary">Price drops to tell buyers</p>
           <p className="mt-1 text-xs text-text-muted">These buyers are watching a car whose price you cut, and could not be reached automatically.</p>
           <ul className="mt-4 grid gap-3">
@@ -122,7 +122,7 @@ export default async function SourcingDeskAdmin({ searchParams }: Props) {
             href={v === "review" ? "/admin/requests" : `/admin/requests?view=${v}`}
             aria-current={view === v ? "true" : undefined}
             className={`inline-flex min-h-11 shrink-0 items-center gap-2 border-b-2 px-1 text-sm transition-colors ${
-              view === v ? "border-gold-500 text-text-primary" : "border-transparent text-text-muted hover:text-text-primary"
+              view === v ? "border-green-500 text-text-primary" : "border-transparent text-text-muted hover:text-text-primary"
             }`}
           >
             {REQUEST_VIEWS[v].label} <span className="figures text-xs text-text-muted">{counts[v]}</span>
@@ -174,7 +174,7 @@ export default async function SourcingDeskAdmin({ searchParams }: Props) {
                   </div>
                   {(r.referredBy || r.buyerIsPartner) && (
                     <p className="mt-3 flex flex-wrap gap-2 text-xs">
-                      {r.referredBy && <span className="border border-gold-700 px-2 py-1 text-accent-text">Referred by partner {r.referredBy} — 1.5% if it sells</span>}
+                      {r.referredBy && <span className="border border-green-700 px-2 py-1 text-accent-text">Referred by partner {r.referredBy} — 1.5% if it sells</span>}
                       {r.buyerIsPartner && <span className="border border-info px-2 py-1 text-info">Buyer is partner {r.buyerIsPartner} — partner price (1.5% off), no commission</span>}
                     </p>
                   )}

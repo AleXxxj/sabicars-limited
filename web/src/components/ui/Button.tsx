@@ -5,7 +5,7 @@ import type { ComponentProps, ReactNode } from "react";
 /**
  * One button, three voices.
  *
- * - primary: the single action that matters on a screen — brushed gold, lit
+ * - primary: the single action that matters on a screen — Sabi Orange, lit
  *   from above. If a screen has two primaries, one of them is wrong.
  * - secondary: frosted glass with a hairline edge, for the alternative path.
  *   Works over photography as well as the page.
@@ -25,8 +25,8 @@ const base =
 
 const variants: Record<Variant, string> = {
   primary:
-    "rounded-full text-[#0A0908] bg-[linear-gradient(180deg,var(--gold-300)_0%,var(--gold-500)_100%)] " +
-    "shadow-[inset_0_1px_0_rgb(255_255_255/0.45),0_12px_32px_-12px_rgb(201_168_76/0.6)] hover:brightness-[1.08] hover:shadow-[inset_0_1px_0_rgb(255_255_255/0.45),0_16px_40px_-12px_rgb(201_168_76/0.75)]",
+    "rounded-full text-[#090E0A] bg-[linear-gradient(180deg,var(--orange-400)_0%,var(--orange-500)_100%)] " +
+    "shadow-[inset_0_1px_0_rgb(255_255_255/0.35),0_12px_32px_-12px_rgb(247_128_30/0.55)] hover:brightness-[1.06] hover:shadow-[inset_0_1px_0_rgb(255_255_255/0.35),0_16px_40px_-12px_rgb(247_128_30/0.7)]",
   secondary:
     "rounded-full border border-white/20 bg-white/[0.04] text-text-primary backdrop-blur-md hover:border-white/45 hover:bg-white/[0.08]",
   quiet: "text-accent-text hover:text-text-primary",

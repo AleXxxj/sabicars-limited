@@ -5,31 +5,41 @@
    ───────────────────────────────────────────────────────────────────────── */
 
 :root {
-  /* Sabicars gold. 500 is the brand colour the logo already uses. */
-  --gold-50: #FBF6E9;
-  --gold-100: #F4E9C8;
-  --gold-200: #EAD9A2;
-  --gold-300: #DFC67C;
-  --gold-400: #D4B55F;
-  --gold-500: #C9A84C;
-  --gold-600: #AD8E36;
-  --gold-700: #8A7029;
-  --gold-800: #66521D;
-  --gold-900: #433512;
+  /* Sabi Green (signature, trust) and Sabi Orange (action). Each 500 is the logo colour. */
+  --green-50: #F0FBE7;
+  --green-100: #DCF5C8;
+  --green-200: #C1EA9D;
+  --green-300: #A5DB6F;
+  --green-400: #8DC74D;
+  --green-500: #78B030;
+  --green-600: #5F911F;
+  --green-700: #4A7314;
+  --green-800: #38580F;
+  --green-900: #263D0A;
+  --orange-50: #FFF3E8;
+  --orange-100: #FFE2CA;
+  --orange-200: #FFCAA1;
+  --orange-300: #FFB178;
+  --orange-400: #FF984D;
+  --orange-500: #F7801E;
+  --orange-600: #D96A03;
+  --orange-700: #B45400;
+  --orange-800: #8A4000;
+  --orange-900: #612D03;
 
   /* The hero is photography, and photography needs a dark scrim to carry white
      type — in either theme. A light wash over a vehicle is what made the old
      hero look faded, so the hero keeps this treatment regardless of theme. */
   --hero-scrim: linear-gradient(
     100deg,
-    rgb(11 10 9 / 0.92) 0%,
-    rgb(11 10 9 / 0.78) 36%,
-    rgb(11 10 9 / 0.38) 66%,
-    rgb(11 10 9 / 0.12) 100%
+    rgb(9 14 10 / 0.92) 0%,
+    rgb(9 14 10 / 0.78) 36%,
+    rgb(9 14 10 / 0.38) 66%,
+    rgb(9 14 10 / 0.12) 100%
   );
-  --hero-scrim-bottom: linear-gradient(to top, rgb(11 10 9 / 0.9) 0%, rgb(11 10 9 / 0) 45%);
-  --hero-text: #F5F2EA;
-  --hero-text-secondary: #D6CFC0;
+  --hero-scrim-bottom: linear-gradient(to top, rgb(9 14 10 / 0.9) 0%, rgb(9 14 10 / 0) 45%);
+  --hero-text: #F2F2EC;
+  --hero-text-secondary: #CFD2CC;
 }
 
 /* ── Dark theme (default) ────────────────────────────────────────────── */
@@ -37,31 +47,31 @@
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --surface-0: #0A0908;
-  --surface-1: #1D1B18;
-  --surface-2: #2A2825;
-  --surface-3: #353330;
-  --surface-4: #3F3D3A;
+  --surface-0: #090E0A;
+  --surface-1: #191F1A;
+  --surface-2: #262B26;
+  --surface-3: #303631;
+  --surface-4: #3A403B;
 
-  --text-primary: #F5F2EA;
-  --text-secondary: #D6CFC0;
-  --text-muted: #ABA394;
+  --text-primary: #F2F2EC;
+  --text-secondary: #CFD2CC;
+  --text-muted: #9FA59E;
 
-  --border-subtle: #231F1B;
-  --border-default: #342F29;
-  --border-strong: #7A7263;
+  --border-subtle: #171C18;
+  --border-default: #29302A;
+  --border-strong: #6F7770;
 
-  --focus: #E4CF8E;
+  --focus: #A5DB6F;
 
-  /* Gold carries the one action that matters on each screen. */
-  --cta-bg: var(--gold-500);
-  --cta-bg-hover: var(--gold-400);
-  --cta-fg: #0A0908;
-  --accent-text: var(--gold-400);
-  --link: var(--gold-400);
+  /* Orange carries the one action that matters on each screen; green is the brand's voice. */
+  --cta-bg: var(--orange-500);
+  --cta-bg-hover: var(--orange-400);
+  --cta-fg: #090E0A;
+  --accent-text: var(--green-300);
+  --link: var(--green-300);
 
-  --success: #5BC794;
-  --warning: #F0B24A;
+  --success: #A5DB6F;
+  --warning: #F0C24A;
   --danger: #FF7A6B;
   --info: #78BDEB;
 
@@ -75,30 +85,30 @@
   color-scheme: light;
 
   --surface-0: #FFFFFF;
-  --surface-1: #F8F6F1;
-  --surface-2: #F0EDE5;
-  --surface-3: #E6E1D5;
-  --surface-4: #D8D2C3;
+  --surface-1: #F6F7F3;
+  --surface-2: #EEEFE9;
+  --surface-3: #E1E4DD;
+  --surface-4: #D2D6CE;
 
-  --text-primary: #15130F;
-  --text-secondary: #3E3930;
-  --text-muted: #6A6356;
+  --text-primary: #101511;
+  --text-secondary: #383F39;
+  --text-muted: #586059;
 
-  --border-subtle: #ECE8DF;
-  --border-default: #D7D1C4;
-  --border-strong: #857D6E;
+  --border-subtle: #E6E9E3;
+  --border-default: #CED3CB;
+  --border-strong: #767C75;
 
-  --focus: #66521D;
+  --focus: #38580F;
 
-  /* Gold text on white fails at body sizes, so on light the action is ink —
-     the convention of the marques — and gold becomes a rule, an icon, a fill. */
-  --cta-bg: #15130F;
-  --cta-bg-hover: #2A2620;
+  /* Orange and light green text fail on white, so on light the action is ink
+     and the brand colours become rules, icons and fills; text uses the deep greens. */
+  --cta-bg: #101511;
+  --cta-bg-hover: #262B26;
   --cta-fg: #FFFFFF;
-  --accent-text: var(--gold-800);
-  --link: var(--gold-800);
+  --accent-text: var(--green-800);
+  --link: var(--green-800);
 
-  --success: #1D6B45;
+  --success: #4A7314;
   --warning: #855A05;
   --danger: #B0281C;
   --info: #135F88;
@@ -110,16 +120,26 @@
 
 /* Expose tokens to Tailwind utilities: bg-surface-1, text-muted, bg-cta … */
 @theme inline {
-  --color-gold-50: var(--gold-50);
-  --color-gold-100: var(--gold-100);
-  --color-gold-200: var(--gold-200);
-  --color-gold-300: var(--gold-300);
-  --color-gold-400: var(--gold-400);
-  --color-gold-500: var(--gold-500);
-  --color-gold-600: var(--gold-600);
-  --color-gold-700: var(--gold-700);
-  --color-gold-800: var(--gold-800);
-  --color-gold-900: var(--gold-900);
+  --color-green-50: var(--green-50);
+  --color-green-100: var(--green-100);
+  --color-green-200: var(--green-200);
+  --color-green-300: var(--green-300);
+  --color-green-400: var(--green-400);
+  --color-green-500: var(--green-500);
+  --color-green-600: var(--green-600);
+  --color-green-700: var(--green-700);
+  --color-green-800: var(--green-800);
+  --color-green-900: var(--green-900);
+  --color-orange-50: var(--orange-50);
+  --color-orange-100: var(--orange-100);
+  --color-orange-200: var(--orange-200);
+  --color-orange-300: var(--orange-300);
+  --color-orange-400: var(--orange-400);
+  --color-orange-500: var(--orange-500);
+  --color-orange-600: var(--orange-600);
+  --color-orange-700: var(--orange-700);
+  --color-orange-800: var(--orange-800);
+  --color-orange-900: var(--orange-900);
   --color-surface-0: var(--surface-0);
   --color-surface-1: var(--surface-1);
   --color-surface-2: var(--surface-2);

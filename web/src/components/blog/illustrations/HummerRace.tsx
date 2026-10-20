@@ -85,7 +85,7 @@ export function HummerRace({ stock }: { stock: HummerStock }) {
               setOrder([]);
               setJobId(j.id);
             }}
-            className={`min-h-11 rounded-full border px-4 text-sm transition-all active:scale-95 ${j.id === jobId ? "border-gold-400 bg-gold-500/15 font-semibold text-gold-100" : "border-white/[0.12] text-text-secondary hover:border-gold-500/40 hover:text-text-primary"}`}
+            className={`min-h-11 rounded-full border px-4 text-sm transition-all active:scale-95 ${j.id === jobId ? "border-green-400 bg-green-500/15 font-semibold text-green-100" : "border-white/[0.12] text-text-secondary hover:border-green-500/40 hover:text-text-primary"}`}
           >
             {j.short}
           </button>
@@ -109,7 +109,7 @@ export function HummerRace({ stock }: { stock: HummerStock }) {
                 setPick(on ? null : s.id);
                 haptic(8);
               }}
-              className={`relative flex min-h-12 items-center gap-2 rounded-xl border px-3 text-left text-sm transition-all active:scale-95 disabled:cursor-default ${on ? "border-gold-400 bg-gold-500/15 text-gold-100" : "border-white/[0.1] text-text-secondary hover:border-gold-500/40 hover:text-text-primary"}`}
+              className={`relative flex min-h-12 items-center gap-2 rounded-xl border px-3 text-left text-sm transition-all active:scale-95 disabled:cursor-default ${on ? "border-green-400 bg-green-500/15 text-green-100" : "border-white/[0.1] text-text-secondary hover:border-green-500/40 hover:text-text-primary"}`}
             >
               <span aria-hidden className="h-3.5 w-6 shrink-0 rounded-[4px] border border-white/25" style={{ background: s.color }} />
               <span className="min-w-0 flex-1 leading-tight">
@@ -118,7 +118,7 @@ export function HummerRace({ stock }: { stock: HummerStock }) {
               </span>
               {phase === "done" && place >= 0 && (
                 <span
-                  className={`pop-in rounded-full px-1.5 py-px text-[0.65rem] font-bold ${place === 0 ? "bg-[linear-gradient(180deg,var(--gold-200),var(--gold-500))] text-[#0A0908]" : "bg-white/15 text-text-primary"}`}
+                  className={`pop-in rounded-full px-1.5 py-px text-[0.65rem] font-bold ${place === 0 ? "bg-[linear-gradient(180deg,var(--green-200),var(--green-500))] text-[#090E0A]" : "bg-white/15 text-text-primary"}`}
                 >
                   {PLACES[place]}
                 </span>
@@ -153,7 +153,7 @@ export function HummerRace({ stock }: { stock: HummerStock }) {
             track.current?.start();
           }}
           disabled={busy}
-          className="inline-flex min-h-12 items-center gap-2 rounded-full bg-[linear-gradient(180deg,var(--gold-300),var(--gold-500))] px-6 font-semibold text-[#0A0908] transition-transform active:scale-95 disabled:opacity-50"
+          className="inline-flex min-h-12 items-center gap-2 rounded-full bg-[linear-gradient(180deg,var(--orange-400),var(--orange-500))] px-6 font-semibold text-[#090E0A] transition-transform active:scale-95 disabled:opacity-50"
         >
           {phase === "done" ? <RotateCcw aria-hidden size={17} /> : <Flag aria-hidden size={17} />}
           {phase === "done" ? "Race again" : phase === "ready" ? "3. Start the run" : "On the road…"}
@@ -165,7 +165,7 @@ export function HummerRace({ stock }: { stock: HummerStock }) {
               setHonk((h) => h + 1);
               haptic([8, 40, 8]);
             }}
-            className="inline-flex min-h-12 items-center gap-2 rounded-full border border-gold-500/50 px-5 text-sm font-semibold text-gold-200 transition-transform active:scale-90"
+            className="inline-flex min-h-12 items-center gap-2 rounded-full border border-green-500/50 px-5 text-sm font-semibold text-green-200 transition-transform active:scale-90"
           >
             <Megaphone aria-hidden size={16} /> Honk for yours
           </button>
@@ -252,7 +252,7 @@ function Result({
   return (
     <div className="mt-6 grid gap-6 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]" aria-live="polite">
       <div>
-        <p className="flex items-center gap-2 text-xs font-semibold tracking-[0.16em] text-gold-300 uppercase">
+        <p className="flex items-center gap-2 text-xs font-semibold tracking-[0.16em] text-green-300 uppercase">
           <Trophy aria-hidden size={15} /> {job.label}
         </p>
         <p className="relative mt-1 font-display text-[1.9rem] leading-tight text-text-primary">
@@ -262,7 +262,7 @@ function Result({
           </span>
         </p>
         {pick && (
-          <p className={`mt-2 text-sm font-semibold ${pickPlace === 0 ? "text-gold-200" : "text-text-secondary"}`}>
+          <p className={`mt-2 text-sm font-semibold ${pickPlace === 0 ? "text-green-200" : "text-text-secondary"}`}>
             {pickPlace === 0 ? "You called it. You sabi!" : `Your pick, the ${name(pick)}, came ${PLACES[pickPlace]}.`}
           </p>
         )}
@@ -283,7 +283,7 @@ function Result({
                     <span
                       key={s.id}
                       title={s.label}
-                      className="size-3 rounded-full border border-[#0A0908]"
+                      className="size-3 rounded-full border border-[#090E0A]"
                       style={{ background: s.color }}
                     />
                   ))}
@@ -308,26 +308,26 @@ function Result({
                 <li key={b.slug}>
                   <Link
                     href={`/vehicles/${b.slug}`}
-                    className="group flex items-center gap-3 rounded-xl border border-white/[0.07] bg-surface-0/60 p-2 pr-3 !no-underline transition-colors hover:border-gold-500/40"
+                    className="group flex items-center gap-3 rounded-xl border border-white/[0.07] bg-surface-0/60 p-2 pr-3 !no-underline transition-colors hover:border-green-500/40"
                   >
                     <span className="relative block aspect-[4/3] w-20 shrink-0 overflow-hidden rounded-lg bg-surface-2">
                       {b.coverUrl && <VehicleImage src={b.coverUrl} alt="" fill sizes="80px" className="object-cover" />}
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-semibold text-text-primary group-hover:text-gold-200">{b.title}</span>
+                      <span className="block truncate text-sm font-semibold text-text-primary group-hover:text-green-200">{b.title}</span>
                       <span className="figures block text-sm text-text-secondary">
                         {formatNaira(b.priceMinor)}
                         {b.seats ? ` · ${b.seats} seats` : ""}
                       </span>
                     </span>
-                    <ArrowRight aria-hidden size={16} className="shrink-0 text-gold-300 transition-transform group-hover:translate-x-1" />
+                    <ArrowRight aria-hidden size={16} className="shrink-0 text-green-300 transition-transform group-hover:translate-x-1" />
                   </Link>
                 </li>
               ))}
             </ul>
             <Link
               href="/hummer-bus"
-              className="group mt-3 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-gold-300 hover:text-gold-200"
+              className="group mt-3 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-green-300 hover:text-green-200"
             >
               Every Hummer bus in stock
               <ArrowRight aria-hidden size={16} className="transition-transform group-hover:translate-x-1" />
@@ -340,7 +340,7 @@ function Result({
             </p>
             <Link
               href={`/find?want=${encodeURIComponent(`Toyota Hiace Hummer bus, ${name(winner)}`)}`}
-              className="group mt-3 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-gold-300 hover:text-gold-200"
+              className="group mt-3 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-green-300 hover:text-green-200"
             >
               Ask the Sourcing Desk
               <ArrowRight aria-hidden size={16} className="transition-transform group-hover:translate-x-1" />

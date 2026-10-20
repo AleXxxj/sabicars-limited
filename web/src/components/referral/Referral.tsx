@@ -21,7 +21,7 @@ export function EarningsExamples({ vehicles }: { vehicles: CatalogueItem[] }) {
           <li key={v.slug}>
             <Link href={`/vehicles/${v.slug}`} className="group grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-6 gap-y-1 px-6 py-5 md:px-8">
               <span className="truncate text-text-primary group-hover:text-accent-text">{v.title}</span>
-              <span className="figures text-gold row-span-2 text-right font-display text-[2rem] leading-none">
+              <span className="figures text-brand row-span-2 text-right font-display text-[2rem] leading-none">
                 {formatNaira(commissionMinor(v.priceMinor))}
               </span>
               <span className="figures text-sm text-text-muted">If they buy it at {formatNaira(v.priceMinor)}</span>
@@ -47,7 +47,7 @@ export function PartnerRules() {
         const Icon = RULE_ICONS[i];
         return (
           <li key={rule} className="surface-card p-6">
-            <span className="inline-flex size-11 items-center justify-center rounded-xl border border-gold-500/25 bg-gold-500/10 text-gold-300">
+            <span className="inline-flex size-11 items-center justify-center rounded-xl border border-green-500/25 bg-green-500/10 text-green-300">
               <Icon aria-hidden size={20} strokeWidth={1.75} />
             </span>
             <p className="mt-4 text-[1.1rem] font-semibold leading-snug text-text-primary">{rule}</p>

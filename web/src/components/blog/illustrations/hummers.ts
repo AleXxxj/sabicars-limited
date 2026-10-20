@@ -32,7 +32,7 @@ export const SETUPS: Setup[] = [
     fuel: "petrol",
     gearbox: "manual",
     label: "Petrol · manual",
-    color: "#f1efe9",
+    color: "#EEEFE9",
     ratings: { traffic: 2, distance: 2, fuel: 5, repairs: 5 },
     says: {
       traffic: "Clutch, brake, clutch…",

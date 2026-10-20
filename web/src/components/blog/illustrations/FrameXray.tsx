@@ -22,9 +22,9 @@ function Wheels({ xs, y, r }: { xs: number[]; y: number; r: number }) {
     <>
       {xs.map((x) => (
         <g key={x}>
-          <circle cx={x} cy={y} r={r + 6} fill="#0B0A09" />
-          <circle cx={x} cy={y} r={r} fill="#1a1816" stroke="#3a3632" strokeWidth={5} />
-          <circle cx={x} cy={y} r={r * 0.45} fill="#4a4540" />
+          <circle cx={x} cy={y} r={r + 6} fill="#090E0A" />
+          <circle cx={x} cy={y} r={r} fill="#1a1816" stroke="#343B35" strokeWidth={5} />
+          <circle cx={x} cy={y} r={r * 0.45} fill="#444B45" />
         </g>
       ))}
     </>
@@ -79,7 +79,7 @@ export function FrameXray() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm font-semibold text-text-primary">What each one is built on</p>
         <p className="flex items-center gap-2 text-sm text-text-muted">
-          <MoveHorizontal aria-hidden size={16} className={touched ? "" : "animate-pulse text-gold-300"} /> Drag the scanner across
+          <MoveHorizontal aria-hidden size={16} className={touched ? "" : "animate-pulse text-green-300"} /> Drag the scanner across
         </p>
       </div>
 
@@ -103,8 +103,8 @@ export function FrameXray() {
         >
           <defs>
             <linearGradient id="fx-paint" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stopColor="#4a4540" />
-              <stop offset="0.55" stopColor="#2a2724" />
+              <stop offset="0" stopColor="#444B45" />
+              <stop offset="0.55" stopColor="#282E29" />
               <stop offset="1" stopColor="#1b1917" />
             </linearGradient>
             <pattern id="fx-grid" width="20" height="20" patternUnits="userSpaceOnUse">
@@ -134,20 +134,20 @@ export function FrameXray() {
             <g>
               <path d={HL_BODY} fill="url(#fx-paint)" stroke="rgb(255 255 255 / 0.12)" />
               <path d={HL_GLASS} fill="#10151a" stroke="rgb(255 255 255 / 0.1)" />
-              <line x1="270" y1="37" x2="270" y2="92" stroke="#2a2724" strokeWidth="7" />
-              <line x1="392" y1="36" x2="392" y2="92" stroke="#2a2724" strokeWidth="7" />
+              <line x1="270" y1="37" x2="270" y2="92" stroke="#282E29" strokeWidth="7" />
+              <line x1="392" y1="36" x2="392" y2="92" stroke="#282E29" strokeWidth="7" />
               <line x1="160" y1="118" x2="628" y2="118" stroke="rgb(255 255 255 / 0.06)" />
-              <rect x="624" y="110" width="16" height="9" rx="3" fill="#e9e3d2" opacity="0.85" />
+              <rect x="624" y="110" width="16" height="9" rx="3" fill="#E1E4DD" opacity="0.85" />
               <rect x="150" y="98" width="10" height="18" rx="3" fill="#8b2a22" />
               <Wheels xs={[262, 541]} y={163} r={37} />
             </g>
             <g transform="translate(0 230)">
               <path d={GX_BODY} fill="url(#fx-paint)" stroke="rgb(255 255 255 / 0.12)" />
               <path d={GX_GLASS} fill="#10151a" stroke="rgb(255 255 255 / 0.1)" />
-              <line x1="270" y1="22" x2="270" y2="78" stroke="#2a2724" strokeWidth="7" />
-              <line x1="392" y1="22" x2="392" y2="78" stroke="#2a2724" strokeWidth="7" />
+              <line x1="270" y1="22" x2="270" y2="78" stroke="#282E29" strokeWidth="7" />
+              <line x1="392" y1="22" x2="392" y2="78" stroke="#282E29" strokeWidth="7" />
               <line x1="160" y1="104" x2="624" y2="104" stroke="rgb(255 255 255 / 0.06)" />
-              <rect x="616" y="94" width="16" height="10" rx="3" fill="#e9e3d2" opacity="0.85" />
+              <rect x="616" y="94" width="16" height="10" rx="3" fill="#E1E4DD" opacity="0.85" />
               <rect x="151" y="84" width="10" height="22" rx="3" fill="#8b2a22" />
               {/* The frame shows below the sills, as it does on the real thing */}
               <rect x="168" y="152" width="456" height="10" rx="2" fill="#141311" />
@@ -159,8 +159,8 @@ export function FrameXray() {
           <g clipPath="url(#fx-left)">
             <rect x="0" y="0" width="800" height="450" fill="url(#fx-grid)" />
             {/* Highlander: one welded shell — every member is part of the body */}
-            <g filter="url(#fx-glow)" stroke="var(--gold-300)" fill="none" strokeLinejoin="round">
-              <path d={HL_BODY} fill="rgb(201 168 76 / 0.16)" strokeWidth="2.6" />
+            <g filter="url(#fx-glow)" stroke="var(--green-300)" fill="none" strokeLinejoin="round">
+              <path d={HL_BODY} fill="rgb(120 176 48 / 0.16)" strokeWidth="2.6" />
               <path
                 d="M176 44 L166 110 L158 160 M270 37 L270 160 M392 36 L392 160 M548 80 L528 160 M200 40 L466 38 M160 95 L560 95 M160 150 L632 150 M176 142 L620 142"
                 strokeWidth="1.6"
@@ -183,15 +183,15 @@ export function FrameXray() {
                   width="468"
                   height="12"
                   rx="3"
-                  fill="rgb(201 168 76 / 0.28)"
-                  stroke="var(--gold-300)"
+                  fill="rgb(120 176 48 / 0.28)"
+                  stroke="var(--green-300)"
                   strokeWidth="2.4"
                 />
                 {[176, 300, 420, 560, 612].map((cx) => (
-                  <rect key={cx} x={cx - 5} y="148" width="10" height="20" rx="2" fill="var(--gold-400)" />
+                  <rect key={cx} x={cx - 5} y="148" width="10" height="20" rx="2" fill="var(--green-400)" />
                 ))}
                 {[200, 336, 476, 596].map((cx) => (
-                  <circle key={cx} cx={cx} cy="151" r="5" fill="#0B0A09" stroke="var(--gold-200)" strokeWidth="2" />
+                  <circle key={cx} cx={cx} cy="151" r="5" fill="#090E0A" stroke="var(--green-200)" strokeWidth="2" />
                 ))}
               </g>
               <g stroke="rgb(223 198 124 / 0.35)" fill="none">
@@ -204,7 +204,7 @@ export function FrameXray() {
 
           {/* The scanner */}
           <g pointerEvents="none">
-            <line x1={x} y1="0" x2={x} y2="450" stroke="var(--gold-300)" strokeWidth="2" filter="url(#fx-glow)" />
+            <line x1={x} y1="0" x2={x} y2="450" stroke="var(--green-300)" strokeWidth="2" filter="url(#fx-glow)" />
             <rect x={x - 26} y="0" width="26" height="450" fill="url(#fx-grid)" opacity="0.3" />
           </g>
         </svg>
@@ -220,7 +220,7 @@ export function FrameXray() {
           <span
             key={l.text}
             aria-hidden
-            className={`pointer-events-none absolute text-[0.68rem] leading-none whitespace-nowrap transition-opacity duration-500 sm:text-xs ${l.strong ? "font-semibold text-gold-200" : "text-text-primary"} ${l.end ? "-translate-x-full" : ""} -translate-y-full`}
+            className={`pointer-events-none absolute text-[0.68rem] leading-none whitespace-nowrap transition-opacity duration-500 sm:text-xs ${l.strong ? "font-semibold text-green-200" : "text-text-primary"} ${l.end ? "-translate-x-full" : ""} -translate-y-full`}
             style={{ left: `${(l.x / 800) * 100}%`, top: `${(l.y / 450) * 100}%`, opacity: scan > l.show ? 1 : l.strong ? 0.5 : 0 }}
           >
             {l.text}
@@ -244,7 +244,7 @@ export function FrameXray() {
             else return;
             e.preventDefault();
           }}
-          className="absolute top-1/2 flex size-9 -translate-x-1/2 -translate-y-1/2 sm:size-12 items-center justify-center rounded-full border-2 border-gold-300 bg-surface-0/90 text-gold-200 shadow-[0_0_24px_rgb(201_168_76/0.55)] outline-none focus-visible:ring-4 focus-visible:ring-gold-500/40"
+          className="absolute top-1/2 flex size-9 -translate-x-1/2 -translate-y-1/2 sm:size-12 items-center justify-center rounded-full border-2 border-green-300 bg-surface-0/90 text-green-200 shadow-[0_0_24px_rgb(120_176_48/0.55)] outline-none focus-visible:ring-4 focus-visible:ring-green-500/40"
           style={{ left: `${scan * 100}%` }}
         >
           <MoveHorizontal aria-hidden size={20} />
@@ -267,10 +267,10 @@ export function FrameXray() {
         ].map((c, i) => (
           <div
             key={c.name}
-            className={`rounded-2xl border p-4 transition-all duration-500 ${done ? "pop-in border-gold-500/35 bg-gold-500/[0.06]" : "border-white/[0.06] opacity-45"}`}
+            className={`rounded-2xl border p-4 transition-all duration-500 ${done ? "pop-in border-green-500/35 bg-green-500/[0.06]" : "border-white/[0.06] opacity-45"}`}
             style={{ animationDelay: `${i * 140}ms` }}
           >
-            <p className="text-xs font-semibold tracking-[0.14em] text-gold-300 uppercase">{c.name}</p>
+            <p className="text-xs font-semibold tracking-[0.14em] text-green-300 uppercase">{c.name}</p>
             <p className="mt-1 font-semibold text-text-primary">{c.title}</p>
             <p className="mt-1 text-sm text-text-secondary">{c.text}</p>
           </div>

@@ -86,8 +86,8 @@ export function StockChart({ buses }: { buses: ChartBus[] }) {
                   cx={x(b.year) + ((i % 3) - 1) * 10}
                   cy={y(b.priceMinor)}
                   r={on ? 12 : 9}
-                  fill={on ? "var(--gold-300)" : "var(--gold-500)"}
-                  stroke="#0A0908"
+                  fill={on ? "var(--green-300)" : "var(--green-500)"}
+                  stroke="#090E0A"
                   strokeWidth="3"
                   onMouseEnter={() => setHover(b.slug)}
                   onMouseLeave={() => setHover(null)}

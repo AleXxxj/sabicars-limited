@@ -30,7 +30,7 @@ function polygon(values: number[]) {
 }
 
 const COLOURS = [
-  { stroke: "var(--gold-300)", fill: "rgb(201 168 76 / 0.28)", chip: "border-gold-400 bg-gold-500/15 text-gold-100" },
+  { stroke: "var(--green-300)", fill: "rgb(120 176 48 / 0.28)", chip: "border-green-400 bg-green-500/15 text-green-100" },
   { stroke: "#c9d3dd", fill: "rgb(201 211 221 / 0.16)", chip: "border-[#c9d3dd]/70 bg-white/[0.08] text-text-primary" },
 ];
 
@@ -145,7 +145,7 @@ export function SuvRadar({ stock }: { stock: SuvStock }) {
                   {s?.count ? (
                     <Link
                       href={(x as Suv).term ? `/buy/${(x as Suv).term}` : "/vehicles"}
-                      className="group mt-1.5 inline-flex min-h-9 items-center gap-1.5 font-semibold text-gold-300 hover:text-gold-200"
+                      className="group mt-1.5 inline-flex min-h-9 items-center gap-1.5 font-semibold text-green-300 hover:text-green-200"
                     >
                       {s.count} in the showroom{s.fromMinor ? `, from ${formatNaira(s.fromMinor)}` : ""}
                       <ArrowRight aria-hidden size={15} className="transition-transform group-hover:translate-x-1" />

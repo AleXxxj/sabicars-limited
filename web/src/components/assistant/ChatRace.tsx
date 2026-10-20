@@ -57,7 +57,7 @@ export function ChatRace({ race }: { race: RaceKind }) {
   return (
     <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-surface-2/50 p-3">
       <p className="flex items-center gap-2 text-sm font-semibold text-text-primary">
-        <Flag aria-hidden size={15} className="text-gold-300" /> {r.title}
+        <Flag aria-hidden size={15} className="text-green-300" /> {r.title}
       </p>
       <div className="mt-2.5 flex flex-wrap gap-1.5">
         {r.choices.map((c) => (
@@ -71,7 +71,7 @@ export function ChatRace({ race }: { race: RaceKind }) {
               setOrder([]);
               setChoice(c.id);
             }}
-            className={`min-h-9 rounded-full border px-3 text-xs transition-all active:scale-95 disabled:opacity-60 ${c.id === choice ? "border-gold-400 bg-gold-500/15 font-semibold text-gold-100" : "border-white/[0.12] text-text-secondary hover:text-text-primary"}`}
+            className={`min-h-9 rounded-full border px-3 text-xs transition-all active:scale-95 disabled:opacity-60 ${c.id === choice ? "border-green-400 bg-green-500/15 font-semibold text-green-100" : "border-white/[0.12] text-text-secondary hover:text-text-primary"}`}
           >
             {c.label}
           </button>
@@ -96,7 +96,7 @@ export function ChatRace({ race }: { race: RaceKind }) {
           track.current?.start();
         }}
         disabled={busy}
-        className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-full bg-[linear-gradient(180deg,var(--gold-300),var(--gold-500))] px-5 text-sm font-semibold text-[#0A0908] transition-transform active:scale-95 disabled:opacity-50"
+        className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-full bg-[linear-gradient(180deg,var(--orange-400),var(--orange-500))] px-5 text-sm font-semibold text-[#090E0A] transition-transform active:scale-95 disabled:opacity-50"
       >
         {phase === "done" ? <RotateCcw aria-hidden size={15} /> : <Flag aria-hidden size={15} />}
         {phase === "done" ? "Race again" : phase === "ready" ? "Start the race" : "On the road…"}
@@ -112,7 +112,7 @@ export function ChatRace({ race }: { race: RaceKind }) {
 
       <Link
         href={`${GUIDE}#${r.section}`}
-        className="group mt-2 flex min-h-11 items-center gap-2 text-sm font-semibold text-gold-300 hover:text-gold-200"
+        className="group mt-2 flex min-h-11 items-center gap-2 text-sm font-semibold text-green-300 hover:text-green-200"
       >
         The full race, with every bus&rsquo;s specs
         <ArrowRight aria-hidden size={15} className="transition-transform group-hover:translate-x-1" />

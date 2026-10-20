@@ -71,7 +71,7 @@ export default async function FleetPage() {
           </ScrollReveal>
           <ol className="mt-14 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
             {PROCESS.map(([step, text], i) => (
-              <ScrollReveal as="li" key={step} delay={i * 90} className="border-t border-gold-700 pt-5">
+              <ScrollReveal as="li" key={step} delay={i * 90} className="border-t border-green-700 pt-5">
                 <p className="figures text-xs text-text-muted">0{i + 1}</p>
                 <p className="mt-2 font-display text-[1.7rem] leading-tight">{step}</p>
                 <p className="mt-3 text-sm leading-relaxed text-text-secondary">{text}</p>

@@ -123,7 +123,7 @@ export function PhoneAlerts({
   return (
     <section
       aria-label="Alerts on this phone"
-      className={`border bg-surface-1 p-4 md:p-5 ${state === "on" ? "border-border-subtle" : "border-gold-700"}`}
+      className={`border bg-surface-1 p-4 md:p-5 ${state === "on" ? "border-border-subtle" : "border-green-700"}`}
     >
       <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
         <div className="flex min-w-0 items-start gap-3">
@@ -152,7 +152,7 @@ export function PhoneAlerts({
               type="button"
               onClick={turnOn}
               disabled={pending}
-              className="min-h-11 bg-cta px-5 text-sm font-semibold text-cta-fg hover:bg-cta-hover disabled:opacity-50"
+              className="min-h-11 rounded-full bg-cta px-5 text-sm font-semibold text-cta-fg hover:bg-cta-hover disabled:opacity-50"
             >
               {pending ? "Setting up…" : "Turn on alerts"}
             </button>
@@ -187,7 +187,7 @@ export function PhoneAlerts({
             type="checkbox"
             defaultChecked={receivesAlerts}
             onChange={(e) => toggleAll(e.target.checked)}
-            className="mt-1 size-4 accent-[var(--gold-500)]"
+            className="mt-1 size-4 accent-[var(--green-500)]"
           />
           <span>
             <span className="text-text-primary">Alert me about every new enquiry</span>

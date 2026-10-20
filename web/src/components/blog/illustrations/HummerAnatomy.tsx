@@ -84,7 +84,7 @@ export function HummerAnatomy() {
         <ellipse cx="410" cy="324" rx="390" ry="16" fill="url(#hummer-shadow)" />
         <line x1="20" y1="322" x2="800" y2="322" stroke="rgb(255 255 255 / 0.12)" strokeWidth="1" />
 
-        <g fill="none" stroke="var(--gold-400)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+        <g fill="none" stroke="var(--green-400)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
           {/* Body */}
           <path
             pathLength={1}
@@ -96,7 +96,7 @@ export function HummerAnatomy() {
             d="M78 300 L70 246 C70 222 80 206 104 200 L164 88 C172 72 186 66 206 65 L700 60 C724 60 734 72 736 94 L744 272 C745 292 734 300 716 300 L656 300 A56 56 0 0 0 544 300 L232 300 A56 56 0 0 0 120 300 Z"
           />
           {/* Windows */}
-          <g strokeWidth="1.6" style={{ fill: seen ? "rgb(201 168 76 / 0.07)" : "transparent", transition: "fill 900ms ease 2000ms" }}>
+          <g strokeWidth="1.6" style={{ fill: seen ? "rgb(120 176 48 / 0.07)" : "transparent", transition: "fill 900ms ease 2000ms" }}>
             <path pathLength={1} style={draw(500)} d="M174 96 L256 93 L256 184 L126 186 Z" />
             <rect pathLength={1} style={draw(650)} x="280" y="91" width="114" height="91" rx="6" />
             <rect pathLength={1} style={draw(800)} x="414" y="89" width="124" height="93" rx="6" />
@@ -153,15 +153,15 @@ export function HummerAnatomy() {
                 cursor: "pointer",
               }}
             >
-              {on && <circle cx={s.x} cy={s.y} r={r * 1.75} fill="rgb(201 168 76 / 0.18)" />}
-              <circle cx={s.x} cy={s.y} r={r} fill={on ? "var(--gold-300)" : "var(--gold-500)"} stroke="#0A0908" strokeWidth={3 * k} />
+              {on && <circle cx={s.x} cy={s.y} r={r * 1.75} fill="rgb(120 176 48 / 0.18)" />}
+              <circle cx={s.x} cy={s.y} r={r} fill={on ? "var(--green-300)" : "var(--green-500)"} stroke="#090E0A" strokeWidth={3 * k} />
               <text
                 x={s.x}
                 y={s.y + 5 * k}
                 textAnchor="middle"
                 fontSize={15 * k}
                 fontWeight="700"
-                fill="#0A0908"
+                fill="#090E0A"
                 style={{ fontFamily: "var(--font-sans)" }}
               >
                 {i + 1}
@@ -178,10 +178,10 @@ export function HummerAnatomy() {
               type="button"
               onClick={() => setActive(active === i ? null : i)}
               aria-pressed={active === i}
-              className={`flex w-full gap-3 rounded-xl p-3 text-left transition-colors ${active === i ? "bg-gold-500/10" : "hover:bg-white/[0.03]"}`}
+              className={`flex w-full gap-3 rounded-xl p-3 text-left transition-colors ${active === i ? "bg-green-500/10" : "hover:bg-white/[0.03]"}`}
             >
               <span
-                className={`figures mt-0.5 grid size-6 shrink-0 place-items-center rounded-full text-xs font-bold ${active === i ? "bg-gold-300 text-[#0A0908]" : "bg-gold-500/20 text-gold-200"}`}
+                className={`figures mt-0.5 grid size-6 shrink-0 place-items-center rounded-full text-xs font-bold ${active === i ? "bg-green-300 text-[#090E0A]" : "bg-green-500/20 text-green-200"}`}
               >
                 {i + 1}
               </span>

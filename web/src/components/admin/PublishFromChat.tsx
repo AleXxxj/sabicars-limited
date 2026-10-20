@@ -12,13 +12,13 @@ export function PublishFromChat({ question, answer, conversationId }: { question
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex min-h-9 items-center gap-1.5 text-xs font-semibold text-gold-300 hover:text-gold-200"
+        className="inline-flex min-h-9 items-center gap-1.5 text-xs font-semibold text-green-300 hover:text-green-200"
       >
         <Globe aria-hidden size={14} /> Publish as an answer on /ask
       </button>
     );
   return (
-    <div className="mt-3 rounded-xl border border-gold-500/30 bg-surface-0 p-4">
+    <div className="mt-3 rounded-xl border border-green-500/30 bg-surface-0 p-4">
       <AnswerEditor initial={{ question, answer, isPublished: false }} conversationId={conversationId} onDone={() => setOpen(false)} />
     </div>
   );

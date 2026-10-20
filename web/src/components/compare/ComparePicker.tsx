@@ -68,7 +68,7 @@ export function ComparePicker({ cars }: { cars: PickerCar[] }) {
         <button
           type="submit"
           disabled={!ready}
-          className="inline-flex min-h-12 items-center gap-2 rounded-full bg-[linear-gradient(180deg,var(--gold-300),var(--gold-500))] px-6 font-semibold text-[#0A0908] disabled:opacity-40"
+          className="inline-flex min-h-12 items-center gap-2 rounded-full bg-[linear-gradient(180deg,var(--orange-400),var(--orange-500))] px-6 font-semibold text-[#090E0A] disabled:opacity-40"
         >
           Compare side by side <ArrowRight aria-hidden size={17} />
         </button>
@@ -76,7 +76,7 @@ export function ComparePicker({ cars }: { cars: PickerCar[] }) {
           <button
             type="button"
             onClick={() => setPicked((p) => [...p, ""])}
-            className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-gold-300 hover:text-gold-200"
+            className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-green-300 hover:text-green-200"
           >
             <Plus aria-hidden size={16} /> Add a third car
           </button>

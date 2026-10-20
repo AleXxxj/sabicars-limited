@@ -44,7 +44,7 @@ export function RepaymentComfort() {
       : share <= STRETCH
         ? {
             tone: "text-accent-text",
-            ring: "var(--gold-300)",
+            ring: "var(--green-300)",
             text: "A stretch. Possible — but it leaves little room for fuel, insurance and the unexpected.",
           }
         : {
@@ -63,13 +63,13 @@ export function RepaymentComfort() {
             cy="90"
             r={r}
             fill="none"
-            stroke="var(--gold-400)"
+            stroke="var(--green-400)"
             strokeWidth="16"
             strokeLinecap="round"
             strokeDasharray={c}
             strokeDashoffset={c * (1 - comfortArc)}
             opacity="0.9"
-            style={{ filter: "drop-shadow(0 0 8px rgb(201 168 76 / 0.5))" }}
+            style={{ filter: "drop-shadow(0 0 8px rgb(120 176 48 / 0.5))" }}
           />
           {quoted > 0 && (
             <circle
@@ -87,7 +87,7 @@ export function RepaymentComfort() {
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
           <span className="text-xs text-text-muted">Keep the repayment under</span>
-          <span className="figures text-gold mt-1 font-display text-[2rem] leading-none">
+          <span className="figures text-brand mt-1 font-display text-[2rem] leading-none">
             {formatNaira(Math.round(ceilingShown) * 100, { compact: ceiling >= 10_000_000 })}
           </span>
           <span className="mt-1 text-xs text-text-muted">a month</span>
@@ -97,7 +97,7 @@ export function RepaymentComfort() {
       <div className="grid gap-5">
         <label htmlFor={`${id}-pay`} className="grid gap-2">
           <span className="text-sm text-text-secondary">Your take-home pay, a month</span>
-          <span className="flex items-baseline gap-2 border-b border-border-strong pb-1.5 focus-within:border-gold-500">
+          <span className="flex items-baseline gap-2 border-b border-border-strong pb-1.5 focus-within:border-green-500">
             <span aria-hidden className="font-display text-2xl text-text-muted">
               ₦
             </span>
@@ -117,7 +117,7 @@ export function RepaymentComfort() {
               type="button"
               onClick={() => setPay(grouped(p))}
               aria-pressed={income === p}
-              className="figures min-h-9 rounded-full border border-border-default px-3.5 text-xs text-text-secondary hover:border-border-strong aria-pressed:border-gold-500 aria-pressed:bg-gold-500/10 aria-pressed:text-gold-200"
+              className="figures min-h-9 rounded-full border border-border-default px-3.5 text-xs text-text-secondary hover:border-border-strong aria-pressed:border-green-500 aria-pressed:bg-green-500/10 aria-pressed:text-green-200"
             >
               {formatNaira(p * 100, { compact: true })}
             </button>
@@ -125,7 +125,7 @@ export function RepaymentComfort() {
         </div>
         <label htmlFor={`${id}-quote`} className="grid gap-2">
           <span className="text-sm text-text-secondary">The monthly repayment Autochek quoted you (optional)</span>
-          <span className="flex items-baseline gap-2 border-b border-border-strong pb-1.5 focus-within:border-gold-500">
+          <span className="flex items-baseline gap-2 border-b border-border-strong pb-1.5 focus-within:border-green-500">
             <span aria-hidden className="font-display text-2xl text-text-muted">
               ₦
             </span>

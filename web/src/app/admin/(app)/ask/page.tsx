@@ -22,7 +22,7 @@ export default async function AnswersAdmin() {
       <h1 className="mt-2 text-display-3">Answers on /ask</h1>
       <p className="mt-3 max-w-2xl text-sm text-text-secondary">
         Straight answers to what buyers ask, each on its own page for search engines. The best come from real chats — open one in{" "}
-        <Link href="/admin/conversations" className="text-gold-300">
+        <Link href="/admin/conversations" className="text-green-300">
           Conversations
         </Link>{" "}
         and publish a reply. A published answer can be unpublished but not deleted, so its link never breaks.

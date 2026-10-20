@@ -46,9 +46,9 @@ export function VehicleCard({
           className="object-cover transition-transform duration-[var(--duration-slow)] ease-[var(--ease-out)] group-hover:scale-[1.04]"
         />
         {/* Lets the photo sink into the card instead of ending on a hard line. */}
-        <div aria-hidden className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#0A0908]/55 to-transparent" />
+        <div aria-hidden className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#090E0A]/55 to-transparent" />
         {badge && (
-          <span className="glass absolute left-3 top-3 rounded-full px-3 py-1 text-[0.72rem] font-semibold tracking-[0.04em] text-gold-200">{badge}</span>
+          <span className="glass absolute left-3 top-3 rounded-full px-3 py-1 text-[0.72rem] font-semibold tracking-[0.04em] text-green-200">{badge}</span>
         )}
         {href && <SaveButton slug={v.slug} title={`${v.year} ${v.make} ${v.model}`} className="absolute right-3 top-3 z-[2]" />}
       </div>
@@ -85,7 +85,7 @@ export function VehicleCard({
 
   const shell =
     "surface-card group flex h-full flex-col overflow-hidden transition-[transform,border-color,box-shadow] duration-[var(--duration-base)] ease-[var(--ease-out)] " +
-    "hover:-translate-y-1 hover:border-gold-500/30 hover:shadow-[inset_0_1px_0_rgb(255_255_255/0.06),0_30px_70px_-30px_rgb(0_0_0/0.9)]";
+    "hover:-translate-y-1 hover:border-green-500/30 hover:shadow-[inset_0_1px_0_rgb(255_255_255/0.06),0_30px_70px_-30px_rgb(0_0_0/0.9)]";
 
   // The whole card is the link (stretched over it), with the heart above it —
   // a button cannot sit inside a link.

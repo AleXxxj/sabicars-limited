@@ -161,8 +161,8 @@ export function Bus({
           </>
         )}
         <path d={g.pillars} stroke="rgb(0 0 0 / 0.3)" strokeWidth="3" />
-        <path d={g.stripe} stroke="rgb(201 168 76 / 0.75)" strokeWidth="6" />
-        <path d={g.lamp} fill="#fff4cf" stroke="#fff4cf" strokeWidth={shape === "square" ? 3 : 0} />
+        <path d={g.stripe} stroke="rgb(120 176 48 / 0.75)" strokeWidth="6" />
+        <path d={g.lamp} fill="#DCF5C8" stroke="#DCF5C8" strokeWidth={shape === "square" ? 3 : 0} />
         <path d={g.tail} fill="#7a1a14" />
         <path ref={brake} d={g.brake} fill="#ff3b2f" opacity="0.15" style={{ filter: "drop-shadow(0 0 10px #ff3b2f)" }} />
       </g>

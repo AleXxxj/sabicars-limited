@@ -43,7 +43,7 @@ function StarInput({ defaultValue, error }: { defaultValue?: number; error?: str
                 aria-hidden
                 size={32}
                 strokeWidth={1.4}
-                className={`transition-colors duration-[var(--duration-fast)] ${n <= shown ? "fill-gold-400 text-gold-400" : "fill-transparent text-white/30"}`}
+                className={`transition-colors duration-[var(--duration-fast)] ${n <= shown ? "fill-green-400 text-green-400" : "fill-transparent text-white/30"}`}
               />
             </label>
           ))}

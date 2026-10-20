@@ -106,7 +106,7 @@ export default async function HummerBusPage() {
           <ul className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {WHY.map(({ icon: Icon, title, text }, i) => (
               <ScrollReveal as="li" key={title} delay={i * 80} className="surface-card p-6">
-                <span className="inline-flex size-11 items-center justify-center rounded-xl border border-gold-500/25 bg-gold-500/10 text-gold-300">
+                <span className="inline-flex size-11 items-center justify-center rounded-xl border border-green-500/25 bg-green-500/10 text-green-300">
                   <Icon aria-hidden size={20} strokeWidth={1.75} />
                 </span>
                 <p className="mt-4 text-[1.1rem] font-semibold text-text-primary">{title}</p>
@@ -131,12 +131,12 @@ export default async function HummerBusPage() {
           <Link href="/blog/toyota-hiace-hummer-bus-buyers-guide" className="surface-card group flex flex-wrap items-center justify-between gap-6 p-6 md:p-10">
             <span className="max-w-2xl">
               <span className="kicker">The buyer&rsquo;s guide</span>
-              <span className="mt-3 block font-display text-[1.9rem] leading-tight text-text-primary group-hover:text-gold-100 md:text-[2.3rem]">
+              <span className="mt-3 block font-display text-[1.9rem] leading-tight text-text-primary group-hover:text-green-100 md:text-[2.3rem]">
                 How to tell a good Hummer bus from a tired one — before you pay a kobo.
               </span>
               <span className="mt-2 block text-text-secondary">Six places to look, the papers to ask for, and whether it will pay for itself on your route.</span>
             </span>
-            <span className="inline-flex items-center gap-2 font-semibold text-gold-300 group-hover:text-gold-200">
+            <span className="inline-flex items-center gap-2 font-semibold text-green-300 group-hover:text-green-200">
               Read the guide <ArrowRight aria-hidden size={18} className="transition-transform group-hover:translate-x-1" />
             </span>
           </Link>

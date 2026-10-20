@@ -63,7 +63,7 @@ export function MobileMenu() {
         aria-expanded={open}
         aria-controls="mobile-menu"
         aria-label="Menu"
-        className="glass inline-flex size-10 items-center justify-center rounded-full text-text-primary transition-colors hover:text-gold-300 sm:size-11 xl:hidden"
+        className="glass inline-flex size-10 items-center justify-center rounded-full text-text-primary transition-colors hover:text-green-300 sm:size-11 xl:hidden"
       >
         <Menu aria-hidden size={20} strokeWidth={1.75} />
       </button>
@@ -75,7 +75,7 @@ export function MobileMenu() {
             role="dialog"
             aria-modal="true"
             aria-label="Menu"
-            className="fixed inset-0 z-50 flex flex-col overflow-y-auto bg-surface-0 bg-[radial-gradient(900px_500px_at_80%_-10%,rgb(201_168_76/0.1),transparent_70%)] px-5 pb-8 pt-3 xl:hidden"
+            className="fixed inset-0 z-50 flex flex-col overflow-y-auto bg-surface-0 bg-[radial-gradient(900px_500px_at_80%_-10%,rgb(120_176_48/0.1),transparent_70%)] px-5 pb-8 pt-3 xl:hidden"
           >
             <div className="flex h-12 items-center justify-between">
               <span className="kicker">Sabicars</span>
@@ -102,7 +102,7 @@ export function MobileMenu() {
                     aria-current={current ? "page" : undefined}
                     className="group flex min-w-0 items-center gap-4 rounded-2xl px-3 py-3.5 transition-colors hover:bg-white/[0.04] aria-[current=page]:bg-white/[0.05]"
                   >
-                    <span className="glass inline-flex size-11 shrink-0 items-center justify-center rounded-xl text-gold-300">
+                    <span className="glass inline-flex size-11 shrink-0 items-center justify-center rounded-xl text-green-300">
                       {Icon && <Icon aria-hidden size={20} strokeWidth={1.75} />}
                     </span>
                     <span className="min-w-0">

@@ -30,7 +30,7 @@ export default async function ConversationsAdmin({ searchParams }: Props) {
       <p className="mt-3 max-w-2xl text-sm text-text-secondary">
         What buyers ask the assistant. A chat where they leave a name and number becomes an enquiry automatically. Turn a good reply into a
         public answer on{" "}
-        <Link href="/ask" className="text-gold-300">
+        <Link href="/ask" className="text-green-300">
           /ask
         </Link>{" "}
         from inside the chat.
@@ -43,7 +43,7 @@ export default async function ConversationsAdmin({ searchParams }: Props) {
             href={v === "all" ? "/admin/conversations" : `/admin/conversations?view=${v}`}
             aria-current={view === v ? "true" : undefined}
             className={`inline-flex min-h-11 shrink-0 items-center gap-2 border-b-2 px-1 text-sm transition-colors ${
-              view === v ? "border-gold-500 text-text-primary" : "border-transparent text-text-muted hover:text-text-primary"
+              view === v ? "border-green-500 text-text-primary" : "border-transparent text-text-muted hover:text-text-primary"
             }`}
           >
             {VIEWS[v]}{" "}
@@ -62,7 +62,7 @@ export default async function ConversationsAdmin({ searchParams }: Props) {
             <li key={c.id}>
               <Link
                 href={`/admin/conversations/${c.id}`}
-                className="block border border-border-subtle bg-surface-1 p-5 transition-colors hover:border-gold-500/40"
+                className="block border border-border-subtle bg-surface-1 p-5 transition-colors hover:border-green-500/40"
               >
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-text-muted">
                   <span>{when(c.lastMessageAt)}</span>
@@ -72,7 +72,7 @@ export default async function ConversationsAdmin({ searchParams }: Props) {
                   {c.vehiclesShown.length > 0 && <span>· {c.vehiclesShown.length} cars shown</span>}
                   {c.landingPath && <span>· from {c.landingPath}</span>}
                   {c.needsHuman && (
-                    <span className="rounded-full bg-gold-500/15 px-2 py-0.5 font-semibold text-gold-200">Wants a person</span>
+                    <span className="rounded-full bg-green-500/15 px-2 py-0.5 font-semibold text-green-200">Wants a person</span>
                   )}
                   {c.leadId && (
                     <span className="rounded-full bg-success/15 px-2 py-0.5 font-semibold text-success">

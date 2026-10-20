@@ -77,7 +77,7 @@ export function RouteCalculator({ car }: { car: { title: string; slug: string; d
               step={f.step}
               value={v[f.key]}
               onChange={(e) => setV((prev) => ({ ...prev, [f.key]: Number(e.target.value) }))}
-              className="h-2 w-full cursor-pointer appearance-none rounded-full bg-white/[0.08] accent-[var(--gold-400)]"
+              className="h-2 w-full cursor-pointer appearance-none rounded-full bg-white/[0.08] accent-[var(--green-400)]"
             />
           </label>
         ))}
@@ -95,7 +95,7 @@ export function RouteCalculator({ car }: { car: { title: string; slug: string; d
         <div className="border-t border-white/[0.08] pt-5">
           <p className="text-sm text-text-muted">Left each month</p>
           <p
-            className={`figures mt-1 font-display text-[2.8rem] leading-none ${left > 0 ? "text-gold" : "text-danger"}`}
+            className={`figures mt-1 font-display text-[2.8rem] leading-none ${left > 0 ? "text-brand" : "text-danger"}`}
             style={{ opacity: seen ? 1 : 0, transition: "opacity 800ms ease 300ms" }}
           >
             {left < 0 && "− "}

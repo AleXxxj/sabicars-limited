@@ -10,7 +10,7 @@ export function Stars({ rating, size = 15, className = "" }: { rating: number; s
           aria-hidden
           size={size}
           strokeWidth={1.5}
-          className={n <= Math.round(rating) ? "fill-gold-400 text-gold-400" : "fill-transparent text-white/25"}
+          className={n <= Math.round(rating) ? "fill-green-400 text-green-400" : "fill-transparent text-white/25"}
         />
       ))}
     </span>

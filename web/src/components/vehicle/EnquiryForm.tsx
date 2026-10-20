@@ -47,7 +47,7 @@ export function EnquiryForm({
       `Hello Sabicars, I just enquired about the ${vehicleTitle} on your website (reference ${state.reference}).`,
     )}`;
     return (
-      <div ref={confirmation} role="status" className="surface-card scroll-mt-24 !border-gold-500/30 p-7 md:p-9">
+      <div ref={confirmation} role="status" className="surface-card scroll-mt-24 !border-green-500/30 p-7 md:p-9">
         <p className="kicker">Enquiry received</p>
         <h3 className="mt-3 text-display-3">Thank you, {state.name}.</h3>
         <p className="mt-4 text-text-secondary">
@@ -65,7 +65,7 @@ export function EnquiryForm({
     <label
       className={`flex min-h-11 flex-1 cursor-pointer items-center justify-center rounded-full text-[0.95rem] font-semibold transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-[var(--focus)] ${
         type === value
-          ? "bg-[linear-gradient(180deg,var(--gold-300),var(--gold-500))] text-[#0A0908] shadow-[inset_0_1px_0_rgb(255_255_255/0.4)]"
+          ? "bg-[linear-gradient(180deg,var(--green-300),var(--green-500))] text-[#090E0A] shadow-[inset_0_1px_0_rgb(255_255_255/0.4)]"
           : "text-text-secondary hover:text-text-primary"
       }`}
     >
@@ -117,10 +117,10 @@ export function EnquiryForm({
         <legend className="mb-3 text-sm font-medium text-text-secondary">How should we reach you?</legend>
         <div className="flex flex-wrap gap-6 text-sm text-text-secondary">
           <label className="inline-flex min-h-11 items-center gap-3">
-            <input type="radio" name="preferredContact" value="phone" defaultChecked={state?.values?.preferredContact !== "whatsapp"} className="size-4 accent-[var(--gold-500)]" /> A phone call
+            <input type="radio" name="preferredContact" value="phone" defaultChecked={state?.values?.preferredContact !== "whatsapp"} className="size-4 accent-[var(--green-500)]" /> A phone call
           </label>
           <label className="inline-flex min-h-11 items-center gap-3">
-            <input type="radio" name="preferredContact" value="whatsapp" defaultChecked={state?.values?.preferredContact === "whatsapp"} className="size-4 accent-[var(--gold-500)]" /> WhatsApp
+            <input type="radio" name="preferredContact" value="whatsapp" defaultChecked={state?.values?.preferredContact === "whatsapp"} className="size-4 accent-[var(--green-500)]" /> WhatsApp
           </label>
         </div>
       </fieldset>

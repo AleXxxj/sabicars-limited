@@ -61,7 +61,7 @@ function Strip({
                 metal
                   ? "text-[#26241f] [text-shadow:0_1px_0_rgb(255_255_255/0.4)] hover:bg-white/15"
                   : "text-[#2b2b2b] hover:bg-black/[0.06]"
-              } ${s === "found" ? "!bg-gold-400/80 !text-[#0A0908]" : s === "missed" ? "shake !bg-danger/40" : ""}`}
+              } ${s === "found" ? "!bg-green-400/80 !text-[#090E0A]" : s === "missed" ? "shake !bg-danger/40" : ""}`}
             >
               {ch}
             </button>
@@ -135,7 +135,7 @@ export function ChassisMatch() {
           {ROUNDS.map((_, i) => (
             <span
               key={i}
-              className={`h-1.5 w-8 rounded-full ${i < round ? "bg-gold-400" : i === round && !finished ? "bg-gold-400/40" : "bg-white/10"}`}
+              className={`h-1.5 w-8 rounded-full ${i < round ? "bg-green-400" : i === round && !finished ? "bg-green-400/40" : "bg-white/10"}`}
             />
           ))}
         </div>
@@ -159,16 +159,16 @@ export function ChassisMatch() {
               <button
                 type="button"
                 onClick={theyMatch}
-                className={`inline-flex min-h-11 items-center gap-2 rounded-full border border-white/[0.15] px-5 text-sm font-semibold text-text-primary hover:border-gold-500/50 ${missed === null && shaking ? "shake" : ""}`}
+                className={`inline-flex min-h-11 items-center gap-2 rounded-full border border-white/[0.15] px-5 text-sm font-semibold text-text-primary hover:border-green-500/50 ${missed === null && shaking ? "shake" : ""}`}
               >
                 They match
               </button>
               {shake > 0 && <p className="text-sm text-text-muted">Not that one — compare them one character at a time.</p>}
             </div>
           ) : (
-            <div className="pop-in relative mt-5 rounded-2xl border border-gold-500/30 bg-gold-500/[0.06] p-4" aria-live="polite">
+            <div className="pop-in relative mt-5 rounded-2xl border border-green-500/30 bg-green-500/[0.06] p-4" aria-live="polite">
               <p className="flex items-center gap-2 font-semibold text-text-primary">
-                <Check aria-hidden size={17} className="text-gold-300" /> {diff === -1 ? "Right — nothing to find." : "Found it."}
+                <Check aria-hidden size={17} className="text-green-300" /> {diff === -1 ? "Right — nothing to find." : "Found it."}
               </p>
               <p className="mt-1 text-sm text-text-secondary">{r.lesson}</p>
               {diff === -1 && (
@@ -179,7 +179,7 @@ export function ChassisMatch() {
               <button
                 type="button"
                 onClick={next}
-                className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full bg-[linear-gradient(180deg,var(--gold-300),var(--gold-500))] px-5 text-sm font-semibold text-[#0A0908] active:scale-95"
+                className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full bg-[linear-gradient(180deg,var(--orange-400),var(--orange-500))] px-5 text-sm font-semibold text-[#090E0A] active:scale-95"
               >
                 {round + 1 < ROUNDS.length ? "Next truck" : "Finish"}
               </button>
@@ -187,8 +187,8 @@ export function ChassisMatch() {
           )}
         </>
       ) : (
-        <div className="pop-in mt-6 rounded-2xl border border-gold-500/35 bg-gold-500/[0.06] p-6 text-center">
-          <p className="font-display text-[3rem] leading-none text-gold-200">3/3</p>
+        <div className="pop-in mt-6 rounded-2xl border border-green-500/35 bg-green-500/[0.06] p-6 text-center">
+          <p className="font-display text-[3rem] leading-none text-green-200">3/3</p>
           <p className="mt-2 text-text-primary">
             {misses === 0
               ? "Not one wrong tap. You would catch doctored papers."
@@ -197,7 +197,7 @@ export function ChassisMatch() {
           <button
             type="button"
             onClick={restart}
-            className="mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-gold-300 hover:text-gold-200"
+            className="mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-green-300 hover:text-green-200"
           >
             <RotateCcw aria-hidden size={15} /> Try again
           </button>

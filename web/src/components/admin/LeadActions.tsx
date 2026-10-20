@@ -7,7 +7,7 @@ import { addLeadNote, assignLead, claimLead, recordContact, recordReviewRequest,
 import { LEAD_STATUS_LABEL, LOST_REASONS } from "@/lib/lead-labels";
 
 const control =
-  "min-h-11 w-full border border-border-default bg-surface-0 px-3 text-sm text-text-primary outline-none focus:border-gold-500";
+  "min-h-11 w-full border border-border-default bg-surface-0 px-3 text-sm text-text-primary outline-none focus:border-green-500";
 const quietButton = "min-h-11 border border-border-strong px-4 text-sm text-text-primary hover:border-text-primary disabled:opacity-50";
 
 /**
@@ -120,7 +120,7 @@ export function OwnerControl({
           type="button"
           onClick={() => run(() => claimLead(leadId))}
           disabled={pending}
-          className="min-h-11 bg-cta px-4 text-sm font-semibold text-cta-fg hover:bg-cta-hover disabled:opacity-50"
+          className="min-h-11 rounded-full bg-cta px-4 text-sm font-semibold text-cta-fg hover:bg-cta-hover disabled:opacity-50"
         >
           {pending ? "Taking it…" : "I'll take it"}
         </button>
@@ -248,7 +248,7 @@ export function ReviewRequest({
           target="_blank"
           rel="noopener noreferrer"
           onClick={() => record("whatsapp")}
-          className="inline-flex min-h-11 items-center bg-cta px-4 text-sm font-semibold text-cta-fg hover:bg-cta-hover"
+          className="inline-flex min-h-11 items-center rounded-full bg-cta px-4 text-sm font-semibold text-cta-fg hover:bg-cta-hover"
         >
           Ask on WhatsApp
         </a>

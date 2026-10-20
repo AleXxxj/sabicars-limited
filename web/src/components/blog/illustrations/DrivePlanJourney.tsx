@@ -31,9 +31,9 @@ const STEPS: { title: string; text: string; who: Who[] }[] = [
 ];
 
 const WHO_TONE: Record<Who, string> = {
-  You: "bg-gold-400 text-[#0A0908]",
+  You: "bg-green-400 text-[#090E0A]",
   Autochek: "border border-white/25 text-text-primary",
-  Sabicars: "border border-gold-500/50 text-gold-200",
+  Sabicars: "border border-green-500/50 text-green-200",
 };
 
 /** The road the car travels, winding up the scene. */
@@ -93,12 +93,12 @@ export function DrivePlanJourney() {
               <path
                 d={ROAD}
                 fill="none"
-                stroke="var(--gold-400)"
+                stroke="var(--green-400)"
                 strokeWidth="3"
                 strokeLinecap="round"
                 strokeDasharray={len}
                 strokeDashoffset={len * (1 - p)}
-                style={{ filter: "drop-shadow(0 0 6px rgb(201 168 76 / 0.7))" }}
+                style={{ filter: "drop-shadow(0 0 6px rgb(120 176 48 / 0.7))" }}
               />
             )}
             {/* Milestones. */}
@@ -109,13 +109,13 @@ export function DrivePlanJourney() {
                 return (
                   <g key={i} transform={`translate(${pt.x} ${pt.y})`}>
                     {i === active && <circle r="26" fill="url(#journey-glow)" className="animate-pulse" />}
-                    <circle r="14" fill={passed ? "var(--gold-400)" : "#0A0908"} stroke="var(--gold-400)" strokeWidth="2" />
+                    <circle r="14" fill={passed ? "var(--green-400)" : "#090E0A"} stroke="var(--green-400)" strokeWidth="2" />
                     <text
                       y="5"
                       textAnchor="middle"
                       fontSize="13"
                       fontWeight="700"
-                      fill={passed ? "#0A0908" : "var(--gold-300)"}
+                      fill={passed ? "#090E0A" : "var(--green-300)"}
                       style={{ fontFamily: "var(--font-sans)" }}
                     >
                       {i + 1}
@@ -127,11 +127,11 @@ export function DrivePlanJourney() {
             {len > 0 && (
               <g transform={`translate(${car.x} ${car.y}) rotate(${angle})`}>
                 <ellipse rx="26" ry="15" fill="rgb(0 0 0 / 0.45)" transform="translate(2 4)" />
-                <rect x="-22" y="-12" width="44" height="24" rx="9" fill="var(--gold-300)" />
-                <rect x="-3" y="-10" width="15" height="20" rx="4" fill="#0A0908" opacity="0.8" />
-                <rect x="-17" y="-9" width="9" height="18" rx="3" fill="#0A0908" opacity="0.55" />
-                <circle cx="21" cy="-7" r="2" fill="#fffbe8" />
-                <circle cx="21" cy="7" r="2" fill="#fffbe8" />
+                <rect x="-22" y="-12" width="44" height="24" rx="9" fill="var(--green-300)" />
+                <rect x="-3" y="-10" width="15" height="20" rx="4" fill="#090E0A" opacity="0.8" />
+                <rect x="-17" y="-9" width="9" height="18" rx="3" fill="#090E0A" opacity="0.55" />
+                <circle cx="21" cy="-7" r="2" fill="#F0FBE7" />
+                <circle cx="21" cy="7" r="2" fill="#F0FBE7" />
               </g>
             )}
           </svg>
@@ -140,7 +140,7 @@ export function DrivePlanJourney() {
             <ol className="grid gap-4">
               {STEPS.map((s, i) => (
                 <li key={s.title} className="flex gap-3">
-                  <span className="figures grid size-7 shrink-0 place-items-center rounded-full bg-gold-400 text-xs font-bold text-[#0A0908]">
+                  <span className="figures grid size-7 shrink-0 place-items-center rounded-full bg-green-400 text-xs font-bold text-[#090E0A]">
                     {i + 1}
                   </span>
                   <span>
@@ -152,7 +152,7 @@ export function DrivePlanJourney() {
             </ol>
           ) : (
             <div aria-live="polite" className="min-h-[13rem] md:min-h-0">
-              <p className="figures text-xs font-semibold tracking-[0.18em] text-gold-300 uppercase">
+              <p className="figures text-xs font-semibold tracking-[0.18em] text-green-300 uppercase">
                 Step {active + 1} of {STEPS.length}
               </p>
               <div key={active} className="animate-[prompt-in_var(--duration-base)_var(--ease-out)]">
@@ -170,7 +170,7 @@ export function DrivePlanJourney() {
                 {STEPS.map((_, i) => (
                   <span
                     key={i}
-                    className={`h-1 flex-1 rounded-full transition-colors duration-500 ${i <= active ? "bg-gold-400" : "bg-white/10"}`}
+                    className={`h-1 flex-1 rounded-full transition-colors duration-500 ${i <= active ? "bg-green-400" : "bg-white/10"}`}
                   />
                 ))}
               </div>

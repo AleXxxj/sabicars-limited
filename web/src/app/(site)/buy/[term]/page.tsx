@@ -150,7 +150,7 @@ export default async function TermPage({ params }: Props) {
                 <li key={t.slug}>
                   <Link
                     href={termHref(t.slug)}
-                    className="inline-flex min-h-11 items-center gap-2 rounded-full border border-border-default bg-surface-1 px-4 text-sm text-text-secondary transition-colors hover:border-gold-500/40 hover:text-text-primary"
+                    className="inline-flex min-h-11 items-center gap-2 rounded-full border border-border-default bg-surface-1 px-4 text-sm text-text-secondary transition-colors hover:border-green-500/40 hover:text-text-primary"
                   >
                     {t.label} <span className="figures text-text-muted">{t.inStock}</span>
                   </Link>
@@ -158,7 +158,7 @@ export default async function TermPage({ params }: Props) {
               ))}
               {term.family && makeTerm && (
                 <li>
-                  <Link href={termHref(makeTerm.slug)} className="inline-flex min-h-11 items-center rounded-full px-4 text-sm font-semibold text-gold-300 hover:text-gold-200">
+                  <Link href={termHref(makeTerm.slug)} className="inline-flex min-h-11 items-center rounded-full px-4 text-sm font-semibold text-green-300 hover:text-green-200">
                     All {term.make} →
                   </Link>
                 </li>

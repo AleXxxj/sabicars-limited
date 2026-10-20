@@ -16,7 +16,7 @@ export default async function PreviewArticle({ params }: Props) {
   if (!post) notFound();
   return (
     <>
-      <p className="border border-gold-700 bg-surface-1 px-4 py-3 text-sm text-text-secondary">
+      <p className="border border-green-700 bg-surface-1 px-4 py-3 text-sm text-text-secondary">
         Preview{post.isPublished ? "" : " of a draft — readers cannot see it yet"}.{" "}
         <Link href={`/admin/blog/${post.id}`} className="font-semibold text-accent-text">
           Back to editing

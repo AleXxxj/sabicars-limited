@@ -43,16 +43,18 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 }
 
 const select =
-  "min-h-12 w-full appearance-none border border-border-default bg-surface-1 bg-[length:10px] bg-[right_1rem_center] bg-no-repeat px-4 pr-10 text-sm text-text-primary outline-none transition-colors hover:border-border-strong focus:border-gold-500 " +
-  "bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 10 6%22><path d=%22M1 1l4 4 4-4%22 fill=%22none%22 stroke=%22%23A39B8B%22 stroke-width=%221.4%22/></svg>')]";
+  "min-h-12 w-full appearance-none rounded-xl border border-border-default bg-surface-1 bg-[length:10px] bg-[right_1rem_center] bg-no-repeat px-4 pr-10 text-sm text-text-primary outline-none transition-colors hover:border-border-strong focus:border-green-500 " +
+  "bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 10 6%22><path d=%22M1 1l4 4 4-4%22 fill=%22none%22 stroke=%22%239FA59E%22 stroke-width=%221.4%22/></svg>')]";
 
 function Chip({ href, active, children }: { href: string; active: boolean; children: React.ReactNode }) {
   return (
     <Link
       href={href}
       aria-current={active ? "true" : undefined}
-      className={`inline-flex min-h-11 shrink-0 items-center gap-2 border px-4 text-[0.72rem] font-semibold uppercase tracking-[0.16em] [font-stretch:112%] transition-colors duration-[var(--duration-fast)] ${
-        active ? "border-gold-500 bg-gold-500 text-[#0B0A09]" : "border-border-default text-text-secondary hover:border-border-strong hover:text-text-primary"
+      className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-sm font-semibold transition-colors duration-[var(--duration-fast)] ${
+        active
+          ? "border-green-400 bg-green-500/15 text-green-100"
+          : "border-border-default text-text-secondary hover:border-border-strong hover:text-text-primary"
       }`}
     >
       {children}
@@ -150,7 +152,7 @@ export default async function InventoryPage({ searchParams }: Props) {
             </label>
             {/* Only needed without JavaScript; with it, changing a field submits. */}
             <noscript>
-              <button type="submit" className="min-h-12 w-full bg-cta px-6 text-xs font-semibold uppercase tracking-[0.18em] text-cta-fg">
+              <button type="submit" className="min-h-12 w-full rounded-full bg-cta px-6 text-sm font-semibold text-cta-fg">
                 Apply
               </button>
             </noscript>
@@ -177,7 +179,7 @@ export default async function InventoryPage({ searchParams }: Props) {
             <p className="mx-auto mt-4 max-w-md text-text-secondary">
               Try fewer filters — or tell us what you are looking for, and Sabicars can source it.
             </p>
-            <Link href="/vehicles" className="group inline-flex min-h-11 items-center gap-1.5 text-[0.95rem] font-semibold text-gold-300 hover:text-gold-200 mt-6">
+            <Link href="/vehicles" className="group inline-flex min-h-11 items-center gap-1.5 text-[0.95rem] font-semibold text-green-300 hover:text-green-200 mt-6">
               See all vehicles →
             </Link>
           </div>
@@ -186,7 +188,7 @@ export default async function InventoryPage({ searchParams }: Props) {
         {result.pages > 1 && (
           <nav aria-label="Pages" className="mt-14 flex items-center justify-between border-t border-border-subtle pt-6">
             {result.page > 1 ? (
-              <Link href={filtersHref(f, { page: result.page - 1 })} className="group inline-flex min-h-11 items-center gap-1.5 text-[0.95rem] font-semibold text-gold-300 hover:text-gold-200">
+              <Link href={filtersHref(f, { page: result.page - 1 })} className="group inline-flex min-h-11 items-center gap-1.5 text-[0.95rem] font-semibold text-green-300 hover:text-green-200">
                 ← Previous
               </Link>
             ) : (
@@ -196,7 +198,7 @@ export default async function InventoryPage({ searchParams }: Props) {
               Page {result.page} of {result.pages}
             </span>
             {result.page < result.pages ? (
-              <Link href={filtersHref(f, { page: result.page + 1 })} className="group inline-flex min-h-11 items-center gap-1.5 text-[0.95rem] font-semibold text-gold-300 hover:text-gold-200">
+              <Link href={filtersHref(f, { page: result.page + 1 })} className="group inline-flex min-h-11 items-center gap-1.5 text-[0.95rem] font-semibold text-green-300 hover:text-green-200">
                 Next →
               </Link>
             ) : (

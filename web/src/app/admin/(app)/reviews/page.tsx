@@ -44,7 +44,7 @@ export default async function ReviewsAdmin({ searchParams }: Props) {
             href={v === "waiting" ? "/admin/reviews" : `/admin/reviews?view=${v}`}
             aria-current={view === v ? "true" : undefined}
             className={`inline-flex min-h-11 shrink-0 items-center gap-2 border-b-2 px-1 text-sm transition-colors ${
-              view === v ? "border-gold-500 text-text-primary" : "border-transparent text-text-muted hover:text-text-primary"
+              view === v ? "border-green-500 text-text-primary" : "border-transparent text-text-muted hover:text-text-primary"
             }`}
           >
             {REVIEW_VIEWS[v]}{" "}
@@ -76,7 +76,7 @@ export default async function ReviewsAdmin({ searchParams }: Props) {
                 <p className="mt-3 whitespace-pre-wrap text-text-primary">{r.message}</p>
                 <p className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-text-muted">
                   {r.buyer ? (
-                    <span className="inline-flex items-center gap-1.5 text-gold-300">
+                    <span className="inline-flex items-center gap-1.5 text-green-300">
                       <BadgeCheck aria-hidden size={14} /> Verified buyer
                       {r.vehicle && ` · ${r.vehicle.title}`} ·{" "}
                       <Link href={`/admin/leads/${r.buyer.leadId}`} className="underline-offset-4 hover:underline">

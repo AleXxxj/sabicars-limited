@@ -25,20 +25,21 @@ const css = `/* ─────────────────────�
    ───────────────────────────────────────────────────────────────────────── */
 
 :root {
-  /* Sabicars gold. 500 is the brand colour the logo already uses. */
-${ramp("gold", p.gold)}
+  /* Sabi Green (signature, trust) and Sabi Orange (action). Each 500 is the logo colour. */
+${ramp("green", p.green)}
+${ramp("orange", p.orange)}
 
   /* The hero is photography, and photography needs a dark scrim to carry white
      type — in either theme. A light wash over a vehicle is what made the old
      hero look faded, so the hero keeps this treatment regardless of theme. */
   --hero-scrim: linear-gradient(
     100deg,
-    rgb(11 10 9 / 0.92) 0%,
-    rgb(11 10 9 / 0.78) 36%,
-    rgb(11 10 9 / 0.38) 66%,
-    rgb(11 10 9 / 0.12) 100%
+    rgb(9 14 10 / 0.92) 0%,
+    rgb(9 14 10 / 0.78) 36%,
+    rgb(9 14 10 / 0.38) 66%,
+    rgb(9 14 10 / 0.12) 100%
   );
-  --hero-scrim-bottom: linear-gradient(to top, rgb(11 10 9 / 0.9) 0%, rgb(11 10 9 / 0) 45%);
+  --hero-scrim-bottom: linear-gradient(to top, rgb(9 14 10 / 0.9) 0%, rgb(9 14 10 / 0) 45%);
   --hero-text: ${p.darkText.primary};
   --hero-text-secondary: ${p.darkText.secondary};
 }
@@ -60,12 +61,12 @@ ${ramp("surface", p.darkSurface)}
 
   --focus: ${p.focus.dark};
 
-  /* Gold carries the one action that matters on each screen. */
-  --cta-bg: var(--gold-500);
-  --cta-bg-hover: var(--gold-400);
+  /* Orange carries the one action that matters on each screen; green is the brand's voice. */
+  --cta-bg: var(--orange-500);
+  --cta-bg-hover: var(--orange-400);
   --cta-fg: ${p.darkSurface["0"]};
-  --accent-text: var(--gold-400);
-  --link: var(--gold-400);
+  --accent-text: var(--green-300);
+  --link: var(--green-300);
 
   --success: ${p.semantic.successDark};
   --warning: ${p.semantic.warningDark};
@@ -93,13 +94,13 @@ ${ramp("surface", p.lightSurface)}
 
   --focus: ${p.focus.light};
 
-  /* Gold text on white fails at body sizes, so on light the action is ink —
-     the convention of the marques — and gold becomes a rule, an icon, a fill. */
+  /* Orange and light green text fail on white, so on light the action is ink
+     and the brand colours become rules, icons and fills; text uses the deep greens. */
   --cta-bg: ${p.ink.base};
   --cta-bg-hover: ${p.ink.hover};
   --cta-fg: ${p.lightSurface["0"]};
-  --accent-text: var(--gold-800);
-  --link: var(--gold-800);
+  --accent-text: var(--green-800);
+  --link: var(--green-800);
 
   --success: ${p.semantic.successLight};
   --warning: ${p.semantic.warningLight};
@@ -113,7 +114,8 @@ ${ramp("surface", p.lightSurface)}
 
 /* Expose tokens to Tailwind utilities: bg-surface-1, text-muted, bg-cta … */
 @theme inline {
-${keys(p.gold).map((k) => `  --color-gold-${k}: var(--gold-${k});`).join("\n")}
+${keys(p.green).map((k) => `  --color-green-${k}: var(--green-${k});`).join("\n")}
+${keys(p.orange).map((k) => `  --color-orange-${k}: var(--orange-${k});`).join("\n")}
 ${keys(p.darkSurface).map((k) => `  --color-surface-${k}: var(--surface-${k});`).join("\n")}
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);

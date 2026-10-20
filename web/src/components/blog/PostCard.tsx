@@ -22,13 +22,13 @@ export function PostCard({ post, size = "md", priority = false }: { post: Post; 
             className="object-cover transition-transform duration-[var(--duration-slow)] ease-[var(--ease-out)] group-hover:scale-[1.04]"
           />
         ) : (
-          <div aria-hidden className="absolute inset-0 bg-[radial-gradient(120%_90%_at_20%_10%,rgb(201_168_76/0.25),transparent_60%)]" />
+          <div aria-hidden className="absolute inset-0 bg-[radial-gradient(120%_90%_at_20%_10%,rgb(120_176_48/0.25),transparent_60%)]" />
         )}
       </div>
       <div className={`flex flex-col ${lg ? "justify-center p-7 md:p-10" : "p-6"}`}>
-        <p className="text-xs font-semibold tracking-[0.16em] text-gold-300 uppercase">{post.category}</p>
+        <p className="text-xs font-semibold tracking-[0.16em] text-green-300 uppercase">{post.category}</p>
         <h3
-          className={`mt-3 leading-[1.12] text-text-primary transition-colors group-hover:text-gold-100 ${lg ? "text-display-3" : "text-[1.55rem]"}`}
+          className={`mt-3 leading-[1.12] text-text-primary transition-colors group-hover:text-green-100 ${lg ? "text-display-3" : "text-[1.55rem]"}`}
         >
           {post.title}
         </h3>

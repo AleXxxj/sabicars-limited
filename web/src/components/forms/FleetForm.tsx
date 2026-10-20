@@ -73,7 +73,7 @@ export function FleetForm({ whatsappBase }: { whatsappBase: string }) {
         <div className="grid gap-x-6 gap-y-1 sm:grid-cols-2">
           {FLEET_VEHICLES.map((type) => (
             <label key={type} className="inline-flex min-h-11 items-center gap-3 text-text-secondary">
-              <input type="checkbox" name="vehicles" value={type} defaultChecked={chosen.has(type)} className="size-4 accent-[var(--gold-500)]" />
+              <input type="checkbox" name="vehicles" value={type} defaultChecked={chosen.has(type)} className="size-4 accent-[var(--green-500)]" />
               {type}
             </label>
           ))}

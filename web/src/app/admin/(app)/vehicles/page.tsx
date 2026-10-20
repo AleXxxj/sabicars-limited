@@ -21,7 +21,7 @@ const STATUS_LABEL: Record<AdminStatus, string> = {
 
 /** A status reads the same everywhere: gold is live, muted is not. */
 const STATUS_TONE: Record<AdminStatus, string> = {
-  available: "border-gold-500 text-accent-text",
+  available: "border-green-500 text-accent-text",
   reserved: "border-info text-info",
   draft: "border-border-strong text-text-secondary",
   sold: "border-success text-success",
@@ -61,7 +61,7 @@ export default async function AdminInventory({ searchParams }: Props) {
         href={href({ status: value, q, attention: attentionOnly })}
         aria-current={active ? "true" : undefined}
         className={`inline-flex min-h-11 shrink-0 items-center gap-2 border-b-2 px-1 text-sm transition-colors ${
-          active ? "border-gold-500 text-text-primary" : "border-transparent text-text-muted hover:text-text-primary"
+          active ? "border-green-500 text-text-primary" : "border-transparent text-text-muted hover:text-text-primary"
         }`}
       >
         {label} <span className="figures text-xs text-text-muted">{n}</span>
@@ -92,11 +92,11 @@ export default async function AdminInventory({ searchParams }: Props) {
             name="q"
             defaultValue={q}
             placeholder="Search make, model or year"
-            className="min-h-12 w-full border border-border-default bg-surface-1 px-4 text-sm text-text-primary outline-none placeholder:text-text-muted focus:border-gold-500"
+            className="min-h-12 w-full border border-border-default bg-surface-1 px-4 text-sm text-text-primary outline-none placeholder:text-text-muted focus:border-green-500"
           />
         </label>
         <label className="inline-flex min-h-12 items-center gap-3 text-sm text-text-secondary">
-          <input type="checkbox" name="attention" value="1" defaultChecked={attentionOnly} className="size-4 accent-[var(--gold-500)]" />
+          <input type="checkbox" name="attention" value="1" defaultChecked={attentionOnly} className="size-4 accent-[var(--green-500)]" />
           Needs attention only
         </label>
         <button type="submit" className="eyebrow min-h-12 border border-border-default px-5 hover:border-border-strong">

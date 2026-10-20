@@ -120,10 +120,10 @@ export function renderNewsletter(c: NewsletterContent, unsubscribeUrl: string): 
       text: `${v.title} — ${price}${deposit ? ` (${deposit} down on the 40% Drive Plan)` : ""}\n${url}`,
       html: `<tr><td style="padding:0 0 28px">
 ${v.coverUrl ? `<a href="${esc(url)}"><img src="${esc(shareImageUrl(v.coverUrl))}" width="560" alt="${esc(v.title)}" style="display:block;width:100%;height:auto;border:0;border-radius:14px"></a>` : ""}
-<div style="padding:14px 0 0;font-family:Georgia,serif;font-size:24px;line-height:1.25;color:#f5f2ea">${esc(v.title)}</div>
-<div style="padding:6px 0 0;font-size:17px;color:#dfc67c;font-weight:bold">${esc(price)}</div>
-${deposit ? `<div style="padding:2px 0 0;font-size:14px;color:#aba394">${esc(deposit)} down on the 40% Drive Plan</div>` : ""}
-<div style="padding:12px 0 0"><a href="${esc(url)}" style="color:#dfc67c;font-size:15px;font-weight:bold;text-decoration:none">See the vehicle &rarr;</a></div>
+<div style="padding:14px 0 0;font-family:Georgia,serif;font-size:24px;line-height:1.25;color:#F2F2EC">${esc(v.title)}</div>
+<div style="padding:6px 0 0;font-size:17px;color:#A5DB6F;font-weight:bold">${esc(price)}</div>
+${deposit ? `<div style="padding:2px 0 0;font-size:14px;color:#9FA59E">${esc(deposit)} down on the 40% Drive Plan</div>` : ""}
+<div style="padding:12px 0 0"><a href="${esc(url)}" style="color:#A5DB6F;font-size:15px;font-weight:bold;text-decoration:none">See the vehicle &rarr;</a></div>
 </td></tr>`,
     };
   });
@@ -132,18 +132,18 @@ ${deposit ? `<div style="padding:2px 0 0;font-size:14px;color:#aba394">${esc(dep
     : { label: "See everything in stock", url: tagged("/vehicles", c.campaign) };
   const legal = `${site.legalName} · CAC RC ${site.rcNumber} · ${site.address.line1}, ${site.address.line2}, ${site.address.city}`;
 
-  const html = `<!doctype html><html><head><meta name="color-scheme" content="dark"><meta name="viewport" content="width=device-width"></head><body style="margin:0;background:#0a0908;font-family:Helvetica,Arial,sans-serif;color:#f5f2ea">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0a0908"><tr><td align="center" style="padding:32px 16px">
+  const html = `<!doctype html><html><head><meta name="color-scheme" content="dark"><meta name="viewport" content="width=device-width"></head><body style="margin:0;background:#090E0A;font-family:Helvetica,Arial,sans-serif;color:#F2F2EC">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#090E0A"><tr><td align="center" style="padding:32px 16px">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px">
 <tr><td style="padding:0 0 28px"><a href="${esc(tagged("/", c.campaign))}"><img src="${esc(siteUrl())}/brand/logo-email.png" width="200" alt="Sabicars" style="display:block;border:0"></a></td></tr>
 ${c.image ? `<tr><td style="padding:0 0 24px"><a href="${esc(tagged(c.image.href, c.campaign))}"><img src="${esc(shareImageUrl(c.image.url))}" width="560" alt="" style="display:block;width:100%;height:auto;border:0;border-radius:14px"></a></td></tr>` : ""}
-<tr><td style="font-size:12px;letter-spacing:3px;color:#c9a84c;text-transform:uppercase">${esc(c.kicker)}</td></tr>
-<tr><td style="padding:10px 0 0;font-family:Georgia,serif;font-size:32px;line-height:1.15;color:#f5f2ea">${esc(c.headline)}</td></tr>
-${paragraphs.map((p) => `<tr><td style="padding:14px 0 0;font-size:16px;line-height:1.65;color:#d6cfc0">${esc(p)}</td></tr>`).join("\n")}
+<tr><td style="font-size:12px;letter-spacing:3px;color:#8DC74D;text-transform:uppercase">${esc(c.kicker)}</td></tr>
+<tr><td style="padding:10px 0 0;font-family:Georgia,serif;font-size:32px;line-height:1.15;color:#F2F2EC">${esc(c.headline)}</td></tr>
+${paragraphs.map((p) => `<tr><td style="padding:14px 0 0;font-size:16px;line-height:1.65;color:#CFD2CC">${esc(p)}</td></tr>`).join("\n")}
 <tr><td style="padding:28px 0 0"></td></tr>
 ${cars.map((x) => x.html).join("\n")}
-<tr><td style="padding:4px 0 36px"><a href="${esc(cta.url)}" style="display:inline-block;background:#c9a84c;color:#0a0908;padding:16px 28px;border-radius:999px;font-size:15px;font-weight:bold;text-decoration:none">${esc(cta.label)}</a></td></tr>
-<tr><td style="border-top:1px solid #2a2825;padding:24px 0 0;font-size:12px;line-height:1.7;color:#8a8376">You are receiving this because you subscribed at sabicars.com. <a href="${esc(unsubscribeUrl)}" style="color:#aba394">Unsubscribe</a> — one click, no questions.<br>${esc(legal)}</td></tr>
+<tr><td style="padding:4px 0 36px"><a href="${esc(cta.url)}" style="display:inline-block;background:#F7801E;color:#090E0A;padding:16px 28px;border-radius:999px;font-size:15px;font-weight:bold;text-decoration:none">${esc(cta.label)}</a></td></tr>
+<tr><td style="border-top:1px solid #262B26;padding:24px 0 0;font-size:12px;line-height:1.7;color:#8E958F">You are receiving this because you subscribed at sabicars.com. <a href="${esc(unsubscribeUrl)}" style="color:#9FA59E">Unsubscribe</a> — one click, no questions.<br>${esc(legal)}</td></tr>
 </table></td></tr></table></body></html>`;
 
   const text = [

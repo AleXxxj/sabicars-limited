@@ -18,11 +18,11 @@ function Welcome({ name, code, link, returning }: { name?: string; code: string;
   const share = `Looking for a car? Sabicars has verified luxury cars, Hiace buses, SUVs and trucks — and you can drive home on 40%. See what's in stock: ${link}`;
 
   return (
-    <div ref={ref} role="status" className="surface-card scroll-mt-24 !border-gold-500/30 p-7 md:p-9">
+    <div ref={ref} role="status" className="surface-card scroll-mt-24 !border-green-500/30 p-7 md:p-9">
       <p className="kicker">{returning ? "Already registered" : "Registered"}</p>
       <h3 className="mt-3 text-display-3">{returning ? `Welcome back${name ? `, ${name}` : ""}.` : `You’re a Sabicars partner${name ? `, ${name}` : ""}.`}</h3>
       <p className="mt-4 text-text-secondary">{returning ? "This number is already registered. Your code is:" : "Your partner code is:"}</p>
-      <p className="figures text-gold mt-2 font-display text-[3.75rem] leading-none tracking-[0.08em]">{code}</p>
+      <p className="figures text-brand mt-2 font-display text-[3.75rem] leading-none tracking-[0.08em]">{code}</p>
 
       <div className="mt-8 border-t border-border-subtle pt-6">
         <p className="text-sm font-medium text-text-secondary">Your link</p>
@@ -107,7 +107,7 @@ export function PartnerForm() {
       </label>
 
       <label className="flex items-start gap-3 text-sm leading-relaxed text-text-secondary">
-        <input type="checkbox" name="agree" value="yes" defaultChecked={v.agree === "yes"} className="mt-1 size-4 shrink-0 accent-[var(--gold-500)]" />
+        <input type="checkbox" name="agree" value="yes" defaultChecked={v.agree === "yes"} className="mt-1 size-4 shrink-0 accent-[var(--green-500)]" />
         <span>I have read the programme rules: it is free, I am paid only when a buyer I sent completes a purchase, and I earn nothing for signing others up.</span>
       </label>
       <FieldError message={err.agree} />

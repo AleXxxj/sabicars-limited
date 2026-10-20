@@ -93,7 +93,7 @@ function LiteEmbed({ source, poster, title }: { source: Exclude<VideoSource, { k
       type="button"
       onClick={() => setPlaying(true)}
       aria-label={`Play: ${title} (${LABEL[source.kind]})`}
-      className={`${shape} group relative block overflow-hidden rounded-2xl border border-white/[0.08] bg-[radial-gradient(120%_90%_at_30%_20%,rgb(201_168_76/0.22),transparent_60%),var(--surface-2)] text-left`}
+      className={`${shape} group relative block overflow-hidden rounded-2xl border border-white/[0.08] bg-[radial-gradient(120%_90%_at_30%_20%,rgb(120_176_48/0.22),transparent_60%),var(--surface-2)] text-left`}
     >
       {poster && (
         // eslint-disable-next-line @next/next/no-img-element -- the service's own poster frame
@@ -104,10 +104,10 @@ function LiteEmbed({ source, poster, title }: { source: Exclude<VideoSource, { k
           className="absolute inset-0 size-full object-cover transition-transform duration-[var(--duration-slow)] ease-[var(--ease-out)] group-hover:scale-[1.03]"
         />
       )}
-      <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-[#0A0908]/85 via-[#0A0908]/15 to-transparent" />
+      <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-[#090E0A]/85 via-[#090E0A]/15 to-transparent" />
       <span
         aria-hidden
-        className="absolute top-1/2 left-1/2 inline-flex size-16 -translate-1/2 items-center justify-center rounded-full bg-gold-400 text-[#0A0908] shadow-[0_12px_40px_-8px_rgb(201_168_76/0.7)] transition-transform duration-[var(--duration-base)] group-hover:scale-110"
+        className="absolute top-1/2 left-1/2 inline-flex size-16 -translate-1/2 items-center justify-center rounded-full bg-green-400 text-[#090E0A] shadow-[0_12px_40px_-8px_rgb(120_176_48/0.7)] transition-transform duration-[var(--duration-base)] group-hover:scale-110"
       >
         <Play size={26} className="translate-x-0.5 fill-current" />
       </span>

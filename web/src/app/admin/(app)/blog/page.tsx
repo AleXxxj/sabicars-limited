@@ -31,7 +31,7 @@ export default async function BlogAdmin() {
         {canEdit && (
           <Link
             href="/admin/blog/new"
-            className="inline-flex min-h-11 items-center bg-cta px-5 text-sm font-semibold text-cta-fg hover:bg-cta-hover"
+            className="inline-flex min-h-11 items-center rounded-full bg-cta px-5 text-sm font-semibold text-cta-fg hover:bg-cta-hover"
           >
             Write an article
           </Link>
@@ -39,7 +39,7 @@ export default async function BlogAdmin() {
       </div>
 
       {comments.length > 0 && (
-        <section aria-label="Comments waiting" className="mt-8 border border-gold-700 bg-surface-1 p-5 md:p-6">
+        <section aria-label="Comments waiting" className="mt-8 border border-green-700 bg-surface-1 p-5 md:p-6">
           <p className="text-sm font-semibold text-text-primary">
             {comments.length} {comments.length === 1 ? "comment is" : "comments are"} waiting to be read
           </p>

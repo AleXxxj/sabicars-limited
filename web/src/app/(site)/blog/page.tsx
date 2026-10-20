@@ -51,7 +51,7 @@ export default async function BlogIndex({ searchParams }: Props) {
                   aria-current={on ? "page" : undefined}
                   className={`inline-flex min-h-11 items-center rounded-full border px-4 text-sm transition-colors ${
                     on
-                      ? "border-gold-500/50 bg-gold-500/10 text-gold-100"
+                      ? "border-green-500/50 bg-green-500/10 text-green-100"
                       : "border-white/12 text-text-secondary hover:border-white/30 hover:text-text-primary"
                   }`}
                 >

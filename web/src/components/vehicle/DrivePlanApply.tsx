@@ -33,7 +33,7 @@ export function DrivePlanApply({ vehicleId, autochekUrl }: { vehicleId: string; 
   }
   if (state?.ok) {
     return (
-      <div role="status" className="mt-5 rounded-xl border border-gold-500/30 bg-gold-500/10 p-4 text-sm leading-relaxed text-text-primary">
+      <div role="status" className="mt-5 rounded-xl border border-green-500/30 bg-green-500/10 p-4 text-sm leading-relaxed text-text-primary">
         Thank you{state.name ? `, ${state.name}` : ""}. Sabicars will put this vehicle on its Autochek store and send you the application
         link{state.reference ? <> — your reference is <strong className="figures">{state.reference}</strong></> : null}.
       </div>

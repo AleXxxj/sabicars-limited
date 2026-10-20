@@ -18,7 +18,7 @@ export function PageIntro({
 }) {
   if (imageUrl) {
     return (
-      <section className="relative isolate overflow-hidden bg-[#0B0A09]">
+      <section className="relative isolate overflow-hidden bg-[#090E0A]">
         <VehicleImage src={imageUrl} alt="" fill priority sizes="100vw" className="-z-20 object-cover opacity-55" />
         <div aria-hidden className="absolute inset-0 -z-10" style={{ background: "var(--hero-scrim)" }} />
         <div className="mx-auto max-w-7xl px-5 pb-16 pt-20 md:px-10 md:pb-24 md:pt-32">

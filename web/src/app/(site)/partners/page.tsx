@@ -48,7 +48,7 @@ export default async function PartnersPage() {
           <p className="kicker">How it works</p>
           <ol className="mt-8 grid gap-8 sm:grid-cols-2">
             {HOW.map(([step, text], i) => (
-              <li key={step} className="border-t border-gold-700 pt-4">
+              <li key={step} className="border-t border-green-700 pt-4">
                 <p className="figures text-xs text-text-muted">0{i + 1}</p>
                 <p className="mt-1 font-display text-[1.7rem] leading-tight">{step}</p>
                 <p className="mt-2 text-sm leading-relaxed text-text-secondary">{text}</p>

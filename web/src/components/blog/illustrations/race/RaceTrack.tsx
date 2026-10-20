@@ -392,7 +392,7 @@ export function RaceTrack({
                   <div className="absolute top-2 left-2 flex flex-col items-start">
                     <span className="flex items-center gap-1.5">
                       {k === 0 && (
-                        <span className="rounded-[4px] bg-white/90 px-1.5 py-0.5 text-[0.62rem] font-extrabold tracking-wide text-[#0A0908] uppercase shadow-[0_2px_6px_rgb(0_0_0/0.4)]">
+                        <span className="rounded-[4px] bg-white/90 px-1.5 py-0.5 text-[0.62rem] font-extrabold tracking-wide text-[#090E0A] uppercase shadow-[0_2px_6px_rgb(0_0_0/0.4)]">
                           {spec.from}
                         </span>
                       )}
@@ -430,12 +430,12 @@ export function RaceTrack({
           {/* Start and finish */}
           <div className="absolute bottom-0 w-0.5 bg-white/40" style={{ left: START - 4, top: sky }} />
           <div
-            className="absolute bottom-0 w-3 bg-[repeating-conic-gradient(#f5f2ea_0_25%,#0B0A09_0_50%)] bg-[length:12px_12px] opacity-85"
+            className="absolute bottom-0 w-3 bg-[repeating-conic-gradient(#F2F2EC_0_25%,#090E0A_0_50%)] bg-[length:12px_12px] opacity-85"
             style={{ left: track, top: sky }}
           />
           {/* The destination stands at the roadside by the line, clear of the leg signs above */}
           <div className="absolute flex -translate-x-full flex-col items-end" style={{ left: track + 10, top: sky - 30 }}>
-            <span className="rounded-[4px] bg-[linear-gradient(180deg,var(--gold-200),var(--gold-500))] px-2 py-0.5 text-[0.62rem] font-extrabold tracking-wide whitespace-nowrap text-[#0A0908] uppercase shadow-[0_2px_8px_rgb(0_0_0/0.5)]">
+            <span className="rounded-[4px] bg-[linear-gradient(180deg,var(--green-200),var(--green-500))] px-2 py-0.5 text-[0.62rem] font-extrabold tracking-wide whitespace-nowrap text-[#090E0A] uppercase shadow-[0_2px_8px_rgb(0_0_0/0.5)]">
               {spec.to}
             </span>
             <span className="mr-1 h-2.5 w-0.5 bg-white/40" />
@@ -483,7 +483,7 @@ export function RaceTrack({
                   </span>
                 )}
                 {moving && inLeg?.kind === "mechanic" && (
-                  <span className="absolute top-[18%] left-[55%] grid size-5 place-items-center rounded-full bg-[#f2d23c] text-[#0A0908] shadow-[0_2px_6px_rgb(0_0_0/0.5)]">
+                  <span className="absolute top-[18%] left-[55%] grid size-5 place-items-center rounded-full bg-[#f2d23c] text-[#090E0A] shadow-[0_2px_6px_rgb(0_0_0/0.5)]">
                     <Wrench size={11} strokeWidth={2.8} className={struggling ? "animate-spin" : ""} />
                   </span>
                 )}
@@ -507,7 +507,7 @@ export function RaceTrack({
                     ref={(el) => {
                       counters.current[i] = el;
                     }}
-                    className="figures absolute bottom-[30%] left-full ml-1.5 rounded-full bg-white/90 px-1.5 py-px text-[0.6rem] font-bold whitespace-nowrap text-[#0A0908] opacity-0 transition-opacity"
+                    className="figures absolute bottom-[30%] left-full ml-1.5 rounded-full bg-white/90 px-1.5 py-px text-[0.6rem] font-bold whitespace-nowrap text-[#090E0A] opacity-0 transition-opacity"
                   >
                     0/{r.seats}
                   </span>
@@ -516,7 +516,7 @@ export function RaceTrack({
                 {moving && note && (
                   <span
                     key={`${spec.key}-${k}`}
-                    className={`bus-bubble absolute right-0 bottom-full mb-1 rounded-full px-2 py-0.5 text-[0.62rem] font-bold whitespace-nowrap shadow-[0_2px_8px_rgb(0_0_0/0.5)] ${note.tone === "good" ? "bg-[#1f6b3a] text-white" : note.tone === "bad" ? "bg-[#9e2a22] text-white" : "bg-white/85 text-[#0A0908]"}`}
+                    className={`bus-bubble absolute right-0 bottom-full mb-1 rounded-full px-2 py-0.5 text-[0.62rem] font-bold whitespace-nowrap shadow-[0_2px_8px_rgb(0_0_0/0.5)] ${note.tone === "good" ? "bg-[#1f6b3a] text-white" : note.tone === "bad" ? "bg-[#9e2a22] text-white" : "bg-white/85 text-[#090E0A]"}`}
                   >
                     {note.tone === "good" ? "▲ " : note.tone === "bad" ? "▼ " : ""}
                     {note.text}
@@ -525,7 +525,7 @@ export function RaceTrack({
                 {racing && i === pickIndex && honk > 0 && (
                   <span
                     key={`honk-${honk}`}
-                    className="bus-bubble absolute bottom-full left-0 mb-1 rounded-full bg-[linear-gradient(180deg,var(--gold-200),var(--gold-500))] px-2 py-0.5 text-[0.65rem] font-extrabold whitespace-nowrap text-[#0A0908]"
+                    className="bus-bubble absolute bottom-full left-0 mb-1 rounded-full bg-[linear-gradient(180deg,var(--green-200),var(--green-500))] px-2 py-0.5 text-[0.65rem] font-extrabold whitespace-nowrap text-[#090E0A]"
                   >
                     Pom pom!
                   </span>
@@ -551,12 +551,12 @@ export function RaceTrack({
               {(racing || phase === "done") && place >= 0 && (
                 <span
                   key={`${place}-${done}`}
-                  className={`pop-in rounded-full px-1.5 py-px text-[0.6rem] font-bold ${place === 0 ? "bg-[linear-gradient(180deg,var(--gold-200),var(--gold-500))] text-[#0A0908]" : "bg-white/15 text-text-primary"}`}
+                  className={`pop-in rounded-full px-1.5 py-px text-[0.6rem] font-bold ${place === 0 ? "bg-[linear-gradient(180deg,var(--green-200),var(--green-500))] text-[#090E0A]" : "bg-white/15 text-text-primary"}`}
                 >
                   {PLACES[place]}
                 </span>
               )}
-              {r.id === pick && <span className="text-gold-300">· yours</span>}
+              {r.id === pick && <span className="text-green-300">· yours</span>}
             </span>
           );
         })}
@@ -583,10 +583,10 @@ export function RaceTrack({
             return (
               <span
                 key={k}
-                className={`flex items-center justify-center gap-1 text-[0.62rem] whitespace-nowrap transition-colors ${now ? "font-semibold text-gold-200" : "text-text-muted"}`}
+                className={`flex items-center justify-center gap-1 text-[0.62rem] whitespace-nowrap transition-colors ${now ? "font-semibold text-green-200" : "text-text-muted"}`}
                 style={{ width: `${l.len * 100}%` }}
               >
-                <Icon size={11} className={now ? "text-gold-300" : ""} />
+                <Icon size={11} className={now ? "text-green-300" : ""} />
                 {(!(narrow || compact) || now) && (l.label ?? LEG_LABEL[l.kind])}
               </span>
             );
@@ -606,7 +606,7 @@ export function RaceTrack({
               ref={(el) => {
                 dots.current[i] = el;
               }}
-              className="absolute top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-[#0A0908] shadow-[0_0_0_1px_rgb(255_255_255/0.4)]"
+              className="absolute top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-[#090E0A] shadow-[0_0_0_1px_rgb(255_255_255/0.4)]"
               style={{ left: "0%", background: r.color, zIndex: r.id === pick ? 2 : 1 }}
             />
           ))}

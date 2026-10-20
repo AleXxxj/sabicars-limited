@@ -110,7 +110,7 @@ export default async function Home() {
             <div key={label} className="glass rounded-2xl p-4 shadow-[0_24px_60px_-30px_rgb(0_0_0/0.9)] md:p-6">
               <dt className="sr-only">{label}</dt>
               <dd>
-                <Icon aria-hidden size={20} strokeWidth={1.75} className="text-gold-300" />
+                <Icon aria-hidden size={20} strokeWidth={1.75} className="text-green-300" />
                 <span className="figures mt-3 block font-display text-[2.1rem] leading-none text-text-primary md:text-[2.75rem]">{value}</span>
                 {href ? (
                   <a href={href} target="_blank" rel="noopener noreferrer" className="mt-2 block text-[0.82rem] leading-snug text-text-secondary underline-offset-4 hover:text-text-primary hover:underline">
@@ -128,7 +128,7 @@ export default async function Home() {
       {/* The signature vehicle: what Sabicars is known for, first. */}
       {hummers.length > 0 && (
         <section className="relative isolate overflow-hidden">
-          <div aria-hidden className="absolute inset-0 -z-10 bg-[radial-gradient(800px_420px_at_85%_40%,rgb(201_168_76/0.1),transparent_70%)]" />
+          <div aria-hidden className="absolute inset-0 -z-10 bg-[radial-gradient(800px_420px_at_85%_40%,rgb(120_176_48/0.1),transparent_70%)]" />
           <div className="mx-auto grid max-w-7xl gap-10 px-5 py-20 md:px-10 md:py-28 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:items-center lg:gap-16">
             <ScrollReveal>
               <SectionHead eyebrow="The signature" title="The home of the Hummer bus.">
@@ -171,10 +171,10 @@ export default async function Home() {
                   sizes="(min-width: 1024px) 55vw, 100vw"
                   className="object-cover transition-transform duration-[var(--duration-slow)] ease-[var(--ease-out)] group-hover:scale-[1.03]"
                 />
-                <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[#0A0908]/80 via-transparent to-transparent" />
+                <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[#090E0A]/80 via-transparent to-transparent" />
                 <span className="glass absolute bottom-4 left-4 right-4 flex items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm text-white">
                   <span className="truncate">{vehicleTitle(hummers[0])}</span>
-                  <span className="figures shrink-0 font-semibold text-gold-200">{priceLabel(hummers[0])}</span>
+                  <span className="figures shrink-0 font-semibold text-green-200">{priceLabel(hummers[0])}</span>
                 </span>
               </Link>
               {hummers.length > 1 && (
@@ -183,7 +183,7 @@ export default async function Home() {
                     <li key={b.id}>
                       <Link href={`/vehicles/${b.slug}`} className="group relative block aspect-[4/3] overflow-hidden rounded-xl border border-white/[0.08]">
                         <VehicleImage src={b.cover!.url} alt={vehicleTitle(b)} fill sizes="(min-width: 1024px) 18vw, 30vw" className="object-cover transition-transform group-hover:scale-[1.05]" />
-                        <span className="figures absolute bottom-1.5 left-1.5 rounded-full bg-[#0A0908]/75 px-2 py-0.5 text-[0.7rem] text-white">{b.year}</span>
+                        <span className="figures absolute bottom-1.5 left-1.5 rounded-full bg-[#090E0A]/75 px-2 py-0.5 text-[0.7rem] text-white">{b.year}</span>
                       </Link>
                     </li>
                   ))}
@@ -235,11 +235,11 @@ export default async function Home() {
                         className="object-cover transition-transform duration-[var(--duration-slow)] ease-[var(--ease-out)] group-hover:scale-[1.05]"
                       />
                     )}
-                    <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[#0B0A09] via-[#0B0A09]/35 to-transparent" />
+                    <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[#090E0A] via-[#090E0A]/35 to-transparent" />
                     <div className="absolute inset-x-0 bottom-0 p-5 md:p-6">
                       <p className="figures glass inline-block rounded-full px-2.5 py-0.5 text-xs text-white/85">{t.count} in stock</p>
                       <p className="mt-1 font-display text-[1.7rem] leading-tight text-white md:text-[2rem]">{t.label}</p>
-                      <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-gold-300">
+                      <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-green-300">
                         Browse <ArrowRight aria-hidden size={16} className="transition-transform duration-[var(--duration-base)] group-hover:translate-x-1" />
                       </span>
                     </div>
@@ -326,7 +326,7 @@ export default async function Home() {
       </section>
 
       {/* Fleet and government. */}
-      <section className="relative isolate overflow-hidden border-t border-border-subtle bg-[#0B0A09]">
+      <section className="relative isolate overflow-hidden border-t border-border-subtle bg-[#090E0A]">
         {busCover && <VehicleImage src={busCover} alt="" fill sizes="100vw" className="-z-20 object-cover opacity-45" />}
         <div aria-hidden className="absolute inset-0 -z-10" style={{ background: "var(--hero-scrim)" }} />
         <div className="mx-auto max-w-7xl px-5 py-24 md:px-10 md:py-32">

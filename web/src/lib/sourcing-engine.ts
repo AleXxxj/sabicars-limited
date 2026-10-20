@@ -137,16 +137,16 @@ function matchEmail(m: {
     `${site.legalName} · CAC RC ${site.rcNumber}`,
   ].join("\n");
 
-  const html = `<!doctype html><html><body style="margin:0;background:#0b0a09;font-family:Helvetica,Arial,sans-serif;color:#f3eee4">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0b0a09"><tr><td align="center" style="padding:32px 16px">
+  const html = `<!doctype html><html><body style="margin:0;background:#090E0A;font-family:Helvetica,Arial,sans-serif;color:#EEF0E9">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#090E0A"><tr><td align="center" style="padding:32px 16px">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px">
-<tr><td style="padding:0 0 28px"><img src="${esc(siteUrl())}/brand/logo-email.png" width="220" height="45" alt="Sabicars" style="display:block;border:0"><div style="padding-top:14px;font-size:12px;letter-spacing:3px;color:#c9a84c">SOURCING DESK</div></td></tr>
-<tr><td style="font-size:16px;line-height:1.6;color:#d8d0c1">Hello ${esc(m.firstName)},<br><br>You asked us to find a <strong style="color:#f3eee4">${esc(m.want)}</strong> (reference ${esc(m.reference)}). One has just arrived.</td></tr>
+<tr><td style="padding:0 0 28px"><img src="${esc(siteUrl())}/brand/logo-email.png" width="220" height="45" alt="Sabicars" style="display:block;border:0"><div style="padding-top:14px;font-size:12px;letter-spacing:3px;color:#8DC74D">SOURCING DESK</div></td></tr>
+<tr><td style="font-size:16px;line-height:1.6;color:#CFD2CC">Hello ${esc(m.firstName)},<br><br>You asked us to find a <strong style="color:#EEF0E9">${esc(m.want)}</strong> (reference ${esc(m.reference)}). One has just arrived.</td></tr>
 ${m.imageUrl ? `<tr><td style="padding:24px 0 0"><a href="${esc(m.url)}"><img src="${esc(m.imageUrl)}" width="560" alt="${esc(m.title)}" style="display:block;width:100%;height:auto;border:0"></a></td></tr>` : ""}
-<tr><td style="padding:20px 0 0;font-family:Georgia,serif;font-size:28px;line-height:1.2;color:#f3eee4">${esc(m.title)}</td></tr>
-<tr><td style="padding:8px 0 0;font-size:18px;color:#f3eee4"><strong>${esc(m.price)}</strong>${m.deposit ? `<span style="color:#c9a84c"> · ${esc(m.deposit)} deposit on the 40% Drive Plan</span>` : ""}</td></tr>
-<tr><td style="padding:28px 0"><a href="${esc(m.url)}" style="display:inline-block;background:#c9a84c;color:#0b0a09;padding:16px 28px;font-size:13px;font-weight:bold;letter-spacing:2px;text-decoration:none">SEE THE VEHICLE</a></td></tr>
-<tr><td style="font-size:13px;line-height:1.6;color:#a39b8b">Found your car already? Reply to this email and we will close your request.<br><br>${esc(site.legalName)} · CAC RC ${esc(site.rcNumber)}</td></tr>
+<tr><td style="padding:20px 0 0;font-family:Georgia,serif;font-size:28px;line-height:1.2;color:#EEF0E9">${esc(m.title)}</td></tr>
+<tr><td style="padding:8px 0 0;font-size:18px;color:#EEF0E9"><strong>${esc(m.price)}</strong>${m.deposit ? `<span style="color:#8DC74D"> · ${esc(m.deposit)} deposit on the 40% Drive Plan</span>` : ""}</td></tr>
+<tr><td style="padding:28px 0"><a href="${esc(m.url)}" style="display:inline-block;background:#F7801E;color:#090E0A;padding:16px 28px;font-size:13px;font-weight:bold;letter-spacing:2px;text-decoration:none">SEE THE VEHICLE</a></td></tr>
+<tr><td style="font-size:13px;line-height:1.6;color:#9FA59E">Found your car already? Reply to this email and we will close your request.<br><br>${esc(site.legalName)} · CAC RC ${esc(site.rcNumber)}</td></tr>
 </table></td></tr></table></body></html>`;
   return { subject, html, text };
 }

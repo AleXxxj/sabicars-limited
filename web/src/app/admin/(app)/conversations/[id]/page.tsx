@@ -49,14 +49,14 @@ export default async function ConversationPage({ params }: Props) {
             return m.role === "user" ? (
               <div
                 key={m.id}
-                className="ml-auto max-w-[85%] rounded-2xl rounded-br-md border border-gold-500/25 bg-gold-500/[0.1] px-4 py-3"
+                className="ml-auto max-w-[85%] rounded-2xl rounded-br-md border border-green-500/25 bg-green-500/[0.1] px-4 py-3"
               >
                 <p className="whitespace-pre-wrap text-text-primary">{m.content}</p>
                 <p className="mt-1 text-right text-[0.7rem] text-text-muted">{when(m.createdAt)}</p>
               </div>
             ) : (
               <div key={m.id} className="max-w-[92%] rounded-2xl rounded-bl-md border border-border-subtle bg-surface-1 px-4 py-3">
-                <p className="text-[0.7rem] font-semibold tracking-wide text-gold-300 uppercase">Ask Sabicars</p>
+                <p className="text-[0.7rem] font-semibold tracking-wide text-green-300 uppercase">Ask Sabicars</p>
                 <p className="mt-1 whitespace-pre-wrap text-text-secondary">{text}</p>
                 {canPublish && prev?.role === "user" && (
                   <PublishFromChat question={prev.content} answer={m.content.replace(/\[\[[^\]]*\]\]/g, "").trim()} conversationId={c.id} />
@@ -77,7 +77,7 @@ export default async function ConversationPage({ params }: Props) {
             {c.leadId ? (
               <>
                 <p className="text-text-muted">Became an enquiry</p>
-                <Link href={`/admin/leads/${c.leadId}`} className="mt-1 inline-block font-semibold text-gold-300 hover:text-gold-200">
+                <Link href={`/admin/leads/${c.leadId}`} className="mt-1 inline-block font-semibold text-green-300 hover:text-green-200">
                   {c.leadName ?? "Open it"} · {referenceFor(c.leadId)} →
                 </Link>
               </>
@@ -86,7 +86,7 @@ export default async function ConversationPage({ params }: Props) {
             )}
             {c.needsHuman && (
               <div className="mt-4 flex flex-wrap items-center gap-3">
-                <span className="rounded-full bg-gold-500/15 px-2.5 py-1 text-xs font-semibold text-gold-200">Wants a person</span>
+                <span className="rounded-full bg-green-500/15 px-2.5 py-1 text-xs font-semibold text-green-200">Wants a person</span>
                 <HandledButton id={c.id} />
               </div>
             )}
@@ -97,7 +97,7 @@ export default async function ConversationPage({ params }: Props) {
               <ul className="mt-2 grid gap-1.5">
                 {cars.map((v) => (
                   <li key={v.id}>
-                    <Link href={`/vehicles/${v.slug}`} className="text-text-primary hover:text-gold-200">
+                    <Link href={`/vehicles/${v.slug}`} className="text-text-primary hover:text-green-200">
                       {vehicleTitle(v)}
                     </Link>
                   </li>

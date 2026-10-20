@@ -12,7 +12,7 @@ import { ROADS, SUVS, scoreOn, strengths, type RoadScene, type SuvStock } from "
 const COLORS: Record<string, string> = {
   highlander: "#9b2f2a",
   gx: "#d8d1c2",
-  prado: "#f1efe9",
+  prado: "#EEEFE9",
   gle: "#8fa3b8",
   rrs: "#2a2b2e",
 };
@@ -35,7 +35,7 @@ function Scene({ scene, racing }: { scene: RoadScene; racing: boolean }) {
       <div aria-hidden className="absolute inset-0">
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgb(128_20_28/0.55),rgb(96_14_22/0.65))]" />
         {[20, 40, 60, 80].map((x) => (
-          <span key={x} className="absolute top-0 h-full w-px bg-gold-500/30" style={{ left: `${x}%` }} />
+          <span key={x} className="absolute top-0 h-full w-px bg-green-500/30" style={{ left: `${x}%` }} />
         ))}
       </div>
     );
@@ -50,7 +50,7 @@ function Scene({ scene, racing }: { scene: RoadScene; racing: boolean }) {
     return (
       <div aria-hidden className="absolute inset-0">
         <div className="absolute inset-y-0 left-[48%] w-[7%] bg-[repeating-linear-gradient(0deg,rgb(255_255_255/0.5)_0_6px,transparent_6px_14px)] opacity-60" />
-        <span className="absolute top-1 left-[40%] rounded bg-[#c9a84c] px-1.5 py-0.5 text-[0.6rem] font-bold text-[#0A0908]">SCHOOL</span>
+        <span className="absolute top-1 left-[40%] rounded bg-green-500 px-1.5 py-0.5 text-[0.6rem] font-bold text-[#090E0A]">SCHOOL</span>
       </div>
     );
   return null;
@@ -171,7 +171,7 @@ export function SuvRace({ stock }: { stock: SuvStock }) {
             type="button"
             aria-pressed={r.id === roadId}
             onClick={() => reset(r.id)}
-            className={`min-h-11 rounded-full border px-4 text-sm transition-all active:scale-95 ${r.id === roadId ? "border-gold-400 bg-gold-500/15 font-semibold text-gold-100" : "border-white/[0.12] text-text-secondary hover:border-gold-500/40 hover:text-text-primary"}`}
+            className={`min-h-11 rounded-full border px-4 text-sm transition-all active:scale-95 ${r.id === roadId ? "border-green-400 bg-green-500/15 font-semibold text-green-100" : "border-white/[0.12] text-text-secondary hover:border-green-500/40 hover:text-text-primary"}`}
           >
             {r.label}
           </button>
@@ -185,7 +185,7 @@ export function SuvRace({ stock }: { stock: SuvStock }) {
         <div aria-hidden className="absolute inset-y-0 left-[3%] w-px bg-white/25" />
         <div
           aria-hidden
-          className="absolute inset-y-0 right-[4%] w-2.5 bg-[repeating-conic-gradient(#f5f2ea_0_25%,#0B0A09_0_50%)] bg-[length:10px_10px] opacity-80"
+          className="absolute inset-y-0 right-[4%] w-2.5 bg-[repeating-conic-gradient(#F2F2EC_0_25%,#090E0A_0_50%)] bg-[length:10px_10px] opacity-80"
         />
         <ul className="relative">
           {SUVS.map((s, i) => {
@@ -215,7 +215,7 @@ export function SuvRace({ stock }: { stock: SuvStock }) {
                   {s.short}
                   {place >= 0 && (
                     <span
-                      className={`pop-in rounded-full px-1.5 py-px text-[0.62rem] font-bold ${place === 0 ? "bg-[linear-gradient(180deg,var(--gold-200),var(--gold-500))] text-[#0A0908]" : "bg-white/15 text-text-primary"}`}
+                      className={`pop-in rounded-full px-1.5 py-px text-[0.62rem] font-bold ${place === 0 ? "bg-[linear-gradient(180deg,var(--green-200),var(--green-500))] text-[#090E0A]" : "bg-white/15 text-text-primary"}`}
                     >
                       {["1st", "2nd", "3rd", "4th", "5th"][place]}
                     </span>
@@ -256,7 +256,7 @@ export function SuvRace({ stock }: { stock: SuvStock }) {
           type="button"
           onClick={race}
           disabled={phase === "countdown" || racing}
-          className="inline-flex min-h-12 items-center gap-2 rounded-full bg-[linear-gradient(180deg,var(--gold-300),var(--gold-500))] px-6 font-semibold text-[#0A0908] transition-transform active:scale-95 disabled:opacity-50"
+          className="inline-flex min-h-12 items-center gap-2 rounded-full bg-[linear-gradient(180deg,var(--orange-400),var(--orange-500))] px-6 font-semibold text-[#090E0A] transition-transform active:scale-95 disabled:opacity-50"
         >
           {phase === "done" ? <RotateCcw aria-hidden size={17} /> : <Flag aria-hidden size={17} />}
           {phase === "done" ? "Race again" : phase === "ready" ? "Race them" : "Racing…"}
@@ -275,7 +275,7 @@ export function SuvRace({ stock }: { stock: SuvStock }) {
                 <div key={s.id} className="relative flex w-1/3 max-w-32 flex-col items-center">
                   <SuvShape shape={s.shape} color={COLORS[s.id]} className="mb-1 w-[85%]" />
                   <div
-                    className={`flex w-full origin-bottom flex-col items-center justify-start rounded-t-xl pt-2 ${first ? "bg-[linear-gradient(180deg,var(--gold-300),var(--gold-600))] text-[#0A0908]" : "bg-white/10 text-text-primary"}`}
+                    className={`flex w-full origin-bottom flex-col items-center justify-start rounded-t-xl pt-2 ${first ? "bg-[linear-gradient(180deg,var(--green-300),var(--green-600))] text-[#090E0A]" : "bg-white/10 text-text-primary"}`}
                     style={{ height: `${h * 96 * rise}px` }}
                   >
                     <span className="text-lg font-bold">{["2", "1", "3"][i]}</span>
@@ -291,7 +291,7 @@ export function SuvRace({ stock }: { stock: SuvStock }) {
             })}
           </div>
           <div>
-            <p className="flex items-center gap-2 text-xs font-semibold tracking-[0.16em] text-gold-300 uppercase">
+            <p className="flex items-center gap-2 text-xs font-semibold tracking-[0.16em] text-green-300 uppercase">
               <Trophy aria-hidden size={15} /> {road.label}
             </p>
             <p className="mt-1 font-display text-[1.9rem] leading-tight text-text-primary">{winner.name}</p>
@@ -299,7 +299,7 @@ export function SuvRace({ stock }: { stock: SuvStock }) {
             {stock[winner.id]?.count ? (
               <Link
                 href={winner.term ? `/buy/${winner.term}` : "/vehicles"}
-                className="group mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-gold-300 hover:text-gold-200"
+                className="group mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-green-300 hover:text-green-200"
               >
                 {stock[winner.id].count} in the showroom now
                 {stock[winner.id].fromMinor ? `, from ${formatNaira(stock[winner.id].fromMinor!)}` : ""}
@@ -308,7 +308,7 @@ export function SuvRace({ stock }: { stock: SuvStock }) {
             ) : (
               <Link
                 href={`/find?want=${encodeURIComponent(winner.name)}`}
-                className="group mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-gold-300 hover:text-gold-200"
+                className="group mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-green-300 hover:text-green-200"
               >
                 Not in the showroom today — ask the Sourcing Desk
                 <ArrowRight aria-hidden size={16} className="transition-transform group-hover:translate-x-1" />

@@ -54,7 +54,7 @@ export async function SiteFooter() {
             className="group mt-6 inline-flex items-center gap-4 text-xs text-text-muted hover:text-text-primary"
           >
             {/* eslint-disable-next-line @next/next/no-img-element -- a vector seal, cached across pages */}
-            <img src="/brand/seal-gold.svg" alt="" width={72} height={72} className="size-18 shrink-0" />
+            <img src="/brand/seal.svg" alt="" width={72} height={72} className="size-18 shrink-0" />
             <span className="figures leading-relaxed">
               {site.legalName}
               <br />

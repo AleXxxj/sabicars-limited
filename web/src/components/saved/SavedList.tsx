@@ -32,7 +32,7 @@ export function SavedList() {
   if (!slugs.length) {
     return (
       <div className="surface-card mx-auto max-w-xl p-8 text-center">
-        <span className="mx-auto inline-flex size-14 items-center justify-center rounded-full border border-gold-500/25 bg-gold-500/10 text-gold-300">
+        <span className="mx-auto inline-flex size-14 items-center justify-center rounded-full border border-green-500/25 bg-green-500/10 text-green-300">
           <Heart aria-hidden size={24} />
         </span>
         <p className="mt-5 text-lg font-semibold text-text-primary">No saved cars yet.</p>

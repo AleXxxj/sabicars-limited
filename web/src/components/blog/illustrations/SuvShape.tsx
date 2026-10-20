@@ -22,13 +22,13 @@ export function SuvShape({ shape, color, turn = 0, className = "" }: { shape: Sh
     <svg viewBox="0 0 100 44" className={className} aria-hidden>
       <path d={s.body} fill={color} stroke="rgb(255 255 255 / 0.35)" strokeWidth="1" />
       <path d={s.glass} fill="#0e1318" opacity="0.9" />
-      <rect x="92" y="25" width="5" height="3" rx="1" fill="#fff4cf" />
+      <rect x="92" y="25" width="5" height="3" rx="1" fill="#DCF5C8" />
       {[24, 78].map((x) => (
         <g key={x} transform={`rotate(${turn} ${x} 34)`}>
-          <circle cx={x} cy="34" r="8.5" fill="#0B0A09" />
-          <circle cx={x} cy="34" r="6" fill="#2b2926" stroke="#6b645a" strokeWidth="1.5" />
-          <line x1={x} y1="29" x2={x} y2="39" stroke="#9a9184" strokeWidth="1.6" />
-          <line x1={x - 5} y1="34" x2={x + 5} y2="34" stroke="#9a9184" strokeWidth="1.6" />
+          <circle cx={x} cy="34" r="8.5" fill="#090E0A" />
+          <circle cx={x} cy="34" r="6" fill="#282E29" stroke="#626A63" strokeWidth="1.5" />
+          <line x1={x} y1="29" x2={x} y2="39" stroke="#8E958F" strokeWidth="1.6" />
+          <line x1={x - 5} y1="34" x2={x + 5} y2="34" stroke="#8E958F" strokeWidth="1.6" />
         </g>
       ))}
     </svg>

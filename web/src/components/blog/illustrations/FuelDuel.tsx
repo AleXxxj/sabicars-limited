@@ -31,7 +31,7 @@ function Pump({
   const fill = seen ? Math.max(0.04, Math.min(1, cost / max)) : 0;
   return (
     <div
-      className={`relative overflow-hidden rounded-3xl border p-5 ${thirsty ? "border-white/[0.1] bg-white/[0.02]" : "border-gold-500/40 bg-[linear-gradient(170deg,rgb(201_168_76/0.14),transparent_60%)]"}`}
+      className={`relative overflow-hidden rounded-3xl border p-5 ${thirsty ? "border-white/[0.1] bg-white/[0.02]" : "border-green-500/40 bg-[linear-gradient(170deg,rgb(120_176_48/0.14),transparent_60%)]"}`}
     >
       <div className="flex items-start justify-between gap-3">
         <div>
@@ -40,7 +40,7 @@ function Pump({
             {engine} · about {per100} L per 100 km
           </p>
         </div>
-        <Fuel aria-hidden size={22} className={thirsty ? "text-text-muted" : "text-gold-300"} />
+        <Fuel aria-hidden size={22} className={thirsty ? "text-text-muted" : "text-green-300"} />
       </div>
       {/* The pump's display */}
       <div className="mt-5 rounded-2xl border border-white/[0.08] bg-[#0b0d0c] px-4 py-3 shadow-[inset_0_2px_12px_rgb(0_0_0/0.6)]">
@@ -60,7 +60,7 @@ function Pump({
       {/* How full the month's tank of money is */}
       <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-white/[0.06]" aria-hidden>
         <div
-          className={`h-full rounded-full transition-[width] duration-700 ease-[var(--ease-out)] ${thirsty ? "bg-white/40" : "bg-[linear-gradient(90deg,var(--gold-500),var(--gold-200))] shadow-[0_0_14px_rgb(201_168_76/0.6)]"}`}
+          className={`h-full rounded-full transition-[width] duration-700 ease-[var(--ease-out)] ${thirsty ? "bg-white/40" : "bg-[linear-gradient(90deg,var(--green-500),var(--green-200))] shadow-[0_0_14px_rgb(120_176_48/0.6)]"}`}
           style={{ width: `${fill * 100}%` }}
         />
       </div>
@@ -100,7 +100,7 @@ export function FuelDuel() {
             step={10}
             value={kmWeek}
             onChange={(e) => setKmWeek(Number(e.target.value))}
-            className="mt-4 w-full accent-[var(--gold-400)]"
+            className="mt-4 w-full accent-[var(--green-400)]"
           />
           <span className="mt-1 flex justify-between text-xs text-text-muted">
             <span>Around town</span>
@@ -109,7 +109,7 @@ export function FuelDuel() {
         </label>
         <label htmlFor={`${id}-price`} className="block">
           <span className="text-sm text-text-secondary">Today’s pump price, per litre</span>
-          <span className="mt-2 flex items-center rounded-xl border border-border-default bg-surface-1 px-4 focus-within:border-gold-500">
+          <span className="mt-2 flex items-center rounded-xl border border-border-default bg-surface-1 px-4 focus-within:border-green-500">
             <span className="text-text-muted">₦</span>
             <input
               id={`${id}-price`}
@@ -129,12 +129,12 @@ export function FuelDuel() {
         ))}
       </div>
 
-      <div className="mt-6 rounded-2xl border border-gold-500/30 bg-gold-500/[0.06] p-5 text-center">
+      <div className="mt-6 rounded-2xl border border-green-500/30 bg-green-500/[0.06] p-5 text-center">
         <p className="text-sm text-text-secondary">A year of the difference</p>
         <RollingNumber
           value={seen ? gapYear : 0}
           format={naira}
-          className="mt-1 font-display text-[2.4rem] text-gold-200 md:text-[2.9rem]"
+          className="mt-1 font-display text-[2.4rem] text-green-200 md:text-[2.9rem]"
         />
         <p className="mt-2 text-sm text-text-secondary">
           The GX 460 costs <span className="figures font-semibold text-text-primary">{naira(gapMonth)}</span> more a month to fuel — about{" "}

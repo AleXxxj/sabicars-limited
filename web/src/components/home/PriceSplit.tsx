@@ -41,7 +41,7 @@ export function PriceSplit({ vehicles }: { vehicles: FinderVehicle[] }) {
             const v = vehicles.find((x) => x.slug === e.target.value);
             if (v) setText(grouped(Math.round(v.priceMinor / 100)));
           }}
-          className="mt-2 min-h-12 w-full rounded-xl border border-border-default bg-surface-1 px-4 text-text-primary outline-none focus:border-gold-500"
+          className="mt-2 min-h-12 w-full rounded-xl border border-border-default bg-surface-1 px-4 text-text-primary outline-none focus:border-green-500"
         >
           <option value="">Choose one, or type any price below</option>
           {vehicles.map((v) => (
@@ -53,7 +53,7 @@ export function PriceSplit({ vehicles }: { vehicles: FinderVehicle[] }) {
         <label htmlFor={`${id}-price`} className="mt-6 block text-sm text-text-secondary">
           Price of the vehicle
         </label>
-        <div className="mt-2 flex items-baseline gap-2 border-b border-border-strong pb-2 transition-colors focus-within:border-gold-500">
+        <div className="mt-2 flex items-baseline gap-2 border-b border-border-strong pb-2 transition-colors focus-within:border-green-500">
           <span aria-hidden className="font-display text-[2rem] leading-none text-text-muted">
             ₦
           </span>
@@ -76,7 +76,7 @@ export function PriceSplit({ vehicles }: { vehicles: FinderVehicle[] }) {
       <dl aria-live="polite" className="grid content-center gap-5 md:border-l md:border-white/[0.06] md:pl-8">
         <div>
           <dt className="text-sm text-text-muted">You pay (40%)</dt>
-          <dd className="figures text-gold mt-1 font-display text-[2.6rem] leading-none md:text-[3.2rem]">
+          <dd className="figures text-brand mt-1 font-display text-[2.6rem] leading-none md:text-[3.2rem]">
             {naira ? formatNaira(deposit.minor) : "—"}
           </dd>
         </div>
@@ -90,7 +90,7 @@ export function PriceSplit({ vehicles }: { vehicles: FinderVehicle[] }) {
           Autochek sets the repayment terms on each listing. The vehicle leaves the showroom once Autochek approves and the 40% is paid.
         </p>
         {chosen && (
-          <Link href={`/vehicles/${chosen.slug}#drive-plan`} className="text-sm font-semibold text-gold-300 hover:text-gold-200">
+          <Link href={`/vehicles/${chosen.slug}#drive-plan`} className="text-sm font-semibold text-green-300 hover:text-green-200">
             Apply for the {chosen.title} →
           </Link>
         )}

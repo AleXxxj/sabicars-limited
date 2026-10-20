@@ -49,7 +49,7 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
           <label htmlFor={inputId} className="text-sm font-medium text-text-secondary">
             I can put down
           </label>
-          <div className="mt-3 flex items-baseline gap-2 border-b border-border-strong pb-2 transition-colors focus-within:border-gold-500">
+          <div className="mt-3 flex items-baseline gap-2 border-b border-border-strong pb-2 transition-colors focus-within:border-green-500">
             <span aria-hidden className="font-display text-[2.4rem] leading-none text-text-muted md:text-[3rem]">
               ₦
             </span>
@@ -74,7 +74,7 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
                 type="button"
                 onClick={() => setText(grouped(p))}
                 aria-pressed={naira === p}
-                className="figures min-h-11 rounded-full border border-border-default bg-surface-1 px-5 text-sm font-medium text-text-secondary transition-colors hover:border-border-strong hover:text-text-primary aria-pressed:border-gold-500 aria-pressed:bg-gold-500/10 aria-pressed:text-gold-200"
+                className="figures min-h-11 rounded-full border border-border-default bg-surface-1 px-5 text-sm font-medium text-text-secondary transition-colors hover:border-border-strong hover:text-text-primary aria-pressed:border-green-500 aria-pressed:bg-green-500/10 aria-pressed:text-green-200"
               >
                 {formatNaira(p * 100, { compact: true })}
               </button>
@@ -85,11 +85,11 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
 
       <div id={`${inputId}-result`} aria-live="polite" className="surface-card relative overflow-hidden p-6 md:p-8">
         {/* A pool of warm light behind the answer. */}
-        <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full bg-gold-500/15 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full bg-green-500/15 blur-3xl" />
         {within.length > 0 ? (
           <>
             <p className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-              <span className="figures text-gold font-display text-[4.75rem] leading-[0.85] md:text-[6rem]">{within.length}</span>
+              <span className="figures text-brand font-display text-[4.75rem] leading-[0.85] md:text-[6rem]">{within.length}</span>
               <span className="max-w-xs text-lg leading-snug text-text-primary">
                 {within.length === 1 ? "vehicle" : "vehicles"} your deposit can drive home
               </span>
@@ -131,7 +131,7 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
 
             <div className="mt-6 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-t border-border-subtle pt-5">
               {within.length > picks.length && (
-                <Link href={`/vehicles?maxPrice=${ceilingNaira}&sort=price_desc`} className="group inline-flex min-h-11 items-center gap-2 font-semibold text-gold-300 hover:text-gold-200">
+                <Link href={`/vehicles?maxPrice=${ceilingNaira}&sort=price_desc`} className="group inline-flex min-h-11 items-center gap-2 font-semibold text-green-300 hover:text-green-200">
                   See all {within.length} <ArrowRight aria-hidden size={17} className="transition-transform group-hover:translate-x-1" />
                 </Link>
               )}
@@ -154,7 +154,7 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
                 .
               </p>
             )}
-            <Link href="/find" className="group mt-8 inline-flex min-h-11 items-center gap-2 font-semibold text-gold-300 hover:text-gold-200">
+            <Link href="/find" className="group mt-8 inline-flex min-h-11 items-center gap-2 font-semibold text-green-300 hover:text-green-200">
               Or tell the Sourcing Desk what you want <ArrowRight aria-hidden size={17} className="transition-transform group-hover:translate-x-1" />
             </Link>
           </div>

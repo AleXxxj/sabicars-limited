@@ -44,18 +44,18 @@ function Lane({
 
   return (
     <div
-      className={`relative flex flex-col overflow-hidden rounded-2xl border p-5 md:p-6 ${gold ? "border-gold-500/40 bg-[linear-gradient(160deg,rgb(201_168_76/0.12),transparent_55%)]" : "border-white/[0.08] bg-white/[0.02]"}`}
+      className={`relative flex flex-col overflow-hidden rounded-2xl border p-5 md:p-6 ${gold ? "border-green-500/40 bg-[linear-gradient(160deg,rgb(120_176_48/0.12),transparent_55%)]" : "border-white/[0.08] bg-white/[0.02]"}`}
     >
-      <p className={`text-xs font-semibold tracking-[0.16em] uppercase ${gold ? "text-gold-300" : "text-text-muted"}`}>{label}</p>
+      <p className={`text-xs font-semibold tracking-[0.16em] uppercase ${gold ? "text-green-300" : "text-text-muted"}`}>{label}</p>
       <p className="mt-1 text-sm text-text-muted">{note}</p>
       <p
-        className={`figures mt-4 font-display leading-none ${gold ? "text-gold text-[2.6rem] md:text-[3rem]" : "text-[2.2rem] text-text-primary md:text-[2.5rem]"}`}
+        className={`figures mt-4 font-display leading-none ${gold ? "text-brand text-[2.6rem] md:text-[3rem]" : "text-[2.2rem] text-text-primary md:text-[2.5rem]"}`}
       >
         {formatNaira(Math.round(shown) * 100)}
       </p>
       <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-white/[0.06]" aria-hidden>
         <div
-          className={`h-full rounded-full ${gold ? "bg-[linear-gradient(90deg,var(--gold-500),var(--gold-200))] shadow-[0_0_18px_rgb(201_168_76/0.6)]" : "bg-white/35"}`}
+          className={`h-full rounded-full ${gold ? "bg-[linear-gradient(90deg,var(--green-500),var(--green-200))] shadow-[0_0_18px_rgb(120_176_48/0.6)]" : "bg-white/35"}`}
           style={{ width: `${width}%` }}
         />
       </div>
@@ -89,7 +89,7 @@ function Lane({
             </span>
             <span className="min-w-0">
               <span className="block text-xs text-text-muted">The most it reaches today</span>
-              <span className="block truncate font-semibold text-text-primary group-hover:text-gold-200">{pick.title}</span>
+              <span className="block truncate font-semibold text-text-primary group-hover:text-green-200">{pick.title}</span>
               <span className="figures block text-sm text-text-secondary">{formatNaira(pick.priceMinor)}</span>
             </span>
           </Link>
@@ -122,7 +122,7 @@ export function DepositStretch({ cars, start = 5_000_000 }: { cars: StoryCar[]; 
       <label htmlFor={id} className="text-sm font-medium text-text-secondary">
         You have
       </label>
-      <div className="mt-2 flex items-baseline gap-2 border-b border-border-strong pb-2 transition-colors focus-within:border-gold-500">
+      <div className="mt-2 flex items-baseline gap-2 border-b border-border-strong pb-2 transition-colors focus-within:border-green-500">
         <span aria-hidden className="font-display text-[2.4rem] leading-none text-text-muted md:text-[2.8rem]">
           ₦
         </span>
@@ -145,7 +145,7 @@ export function DepositStretch({ cars, start = 5_000_000 }: { cars: StoryCar[]; 
             type="button"
             onClick={() => setText(grouped(p))}
             aria-pressed={naira === p}
-            className="figures min-h-10 rounded-full border border-border-default px-4 text-sm text-text-secondary transition-colors hover:border-border-strong hover:text-text-primary aria-pressed:border-gold-500 aria-pressed:bg-gold-500/10 aria-pressed:text-gold-200"
+            className="figures min-h-10 rounded-full border border-border-default px-4 text-sm text-text-secondary transition-colors hover:border-border-strong hover:text-text-primary aria-pressed:border-green-500 aria-pressed:bg-green-500/10 aria-pressed:text-green-200"
           >
             {formatNaira(p * 100, { compact: true })}
           </button>

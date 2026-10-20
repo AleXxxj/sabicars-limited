@@ -44,13 +44,13 @@
   }
   /* Links in the running text. Buttons, cards and pills bring their own look. */
   .article a:not([class]) {
-    color: var(--gold-300);
+    color: var(--green-300);
     text-decoration: underline;
-    text-decoration-color: rgb(201 168 76 / 0.4);
+    text-decoration-color: rgb(120 176 48 / 0.4);
     text-underline-offset: 0.2em;
   }
   .article a:not([class]):hover {
-    color: var(--gold-200);
+    color: var(--green-200);
     text-decoration-color: currentColor;
   }
 
@@ -66,7 +66,7 @@
     font-size: 4.4em;
     line-height: 0.82;
     padding: 0.06em 0.12em 0 0;
-    color: var(--gold-300);
+    color: var(--green-300);
   }
 
   .article > h2 {
@@ -83,7 +83,7 @@
     width: 2.5rem;
     height: 2px;
     margin-bottom: 1rem;
-    background: linear-gradient(90deg, var(--gold-400), transparent);
+    background: linear-gradient(90deg, var(--green-400), transparent);
   }
   .article > h3 {
     margin-top: 2em;
@@ -120,13 +120,13 @@
     width: 0.45em;
     height: 0.45em;
     border-radius: 999px;
-    background: var(--gold-400);
+    background: var(--green-400);
   }
   .article > ol {
     list-style: decimal;
   }
   .article > ol > li::marker {
-    color: var(--gold-300);
+    color: var(--green-300);
     font-weight: 600;
   }
 

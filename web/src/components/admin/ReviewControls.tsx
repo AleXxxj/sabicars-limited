@@ -19,7 +19,7 @@ export function ReviewControls({ reviewId, isApproved, reviewed }: { reviewId: s
           type="button"
           onClick={() => run(true)}
           disabled={pending}
-          className="min-h-11 bg-cta px-5 text-sm font-semibold text-cta-fg hover:bg-cta-hover disabled:opacity-50"
+          className="min-h-11 rounded-full bg-cta px-5 text-sm font-semibold text-cta-fg hover:bg-cta-hover disabled:opacity-50"
         >
           {pending ? "Saving…" : "Publish"}
         </button>

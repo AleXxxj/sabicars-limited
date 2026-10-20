@@ -86,7 +86,7 @@ export default async function AboutPage() {
               supply for companies and government.
             </p>
           </div>
-          <blockquote className="mt-12 border-l-2 border-gold-500 pl-6">
+          <blockquote className="mt-12 border-l-2 border-green-500 pl-6">
             <p className="font-display text-[1.7rem] leading-snug md:text-[2rem]">
               “Every vehicle that leaves our plaza carries my name on it — accident-free, verified, and exactly as described. That’s not
               a slogan, it’s how I built this.”
@@ -107,7 +107,7 @@ export default async function AboutPage() {
               </p>
             </div>
             {/* eslint-disable-next-line @next/next/no-img-element -- a vector seal, cached across pages; nothing for next/image to optimise */}
-            <img src="/brand/seal-gold.svg" alt="The Sabicars Verified seal, with CAC RC 1560100" width={168} height={168} className="size-36 md:size-42" />
+            <img src="/brand/seal.svg" alt="The Sabicars Verified seal, with CAC RC 1560100" width={168} height={168} className="size-36 md:size-42" />
           </ScrollReveal>
           <div className="mt-14 grid gap-px overflow-hidden rounded-2xl border border-white/[0.07] bg-border-subtle sm:grid-cols-2">
             {STANDARDS.map((s, i) => (
@@ -118,7 +118,7 @@ export default async function AboutPage() {
                 <a
                   href={s.link.href}
                   {...(s.link.href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                  className="group inline-flex min-h-11 items-center gap-1.5 text-[0.95rem] font-semibold text-gold-300 hover:text-gold-200 mt-4"
+                  className="group inline-flex min-h-11 items-center gap-1.5 text-[0.95rem] font-semibold text-green-300 hover:text-green-200 mt-4"
                 >
                   {s.link.label} →
                 </a>
