@@ -278,6 +278,14 @@ export const vehicles = pgTable(
      */
     autochekUrl: text("autochek_url"),
 
+    /**
+     * True for a car Sabicars lists but does not hold at its showroom — a
+     * partner's or an owner's car kept elsewhere. It is viewed and inspected
+     * on a buyer's request and never carries the Sabicars Verified seal, which
+     * is only given to cars the Sabicars team inspects at the showroom.
+     */
+    heldOffsite: boolean("held_offsite").notNull().default(false),
+
     status: vehicleStatus("status").notNull().default("draft"),
     badge: vehicleBadge("badge"),
     isFeatured: boolean("is_featured").notNull().default(false),

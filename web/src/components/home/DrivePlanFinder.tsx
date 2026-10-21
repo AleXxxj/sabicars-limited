@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { useId, useState } from "react";
 import { VehicleImage } from "@/components/VehicleImage";
-import { DRIVE_PLAN, depositPercentLabel, reachMinorFor } from "@/lib/drive-plan";
+import { DEFAULT_ESTIMATE_MONTHS, DRIVE_PLAN, depositPercentLabel, monthlyAtCeilingMinor, reachMinorFor } from "@/lib/drive-plan";
 import { formatNaira } from "@/lib/money";
 
 export interface FinderVehicle {
@@ -85,7 +85,7 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
           </div>
           <p className="mt-4 text-xs leading-relaxed text-text-muted">
             Cars from {DRIVE_PLAN.standardYear} need 40% down; {DRIVE_PLAN.minYear} and {DRIVE_PLAN.standardYear - 1} cars need 50%. Autochek does not finance
-            older cars.
+            older cars. Monthly figures are estimates at Autochek&rsquo;s published ceiling; the lender&rsquo;s offer can be lower.
           </p>
         </div>
       </div>
@@ -113,27 +113,35 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
             </p>
 
             <ul className="mt-6 grid grid-cols-2 gap-3 md:gap-4">
-              {picks.map((v) => (
-                <li key={v.slug}>
-                  <Link href={`/vehicles/${v.slug}`} className="group block">
-                    <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-surface-2">
-                      {v.coverUrl && (
-                        <VehicleImage
-                          src={v.coverUrl}
-                          alt=""
-                          fill
-                          sizes="(min-width: 1024px) 18vw, 45vw"
-                          className="object-cover transition-transform duration-[var(--duration-slow)] ease-[var(--ease-out)] group-hover:scale-[1.04]"
-                        />
+              {picks.map((v) => {
+                const monthly = monthlyAtCeilingMinor(v.priceMinor - v.depositMinor, DEFAULT_ESTIMATE_MONTHS);
+                return (
+                  <li key={v.slug}>
+                    <Link href={`/vehicles/${v.slug}`} className="group block">
+                      <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-surface-2">
+                        {v.coverUrl && (
+                          <VehicleImage
+                            src={v.coverUrl}
+                            alt=""
+                            fill
+                            sizes="(min-width: 1024px) 18vw, 45vw"
+                            className="object-cover transition-transform duration-[var(--duration-slow)] ease-[var(--ease-out)] group-hover:scale-[1.04]"
+                          />
+                        )}
+                      </div>
+                      <p className="mt-2 truncate text-sm text-text-primary group-hover:text-accent-text">{v.title}</p>
+                      <p className="figures text-xs text-text-muted">
+                        <span className="text-text-secondary">{formatNaira(v.depositMinor)}</span> down ({depositPercentLabel(v.year)})
+                      </p>
+                      {monthly !== null && (
+                        <p className="figures truncate text-xs text-text-muted">
+                          est. {formatNaira(monthly)}/mo over {DEFAULT_ESTIMATE_MONTHS} months
+                        </p>
                       )}
-                    </div>
-                    <p className="mt-2 truncate text-sm text-text-primary group-hover:text-accent-text">{v.title}</p>
-                    <p className="figures text-xs text-text-muted">
-                      <span className="text-text-secondary">{formatNaira(v.depositMinor)}</span> down ({depositPercentLabel(v.year)})
-                    </p>
-                  </Link>
-                </li>
-              ))}
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
 
             <div className="mt-6 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-t border-border-subtle pt-5">

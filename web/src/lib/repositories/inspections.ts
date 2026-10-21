@@ -28,7 +28,7 @@ export async function verificationMap(vehicleIds: string[], now = new Date()): P
 export interface PublicReport {
   report: Inspection;
   tally: Tally;
-  vehicle: Pick<Vehicle, "id" | "slug" | "year" | "make" | "model" | "trim" | "status" | "chassisNo"> & { coverUrl: string | null };
+  vehicle: Pick<Vehicle, "id" | "slug" | "year" | "make" | "model" | "trim" | "status" | "chassisNo" | "heldOffsite"> & { coverUrl: string | null };
   /** For a superseded report: the code of the report that replaced it. */
   replacedBy: string | null;
 }
@@ -62,11 +62,11 @@ export async function reportByCode(code: string): Promise<PublicReport | null> {
       .limit(1);
     replacedBy = live?.code ?? null;
   }
-  const { id, slug, year, make, model, trim, status, chassisNo } = row.vehicle;
+  const { id, slug, year, make, model, trim, status, chassisNo, heldOffsite } = row.vehicle;
   return {
     report: row.report,
     tally: tally(row.report.items),
-    vehicle: { id, slug, year, make, model, trim, status, chassisNo, coverUrl: cover?.url ?? null },
+    vehicle: { id, slug, year, make, model, trim, status, chassisNo, heldOffsite, coverUrl: cover?.url ?? null },
     replacedBy,
   };
 }

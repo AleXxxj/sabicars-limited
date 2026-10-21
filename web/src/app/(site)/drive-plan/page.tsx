@@ -7,20 +7,20 @@ import { PriceSplit } from "@/components/home/PriceSplit";
 import { ContactForm } from "@/components/forms/ContactForm";
 import { PageIntro } from "@/components/site/PageIntro";
 import { VehicleImage } from "@/components/VehicleImage";
-import { DRIVE_PLAN, MONTHLY_INCLUDES, depositMinorFor, drivePlanTerms } from "@/lib/drive-plan";
+import { DEFAULT_ESTIMATE_MONTHS, DRIVE_PLAN, MONTHLY_INCLUDES, depositMinorFor, drivePlanTerms } from "@/lib/drive-plan";
 import { formatNaira } from "@/lib/money";
 import { drivePlanCatalogue, featuredVehicles } from "@/lib/repositories/vehicles";
 import { pageAddress, whatsappLink } from "@/lib/site";
-import { drivePlanBalance, drivePlanDeposit, priceLabel, vehicleTitle } from "@/lib/vehicle";
+import { drivePlanBalance, drivePlanDeposit, drivePlanMonthly, priceLabel, vehicleTitle } from "@/lib/vehicle";
 
 export const revalidate = 3600;
 
-const { minYear, standardYear, statementMonths, maxAnnualRatePercent, tenureMonths, maxDepositBps, published } = DRIVE_PLAN;
+const { minYear, standardYear, statementMonths, statementAlternative, maxAnnualRatePercent, tenureMonths, maxDepositBps, published } = DRIVE_PLAN;
 const olderYears = `${minYear} or ${standardYear - 1}`;
 
 export const metadata: Metadata = {
   title: "The 40% Drive Plan — your deposit down, Autochek finances the rest",
-  description: `Buy from Sabicars with 40% down on a car from ${standardYear} (50% on a ${olderYears} car). Autochek, Sabicars' financing partner, finances the rest: up to ${maxAnnualRatePercent}% a year, over ${tenureMonths.min} to ${tenureMonths.max} months. What you need, and what your deposit reaches from live stock.`,
+  description: `Buy from Sabicars with 40% down on a car from ${standardYear} (50% on a ${olderYears} car). Autochek, Sabicars' financing partner, finances the rest: up to ${maxAnnualRatePercent}% a year, over ${tenureMonths.min} to ${tenureMonths.max} months. What you need, and what your deposit reaches from live stock, with an estimated monthly repayment at Autochek's ${maxAnnualRatePercent}% ceiling.`,
   ...pageAddress("/drive-plan"),
 };
 
@@ -57,7 +57,10 @@ const CAR_RULES: [string, string][] = [
 /** What Autochek asks of the buyer. */
 const DOCUMENTS: [string, string][] = [
   ["BVN and a valid ID", "A national ID card, driver’s licence, passport or voter’s card."],
-  ["Bank statements", `The last ${statementMonths} months, from an active bank account. Autochek reads them digitally when you apply.`],
+  [
+    "Bank statements",
+    `The last ${statementMonths} months from the account you actually use — a commercial bank, or ${statementAlternative} — showing money coming in and going out. Autochek reads them digitally when you apply.`,
+  ],
   ["Proof of income", "Salary earners: an employment letter or recent payslips. Business owners: a CAC business registration — a registered business name is enough."],
   ["A utility bill", "For the address you give."],
 ];
@@ -73,7 +76,7 @@ const QUESTIONS: [string, string][] = [
   ],
   [
     "What is the interest rate?",
-    `The lender sets it when it assesses you, and you see it in your offer before you commit to anything. Autochek publishes a ceiling of ${maxAnnualRatePercent}% a year over ${tenureMonths.min} to ${tenureMonths.max} months; on its listings the rate is “available on request”. Autochek’s own example: ${formatNaira(published.example.principalMinor)} over ${published.example.months} months at ${maxAnnualRatePercent}% a year is about ${formatNaira(published.example.monthlyMinor)} a month.`,
+    `The lender sets it when it assesses you, and you see it in your offer before you commit to anything. Autochek publishes a ceiling of ${maxAnnualRatePercent}% a year over ${tenureMonths.min} to ${tenureMonths.max} months; on its listings the rate is “available on request”. Autochek’s own example: ${formatNaira(published.example.principalMinor)} over ${published.example.months} months at ${maxAnnualRatePercent}% a year is about ${formatNaira(published.example.monthlyMinor)} a month. Every monthly figure on this site is an estimate at that ceiling over the term you pick, so you can plan; your offer can be lower.`,
   ],
   [
     "Why is the deposit 50% on some cars?",
@@ -85,7 +88,7 @@ const QUESTIONS: [string, string][] = [
   ],
   [
     "Are there fees?",
-    `Autochek charges a processing fee (its published example is ${formatNaira(published.processingFeeMinor)}), credited against your final payment if the loan goes through. The monthly repayment on the listing includes ${MONTHLY_INCLUDES}.`,
+    `Autochek charges a processing fee (its published example is ${formatNaira(published.processingFeeMinor)}), credited against your final payment if the loan goes through. The monthly repayment on the car’s Autochek listing includes ${MONTHLY_INCLUDES}; the estimates on this site are the loan alone.`,
   ],
   ["Can I put down more than the minimum?", `Yes, up to ${maxDepositBps / 100}% of the price. A bigger deposit means a smaller balance and smaller repayments.`],
   [
@@ -110,14 +113,17 @@ const QUESTIONS: [string, string][] = [
  * 2026-10-20 and what Autochek publishes; they live in lib/drive-plan.ts.
  * Autochek's own listings show "40% minimum" on every car, including cars
  * older than 2008, so the stricter year tiers are stated here as the lenders'
- * rule, which is the one a buyer will meet. No monthly figure is invented:
- * Autochek's published example is quoted as its own.
+ * rule, which is the one a buyer will meet. Every monthly figure is an
+ * estimate at Autochek's published ceiling over the term the buyer picks and
+ * is labelled so (lib/drive-plan.ts monthlyAtCeilingMinor); Autochek's
+ * published example is quoted as its own.
  */
 export default async function DrivePlanPage() {
   const [catalogue, featured] = await Promise.all([drivePlanCatalogue(), featuredVehicles(6)]);
   const onPlan = featured.filter((v) => depositMinorFor(v.priceMinor, v.year) !== null);
   const example = onPlan.find((v) => v.segment !== "commercial" && v.cover) ?? onPlan[0];
   const exampleTerms = example ? drivePlanTerms(example.year) : null;
+  const exampleMonthly = example ? drivePlanMonthly(example) : null;
 
   return (
     <>
@@ -188,6 +194,11 @@ export default async function DrivePlanPage() {
                     <div>
                       <dt className="text-xs text-text-muted">Autochek ({exampleTerms.financedPercent}%)</dt>
                       <dd className="figures mt-1 font-semibold">{drivePlanBalance(example)}</dd>
+                      {exampleMonthly && (
+                        <dd className="figures mt-1 text-xs text-text-muted">
+                          est. {exampleMonthly} a month over {DEFAULT_ESTIMATE_MONTHS} months
+                        </dd>
+                      )}
                     </div>
                   </dl>
                 </div>
@@ -241,9 +252,9 @@ export default async function DrivePlanPage() {
             </ScrollReveal>
           </div>
           <p className="mt-6 max-w-3xl text-sm leading-relaxed text-text-muted">
-            The deposit tiers and the year floor are as Autochek’s team gave them to Sabicars on 20 October 2026; the rate ceiling, the terms and the
-            documents are as Autochek publishes. Its lenders decide each
-            application and may ask for more. Sabicars updates this page when Autochek’s terms change.
+            The deposit tiers, the year floor and the bank-app statements are as Autochek’s team gave them to Sabicars on 20 October 2026; the rate
+            ceiling, the terms, the documents and the fee are as Autochek publishes. Its lenders decide each application and may ask for more.
+            Sabicars updates this page when Autochek’s terms change.
           </p>
         </div>
       </section>

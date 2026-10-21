@@ -28,7 +28,8 @@ export default async function SealPage({ params }: Props) {
     .innerJoin(vehicles, eq(vehicles.id, inspections.vehicleId))
     .where(and(eq(inspections.id, id), eq(inspections.dealerId, me.dealerId), eq(inspections.status, "published")))
     .limit(1);
-  if (!row || !row.report.inspectedAt) notFound();
+  // No seal for a car held away from the showroom, whatever report is on record.
+  if (!row || !row.report.inspectedAt || row.vehicle.heldOffsite) notFound();
 
   const base = siteUrl();
   const url = `${base}/v/${row.report.code}`;

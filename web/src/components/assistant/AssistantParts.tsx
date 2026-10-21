@@ -7,6 +7,7 @@ import { fieldClass } from "@/components/forms/field";
 import { VehicleImage } from "@/components/VehicleImage";
 import { requestCallback } from "@/lib/actions/assistant";
 import type { AssistantCar } from "@/lib/assistant/parts";
+import { DEFAULT_ESTIMATE_MONTHS, ESTIMATE_SHORT } from "@/lib/drive-plan";
 import { formatNaira } from "@/lib/money";
 
 /* ── Cars ──────────────────────────────────────────────────────────────── */
@@ -46,6 +47,11 @@ function CarCard({ car, wide }: { car: AssistantCar; wide: boolean }) {
             {formatNaira(car.depositMinor)} down ({car.depositPercent}%) on the Drive Plan
           </span>
         )}
+        {car.monthlyMinor && (
+          <span className="figures block text-xs text-text-muted">
+            est. {formatNaira(car.monthlyMinor)}/mo over {DEFAULT_ESTIMATE_MONTHS} months
+          </span>
+        )}
         <span className="mt-2 block truncate text-xs text-text-secondary">{specs(car)}</span>
       </span>
     </Link>
@@ -53,13 +59,25 @@ function CarCard({ car, wide }: { car: AssistantCar; wide: boolean }) {
 }
 
 export function CarCards({ cars }: { cars: AssistantCar[] }) {
-  if (cars.length === 1) return <CarCard car={cars[0]} wide />;
+  // An "est." figure never travels without its sentence.
+  const note = cars.some((c) => c.monthlyMinor) ? <p className="mt-1.5 text-[0.7rem] leading-snug text-text-muted">{ESTIMATE_SHORT}</p> : null;
+  if (cars.length === 1) {
+    return (
+      <>
+        <CarCard car={cars[0]} wide />
+        {note}
+      </>
+    );
+  }
   return (
-    <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-      {cars.map((c) => (
-        <CarCard key={c.slug} car={c} wide={false} />
-      ))}
-    </div>
+    <>
+      <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {cars.map((c) => (
+          <CarCard key={c.slug} car={c} wide={false} />
+        ))}
+      </div>
+      {note}
+    </>
   );
 }
 
@@ -74,6 +92,13 @@ const ROWS: Row[] = [
     value: (c) => (c.depositMinor && c.depositPercent ? `${formatNaira(c.depositMinor)} (${c.depositPercent}%)` : c.priceMinor ? "Not on the plan" : null),
     best: "low",
     num: (c) => c.depositMinor,
+  },
+  {
+    // An estimate at Autochek's published ceiling, never the lender's quote; the full comparison page carries the note.
+    label: `Est. monthly (${DEFAULT_ESTIMATE_MONTHS} months)`,
+    value: (c) => (c.monthlyMinor ? formatNaira(c.monthlyMinor) : c.priceMinor ? "Not on the plan" : null),
+    best: "low",
+    num: (c) => c.monthlyMinor,
   },
   { label: "Year", value: (c) => String(c.year), best: "high", num: (c) => c.year },
   { label: "Condition", value: (c) => c.condition },
@@ -147,6 +172,7 @@ export function CompareCard({ cars, href }: { cars: AssistantCar[]; href: string
               );
             })}
           </dl>
+          {cars.some((c) => c.monthlyMinor) && <p className="mt-3 text-[0.7rem] leading-snug text-text-muted">{ESTIMATE_SHORT}</p>}
         </div>
       </div>
       <Link

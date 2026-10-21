@@ -7,7 +7,17 @@
  * Run: npm run test:drive-plan
  */
 
-import { DRIVE_PLAN, depositBpsFor, depositMinorFor, depositPercentLabel, drivePlanTerms, reachMinorFor } from "../src/lib/drive-plan";
+import {
+  DEFAULT_ESTIMATE_MONTHS,
+  DRIVE_PLAN,
+  ESTIMATE_MONTHS,
+  depositBpsFor,
+  depositMinorFor,
+  depositPercentLabel,
+  drivePlanTerms,
+  monthlyAtCeilingMinor,
+  reachMinorFor,
+} from "../src/lib/drive-plan";
 import { formatNaira } from "../src/lib/money";
 
 let passed = 0;
@@ -72,13 +82,24 @@ eq("tenure to 48 months", DRIVE_PLAN.tenureMonths.max, 48);
 eq("a buyer may put down up to 70%", DRIVE_PLAN.maxDepositBps, 7000);
 eq("…which is more than either minimum", DRIVE_PLAN.maxDepositBps > DRIVE_PLAN.olderDepositBps, true);
 // Autochek's published example must be an ordinary amortised loan at its own ceiling, or the site is quoting a number it cannot explain.
+// (₦97,487.13 a month, which Autochek publishes to the naira.)
 const { principalMinor, months, monthlyMinor } = DRIVE_PLAN.published.example;
-const r = DRIVE_PLAN.maxAnnualRatePercent / 100 / 12;
-// ₦97,487.13 a month, which Autochek publishes to the naira.
-const amortised = Math.round((principalMinor * r) / (1 - (1 + r) ** -months) / 100) * 100;
-eq("Autochek's example (₦1,000,000 over 12 months at the ceiling) amortises to its own figure", amortised, monthlyMinor);
+eq("Autochek's example (₦1,000,000 over 12 months at the ceiling) amortises to its own figure", monthlyAtCeilingMinor(principalMinor, months), monthlyMinor);
 eq("…shown as ₦97,487 a month", formatNaira(monthlyMinor), "₦97,487");
 eq("processing fee example reads ₦20,000", formatNaira(DRIVE_PLAN.published.processingFeeMinor), "₦20,000");
+
+console.log("\nThe monthly estimate a buyer sees (at the ceiling, never a quote)");
+eq("the default term is the longest Autochek publishes", DEFAULT_ESTIMATE_MONTHS, DRIVE_PLAN.tenureMonths.max);
+eq("every offered term is within Autochek's range", ESTIMATE_MONTHS.every((m) => m >= DRIVE_PLAN.tenureMonths.min && m <= DRIVE_PLAN.tenureMonths.max), true);
+const hummerBalance = 2_400_000_000 - depositMinorFor(2_400_000_000, 2013)!; // 60% of ₦24,000,000
+eq("60% of a ₦24m 2013 Hummer over 48 months", formatNaira(monthlyAtCeilingMinor(hummerBalance, 48)!), "₦518,486");
+eq("…and over 12 months", formatNaira(monthlyAtCeilingMinor(hummerBalance, 12)!), "₦1,403,815");
+const olderBalance = 2_000_000_000 - depositMinorFor(2_000_000_000, 2009)!; // 50% of ₦20,000,000
+eq("50% of a ₦20m 2009 car over 48 months", formatNaira(monthlyAtCeilingMinor(olderBalance, 48)!), "₦360,060");
+eq("the estimate is whole naira", monthlyAtCeilingMinor(hummerBalance, 36)! % 100, 0);
+eq("a term Autochek does not publish gives no figure", monthlyAtCeilingMinor(hummerBalance, 60), null);
+eq("nothing financed, no figure", monthlyAtCeilingMinor(0, 48), null);
+eq("statements: an app counts without a commercial bank account", DRIVE_PLAN.statementAlternative, "a bank app such as OPay");
 
 console.log(`\n${passed} passed, ${failed} failed.` + (failed ? "  \x1b[31mDRIVE PLAN NOT VERIFIED\x1b[0m\n" : "  \x1b[32mDrive Plan verified.\x1b[0m\n"));
 process.exit(failed ? 1 : 0);

@@ -11,9 +11,10 @@ import { SaveButton } from "@/components/saved/SaveButton";
 import { WatchForm } from "@/components/saved/WatchForm";
 import { RecentlyViewed, RecordView } from "@/components/saved/RecentlyViewed";
 import { Gallery } from "@/components/vehicle/Gallery";
+import { RepaymentEstimate } from "@/components/vehicle/RepaymentEstimate";
 import { VerifiedPanel } from "@/components/vehicle/VerifiedPanel";
 import { comparePath } from "@/lib/assistant/parts";
-import { DRIVE_PLAN, depositPercentLabel, drivePlanTerms } from "@/lib/drive-plan";
+import { DRIVE_PLAN, depositMinorFor, depositPercentLabel, drivePlanTerms } from "@/lib/drive-plan";
 import { bookedSlots } from "@/lib/leads";
 import { liveReportFor } from "@/lib/repositories/inspections";
 import { listedVehicleSlugs, similarVehicles, vehicleBySlug } from "@/lib/repositories/vehicles";
@@ -95,7 +96,14 @@ export default async function VehiclePage({ params }: Props) {
   const deposit = drivePlanDeposit(v);
   const balance = drivePlanBalance(v);
   const terms = drivePlanTerms(v.year);
+  // The financed balance in kobo, for the repayment estimate; null when the car cannot go on the plan.
+  const depositMinor = depositMinorFor(v.priceMinor, v.year);
+  const balanceMinor = depositMinor !== null && v.priceMinor ? v.priceMinor - depositMinor : null;
   const sold = v.status === "sold";
+  // A car Sabicars lists but holds elsewhere (a partner's or an owner's): viewed and inspected on
+  // request, never under the Sabicars Verified seal, and never "see it at the showroom".
+  const offsite = v.heldOffsite;
+  const offsiteNotice = "Not at the Sabicars showroom. Viewing and an inspection by the Sabicars team are arranged on request; this car does not carry the Sabicars Verified seal.";
   const [similar, live, taken] = await Promise.all([similarVehicles(v), liveReportFor(v.id), sold ? Promise.resolve({}) : bookedSlots(v.dealerId)]);
 
   return (
@@ -150,7 +158,23 @@ export default async function VehiclePage({ params }: Props) {
               <p className="figures mt-2 text-[2rem] font-semibold leading-none tracking-tight">{priceLabel(v)}</p>
             </div>
 
-            {live && <VerifiedPanel report={live.report} tally={live.tally} />}
+            {offsite && (
+              <p className="mt-4 text-sm leading-relaxed text-text-muted">
+                {offsiteNotice}
+                {!sold && (
+                  <>
+                    {" "}
+                    <Link href="#enquire" className="text-green-300 underline-offset-4 hover:underline">
+                      Ask to see it
+                    </Link>
+                    .
+                  </>
+                )}
+              </p>
+            )}
+
+            {/* The seal is only ever given at the showroom; the repository already withholds it from offsite cars. */}
+            {live && !offsite && <VerifiedPanel report={live.report} tally={live.tally} />}
 
             {deposit && balance && terms.eligible && !sold && (
               <div id="drive-plan" className="surface-card relative mt-6 scroll-mt-24 overflow-hidden p-6">
@@ -166,9 +190,13 @@ export default async function VehiclePage({ params }: Props) {
                     <dd className="figures mt-1 text-lg font-semibold">{balance}</dd>
                   </div>
                 </dl>
+                {balanceMinor !== null && (
+                  <div className="mt-5 border-t border-white/[0.06] pt-5">
+                    <RepaymentEstimate balanceMinor={balanceMinor} />
+                  </div>
+                )}
                 <p className="mt-4 text-xs text-text-muted">
-                  Autochek’s lender assesses you and sets the rate and term, up to {DRIVE_PLAN.maxAnnualRatePercent}% a year over {DRIVE_PLAN.tenureMonths.min} to{" "}
-                  {DRIVE_PLAN.tenureMonths.max} months. Once approved, you pay the {terms.depositPercent}% and drive it home.
+                  Once approved, you pay the {terms.depositPercent}% and drive it home. Autochek’s lender assesses you and sets the rate and term.
                 </p>
                 <DrivePlanApply vehicleId={v.id} autochekUrl={v.autochekUrl} financedPercent={terms.financedPercent} />
                 <Link href="/drive-plan" className="group mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-green-300 hover:text-green-200">
@@ -246,11 +274,15 @@ export default async function VehiclePage({ params }: Props) {
               <li>
                 Sold by {site.legalName} · CAC RC {site.rcNumber}
               </li>
-              {location && (
-                <li>
-                  See it in person: {location.addressLine1}, {location.addressLine2 ? `${location.addressLine2}, ` : ""}
-                  {location.city}
-                </li>
+              {offsite ? (
+                <li>{offsiteNotice}</li>
+              ) : (
+                location && (
+                  <li>
+                    See it in person: {location.addressLine1}, {location.addressLine2 ? `${location.addressLine2}, ` : ""}
+                    {location.city}
+                  </li>
+                )
               )}
             </ul>
           </div>
@@ -297,8 +329,10 @@ export default async function VehiclePage({ params }: Props) {
                 <p className="kicker">Enquire</p>
                 <h2 className="mt-3 text-display-3">Interested in the {v.model}?</h2>
                 <p className="mt-5 max-w-md text-text-secondary">
-                  Ask anything, or arrange to see it at the showroom. Your enquiry is recorded with a reference, so whoever picks it up
-                  knows exactly which vehicle you mean.
+                  {offsite
+                    ? "Ask anything, or ask to see it — the Sabicars team arranges the viewing and an inspection on request."
+                    : "Ask anything, or arrange to see it at the showroom."}{" "}
+                  Your enquiry is recorded with a reference, so whoever picks it up knows exactly which vehicle you mean.
                 </p>
                 <p className="figures mt-8 text-sm text-text-muted">
                   Or call{" "}
@@ -313,10 +347,14 @@ export default async function VehiclePage({ params }: Props) {
                 landingPath={`/vehicles/${v.slug}`}
                 whatsappBase={whatsappLink()}
                 taken={taken}
+                // An offsite car is never "at the showroom": the viewing's place is agreed with the buyer,
+                // so the confirmation and calendar file say so instead of naming an address.
                 address={
-                  location
-                    ? [location.addressLine1, location.addressLine2, location.city].filter(Boolean).join(", ")
-                    : `${site.address.line1}, ${site.address.line2}, ${site.address.city}`
+                  offsite
+                    ? "a place the Sabicars team will confirm with you"
+                    : location
+                      ? [location.addressLine1, location.addressLine2, location.city].filter(Boolean).join(", ")
+                      : `${site.address.line1}, ${site.address.line2}, ${site.address.city}`
                 }
               />
             </div>

@@ -85,6 +85,13 @@
       "when": 1792507471492,
       "tag": "0011_sold_prices",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1792592904596,
+      "tag": "0012_held_offsite",
+      "breakpoints": true
     }
   ]
 }

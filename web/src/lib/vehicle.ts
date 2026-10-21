@@ -1,5 +1,5 @@
 import type { Vehicle } from "@/db/schema";
-import { depositMinorFor, depositPercentLabel } from "@/lib/drive-plan";
+import { DEFAULT_ESTIMATE_MONTHS, depositMinorFor, depositPercentLabel, monthlyAtCeilingMinor } from "@/lib/drive-plan";
 import { formatNaira } from "@/lib/money";
 
 /** The words a Nigerian buyer uses, not the database's. */
@@ -101,6 +101,19 @@ export function specRows(v: Vehicle): { label: string; value: string }[] {
 export function drivePlanBalance(v: Pick<Vehicle, "priceMinor" | "year">): string | null {
   const deposit = depositMinorFor(v.priceMinor, v.year);
   return deposit === null || !v.priceMinor ? null : formatNaira(v.priceMinor - deposit);
+}
+
+/**
+ * "₦518,486" — the estimated monthly repayment on this car's financed balance
+ * over `months`, at Autochek's published ceiling (lib/drive-plan.ts). Always
+ * shown with ESTIMATE_NOTE or "est." beside it: it is a figure to plan
+ * around, not the lender's quote. Null when the car cannot go on the plan.
+ */
+export function drivePlanMonthly(v: Pick<Vehicle, "priceMinor" | "year">, months: number = DEFAULT_ESTIMATE_MONTHS): string | null {
+  const deposit = depositMinorFor(v.priceMinor, v.year);
+  if (deposit === null || !v.priceMinor) return null;
+  const monthly = monthlyAtCeilingMinor(v.priceMinor - deposit, months);
+  return monthly === null ? null : formatNaira(monthly);
 }
 
 /**

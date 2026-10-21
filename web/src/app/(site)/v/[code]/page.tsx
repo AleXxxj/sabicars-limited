@@ -105,7 +105,8 @@ export default async function ReportPage({ params }: Props) {
       <section className="border-b border-border-subtle">
         <div className="mx-auto grid max-w-5xl gap-8 px-5 pb-12 pt-14 md:grid-cols-[minmax(0,1fr)_auto] md:items-end md:px-10 md:pb-16 md:pt-20">
           <div className="min-w-0">
-            <p className="kicker">Sabicars Verified · report SV-{r.code}</p>
+            {/* A car since moved away from the showroom keeps its report readable, but not as Verified. */}
+            <p className="kicker">{v.heldOffsite ? `Inspection report SV-${r.code}` : `Sabicars Verified · report SV-${r.code}`}</p>
             <h1 className="mt-5 text-display-2">{vehicleTitle(v)}</h1>
             <dl className="figures mt-6 flex flex-wrap gap-x-8 gap-y-3 text-text-secondary">
               <div>
@@ -122,14 +123,23 @@ export default async function ReportPage({ params }: Props) {
               </div>
             </dl>
           </div>
-          {/* eslint-disable-next-line @next/next/no-img-element -- the vector seal */}
-          <img src="/brand/seal.svg" alt="The Sabicars Verified seal" width={120} height={120} className="size-28 md:size-30" />
+          {!v.heldOffsite && (
+            // eslint-disable-next-line @next/next/no-img-element -- the vector seal
+            <img src="/brand/seal.svg" alt="The Sabicars Verified seal" width={120} height={120} className="size-28 md:size-30" />
+          )}
         </div>
       </section>
 
       <div className="mx-auto max-w-5xl space-y-14 px-5 py-12 md:px-10 md:py-16">
-        {(r.status === "superseded" || !fresh || v.status === "sold") && (
+        {(r.status === "superseded" || !fresh || v.status === "sold" || v.heldOffsite) && (
           <div role="status" className="space-y-2 border-l-2 border-warning bg-surface-1 px-5 py-4 text-text-secondary">
+            {v.heldOffsite && (
+              <p>
+                <strong className="text-text-primary">This car is now held away from the Sabicars showroom, so it does not carry the Sabicars Verified seal.</strong>{" "}
+                The report below records what was found on the day; it is not a current claim about the car. Ask and the Sabicars team will inspect it
+                for you.
+              </p>
+            )}
             {r.status === "superseded" && (
               <p>
                 <strong className="text-text-primary">A newer inspection has replaced this report.</strong>{" "}
@@ -299,6 +309,11 @@ export default async function ReportPage({ params }: Props) {
             This report records what {site.legalName}&rsquo;s inspector found on {longDate(inspectedAt)}. It is not a warranty. Cars change,
             so check it again before you pay, and bring your own mechanic if you like: every car can be inspected at the showroom before any
             money changes hands.
+          </p>
+          <p className="mt-4 max-w-3xl text-sm text-text-muted">
+            {v.heldOffsite
+              ? "The seal is only given to cars the Sabicars team inspects at the Sabicars showroom; this car is now held elsewhere and does not carry it."
+              : "Inspected by the Sabicars team at the Sabicars showroom. The seal is only given to cars inspected there."}
           </p>
           {hasPage && v.status !== "sold" && (
             <div className="mt-8 flex flex-wrap gap-3">

@@ -1,11 +1,11 @@
 import { comparisonPairs } from "@/lib/compare";
-import { DRIVE_PLAN, DRIVE_PLAN_RULE } from "@/lib/drive-plan";
+import { DEFAULT_ESTIMATE_MONTHS, DRIVE_PLAN, DRIVE_PLAN_RULE } from "@/lib/drive-plan";
 import { formatNaira } from "@/lib/money";
 import { publishedAnswers } from "@/lib/repositories/ask";
 import { publishedPosts } from "@/lib/repositories/blog";
 import { listedVehicles } from "@/lib/repositories/vehicles";
 import { site, siteUrl } from "@/lib/site";
-import { CONDITION_LABEL, drivePlanDeposit, vehicleTitle } from "@/lib/vehicle";
+import { CONDITION_LABEL, drivePlanDeposit, drivePlanMonthly, vehicleTitle } from "@/lib/vehicle";
 
 /**
  * /llms.txt — Sabicars, in the plain Markdown that AI assistants and answer
@@ -28,7 +28,7 @@ export async function GET() {
 
   const body = `# Sabicars
 
-> ${site.legalName} (CAC RC ${site.rcNumber}) is a car dealership in Lagos, Nigeria, selling luxury cars, SUVs, Toyota Hiace "Hummer" buses and trucks, with fleet supply for companies and government. Buyers can put down a deposit and have Autochek finance the rest (the 40% Drive Plan). ${DRIVE_PLAN_RULE} Cars older than ${DRIVE_PLAN.minYear} are sold for cash only. Those tiers are the rule as Autochek’s team told Sabicars on 20 October 2026 (Autochek’s own listings show “40% minimum”); Autochek’s lender sets the rate and term when it assesses the buyer, within the ${DRIVE_PLAN.maxAnnualRatePercent}% a year and ${DRIVE_PLAN.tenureMonths.min}–${DRIVE_PLAN.tenureMonths.max} months Autochek publishes. Every car can be inspected at the showroom before any money changes hands.
+> ${site.legalName} (CAC RC ${site.rcNumber}) is a car dealership in Lagos, Nigeria, selling luxury cars, SUVs, Toyota Hiace "Hummer" buses and trucks, with fleet supply for companies and government. Buyers can put down a deposit and have Autochek finance the rest (the 40% Drive Plan). ${DRIVE_PLAN_RULE} Cars older than ${DRIVE_PLAN.minYear} are sold for cash only. Those tiers are the rule as Autochek’s team told Sabicars on 20 October 2026 (Autochek’s own listings show “40% minimum”); Autochek’s lender sets the rate and term when it assesses the buyer, within the ${DRIVE_PLAN.maxAnnualRatePercent}% a year and ${DRIVE_PLAN.tenureMonths.min}–${DRIVE_PLAN.tenureMonths.max} months Autochek publishes. Applicants show ${DRIVE_PLAN.statementMonths} months of bank statements from the account they actually use — a commercial bank, or ${DRIVE_PLAN.statementAlternative} — as Autochek’s team told Sabicars on 20 October 2026. Monthly figures on the site are estimates at Autochek’s published ${DRIVE_PLAN.maxAnnualRatePercent}% ceiling over the term shown, never the lender’s quote. Every car at the showroom can be inspected there before any money changes hands; a car Sabicars lists but holds elsewhere is viewed and inspected by the Sabicars team on request and does not carry the Sabicars Verified seal.
 
 - Showroom: ${site.address.line1}, ${site.address.line2}, ${site.address.city}
 - Hours: ${site.hours.map((h) => `${h.days} ${h.time}`).join("; ")}
@@ -50,7 +50,8 @@ export async function GET() {
 ${stock
   .map((v) => {
     const deposit = drivePlanDeposit(v);
-    return `- [${vehicleTitle(v)}](${base}/vehicles/${v.slug}): ${v.priceMinor ? formatNaira(v.priceMinor) : "price on request"}${deposit ? `, or ${deposit} down on the Drive Plan` : v.priceMinor ? ", cash only (not financed by Autochek)" : ""} · ${CONDITION_LABEL[v.condition]}${v.mileageKm ? ` · ${v.mileageKm.toLocaleString("en-NG")} km` : ""}${v.status === "reserved" ? " · reserved" : ""}`;
+    const monthly = deposit ? drivePlanMonthly(v, DEFAULT_ESTIMATE_MONTHS) : null;
+    return `- [${vehicleTitle(v)}](${base}/vehicles/${v.slug}): ${v.priceMinor ? formatNaira(v.priceMinor) : "price on request"}${deposit ? `, or ${deposit} down on the Drive Plan${monthly ? `, est. ${monthly}/mo (${DEFAULT_ESTIMATE_MONTHS} months, at the ceiling)` : ""}` : v.priceMinor ? ", cash only (not financed by Autochek)" : ""} · ${CONDITION_LABEL[v.condition]}${v.mileageKm ? ` · ${v.mileageKm.toLocaleString("en-NG")} km` : ""}${v.status === "reserved" ? " · reserved" : ""}${v.heldOffsite ? " · not at the Sabicars showroom (viewing and inspection on request; no Sabicars Verified seal)" : ""}`;
   })
   .join("\n")}
 

@@ -22,11 +22,15 @@ export interface InspectionResult {
   savedAt?: number;
 }
 
-/** A report this staff member's dealer owns, with its car's slug for refreshing pages. */
+/**
+ * A report this staff member's dealer owns, with its car's slug for refreshing
+ * pages and whether the car is held away from the showroom. Read fresh on every
+ * call, so a car moved offsite after its draft was started is still caught.
+ */
 async function ownReport(me: StaffMember, id: string) {
   if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
   const [row] = await db
-    .select({ report: inspections, slug: vehicles.slug })
+    .select({ report: inspections, slug: vehicles.slug, heldOffsite: vehicles.heldOffsite })
     .from(inspections)
     .innerJoin(vehicles, eq(vehicles.id, inspections.vehicleId))
     .where(and(eq(inspections.id, id), eq(inspections.dealerId, me.dealerId)))
@@ -45,15 +49,20 @@ function refresh(vehicleId: string, slug: string, code: string) {
   revalidatePath(`/admin/vehicles/${vehicleId}/inspection`);
 }
 
-/** Opens the car's draft report, starting one if there is none. */
+/**
+ * Opens the car's draft report, starting one if there is none. A car held away
+ * from the showroom gets no draft: the Sabicars Verified seal is only for cars
+ * inspected at the showroom, so the page just explains why.
+ */
 export async function startInspection(vehicleId: string): Promise<void> {
   const me = await requireStaff();
   const [v] = await db
-    .select({ id: vehicles.id, chassisNo: vehicles.chassisNo })
+    .select({ id: vehicles.id, chassisNo: vehicles.chassisNo, heldOffsite: vehicles.heldOffsite })
     .from(vehicles)
     .where(and(eq(vehicles.id, vehicleId), eq(vehicles.dealerId, me.dealerId)))
     .limit(1);
   if (!v) redirect("/admin/vehicles");
+  if (v.heldOffsite) redirect(`/admin/vehicles/${v.id}/inspection`);
   const [draft] = await db
     .select({ id: inspections.id })
     .from(inspections)
@@ -224,6 +233,8 @@ export async function publishInspection(reportId: string): Promise<InspectionRes
   if (!found) return { ok: false, error: "That report no longer exists." };
   const r = found.report;
   if (r.status !== "draft") return { ok: false, error: "This report is already published." };
+  // Checked at publish time, not when the draft was started: the car may have been moved since.
+  if (found.heldOffsite) return { ok: false, error: "This car is not at the Sabicars showroom, so it cannot carry the Sabicars Verified seal." };
   const problems = publishProblems(r.items, r);
   if (problems.length) return { ok: false, error: "The report is not complete yet.", problems };
   const now = new Date();

@@ -74,6 +74,9 @@ const schema = z.object({
   inHero: z.preprocess((v) => v === "on" || v === "true", z.boolean()),
   consignorId: z.preprocess(blank, z.uuid().optional()),
   locationId: z.preprocess(blank, z.uuid().optional()),
+  // Held at a partner's or an owner's place rather than the showroom: viewed and
+  // inspected on request, and never shown with the Sabicars Verified seal.
+  heldOffsite: z.preprocess((v) => v === "on" || v === "true", z.boolean()),
   description: optText(5000),
   // Only an https link on an Autochek domain: this is where Drive Plan buyers are sent to apply.
   autochekUrl: z.preprocess(
@@ -208,6 +211,7 @@ export async function saveVehicle(_prev: ActionResult | null, formData: FormData
     ownerKind: f.consignorId ? ("consignor" as const) : ("dealer" as const),
     consignorId: f.consignorId ?? null,
     locationId,
+    heldOffsite: f.heldOffsite,
     description: f.description ?? null,
     autochekUrl: f.autochekUrl ?? null,
     features: f.features,

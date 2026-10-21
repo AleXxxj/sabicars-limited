@@ -4,7 +4,8 @@ import type { CardVehicle } from "@/lib/repositories/vehicles";
 import { VEHICLE_PLACEHOLDER } from "@/lib/media";
 import { VehicleImage } from "@/components/VehicleImage";
 import { SaveButton } from "@/components/saved/SaveButton";
-import { badgeFor, drivePlanDeposit, drivePlanDepositLabel, priceLabel, specLine } from "@/lib/vehicle";
+import { DEFAULT_ESTIMATE_MONTHS, DRIVE_PLAN } from "@/lib/drive-plan";
+import { badgeFor, drivePlanDeposit, drivePlanDepositLabel, drivePlanMonthly, priceLabel, specLine } from "@/lib/vehicle";
 
 /**
  * A vehicle as it appears in a grid.
@@ -32,6 +33,8 @@ export function VehicleCard({
 }) {
   const badge = badgeFor(v);
   const deposit = drivePlanDeposit(v);
+  // An estimate at Autochek's published ceiling, never the lender's quote — hence "est.". Not on a sold car.
+  const monthly = deposit && v.status !== "sold" ? drivePlanMonthly(v) : null;
   const spec = specLine(v);
 
   const body = (
@@ -51,7 +54,8 @@ export function VehicleCard({
           <span className="glass absolute left-3 top-3 rounded-full px-3 py-1 text-[0.72rem] font-semibold tracking-[0.04em] text-green-200">{badge}</span>
         )}
         {href && <SaveButton slug={v.slug} title={`${v.year} ${v.make} ${v.model}`} className="absolute right-3 top-3 z-[2]" />}
-        {/* Only a fresh, published inspection report earns the mark. */}
+        {/* Only a fresh, published inspection report earns the mark. A car held offsite never gets a
+            verification (the repository forces it to null): the seal is only given at the showroom. */}
         {v.verification?.fresh && (
           <span className="glass absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[0.72rem] font-semibold text-green-200">
             <ShieldCheck aria-hidden size={14} /> Sabicars Verified
@@ -74,13 +78,19 @@ export function VehicleCard({
         </div>
 
         <div className="mt-auto flex items-end justify-between gap-3 border-t border-white/[0.06] pt-4">
-          <p className="figures text-[1.35rem] font-semibold leading-none tracking-tight text-text-primary">{priceLabel(v)}</p>
+          {/* shrink-0: the price never wraps or squeezes; the deposit block gives way and wraps instead. */}
+          <p className="figures shrink-0 text-[1.35rem] font-semibold leading-none tracking-tight text-text-primary">{priceLabel(v)}</p>
           {deposit && (
-            <p className="flex items-center gap-1.5 text-right text-[0.8rem] leading-tight text-text-secondary">
+            <p className="flex min-w-0 items-center gap-1.5 text-right text-[0.8rem] leading-tight text-text-secondary">
               <Wallet aria-hidden size={15} className="shrink-0 text-accent-text" />
-              <span>
+              <span className="min-w-0">
                 <span className="figures block font-semibold text-accent-text">{deposit}</span>
                 {drivePlanDepositLabel(v)}
+                {monthly && (
+                  <span className="figures mt-0.5 block text-[0.72rem] text-text-muted">
+                    est. {monthly}/mo over {DEFAULT_ESTIMATE_MONTHS} months at {DRIVE_PLAN.maxAnnualRatePercent}%
+                  </span>
+                )}
               </span>
             </p>
           )}

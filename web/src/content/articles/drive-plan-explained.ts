@@ -11,8 +11,10 @@ import type { Block } from "@/lib/blog/blocks";
  * lender assesses the buyer, decides
  * the approval and sets the rate and term in its offer, and the car leaves the
  * showroom once the lender approves and the deposit is paid. No rate or
- * monthly figure is invented: every figure is the reader's own, Autochek's
- * own published example, or live from the showroom.
+ * monthly figure is stated as fact: the site shows an estimated monthly
+ * repayment at Autochek's published ceiling, labelled as an estimate wherever
+ * it appears (the lender's offer is the only quote); every other figure is the
+ * reader's own, Autochek's own published example, or live from the showroom.
  */
 export const drivePlanExplained = {
   slug: "drive-now-pay-monthly-everything-you-need-to-know",
@@ -69,7 +71,7 @@ export const drivePlanExplained = {
     { type: "h2", text: "Can you carry the repayment?" },
     {
       type: "p",
-      text: "A common rule of thumb: keep a car repayment within **30%** of your take-home pay. Above that, fuel, parking and the first unexpected bill start to squeeze everything else. Enter your pay — and, once your Autochek offer is in, the monthly figure — and see where you stand:",
+      text: "A common rule of thumb: keep a car repayment within **30%** of your take-home pay. Above that, fuel, parking and the first unexpected bill start to squeeze everything else. Enter your pay and a monthly figure — the estimate on the car’s page, or your Autochek offer once it is in — and see where you stand:",
     },
     { type: "illustration", name: "repayment-comfort" },
     {
@@ -99,7 +101,7 @@ export const drivePlanExplained = {
       type: "list",
       items: [
         "**Your BVN** and a valid ID — a national ID card, driver’s licence, passport or voter’s card.",
-        "**Bank statements** for the last six months, from an active bank account.",
+        "**Bank statements** for the last six months, from the account you actually use — a commercial bank, or a bank app such as OPay — showing money coming in and going out.",
         "**Proof of income.** Salary earners: an employment letter or recent payslips. Business owners: a CAC business registration — a registered business name is enough.",
         "**A utility bill** for the address you give.",
       ],
@@ -110,7 +112,7 @@ export const drivePlanExplained = {
     },
     {
       type: "p",
-      text: "The deposit tiers and the year floor are as Autochek’s team gave them to Sabicars on 20 October 2026; the rate ceiling, the terms and the documents are as Autochek publishes. Its lenders decide each application and may ask for more.",
+      text: "The deposit tiers, the year floor and the bank-app statements are as Autochek’s team gave them to Sabicars on 20 October 2026; the rate ceiling, the terms, the documents and the fee are as Autochek publishes. Its lenders decide each application and may ask for more.",
     },
 
     { type: "h2", text: "Three mistakes to avoid" },
@@ -119,7 +121,7 @@ export const drivePlanExplained = {
       ordered: true,
       items: [
         "**Buying at the top of your stretch.** The biggest car your deposit reaches is rarely the right one. Leave room in the monthly budget.",
-        "**Forgetting the running costs.** The monthly figure on the listing includes comprehensive insurance, a vehicle tracker and a maintenance contract — but fuel, parking and the first unexpected bill sit on top of it. Budget for them from the first month.",
+        "**Forgetting the running costs.** The monthly figure on the car’s Autochek listing includes comprehensive insurance, a vehicle tracker and a maintenance contract (the estimates on Sabicars’ pages are the loan alone) — but fuel, parking and the first unexpected bill sit on top of it. Budget for them from the first month.",
         "**Skipping the fine print.** Read the rate and term in your offer, the processing fee (Autochek’s published example is ₦20,000, credited against your final payment if the loan goes through) and what happens if a payment is late — and ask Autochek about anything unclear before you sign.",
       ],
     },
@@ -144,7 +146,7 @@ export const drivePlanExplained = {
         },
         {
           q: "What are the interest rate and the term?",
-          a: "The lender sets them when it assesses you, and you see them in your offer before you commit to anything. Autochek publishes a ceiling of 30% a year over 6 to 48 months; on its listings the rate is “available on request”. Autochek’s own example: ₦1,000,000 over 12 months at 30% a year is about ₦97,487 a month.",
+          a: "The lender sets them when it assesses you, and you see them in your offer before you commit to anything. Autochek publishes a ceiling of 30% a year over 6 to 48 months; on its listings the rate is “available on request”. Autochek’s own example: ₦1,000,000 over 12 months at 30% a year is about ₦97,487 a month. Each car’s page shows an estimated monthly repayment at that ceiling over the term you pick, so you can plan; your offer can be lower.",
         },
         {
           q: "When does the car leave the showroom?",

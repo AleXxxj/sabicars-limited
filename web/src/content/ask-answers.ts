@@ -15,14 +15,14 @@ export const ASK_ANSWERS: { slug: string; question: string; answer: string }[] =
 3. Autochek’s lender assesses you, decides the approval, and sets the rate and term in your offer.
 4. Once the lender approves and your deposit is paid, the car is yours to drive home.
 
-As a deposit, your money reaches a car up to two and a half times its size: ₦10 million reaches a car priced up to ₦25 million from 2010, or ₦20 million from 2008 or 2009. You can put down more than the minimum, up to 70% of the price. [How the Drive Plan works](/drive-plan).`,
+As a deposit, your money reaches a car up to two and a half times its size: ₦10 million reaches a car priced up to ₦25 million from 2010, or ₦20 million from 2008 or 2009. You can put down more than the minimum, up to 70% of the price. Every car’s page shows an estimated monthly repayment at Autochek’s published ceiling over the term you pick. [How the Drive Plan works](/drive-plan).`,
   },
   {
     slug: "who-approves-drive-plan-finance-and-what-are-the-rates",
     question: "Who approves the finance, and what are the interest rate and term?",
-    answer: `Autochek’s lending partners, through Autochek — Sabicars’ financing partner. The lender assesses every applicant — your BVN and a valid ID, bank statements for the last six months, proof of income and a utility bill — and decides. Sabicars does not lend.
+    answer: `Autochek’s lending partners, through Autochek — Sabicars’ financing partner. The lender assesses every applicant and decides. It asks for your BVN and a valid ID; bank statements for the last six months from the account you actually use — a commercial bank, or a bank app such as OPay — showing money coming in and going out; proof of income; and a utility bill. Sabicars does not lend. The bank-app alternative is as Autochek’s team told Sabicars on 20 October 2026.
 
-The lender sets the rate and the repayment term when it assesses you, and you see them in your offer before you commit to anything. Autochek publishes a ceiling of 30% a year over 6 to 48 months; on its listings the rate is “available on request”. Autochek’s own example: ₦1,000,000 over 12 months at 30% a year is about ₦97,487 a month. We won’t guess at your figure: ask Autochek how a bigger deposit or a longer term changes the monthly amount.`,
+The lender sets the rate and the repayment term when it assesses you, and you see them in your offer before you commit to anything. Autochek publishes a ceiling of 30% a year over 6 to 48 months; on its listings the rate is “available on request”. Autochek’s own example: ₦1,000,000 over 12 months at 30% a year is about ₦97,487 a month. Each car’s page shows an estimated monthly repayment at that ceiling over the term you pick, so you can plan; your offer can be lower. Ask Autochek how a bigger deposit or a longer term changes the monthly amount.`,
   },
   {
     slug: "when-can-i-take-the-car-home-on-the-drive-plan",

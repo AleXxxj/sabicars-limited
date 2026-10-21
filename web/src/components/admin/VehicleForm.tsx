@@ -249,6 +249,15 @@ export function VehicleForm({ vehicle: v, options, canSetPrices }: { vehicle?: V
             ))}
           </select>
         </Field>
+        <label className="grid gap-2 sm:col-span-2">
+          <span className="inline-flex min-h-11 items-center gap-3 text-text-secondary">
+            <input type="checkbox" name="heldOffsite" defaultChecked={v?.heldOffsite ?? false} className="size-4 accent-[var(--green-500)]" />
+            Not at the Sabicars showroom
+          </span>
+          <span className="text-xs text-text-muted">
+            Held elsewhere — a partner’s or an owner’s car. Buyers view and inspect it on request, and it never carries the Sabicars Verified seal.
+          </span>
+        </label>
       </fieldset>
 
       <fieldset className="grid gap-6 border-t border-border-subtle pt-8">

@@ -77,16 +77,37 @@ export default async function EditVehicle({ params, searchParams }: Props) {
         <aside className="space-y-10 lg:sticky lg:top-36 lg:self-start">
           <section>
             <h2 className="eyebrow">Sabicars Verified</h2>
-            <p className="mt-3 text-sm text-text-secondary">
-              {live
-                ? `Report SV-${live.code}, inspected ${live.inspectedAt?.toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric", timeZone: "Africa/Lagos" })}${live.inspectedAt && !isFresh(live.inspectedAt) ? " — older than four months, so the badge is off" : ""}.`
-                : draft
-                  ? "An inspection is in progress."
-                  : "No inspection report yet. Without one, the car shows no Verified badge."}
-            </p>
-            <Link href={`/admin/vehicles/${v.id}/inspection`} className="mt-3 inline-block text-sm font-semibold text-accent-text hover:text-text-primary">
-              {draft ? "Continue the inspection →" : live ? "Reports and seal →" : "Start the inspection →"}
-            </Link>
+            {v.heldOffsite ? (
+              // The seal is only for cars inspected at the showroom. A car held
+              // elsewhere is inspected on a buyer's request and never shows as Verified.
+              <>
+                <p className="mt-3 text-sm text-text-secondary">
+                  {live
+                    ? `Report SV-${live.code} is on record, but it is not shown as Verified while the car is held elsewhere.`
+                    : draft
+                      ? "An inspection is in progress, but it cannot be published: this car is not at the Sabicars showroom, so it cannot carry the Sabicars Verified seal."
+                      : "Not at the Sabicars showroom: this car is inspected on a buyer’s request and does not carry the Sabicars Verified seal. Inspections are only started for showroom cars."}
+                </p>
+                {(live || draft) && (
+                  <Link href={`/admin/vehicles/${v.id}/inspection`} className="mt-3 inline-block text-sm font-semibold text-accent-text hover:text-text-primary">
+                    {draft ? "Continue the inspection →" : "Reports on record →"}
+                  </Link>
+                )}
+              </>
+            ) : (
+              <>
+                <p className="mt-3 text-sm text-text-secondary">
+                  {live
+                    ? `Report SV-${live.code}, inspected ${live.inspectedAt?.toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric", timeZone: "Africa/Lagos" })}${live.inspectedAt && !isFresh(live.inspectedAt) ? " — older than four months, so the badge is off" : ""}.`
+                    : draft
+                      ? "An inspection is in progress."
+                      : "No inspection report yet. Without one, the car shows no Verified badge."}
+                </p>
+                <Link href={`/admin/vehicles/${v.id}/inspection`} className="mt-3 inline-block text-sm font-semibold text-accent-text hover:text-text-primary">
+                  {draft ? "Continue the inspection →" : live ? "Reports and seal →" : "Start the inspection →"}
+                </Link>
+              </>
+            )}
           </section>
 
           <section>

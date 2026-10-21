@@ -23,8 +23,14 @@ export const DRIVE_PLAN = {
   standardDepositBps: 4000,
   /** The deposit for a car between minYear and standardYear, in basis points. */
   olderDepositBps: 5000,
-  /** Months of bank statements Autochek asks for. */
+  /** Months of bank statements Autochek asks for, from every applicant. */
   statementMonths: 6,
+  /**
+   * For a buyer without a commercial bank account: statements from the bank
+   * app they actually use count, as long as they show money coming in and
+   * going out. Autochek's team told Sabicars so on 20 October 2026.
+   */
+  statementAlternative: "a bank app such as OPay",
   /** Autochek's published ceiling, a year, in its app-store listing; the lender sets the actual rate. */
   maxAnnualRatePercent: 30,
   /** Repayment terms Autochek publishes. */
@@ -49,6 +55,35 @@ export const DRIVE_PLAN = {
 
 /** "comprehensive insurance, a vehicle tracker and a maintenance contract" — what the listing's monthly figure includes. */
 export const MONTHLY_INCLUDES = `${DRIVE_PLAN.published.monthlyIncludes.slice(0, -1).join(", ")} and ${DRIVE_PLAN.published.monthlyIncludes.at(-1)}`;
+
+/** The repayment terms the site shows estimates for, all within Autochek's published range. */
+export const ESTIMATE_MONTHS = [12, 24, 36, 48] as const;
+export type EstimateMonths = (typeof ESTIMATE_MONTHS)[number];
+/** The term an estimate is shown at before the buyer picks one: the longest Autochek publishes. */
+export const DEFAULT_ESTIMATE_MONTHS: EstimateMonths = 48;
+
+/**
+ * The estimated monthly repayment on a financed balance: an ordinary amortised
+ * loan at Autochek's published ceiling over `months`, rounded to whole naira.
+ * The lender sets the real rate (it can be lower) and may add insurance, a
+ * tracker and maintenance, so this is a figure to plan around, never a quote —
+ * every place that shows it says so (ESTIMATE_NOTE). Null for nothing
+ * financed or a term Autochek does not publish.
+ */
+export function monthlyAtCeilingMinor(balanceMinor: number | null | undefined, months: number): number | null {
+  if (!balanceMinor || balanceMinor <= 0) return null;
+  if (!Number.isInteger(months) || months < DRIVE_PLAN.tenureMonths.min || months > DRIVE_PLAN.tenureMonths.max) return null;
+  const r = DRIVE_PLAN.maxAnnualRatePercent / 100 / 12;
+  const monthly = Math.round((balanceMinor * r) / (1 - (1 + r) ** -months) / 100) * 100;
+  // A balance of a few naira rounds to nothing: no figure rather than "₦0 a month".
+  return monthly > 0 ? monthly : null;
+}
+
+/** The sentence under every estimate, so a monthly figure never travels without it. */
+export const ESTIMATE_NOTE = `Estimated at Autochek’s published ceiling of ${DRIVE_PLAN.maxAnnualRatePercent}% a year. Your offer sets the real rate, which can be lower, and may add ${MONTHLY_INCLUDES}.`;
+
+/** The short form, for a line under a grid of cards or a chat card where the full note will not fit. */
+export const ESTIMATE_SHORT = `Monthly figures are estimates at Autochek’s published ${DRIVE_PLAN.maxAnnualRatePercent}% ceiling; the lender’s offer can be lower.`;
 
 export type DrivePlanTerms = { eligible: true; depositBps: 4000 | 5000; depositPercent: 40 | 50; financedPercent: 60 | 50 } | { eligible: false };
 

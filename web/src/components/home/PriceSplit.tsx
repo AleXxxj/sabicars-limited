@@ -2,6 +2,7 @@
 
 import { useId, useState } from "react";
 import Link from "next/link";
+import { RepaymentEstimate } from "@/components/vehicle/RepaymentEstimate";
 import { DRIVE_PLAN, depositMinorFor, drivePlanTerms } from "@/lib/drive-plan";
 import { formatNaira } from "@/lib/money";
 import type { FinderVehicle } from "./DrivePlanFinder";
@@ -17,9 +18,10 @@ const TIERS = [
 /**
  * Any price, split: what you pay and what Autochek finances, at the deposit
  * the car's model year carries. For a car seen elsewhere, a figure someone
- * quoted, or one in stock. No monthly figure is shown — Autochek's lender sets
- * the tenure and rate when it assesses the buyer, and a guess here would be a
- * promise Sabicars cannot keep.
+ * quoted, or one in stock. Under the balance, an estimated monthly repayment
+ * at Autochek's published ceiling over the term the buyer picks
+ * (RepaymentEstimate) — labelled an estimate, never the lender's quote:
+ * Autochek's lender sets the real rate and term when it assesses the buyer.
  */
 export function PriceSplit({ vehicles }: { vehicles: FinderVehicle[] }) {
   const id = useId();
@@ -123,9 +125,9 @@ export function PriceSplit({ vehicles }: { vehicles: FinderVehicle[] }) {
             {naira && terms.eligible ? formatNaira(financedMinor) : "—"}
           </dd>
         </div>
+        {naira > 0 && terms.eligible && <RepaymentEstimate balanceMinor={financedMinor} size="hero" />}
         <p className="text-sm leading-relaxed text-text-secondary">
-          Autochek&rsquo;s lender sets the repayment terms when it assesses you: up to {DRIVE_PLAN.maxAnnualRatePercent}% a year, over{" "}
-          {DRIVE_PLAN.tenureMonths.min} to {DRIVE_PLAN.tenureMonths.max} months. The vehicle leaves the showroom once Autochek approves and the
+          Autochek&rsquo;s lender sets the rate and the term when it assesses you. The vehicle leaves the showroom once Autochek approves and the
           deposit is paid.
         </p>
         {chosen && (

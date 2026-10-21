@@ -140,7 +140,7 @@ export function compareTitle(cars: VehicleWithCover[]): string {
 }
 
 export function compareSummary(cars: VehicleWithCover[]): string {
-  return `${cap(joinNames(cars))} side by side: price, Drive Plan deposit, age, mileage, engine and seats — and which one suits you.`;
+  return `${cap(joinNames(cars))} side by side: price, Drive Plan deposit, estimated monthly repayment, age, mileage, engine and seats — and which one suits you.`;
 }
 
 export interface ComparisonLink {

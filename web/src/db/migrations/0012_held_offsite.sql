@@ -1,0 +1,1 @@
+ALTER TABLE "vehicles" ADD COLUMN "held_offsite" boolean DEFAULT false NOT NULL;

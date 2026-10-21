@@ -102,7 +102,9 @@ export default async function AboutPage() {
               <p className="kicker">The standard</p>
               <h2 className="mt-4 text-display-2">What buying from Sabicars means.</h2>
               <p className="mt-5 text-lg leading-relaxed text-text-secondary">
-                The Sabicars Verified seal stands for these four promises — and carries the registration number anyone can check.
+                The Sabicars Verified seal stands for these four promises — and carries the registration number anyone can check. It is
+                given only to cars at the Sabicars showroom, inspected by the Sabicars team. A car we list from elsewhere is inspected on
+                your request and does not carry it.
               </p>
             </div>
             {/* eslint-disable-next-line @next/next/no-img-element -- a vector seal, cached across pages; nothing for next/image to optimise */}

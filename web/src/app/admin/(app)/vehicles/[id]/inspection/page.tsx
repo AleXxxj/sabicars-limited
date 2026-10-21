@@ -52,6 +52,12 @@ export default async function InspectionPage({ params }: Props) {
 
       {draft ? (
         <div className="mt-10">
+          {v.heldOffsite && (
+            <p className="mb-6 max-w-2xl border-l-2 border-warning bg-surface-1 px-4 py-3 text-sm text-text-secondary">
+              Not at the Sabicars showroom: this report cannot be published while the car is held elsewhere. Discard the draft, or untick “Not at the
+              Sabicars showroom” on the car once it is at the showroom.
+            </p>
+          )}
           <InspectionEditor
             canPublish={canPublish}
             report={{
@@ -77,6 +83,13 @@ export default async function InspectionPage({ params }: Props) {
             </button>
           </form>
         </div>
+      ) : v.heldOffsite ? (
+        // The seal is only for cars inspected at the showroom; an inspection is
+        // not started for a car held elsewhere.
+        <p className="mt-10 max-w-2xl border-l-2 border-warning bg-surface-1 px-4 py-3 text-sm text-text-secondary">
+          Not at the Sabicars showroom: this car is inspected on a buyer’s request and does not carry the Sabicars Verified seal. Inspections are only started
+          for showroom cars.
+        </p>
       ) : (
         <form action={startInspection.bind(null, v.id)} className="mt-10">
           <Button type="submit">{reports.length ? "Start a new inspection" : "Start the inspection"}</Button>
@@ -108,7 +121,7 @@ export default async function InspectionPage({ params }: Props) {
                         <Link href={`/v/${r.code}`} target="_blank" className="text-accent-text hover:text-text-primary">
                           Public report ↗
                         </Link>
-                        {r.status === "published" && (
+                        {r.status === "published" && !v.heldOffsite && (
                           <Link href={`/admin/seal/${r.id}`} target="_blank" className="text-accent-text hover:text-text-primary">
                             Print the seal ↗
                           </Link>

@@ -26,6 +26,15 @@ export interface AssistantCar {
   depositMinor: number | null;
   /** 40 for a car from 2010, 50 for 2008–2009, null when Autochek would not finance it. */
   depositPercent: 40 | 50 | null;
+  /**
+   * The estimated monthly repayment on the financed balance over
+   * DEFAULT_ESTIMATE_MONTHS at Autochek's published ceiling, in kobo. Always
+   * shown as "est." — the lender's offer sets the real rate. Null when the car
+   * is not on the plan or has no price.
+   */
+  monthlyMinor: number | null;
+  /** Listed by Sabicars but held elsewhere: viewed and inspected on request, and never Sabicars Verified. */
+  heldOffsite: boolean;
   year: number;
   condition: string;
   body: string | null;

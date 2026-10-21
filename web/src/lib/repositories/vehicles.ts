@@ -39,12 +39,12 @@ export type VehicleWithCover = Vehicle & {
  */
 export type CardVehicle = Pick<
   Vehicle,
-  "id" | "slug" | "year" | "make" | "model" | "priceMinor" | "status" | "badge" | "createdAt" | "condition" | "mileageKm" | "transmission" | "drivetrain" | "fuel"
+  "id" | "slug" | "year" | "make" | "model" | "priceMinor" | "status" | "badge" | "createdAt" | "condition" | "mileageKm" | "transmission" | "drivetrain" | "fuel" | "heldOffsite"
 > & { cover: VehicleWithCover["cover"]; verification: VehicleWithCover["verification"] };
 
 export function toCard(v: VehicleWithCover): CardVehicle {
-  const { id, slug, year, make, model, priceMinor, status, badge, createdAt, condition, mileageKm, transmission, drivetrain, fuel, cover, verification } = v;
-  return { id, slug, year, make, model, priceMinor, status, badge, createdAt, condition, mileageKm, transmission, drivetrain, fuel, cover, verification };
+  const { id, slug, year, make, model, priceMinor, status, badge, createdAt, condition, mileageKm, transmission, drivetrain, fuel, heldOffsite, cover, verification } = v;
+  return { id, slug, year, make, model, priceMinor, status, badge, createdAt, condition, mileageKm, transmission, drivetrain, fuel, heldOffsite, cover, verification };
 }
 
 /** The dealer every public page belongs to until the dealer network opens (architecture §2.3). */
@@ -65,7 +65,9 @@ async function withCovers(rows: Vehicle[]): Promise<VehicleWithCover[]> {
     verificationMap(ids),
   ]);
   const byVehicle = new Map(covers.map(({ vehicleId, ...c }) => [vehicleId, c]));
-  return rows.map((r) => ({ ...r, cover: byVehicle.get(r.id) ?? null, verification: verified.get(r.id) ?? null }));
+  // A car held outside the showroom never carries the seal, whatever reports exist on it: the seal is
+  // only given to cars the Sabicars team inspects at the showroom.
+  return rows.map((r) => ({ ...r, cover: byVehicle.get(r.id) ?? null, verification: r.heldOffsite ? null : (verified.get(r.id) ?? null) }));
 }
 
 /** Featured first, then newest — what the homepage and showcases lead with. */

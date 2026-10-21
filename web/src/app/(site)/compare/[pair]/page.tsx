@@ -8,12 +8,12 @@ import { ButtonLink } from "@/components/ui/Button";
 import { VehicleImage } from "@/components/VehicleImage";
 import { comparePath } from "@/lib/assistant/parts";
 import { compareSummary, compareTitle, comparisonPairs, differences, slugsFromPair, suits } from "@/lib/compare";
-import { drivePlanTerms } from "@/lib/drive-plan";
+import { DEFAULT_ESTIMATE_MONTHS, ESTIMATE_NOTE, drivePlanTerms } from "@/lib/drive-plan";
 import { shareImageUrl } from "@/lib/media";
 import { vehiclesWithPages, type VehicleWithCover } from "@/lib/repositories/vehicles";
 import { breadcrumbJsonLd, itemListJsonLd, jsonLdScript } from "@/lib/seo/structured-data";
 import { pageAddress } from "@/lib/site";
-import { drivePlanDeposit, priceLabel, specRows, vehicleTitle } from "@/lib/vehicle";
+import { drivePlanDeposit, drivePlanMonthly, priceLabel, specRows, vehicleTitle } from "@/lib/vehicle";
 
 type Props = { params: Promise<{ pair: string }> };
 
@@ -73,6 +73,8 @@ export default async function ComparePage({ params }: Props) {
   const allFeatures = [...new Set(cars.flatMap((c) => c.features))];
   const others = (await comparisonPairs()).filter((p) => p.path !== canonical && cars.some((c) => p.path.includes(c.slug))).slice(0, 6);
   const sold = cars.some((c) => c.status === "sold");
+  // The estimate's caveat is shown once under the table, and only when a figure is there to caveat.
+  const anyEstimate = cars.some((c) => c.status !== "sold" && drivePlanMonthly(c) !== null);
   const cols = { gridTemplateColumns: `repeat(${cars.length}, minmax(0, 1fr))` };
   const trail = [
     { name: "Home", path: "/" },
@@ -234,6 +236,16 @@ export default async function ComparePage({ params }: Props) {
                   </td>
                 ))}
               </tr>
+              <tr className="border-t border-white/[0.06]">
+                <th scope="row" className="px-4 py-3 text-sm font-medium text-text-muted">
+                  Est. monthly ({DEFAULT_ESTIMATE_MONTHS} months)
+                </th>
+                {cars.map((c) => (
+                  <td key={c.id} className="figures px-4 py-3 text-text-secondary">
+                    {c.status === "sold" ? "Sold" : (drivePlanMonthly(c) ?? (drivePlanTerms(c.year).eligible ? "On request" : "Cash only"))}
+                  </td>
+                ))}
+              </tr>
               {table.map((row) => (
                 <tr key={row.label} className="border-t border-white/[0.06]">
                   <th scope="row" className="px-4 py-3 text-sm font-medium text-text-muted">
@@ -249,6 +261,7 @@ export default async function ComparePage({ params }: Props) {
             </tbody>
           </table>
         </div>
+        {anyEstimate && <p className="mt-3 text-xs text-text-muted">{ESTIMATE_NOTE}</p>}
       </section>
 
       {allFeatures.length > 0 && (
