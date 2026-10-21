@@ -296,8 +296,8 @@ export async function launchChecks(base: string): Promise<Check[]> {
     setting(
       "Scheduled jobs",
       ["CRON_SECRET"],
-      "Escalation and the Friday digest can run.",
-      "Add a long random CRON_SECRET, and point a scheduler at /api/cron/escalate (every 5 minutes) and /api/cron/digest (Fridays).",
+      "Escalation, viewing reminders, the Friday digest and the daily payouts check can run.",
+      "Add a long random CRON_SECRET, and point a scheduler at /api/cron/escalate (every 5 minutes), /api/cron/viewings (daily 06:30 UTC), /api/cron/digest (Fridays) and /api/cron/payouts (daily 06:00 UTC). Paystack's webhook, /api/payments/paystack/webhook, needs no scheduler: set the URL in the Paystack dashboard.",
     ),
     setting(
       "Email",
@@ -305,6 +305,23 @@ export async function launchChecks(base: string): Promise<Check[]> {
       "Staff alerts, buyer alerts and the newsletter can send.",
       "Create a Resend account, verify sabicars.com, and add RESEND_API_KEY and RESEND_FROM_EMAIL.",
     ),
+    (() => {
+      const c = setting(
+        "Partner payouts (Paystack)",
+        ["PAYSTACK_SECRET_KEY"],
+        "Commissions can be paid by Paystack transfer, and bank accounts are verified automatically.",
+        "Add PAYSTACK_SECRET_KEY (live key) in Vercel; until then payouts are recorded as bank transfers and accounts are confirmed by a manager.",
+        true,
+      );
+      if (c.status === "ok" && (process.env.PAYSTACK_SECRET_KEY?.trim() ?? "").startsWith("sk_test_"))
+        return {
+          ...c,
+          status: "warn" as const,
+          detail: "A Paystack test key is set: transfers settle instantly and no real money moves. Right for the rehearsal.",
+          fix: "For the live site, replace it with the live secret key from Paystack → Settings → API Keys & Webhooks.",
+        };
+      return c;
+    })(),
     setting(
       "Customer push notifications",
       ["NEXT_PUBLIC_ONESIGNAL_APP_ID", "ONESIGNAL_REST_API_KEY"],

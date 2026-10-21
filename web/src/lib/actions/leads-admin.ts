@@ -11,6 +11,8 @@ import { notifyAssigned, pushConfigured, pushToStaff } from "@/lib/alerts";
 import { audit } from "@/lib/audit";
 import { requireStaff, type StaffMember } from "@/lib/auth";
 import { CONTACT_METHODS, LEAD_STATUS_LABEL } from "@/lib/lead-labels";
+import { recordCommissionForSale } from "@/lib/ledger";
+import { notifyCommissionRecorded } from "@/lib/ledger-notify";
 
 type Result = { ok: boolean; error?: string };
 
@@ -158,6 +160,25 @@ export async function setLeadStatus(_prev: Result | null, formData: FormData): P
     ...(lostReason !== lead.lostReason ? { lostReason: [lead.lostReason, lostReason] } : {}),
   });
   refresh(leadId);
+
+  // A sale a partner's link brought in earns their commission — when the
+  // vehicle is already sold with its price. If not, nothing happens here and
+  // the vehicle's own save records it (lib/actions/vehicles.ts). Never fails
+  // the status change: a ledger problem is logged for a manager.
+  if (status === "won" && lead.vehicleId && lead.partnerId) {
+    const vehicleId = lead.vehicleId;
+    after(async () => {
+      try {
+        const r = await recordCommissionForSale(me.dealerId, vehicleId, { source: "link" });
+        if (r.ok && r.created) {
+          console.info(`[ledger] commission ${r.commissionId} recorded from won lead ${leadId}`);
+          await notifyCommissionRecorded(r.commissionId);
+        }
+      } catch (e) {
+        console.error("[ledger] commission for won lead failed", leadId, e);
+      }
+    });
+  }
   return { ok: true };
 }
 

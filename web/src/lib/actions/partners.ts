@@ -1,10 +1,13 @@
 "use server";
 
+import { randomUUID } from "node:crypto";
+import { after } from "next/server";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
 import { partners } from "@/db/schema";
 import { looksAutomated, sabicarsDealerId } from "@/lib/leads";
+import { notifyPartnerWelcome } from "@/lib/ledger-notify";
 import { codeFor, referralLink } from "@/lib/partners";
 import { normalisePhone } from "@/lib/phone";
 import { PARTNER_REACH } from "@/lib/referral";
@@ -15,6 +18,8 @@ export interface PartnerFormResult {
   name?: string;
   code?: string;
   link?: string;
+  /** The partner's private page — earnings, enquiries and the bank account they are paid into. Theirs alone. */
+  pageLink?: string;
   /** This phone number was already registered; the existing code is returned. */
   returning?: boolean;
   error?: string;
@@ -39,6 +44,22 @@ function isCodeCollision(e: unknown): boolean {
   return pg.code === "23505" && pg.constraint_name === "partners_code_idx";
 }
 
+/** The private page a partner opens with the token in their link. */
+function pageLinkFor(accessToken: string): string {
+  return `${siteUrl()}/partner/${accessToken}`;
+}
+
+/** A new partner is welcomed after the reply has gone: a slow or failing email never delays the registration. */
+function welcome(partnerId: string) {
+  after(async () => {
+    try {
+      await notifyPartnerWelcome(partnerId);
+    } catch (e) {
+      console.error("[partners] welcome failed", e);
+    }
+  });
+}
+
 export async function registerPartner(_prev: PartnerFormResult | null, formData: FormData): Promise<PartnerFormResult> {
   const values = Object.fromEntries([...formData.entries()].filter(([k, v]) => typeof v === "string" && k !== "website" && k !== "renderedAt")) as Record<string, string>;
   const parsed = schema.safeParse(Object.fromEntries(formData.entries()));
@@ -48,8 +69,8 @@ export async function registerPartner(_prev: PartnerFormResult | null, formData:
   }
   const v = parsed.data;
   const firstName = v.name.split(" ")[0];
-  // A bot gets something that looks like success and a code that does nothing.
-  if (looksAutomated(v.website, v.renderedAt)) return { ok: true, name: firstName, code: "RECEIV", link: referralLink(siteUrl(), "RECEIV") };
+  // A bot gets something that looks like success: a code that does nothing and a page link that opens nothing.
+  if (looksAutomated(v.website, v.renderedAt)) return { ok: true, name: firstName, code: "RECEIV", link: referralLink(siteUrl(), "RECEIV"), pageLink: pageLinkFor(randomUUID()) };
 
   const phone = normalisePhone(v.phone);
   if (!phone) return { ok: false, fieldErrors: { phone: "Please enter your phone number, e.g. 0803 123 4567" }, values };
@@ -57,17 +78,24 @@ export async function registerPartner(_prev: PartnerFormResult | null, formData:
   try {
     const dealerId = await sabicarsDealerId();
     const byPhone = and(eq(partners.dealerId, dealerId), eq(partners.phone, phone));
-    const [existing] = await db.select({ code: partners.code, status: partners.status }).from(partners).where(byPhone).limit(1);
+    const [existing] = await db.select({ id: partners.id, code: partners.code, status: partners.status }).from(partners).where(byPhone).limit(1);
     if (existing) {
       if (existing.status !== "active") return { ok: false, error: "This number cannot be registered online. Please call 0810 188 5558.", values };
+      // The private page link is never handed to whoever types a phone number: it goes to the email on
+      // record, or the partner gets it from Sabicars. The public code is fine to repeat.
+      welcome(existing.id);
       return { ok: true, name: firstName, code: existing.code, link: referralLink(siteUrl(), existing.code), returning: true };
     }
 
     for (let attempt = 0; attempt < 6; attempt++) {
       const code = codeFor(v.name, attempt);
       try {
-        await db.insert(partners).values({ dealerId, code, name: v.name, phone, email: v.email || null, reach: v.reach });
-        return { ok: true, name: firstName, code, link: referralLink(siteUrl(), code) };
+        const [row] = await db
+          .insert(partners)
+          .values({ dealerId, code, name: v.name, phone, email: v.email || null, reach: v.reach })
+          .returning({ id: partners.id, accessToken: partners.accessToken });
+        welcome(row.id);
+        return { ok: true, name: firstName, code, link: referralLink(siteUrl(), code), pageLink: pageLinkFor(row.accessToken) };
       } catch (e) {
         if (isCodeCollision(e)) continue;
         // Two submissions for one phone at once: the other one won; return its code.

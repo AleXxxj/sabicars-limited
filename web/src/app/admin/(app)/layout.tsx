@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
 import { NavLink } from "@/components/site/NavLink";
-import { requireStaff } from "@/lib/auth";
+import { can, requireStaff } from "@/lib/auth";
 import { signOut } from "@/lib/actions/auth";
 import { adminNavFor, ROLE_LABEL } from "@/lib/admin-nav";
 import { waitingCount } from "@/lib/repositories/leads";
 import { reviewCounts } from "@/lib/repositories/reviews";
 import { pendingCommentCount } from "@/lib/repositories/blog";
+import { payableCount } from "@/lib/ledger";
 
 /**
  * The staff workspace. Built for a phone first: most listings will be made
@@ -16,12 +17,19 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const me = await requireStaff();
   const nav = adminNavFor(me.role);
   // What is waiting for someone, shown on the section it is waiting in.
-  const [leadsWaiting, reviewsWaiting, commentsWaiting] = await Promise.all([
+  const [leadsWaiting, reviewsWaiting, commentsWaiting, payoutsReady] = await Promise.all([
     waitingCount(me.dealerId),
     me.role === "sales" ? 0 : reviewCounts(me.dealerId).then((c) => c.waiting),
     me.role === "sales" ? 0 : pendingCommentCount(me.dealerId),
+    // Commissions past their cooling-off, waiting for a manager to pay them.
+    can.payPartners(me) ? payableCount(me.dealerId) : 0,
   ]);
-  const badges: Record<string, number> = { "/admin/leads": leadsWaiting, "/admin/reviews": reviewsWaiting, "/admin/blog": commentsWaiting };
+  const badges: Record<string, number> = {
+    "/admin/leads": leadsWaiting,
+    "/admin/reviews": reviewsWaiting,
+    "/admin/blog": commentsWaiting,
+    "/admin/payouts": payoutsReady,
+  };
 
   return (
     <div className="min-h-svh bg-surface-0">

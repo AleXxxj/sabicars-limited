@@ -19,7 +19,8 @@ export function Analytics() {
 function gtag(){dataLayer.push(arguments);}
 gtag('consent', 'default', { ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });
 gtag('js', new Date());
-gtag('config', '${GA_ID}');`}
+// A private link (a partner's page, a buyer's review link) carries its secret in the address: it is never sent to Google.
+if (!/^\\/(partner|review|unsubscribe)\\//.test(location.pathname)) gtag('config', '${GA_ID}');`}
       </Script>
     </>
   );

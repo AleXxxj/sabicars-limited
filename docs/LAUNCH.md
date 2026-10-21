@@ -34,10 +34,16 @@ needing attention, or missing. `npm run check:launch` prints the same list.
    - Email: `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `RESEND_FROM_NAME`
    - Customer push: `NEXT_PUBLIC_ONESIGNAL_APP_ID`, `ONESIGNAL_REST_API_KEY`
    - Assistant: `ANTHROPIC_API_KEY`. Use a separate "Sabicars production" key.
+   - Partner payouts: `PAYSTACK_SECRET_KEY`, the **live** secret key from Paystack → Settings → API Keys & Webhooks. It unlocks paying commissions by Paystack transfer from Sabicars' balance, and checking whose name a partner's bank account is in the moment they register it. It is set in Vercel only, never in a local `.env`. Without it the platform still works: payouts are recorded as bank transfers made from the bank, and a manager confirms each account by hand. A test key (`sk_test_…`) is fine for the rehearsal: transfers settle instantly and no money moves; `/admin/status` says so.
    - Do not set `NEXT_PUBLIC_SITE_URL`. The site uses the project's production address from Vercel: `sabicars.vercel.app` during the rehearsal, so shared links preview, and `sabicars.com` once that domain is added. Vercel's own address is never indexed (`X-Robots-Tag: noindex`).
 4. **Resend:** verify `sabicars.com`.
    - Add the DNS records Resend gives *alongside* the existing ones.
    - **Never touch the MX records.** sabicars.com's email runs on Google Workspace.
+4b. **Paystack** (partner payouts; can follow launch, nothing else waits on it).
+   - On Paystack's side, before a transfer can go out: the business is registered on the account (CAC documents, the same RC number as the site), **transfers are enabled** (Paystack switches them on once the business is verified; the payouts page says "Transfers are not enabled" until then), and the **balance is funded** (Settings → Balance → Top up, or money Paystack has collected). Each transfer also costs Paystack's fee: ₦10 up to ₦5,000, ₦25 up to ₦50,000, ₦50 above.
+   - Settings → Preferences: **turn off "Confirm transfers before sending"** (the OTP on every transfer). With it on, every payout stops at Paystack waiting for a code nobody receives.
+   - Settings → API Keys & Webhooks → **Live Webhook URL**: `https://sabicars.com/api/payments/paystack/webhook` (during the rehearsal, the same path on `sabicars.vercel.app`, and change it on switch day). Paystack sends every event to this address; the platform acts on `transfer.success`, `transfer.failed` and `transfer.reversed` and acknowledges the rest. The request is checked against the secret key's signature, so the URL needs no secret of its own.
+   - A webhook that never arrives is not fatal: the daily payouts job (step 7) asks Paystack about every transfer still in flight.
 5. **Content into the production database**
    - `npm run legacy:import` (with `LEGACY_MONGO_URI`)
    - `npm run blog:seed`
@@ -52,6 +58,7 @@ needing attention, or missing. `npm run check:launch` prints the same list.
    - `/api/cron/escalate` every 5 minutes
    - `/api/cron/digest` on Fridays at 08:00 UTC
    - `/api/cron/viewings` every day at 06:30 UTC (07:30 in Lagos): reminds each buyer with an email of today's viewing, and sends staff the day's list. Running it twice sends nothing twice.
+   - `/api/cron/payouts` every day at 06:00 UTC (07:00 in Lagos): checks every Paystack transfer still in flight against Paystack, and tells the owner and managers, once a day, how many commissions have passed their cooling-off and are waiting to be paid. Running it twice alerts nobody twice.
 8. **A day before:** lower the TTL of the domain's A and `www` records to 300 seconds. Both the switch and any switch-back will then take effect within minutes.
 
 ## B. Switch day (a quiet hour, such as early morning)
@@ -79,6 +86,7 @@ needing attention, or missing. `npm run check:launch` prints the same list.
    - A test enquiry reaches a staff phone.
    - Ask Sabicars answers.
    - Push notifications: subscribers keep working because the domain and `/OneSignalSDKWorker.js` are unchanged. Confirm that OneSignal → Settings → Web → Site URL is `https://sabicars.com`.
+   - If Paystack is set up: change the Live Webhook URL to `https://sabicars.com/api/payments/paystack/webhook` (A.4b), and point the `/api/cron/payouts` scheduler at the new address along with the other three.
 6. **Google Search Console.**
    - Add sabicars.com as a Domain property (verified with a DNS TXT record).
    - Submit `https://sabicars.com/sitemap.xml`.

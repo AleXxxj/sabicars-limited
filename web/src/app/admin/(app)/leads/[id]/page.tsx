@@ -7,8 +7,9 @@ import { LiveRefresh } from "@/components/admin/LiveRefresh";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { assistantConversations } from "@/db/schema";
-import { requireStaff } from "@/lib/auth";
+import { can, requireStaff } from "@/lib/auth";
 import { LEAD_STATUS_LABEL, LEAD_TYPE_LABEL, RESPONSE_TARGET_MINUTES } from "@/lib/lead-labels";
+import { commissionForVehicle } from "@/lib/ledger";
 import { formatNaira } from "@/lib/money";
 import { displayPhone } from "@/lib/phone";
 import { assignableStaff, leadDetail, type LeadDetail } from "@/lib/repositories/leads";
@@ -30,6 +31,8 @@ const when = (d: Date) =>
     hour12: true,
     timeZone: "Africa/Lagos",
   });
+
+const onDate = (d: Date) => new Date(d).toLocaleDateString("en-NG", { day: "numeric", month: "long", year: "numeric", timeZone: "Africa/Lagos" });
 
 const CHANNEL_LABEL: Record<string, string> = {
   web_form: "the website",
@@ -73,6 +76,8 @@ export default async function LeadPage({ params }: Props) {
   const [d, people] = await Promise.all([leadDetail(me.dealerId, id), assignableStaff(me.dealerId)]);
   if (!d) notFound();
   const { lead } = d;
+  // The commission the car's sale earned, if a partner brought its buyer.
+  const commission = lead.vehicleId && (d.referredBy || lead.status === "won") ? await commissionForVehicle(me.dealerId, lead.vehicleId) : null;
   const [chat] =
     lead.channel === "assistant"
       ? await db.select({ id: assistantConversations.id }).from(assistantConversations).where(eq(assistantConversations.leadId, lead.id)).limit(1)
@@ -281,12 +286,60 @@ export default async function LeadPage({ params }: Props) {
           ) : (
             !d.vehicle && !d.request && <p className="mt-3 text-sm text-text-muted">No message.</p>
           )}
-          {(d.referredBy || d.buyerIsPartner || attribution.length > 0) && (
+          {(d.referredBy || commission || d.buyerIsPartner || attribution.length > 0) && (
             <div className="mt-5 flex flex-wrap gap-2 border-t border-border-subtle pt-4 text-xs">
               {d.referredBy && (
                 <span className="border border-green-700 px-2 py-1 text-accent-text">
-                  Referred by partner {d.referredBy.name} ({d.referredBy.code}) — 1.5% if it sells
+                  Referred by partner{" "}
+                  {can.payPartners(me) ? (
+                    <Link href={`/admin/partners/${d.referredBy.id}`} className="font-semibold underline underline-offset-2 hover:text-text-primary">
+                      {d.referredBy.name}
+                    </Link>
+                  ) : (
+                    <span className="font-semibold">{d.referredBy.name}</span>
+                  )}{" "}
+                  ({d.referredBy.code}) — 1.5% if it sells
                 </span>
+              )}
+              {commission ? (
+                <span className={`border px-2 py-1 ${commission.status === "paid" ? "border-success text-success" : "border-border-strong text-text-secondary"}`}>
+                  Commission <span className="figures">{formatNaira(commission.amountMinor)}</span>
+                  {commission.partnerId !== d.referredBy?.id && (
+                    <>
+                      {" "}
+                      to{" "}
+                      <Link href={`/admin/partners/${commission.partnerId}`} className="font-semibold underline underline-offset-2 hover:text-text-primary">
+                        {commission.partnerName}
+                      </Link>{" "}
+                      ({commission.partnerCode})
+                    </>
+                  )}{" "}
+                  —{" "}
+                  {commission.status === "paid"
+                    ? `paid on ${commission.paidAt ? onDate(commission.paidAt) : "record"}`
+                    : commission.status === "void"
+                      ? `void: ${commission.voidReason ?? "no reason recorded"}`
+                      : commission.payable
+                        ? "ready to pay"
+                        : `in cooling-off until ${when(commission.payableAt)}`}
+                </span>
+              ) : (
+                d.referredBy &&
+                d.vehicle?.status === "sold" && (
+                  <span className="border border-border-strong px-2 py-1 text-text-secondary">
+                    No commission yet:{" "}
+                    {lead.status === "won" ? (
+                      <>
+                        record what the car sold for on{" "}
+                        <Link href={`/admin/vehicles/${d.vehicle.id}`} className="font-semibold underline underline-offset-2 hover:text-text-primary">
+                          its page
+                        </Link>
+                      </>
+                    ) : (
+                      "mark this enquiry as bought once the sale is final"
+                    )}
+                  </span>
+                )
               )}
               {d.buyerIsPartner && (
                 <span className="border border-info px-2 py-1 text-info">

@@ -38,6 +38,10 @@ the in-memory schema test, which only ever has one client.
 | `check:contrast` | every text/background pair in both themes meets WCAG AA |
 | `test:schema` | the migrations apply, and the database refuses every invalid state (zero prices, consigned trucks with no owner, sold cars with no date, leads nobody can call back…) |
 | `test:money` | kobo arithmetic, the 40% Drive Plan deposit and the 1.5% commission are exact |
+| `test:hours` | the showroom clock: when an enquiry's response time starts counting |
+| `test:viewings` | viewing slots follow the showroom's hours, notice and capacity rules |
+| `test:drive-plan` | the Drive Plan deposit tiers by model year and the repayment estimate match what Autochek gave Sabicars |
+| `test:ledger` | the commission ledger's rules: 1.5% to the kobo, the 48-hour cooling-off, whose name a bank account must be in, the payout reference and Paystack's transfer fee |
 
 ## The legacy import
 

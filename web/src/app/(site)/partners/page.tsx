@@ -100,6 +100,9 @@ export default async function PartnersPage() {
             <p className="mt-5 text-lg leading-relaxed text-text-secondary">
               One minute, no fee. Your code and link appear as soon as you register.
             </p>
+            <p className="mt-4 text-text-secondary">
+              You get a private page link when you register — your earnings, and where you add the bank account you are paid into.
+            </p>
           </ScrollReveal>
           <PartnerForm />
         </div>

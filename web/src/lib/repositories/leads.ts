@@ -216,7 +216,7 @@ export interface LeadDetail {
   request: { id: string; want: string; status: string } | null;
   watching: { title: string; slug: string }[];
   /** The partner whose link brought this buyer — owed 1.5% if it sells. */
-  referredBy: { code: string; name: string } | null;
+  referredBy: { id: string; code: string; name: string } | null;
   /** The buyer is a registered partner: partner price, no commission. */
   buyerIsPartner: { code: string } | null;
   /** The review they left through their private link, once they have. */
@@ -279,7 +279,7 @@ export async function leadDetail(dealerId: string, id: string): Promise<LeadDeta
       .innerJoin(vehicles, eq(vehicles.id, vehicleWatches.vehicleId))
       .where(eq(vehicleWatches.leadId, id)),
     lead.partnerId
-      ? db.select({ code: partners.code, name: partners.name }).from(partners).where(eq(partners.id, lead.partnerId)).limit(1)
+      ? db.select({ id: partners.id, code: partners.code, name: partners.name }).from(partners).where(eq(partners.id, lead.partnerId)).limit(1)
       : Promise.resolve([]),
     lead.phone
       ? db

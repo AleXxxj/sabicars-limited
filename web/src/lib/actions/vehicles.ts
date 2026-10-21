@@ -10,6 +10,8 @@ import { consignors, locations, vehicleMedia, vehicles } from "@/db/schema";
 import { audit, changes } from "@/lib/audit";
 import { can, requireStaff, type StaffMember } from "@/lib/auth";
 import { isGenuineUpload, uploadTicket, type UploadedAsset, type UploadTicket } from "@/lib/cloudinary";
+import { recordCommissionForSale, voidCommissionsForVehicle } from "@/lib/ledger";
+import { notifyCommissionRecorded, notifyPaidCommissionUnwound } from "@/lib/ledger-notify";
 import { slugify } from "@/lib/legacy/normalise";
 import { refreshPublicPages } from "@/lib/public-pages";
 import { offerVehicle } from "@/lib/sourcing-engine";
@@ -121,6 +123,37 @@ function offerToWaitingBuyers(vehicleId: string, previousPriceMinor: number | nu
       if (due) console.info(`[watch] vehicle ${vehicleId} price drop for ${due} watcher(s), ${emailed} emailed`);
     } catch (e) {
       console.error("[watch] price-drop alert failed for vehicle", vehicleId, e);
+    }
+  });
+}
+
+/**
+ * The commission ledger follows the sale. A vehicle saved as sold with what
+ * it sold for earns the commission of the partner whose link brought the
+ * buyer (lib/ledger.ts finds them from the won enquiry); a sale unwound —
+ * sold, then anything else — voids a commission not yet paid, and managers
+ * are told about one that was. Runs after the response and never fails the
+ * save: a ledger problem is logged for a manager, not shown mid-save.
+ */
+function settleCommission(me: StaffMember, vehicleId: string, before: { status: string } | null, next: { status: string; soldPriceMinor: number | null }) {
+  const sold = next.status === "sold" && Boolean(next.soldPriceMinor);
+  const unwound = before?.status === "sold" && next.status !== "sold";
+  if (!sold && !unwound) return;
+  after(async () => {
+    try {
+      if (sold) {
+        const r = await recordCommissionForSale(me.dealerId, vehicleId, { source: "link" });
+        if (r.ok && r.created) {
+          console.info(`[ledger] commission ${r.commissionId} recorded for vehicle ${vehicleId}`);
+          await notifyCommissionRecorded(r.commissionId);
+        }
+      } else {
+        const v = await voidCommissionsForVehicle(me.dealerId, vehicleId, "The sale was unwound", me);
+        if (v.voided.length) console.info(`[ledger] ${v.voided.length} commission(s) voided for vehicle ${vehicleId}: the sale was unwound`);
+        for (const c of v.alreadyPaid) await notifyPaidCommissionUnwound(c);
+      }
+    } catch (e) {
+      console.error("[ledger] commission update failed for vehicle", vehicleId, e);
     }
   });
 }
@@ -243,6 +276,7 @@ export async function saveVehicle(_prev: ActionResult | null, formData: FormData
 
   refreshPublicPages(slug);
   if (f.status === "available" && id) offerToWaitingBuyers(id, before?.status === "available" ? before.priceMinor : null);
+  if (id) settleCommission(me, id, before, fields);
   // A new vehicle goes straight to its own page, where photos are added.
   if (!before) redirect(`/admin/vehicles/${id}?created=1`);
   return { ok: true, savedAt: Date.now() };
@@ -402,5 +436,6 @@ export async function setVehicleStatus(vehicleId: string, status: "available" | 
   await audit(me, "vehicle", vehicleId, "status_change", changes(v as unknown as Record<string, unknown>, next));
   refreshPublicPages(v.slug);
   if (status === "available") offerToWaitingBuyers(vehicleId);
+  settleCommission(me, vehicleId, v, next);
   return { ok: true };
 }

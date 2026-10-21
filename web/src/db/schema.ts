@@ -135,6 +135,22 @@ export const matchStatus = pgEnum("match_status", ["pending", "sent", "failed", 
 
 export const partnerStatus = pgEnum("partner_status", ["active", "suspended"]);
 
+/**
+ * A commission's life: pending (earned, in its cooling-off, or waiting for a
+ * payout) → paid, or void (the sale fell through before it was paid). Whether
+ * a pending one is payable is a question of time — payableAt — not a state
+ * machine step, so nothing has to run to "release" it.
+ */
+export const commissionStatus = pgEnum("commission_status", ["pending", "paid", "void"]);
+
+/**
+ * One attempt to pay a commission. pending: the row is written and the
+ * transfer is about to be requested · processing: Paystack accepted it and
+ * has not settled it yet · paid · failed (may be retried with a new row) ·
+ * reversed (Paystack returned the money after a failed settlement).
+ */
+export const payoutStatus = pgEnum("payout_status", ["pending", "processing", "paid", "failed", "reversed"]);
+
 export const leadActivityKind = pgEnum("lead_activity_kind", [
   "alerted", // staff were notified (detail: how many, which channels)
   "claimed", // a staff member took it
@@ -632,15 +648,154 @@ export const partners = pgTable(
     /** Where they expect to find buyers — tells Sabicars which channels work. */
     reach: text("reach"),
     status: partnerStatus("status").notNull().default("active"),
+
+    /**
+     * The partner's private key to their own page (/partner/TOKEN): earnings,
+     * enquiries and the bank account they are paid into. Partners have no
+     * login; this link is theirs alone, like a buyer's review link.
+     */
+    accessToken: uuid("access_token").notNull().defaultRandom(),
+
+    /**
+     * The one bank account a partner is paid into, which must be in their own
+     * name. accountName is what the bank returns for the number (NIBSS, via
+     * Paystack "resolve account"); accountVerifiedAt is set when that name
+     * matches the partner's, or when a manager confirms it by hand. Changing
+     * the account clears the verification and the Paystack recipient.
+     */
+    bankCode: text("bank_code"),
+    bankName: text("bank_name"),
+    accountNumber: text("account_number"),
+    accountName: text("account_name"),
+    accountVerifiedAt: timestamp("account_verified_at", { withTimezone: true }),
+    /** Null when the name matched automatically; the manager who confirmed it otherwise. */
+    accountVerifiedBy: uuid("account_verified_by").references(() => staff.id, { onDelete: "set null" }),
+    /** Paystack's handle for this account (RCP_…), created once the account is verified. */
+    paystackRecipientCode: text("paystack_recipient_code"),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
   (t) => [
     uniqueIndex("partners_code_idx").on(t.code),
     uniqueIndex("partners_dealer_phone_idx").on(t.dealerId, t.phone),
+    uniqueIndex("partners_access_token_idx").on(t.accessToken),
+    uniqueIndex("partners_recipient_idx").on(t.paystackRecipientCode).where(sql`${t.paystackRecipientCode} IS NOT NULL`),
     check("partners_code_format", sql`${t.code} ~ '^[A-Z0-9]{6}$'`),
     check("partners_phone_e164", sql`${t.phone} ~ '^\\+[1-9][0-9]{7,14}$'`),
     check("partners_name_present", sql`length(btrim(${t.name})) > 0`),
+    /** A Nigerian account number (NUBAN) is exactly ten digits. */
+    check("partners_account_nuban", sql`${t.accountNumber} IS NULL OR ${t.accountNumber} ~ '^[0-9]{10}$'`),
+    /** The bank details come as a set: a number without its bank, or a verification without a number, is a bug. */
+    check(
+      "partners_account_complete",
+      sql`(${t.accountNumber} IS NULL AND ${t.bankCode} IS NULL AND ${t.accountVerifiedAt} IS NULL AND ${t.paystackRecipientCode} IS NULL) OR (${t.accountNumber} IS NOT NULL AND ${t.bankCode} IS NOT NULL AND ${t.bankName} IS NOT NULL)`,
+    ),
+    check("partners_recipient_needs_verification", sql`${t.paystackRecipientCode} IS NULL OR ${t.accountVerifiedAt} IS NOT NULL`),
+  ],
+);
+
+/* ── Refer & Earn: the commission ledger ───────────────────────────────── */
+
+/**
+ * One commission per sold vehicle: 1.5% of what it actually sold for, owed
+ * to the partner whose link (or code, given at the showroom) brought the
+ * buyer. The amount is frozen here at the sale, so a later change to the
+ * rate or the price never moves what was owed. It waits out a cooling-off,
+ * then is paid — once — and the payout that paid it is on record beside it.
+ */
+export const commissions = pgTable(
+  "commissions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    dealerId: uuid("dealer_id").notNull().references(() => dealers.id),
+    partnerId: uuid("partner_id").notNull().references(() => partners.id),
+    vehicleId: uuid("vehicle_id").notNull().references(() => vehicles.id),
+    /** The enquiry that carried the attribution, when there was one. */
+    leadId: uuid("lead_id").references(() => leads.id, { onDelete: "set null" }),
+    /** link: the buyer arrived through the partner's link · manual: staff attributed a showroom sale to a code. */
+    source: text("source").notNull(),
+    /** What the vehicle sold for, in kobo — the base of the commission. */
+    salePriceMinor: bigint("sale_price_minor", { mode: "number" }).notNull(),
+    /** The rate applied, in basis points, kept with the row. */
+    rateBps: integer("rate_bps").notNull(),
+    amountMinor: bigint("amount_minor", { mode: "number" }).notNull(),
+    status: commissionStatus("status").notNull().default("pending"),
+    /** When the sale was recorded. */
+    earnedAt: timestamp("earned_at", { withTimezone: true }).notNull(),
+    /** earnedAt plus the cooling-off; nothing is paid before it. */
+    payableAt: timestamp("payable_at", { withTimezone: true }).notNull(),
+    paidAt: timestamp("paid_at", { withTimezone: true }),
+    voidedAt: timestamp("voided_at", { withTimezone: true }),
+    voidReason: text("void_reason"),
+    createdBy: uuid("created_by").references(() => staff.id, { onDelete: "set null" }),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [
+    /** One vehicle pays one commission; a voided one steps aside so a later, real sale can pay. */
+    uniqueIndex("commissions_one_per_vehicle_idx").on(t.vehicleId).where(sql`${t.status} <> 'void'`),
+    index("commissions_partner_idx").on(t.partnerId, t.createdAt),
+    index("commissions_dealer_status_idx").on(t.dealerId, t.status, t.payableAt),
+    check("commissions_source", sql`${t.source} IN ('link', 'manual')`),
+    check("commissions_sale_positive", sql`${t.salePriceMinor} > 0`),
+    check("commissions_amount_positive", sql`${t.amountMinor} > 0`),
+    check("commissions_rate_range", sql`${t.rateBps} BETWEEN 1 AND 2000`),
+    check("commissions_cooling_off", sql`${t.payableAt} >= ${t.earnedAt}`),
+    check("commissions_paid_has_date", sql`${t.status} <> 'paid' OR ${t.paidAt} IS NOT NULL`),
+    check("commissions_void_has_reason", sql`${t.status} <> 'void' OR (${t.voidedAt} IS NOT NULL AND ${t.voidReason} IS NOT NULL)`),
+  ],
+);
+
+/**
+ * Every attempt to pay a commission, by Paystack transfer or by a bank
+ * transfer made outside the platform and recorded here. The reference is
+ * generated before Paystack is called and sent to it as the idempotency key,
+ * so a retried request can never pay twice; a webhook or a verify call that
+ * arrives later finds its row by that reference.
+ */
+export const payouts = pgTable(
+  "payouts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    dealerId: uuid("dealer_id").notNull().references(() => dealers.id),
+    commissionId: uuid("commission_id").notNull().references(() => commissions.id),
+    partnerId: uuid("partner_id").notNull().references(() => partners.id),
+    amountMinor: bigint("amount_minor", { mode: "number" }).notNull(),
+    /** paystack: a transfer from Sabicars' Paystack balance · bank_transfer: paid from the bank and recorded here. */
+    method: text("method").notNull(),
+    status: payoutStatus("status").notNull().default("pending"),
+    /** Ours, unique, made before anything is sent: scp_<commission>_<random>. */
+    reference: text("reference").notNull(),
+    /** Paystack's TRF_… code once it accepts the transfer. */
+    transferCode: text("transfer_code"),
+    /** Paystack's fee on the transfer, in kobo, for the books. */
+    feeMinor: bigint("fee_minor", { mode: "number" }),
+    /** For a bank transfer recorded by hand: the bank's reference or teller number. */
+    bankReference: text("bank_reference"),
+    /** The bank account the money went to, as it was at the time, so a later change to the partner's account does not rewrite history. */
+    bankName: text("bank_name"),
+    accountNumber: text("account_number"),
+    accountName: text("account_name"),
+    failureReason: text("failure_reason"),
+    paidAt: timestamp("paid_at", { withTimezone: true }),
+    /** The staff member who sent or recorded it. */
+    recordedBy: uuid("recorded_by").references(() => staff.id, { onDelete: "set null" }),
+    note: text("note"),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [
+    uniqueIndex("payouts_reference_idx").on(t.reference),
+    uniqueIndex("payouts_transfer_code_idx").on(t.transferCode).where(sql`${t.transferCode} IS NOT NULL`),
+    /** One live payout per commission; a failed or reversed one may be retried with a new row. */
+    uniqueIndex("payouts_one_live_per_commission_idx").on(t.commissionId).where(sql`${t.status} IN ('pending', 'processing', 'paid')`),
+    index("payouts_partner_idx").on(t.partnerId, t.createdAt),
+    check("payouts_method", sql`${t.method} IN ('paystack', 'bank_transfer')`),
+    check("payouts_amount_positive", sql`${t.amountMinor} > 0`),
+    check("payouts_reference_format", sql`${t.reference} ~ '^scp_[a-z0-9]{8}_[a-z0-9]{8}$'`),
+    check("payouts_paid_has_date", sql`${t.status} <> 'paid' OR ${t.paidAt} IS NOT NULL`),
+    check("payouts_manual_has_bank_reference", sql`${t.method} <> 'bank_transfer' OR ${t.bankReference} IS NOT NULL`),
+    check("payouts_failed_has_reason", sql`${t.status} NOT IN ('failed', 'reversed') OR ${t.failureReason} IS NOT NULL`),
   ],
 );
 
@@ -971,6 +1126,8 @@ export type Lead = typeof leads.$inferSelect;
 export type NewLead = typeof leads.$inferInsert;
 export type VehicleRequest = typeof vehicleRequests.$inferSelect;
 export type Partner = typeof partners.$inferSelect;
+export type Commission = typeof commissions.$inferSelect;
+export type Payout = typeof payouts.$inferSelect;
 export type RequestMatch = typeof requestMatches.$inferSelect;
 export type VehicleWatch = typeof vehicleWatches.$inferSelect;
 export type LeadActivity = typeof leadActivity.$inferSelect;

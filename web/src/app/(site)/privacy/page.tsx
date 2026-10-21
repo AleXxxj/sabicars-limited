@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   ...pageAddress("/privacy"),
 };
 
-const UPDATED = "20 October 2026";
+const UPDATED = "21 October 2026";
 
 /**
  * The privacy notice the Nigeria Data Protection Act 2023 requires of a data
@@ -89,7 +89,7 @@ export default function PrivacyPage() {
               ["Sourcing requests", "The car you are looking for, your budget and timeframe, and your contact details, so we can tell you when one is found."],
               ["Price alerts", "Your contact details and the car you are watching, so we can tell you if its price drops."],
               ["Newsletter and phone alerts", "Your email address for the Friday new-arrivals email. If you turn on phone notifications, your browser gives our push provider a delivery address for them; we never see your phone number that way."],
-              ["Refer & Earn partners", "Your name, phone number, how you reach buyers, and a record of the sales your link brought in, so we can pay your 1.5% commission."],
+              ["Refer & Earn partners", "Your name, phone number, how you reach buyers, a record of the sales your link brought in, the bank account you register to be paid into (bank, account number and the account holder's name the bank returns), and the record of each payment, so we can pay your 1.5% commission."],
               ["Reviews and comments", "The name, location and words you choose to publish. They appear on the site once the team has read them. A review left through a buyer's private link is marked Verified buyer, with the vehicle you bought."],
               ["Ask Sabicars chats", "What you write, the cars shown to you, and the page you started from. A short summary is made automatically. If you give your name and number, the chat becomes an enquiry like any other."],
             ]}
@@ -148,6 +148,7 @@ export default function PrivacyPage() {
               ["OneSignal", "Delivers phone notifications if you turn them on. In the United States."],
               ["Google", "Analytics and the contact page map. In the United States."],
               ["Cloudinary", "Stores and delivers the photographs on the site."],
+              ["Paystack", "Pays partners by bank transfer; it sees the account details and the amount. A Nigerian company, in Lagos."],
             ]}
           />
           <p>

@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { AttributeSale } from "@/components/admin/AttributeSale";
 import { PhotoManager } from "@/components/admin/PhotoManager";
 import { VehicleForm } from "@/components/admin/VehicleForm";
 import { can, requireStaff } from "@/lib/auth";
 import { formOptions, vehicleForEdit } from "@/lib/repositories/admin-vehicles";
 import { isFresh } from "@/lib/inspection/checklist";
+import { commissionForVehicle } from "@/lib/ledger";
+import { formatNaira } from "@/lib/money";
 import { reportsForVehicle } from "@/lib/repositories/inspections";
 import { attentionFor } from "@/lib/vehicle-quality";
 import { priceLabel, vehicleTitle } from "@/lib/vehicle";
@@ -28,6 +31,10 @@ const ACTION_LABEL: Record<string, string> = {
   inspection_discarded: "Inspection draft discarded",
 };
 
+const whenLagos = (d: Date) =>
+  new Date(d).toLocaleString("en-NG", { day: "numeric", month: "long", year: "numeric", hour: "numeric", minute: "2-digit", hour12: true, timeZone: "Africa/Lagos" });
+const dateLagos = (d: Date) => new Date(d).toLocaleDateString("en-NG", { day: "numeric", month: "long", year: "numeric", timeZone: "Africa/Lagos" });
+
 export default async function EditVehicle({ params, searchParams }: Props) {
   const me = await requireStaff();
   const { id } = await params;
@@ -38,7 +45,8 @@ export default async function EditVehicle({ params, searchParams }: Props) {
   const { vehicle: v, media, history } = found;
   const [options, { created }] = await Promise.all([formOptions(me.dealerId), searchParams]);
   const attention = attentionFor(v, media.length);
-  const reports = await reportsForVehicle(me.dealerId, v.id);
+  const [reports, commission] = await Promise.all([reportsForVehicle(me.dealerId, v.id), v.status === "sold" ? commissionForVehicle(me.dealerId, v.id) : null]);
+  const paysPartners = can.payPartners(me);
   const live = reports.find((r) => r.report.status === "published")?.report;
   const draft = reports.find((r) => r.report.status === "draft")?.report;
   const isPublic = v.status === "available" || v.status === "reserved" || v.status === "sold";
@@ -75,6 +83,52 @@ export default async function EditVehicle({ params, searchParams }: Props) {
         </div>
 
         <aside className="space-y-10 lg:sticky lg:top-36 lg:self-start">
+          {v.status === "sold" && (
+            <section aria-label="Partner commission">
+              <h2 className="eyebrow">Partner commission</h2>
+              {commission ? (
+                <>
+                  <p className="mt-3 text-sm text-text-secondary">
+                    {paysPartners ? (
+                      <Link href={`/admin/partners/${commission.partnerId}`} className="text-text-primary hover:text-accent-text">
+                        {commission.partnerName}
+                      </Link>
+                    ) : (
+                      <span className="text-text-primary">{commission.partnerName}</span>
+                    )}{" "}
+                    <span className="figures text-text-muted">{commission.partnerCode}</span>
+                    {commission.source === "manual" ? " — attributed by hand" : " — from the buyer’s own enquiry"}
+                  </p>
+                  <p className="figures mt-2 text-lg text-text-primary">{formatNaira(commission.amountMinor)}</p>
+                  <p className="text-xs text-text-muted">1.5% of {formatNaira(commission.salePriceMinor)}</p>
+                  <p className="mt-2 text-sm text-text-secondary">
+                    {commission.status === "paid"
+                      ? `Paid${commission.paidAt ? ` on ${dateLagos(commission.paidAt)}` : ""}.`
+                      : commission.payable
+                        ? "Ready to pay — the cooling-off has passed."
+                        : `In its cooling-off until ${whenLagos(commission.payableAt)}.`}
+                  </p>
+                  {paysPartners && (
+                    <Link href="/admin/payouts" className="mt-3 inline-block text-sm font-semibold text-accent-text hover:text-text-primary">
+                      Payouts →
+                    </Link>
+                  )}
+                </>
+              ) : !v.soldPriceMinor ? (
+                <p className="mt-3 text-sm text-text-secondary">Record what it sold for to create the partner’s commission.</p>
+              ) : paysPartners ? (
+                <>
+                  <p className="mt-3 text-sm text-text-secondary">No partner is on record for this sale. Did a partner bring this buyer? Enter their code.</p>
+                  <div className="mt-3">
+                    <AttributeSale vehicleId={v.id} />
+                  </div>
+                </>
+              ) : (
+                <p className="mt-3 text-sm text-text-secondary">No partner is on record for this sale. A manager can attribute it to a partner’s code.</p>
+              )}
+            </section>
+          )}
+
           <section>
             <h2 className="eyebrow">Sabicars Verified</h2>
             {v.heldOffsite ? (

@@ -1,6 +1,6 @@
 # Sabicars — Platform Architecture
 
-Status: **approved 2026-09-23** · Phase 1 built locally, not yet deployed · Last updated: 2026-09-23
+Status: **approved 2026-09-23** · Phase 1 built locally, not yet deployed · Last updated: 2026-10-21
 
 This document defines what we are building and why, so decisions are written
 down once and not re-litigated, and so a future developer can pick this up
@@ -154,11 +154,19 @@ payments           id, source (deposit|instalment|sale), amount_minor, paystack_
 fleet_requests     id, organisation, contact, units, spec, budget_minor, status
 fleet_quotes       id, fleet_request_id, lines, total_minor, valid_until, pdf_url
 
-partners           id, dealer_id, name, phone, code, kind (referrer|scout|creator), tier, status
-attributions       id, partner_id, lead_id, vehicle_id, first_touch_at, source (link|manual)
-commission_ledger  id, partner_id, vehicle_id, pool (commission|marketing), amount_minor,
-                   state (pending|approved|paid|reversed), release_after, paid_ref
-scout_finds        id, partner_id, vehicle details, photos, owner contact, status, outcome
+partners           id, dealer_id, name, phone, email, code, status, access_token (their private page),
+                   bank_code, bank_name, account_number, account_name, account_verified_at,
+                   account_verified_by, paystack_recipient_code
+                   -- attribution is leads.partner_id, set by the /r/CODE cookie (first touch, 90 days)
+commissions        id, dealer_id, partner_id, vehicle_id, lead_id, source (link|manual),
+                   sale_price_minor, rate_bps, amount_minor, status (pending|paid|void),
+                   earned_at, payable_at (earned_at + 48h), paid_at, voided_at, void_reason
+                   -- constraint: one non-void commission per vehicle
+payouts            id, dealer_id, commission_id, partner_id, amount_minor, method (paystack|bank_transfer),
+                   status (pending|processing|paid|failed|reversed), reference (ours, Paystack's idempotency key),
+                   transfer_code, fee_minor, bank_reference, the account as it was, failure_reason, paid_at, recorded_by
+                   -- constraint: one live payout per commission; a failed one is retried with a new row
+scout_finds        id, partner_id, vehicle details, photos, owner contact, status, outcome   (not built)
 
 subscribers, campaigns, notifications, push_subscriptions, blog_posts, comments, reviews
 audit_log          id, actor, entity, entity_id, action, diff, at
@@ -538,10 +546,18 @@ A comparison with Jiji, Cars45, Autochek and Cars.ng graded Sabicars 5.2/10 (Aut
 - **Privacy.** The figure is never shown on its own and no public code reads it.
 - **What comes later.** The Sabicars Price Index publishes averages per model family once enough sales are on record, at least three in a year, so no single buyer's price can be worked out. Every sale recorded from now on counts towards it.
 
+**Stage 6, partner payouts (built 2026-10-21):**
+- **The model.** Money never sits with a partner inside the platform. A *commission* (`commissions`, migration 0013) is a record of what Sabicars owes: 1.5% of what the car actually sold for (`vehicles.sold_price_minor`), frozen at the sale with its rate, owed to the partner whose link brought the buyer (the earliest won enquiry on the car that carries a `partner_id`), or to a code a manager attributes a showroom sale to. One vehicle pays one commission; a voided one steps aside so a later, real sale can pay. A *payout* (`payouts`) is the record of paying it: by Paystack transfer from Sabicars' balance, or by a bank transfer made outside the platform and recorded with the bank's reference. The payout's reference is ours, made before Paystack is called and sent to it as the idempotency key, so a retry can never pay twice; one live payout per commission is enforced by the database.
+- **The rules** (`lib/ledger-rules.ts`, gated by `npm run test:ledger` on every build): a 48-hour cooling-off before anything is paid, so a sale that unwinds owes nothing; the account must be in the partner's own name, checked by Paystack "resolve account" against the partner's registered name (name parts, in any order) or confirmed by a manager; never a payment for recruiting. The database proves the rest in `scripts/verify-schema.mjs` (one commission per vehicle, cooling-off, a reason on every void, the reference's shape, no cash, a bank transfer needs its bank reference, a NUBAN has ten digits, no Paystack recipient on an unverified account).
+- **The partner** has no login. Each has a private page at `/partner/<token>` (a uuid, like a buyer's review link): their enquiries and sales, each commission and when it is payable, every payout, and the one bank account they are paid into, shown masked once saved. They are emailed their code and links on joining, when a sale is recorded, when their account is saved, and when they are paid (`lib/ledger-notify.ts`).
+- **The admin:** `/admin/partners` (every partner with what they brought in and are owed; confirm an account, suspend, attribute a sale to a code) and `/admin/payouts` (what is payable, what is cooling, transfers in flight, failures to retry; pay by Paystack or record a bank transfer). Owners and managers only.
+- **Paystack** (`lib/paystack.ts`): the bank list, resolve account, transfer recipients, transfers, verify, balance, and the webhook at `/api/payments/paystack/webhook` (signature checked; the body never trusted for money: only our reference finds a row). `/api/cron/payouts` runs daily at 07:00 Lagos: it checks every transfer still in flight against Paystack and alerts managers, once a day, to commissions ready to pay. A failed or returned transfer alerts managers with the reason; a paid commission whose sale is unwound alerts them too, since the platform takes nothing back.
+- **Needs the business:** the Paystack business account (§8 item 7) with transfers enabled and a funded balance, its live secret key in Vercel, the webhook URL in the Paystack dashboard, and "Confirm transfers before sending" switched off (docs/LAUNCH.md A.4b). Until then, everything works by recorded bank transfer with a manager confirming each account.
+
 **Later stages, in order** (each needs the business where marked):
 - **Stage 3b, reservations:** reserving a car online with a refundable deposit. *Needs: the Paystack account and the reservation policy (§8 item 2).*
 - **Stage 4, money:** prequalify. ~~Autochek's indicative monthly figure per car~~ — *answered 2026-10-21: shown as an estimate at Autochek's published ceiling, never as the lender's figure (§8 item 3).*
-- **Stage 6:** partner payouts through Paystack.
+- ~~**Stage 6:** partner payouts through Paystack.~~ *Built 2026-10-21 (above); only the Paystack account is pending.*
 - **Stage 7:** My Sabicars, covering papers, renewals and the service log.
 - **Stage 8:** the Sabicars Price Index from recorded sale prices.
 - **Stage 9:** the dealer network pilot (Phase 7).
@@ -582,6 +598,8 @@ These block content and go-live, not architecture. Building continues without th
 15. **Fleet figures.** The current About page names orders (70 Hiace buses to Hobbys Circle, 60 to House of Chi, 60 Corollas) and the current homepage different ones (13 Highlanders, 3 Lexus GX). Which are accurate, and may clients be named? The new homepage states no figures until confirmed.
 16. **Hero photography.** Of the six vehicles flagged for the homepage hero, the Hiace Humer 2's cover is an interior shot, and the 2022 GLE 350's cover looks like a manufacturer press photo rather than the actual car. Hero vehicles need a daylight exterior three-quarter view.
 17. **Refer & Earn operating rules** — *Answered 2026-09-26:* (a) first partner to bring a buyer keeps them for 90 days — built; (b) a partner buying for themselves earns no commission but gets a **partner price** — set at **1.5% off** ("the standard partner discount": the same value as the commission, so Sabicars' margin is identical either way); the staff board flags it; (c) commission is paid **once the deal is fully concluded, after a cooling-off of a day or two**; (d) payout goes **automatically into a bank account registered in the partner's own name**, with identity confirmed before the first payout. Proposed mechanism for (d), to build with the partner dashboard: Paystack "resolve account" to check the account holder's name matches the partner, then Paystack Transfers — so no one can request a cashout on someone else's behalf. Needs the Paystack business account (item 7).
+
+   *Built 2026-10-21 (stage 6):* the whole mechanism is in place — the commission ledger with the 48-hour cooling-off, the partner's private page with the one bank account in their own name, the name check through Paystack "resolve account" (or a manager's confirmation), Paystack transfers with our own idempotent reference, recorded bank transfers as the fallback, the webhook and the daily reconciliation. Only the Paystack business account is pending: registered, transfers enabled, balance funded, live key in Vercel (docs/LAUNCH.md A.4b).
 18. **Sourcing to order** — *Answered 2026-09-26:* yes, Sabicars sources on request, depending on how serious the request and the buyer are; staff review every request. Built: the staff Sourcing Desk board (/admin/requests) with review → sourcing → matched → bought/closed, notes, and the grouped sourcing list.
 19. **Automatic alerts to buyers** — email alerts are built (Resend) and switch on once `RESEND_API_KEY` and `RESEND_FROM_EMAIL` are set for the platform. Most buyers prefer WhatsApp: fully automatic WhatsApp needs a WhatsApp Business Platform account (Meta business verification and an approved message template), or SMS through a Nigerian provider such as Termii. Until one exists, alerts that cannot be emailed wait on the staff board with the message pre-written — one tap to send.
 20. **Listing facts that contradict each other** (found 2026-09-27; Ask Sabicars repeats what listings say, so these matter): "brand new" on the 2013 Toyota Highlander LE, 2016 Lexus GX 460 and 2018 Toyota Highlander XLE; the 2021 Cadillac Escalade is "brand new" with 34,000 km, its engine reads "2L V8" while its description says 6.2L V8 and 2023; the 2024 Lexus GX 550 is "brand new" with 20,000 km; the 2000 Volvo FL7 truck reads "2.5L V4" (an FL7 is a 7-litre engine) its interior colour "Harsh", and its drive "FWD" (it is rear-wheel drive). Correct them in the admin (or the old admin before cutover).

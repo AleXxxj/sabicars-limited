@@ -265,6 +265,78 @@ await allows(db, "deleting a vehicle removes its reports", `DELETE FROM vehicles
 const left = await db.query(`SELECT count(*)::int AS n FROM inspections`);
 expect("no report outlives its vehicle", left.rows[0].n === 0, JSON.stringify(left.rows[0]));
 
+// ── Commission ledger ──────────────────────────────────────────────────────
+// Each rule here is money: a second commission on one car pays a partner
+// twice, a payout before the cooling-off pays for a sale that may unwind,
+// and a transfer to an unverified account pays somebody else.
+console.log("\nCommission ledger");
+const VS = "'a0000000-0000-0000-0000-000000000021'"; // sold, with its price: earns a commission
+const VS2 = "'a0000000-0000-0000-0000-000000000022'"; // sold too, kept free of commissions so each CHECK is tested alone
+const CM = "'c1000000-0000-0000-0000-000000000001'";
+
+/** A valid commission on VS, with one field overridden, to test that field alone. */
+function commission(overrides = {}) {
+  const row = {
+    dealer_id: D,
+    partner_id: P,
+    vehicle_id: VS,
+    source: "'link'",
+    sale_price_minor: "3700000000",
+    rate_bps: "150",
+    amount_minor: "55500000",
+    earned_at: "now()",
+    payable_at: "now() + interval '48 hours'",
+    ...overrides,
+  };
+  const cols = Object.keys(row);
+  return `INSERT INTO commissions (${cols.join(", ")}) VALUES (${cols.map((c) => row[c]).join(", ")})`;
+}
+
+/** A valid payout of CM, with one field overridden. `status = 'failed'` (with its reason) keeps a CHECK test clear of the one-live-payout index. */
+function payout(overrides = {}) {
+  const row = {
+    dealer_id: D,
+    commission_id: CM,
+    partner_id: P,
+    amount_minor: "55500000",
+    method: "'paystack'",
+    status: "'pending'",
+    reference: "'scp_0123abcd_89efghij'",
+    ...overrides,
+  };
+  const cols = Object.keys(row);
+  return `INSERT INTO payouts (${cols.join(", ")}) VALUES (${cols.map((c) => row[c]).join(", ")})`;
+}
+
+const tokenRow = await db.query(`SELECT access_token FROM partners WHERE id = ${P}`);
+expect("every partner gets a private page token", Boolean(tokenRow.rows[0]?.access_token));
+
+await allows(db, "records two cars sold for ₦37,000,000 each", `${vehicle({ id: VS, status: "'sold'", sold_at: "now()", sold_price_minor: "3700000000" })}; ${vehicle({ id: VS2, status: "'sold'", sold_at: "now()", sold_price_minor: "3700000000" })}`);
+await allows(db, "records the 1.5% commission on a sale a partner brought in (₦555,000, payable after 48 hours)", commission({ id: CM }));
+await rejects(db, "refuses a second commission on the same car", commission({ source: "'manual'" }), "commissions_one_per_vehicle_idx");
+await rejects(db, "refuses a commission of nothing", commission({ vehicle_id: VS2, amount_minor: "0" }), "commissions_amount_positive");
+await rejects(db, "refuses a commission on a sale of nothing", commission({ vehicle_id: VS2, sale_price_minor: "0" }), "commissions_sale_positive");
+await rejects(db, "refuses a source outside link or manual", commission({ vehicle_id: VS2, source: "'guess'" }), "commissions_source");
+await rejects(db, "refuses a payout date before the sale (no cooling-off)", commission({ vehicle_id: VS2, payable_at: "now() - interval '1 hour'" }), "commissions_cooling_off");
+await rejects(db, "refuses a commission marked paid without when", commission({ vehicle_id: VS2, status: "'paid'" }), "commissions_paid_has_date");
+await rejects(db, "refuses a commission voided without a reason the partner can read", commission({ vehicle_id: VS2, status: "'void'", voided_at: "now()" }), "commissions_void_has_reason");
+await allows(db, "a voided commission steps aside for a later, real sale", `${commission({ vehicle_id: VS2, status: "'void'", voided_at: "now()", void_reason: "'Sale fell through'" })}; ${commission({ vehicle_id: VS2 })}`);
+
+await allows(db, "starts a Paystack payout under our own reference", payout());
+await rejects(db, "refuses a reference not in our shape (Paystack's idempotency key)", payout({ status: "'failed'", failure_reason: "'x'", reference: "'TRF_abc123'" }), "payouts_reference_format");
+await rejects(db, "refuses a second live payout for the same commission", payout({ reference: "'scp_0123abcd_89efghik'" }), "payouts_one_live_per_commission_idx");
+await rejects(db, "refuses the same reference twice", payout({ status: "'failed'", failure_reason: "'x'" }), "payouts_reference_idx");
+await rejects(db, "refuses a payout in cash", payout({ status: "'failed'", failure_reason: "'x'", reference: "'scp_0123abcd_89efghil'", method: "'cash'" }), "payouts_method");
+await rejects(db, "refuses a bank transfer recorded without the bank's reference", payout({ status: "'failed'", failure_reason: "'x'", reference: "'scp_0123abcd_89efghim'", method: "'bank_transfer'" }), "payouts_manual_has_bank_reference");
+await rejects(db, "refuses a payout marked paid without when", payout({ reference: "'scp_0123abcd_89efghin'", commission_id: "gen_random_uuid()", status: "'paid'" }), "payouts_paid_has_date");
+await rejects(db, "refuses a failed payout with no reason", `UPDATE payouts SET status = 'failed' WHERE reference = 'scp_0123abcd_89efghij'`, "payouts_failed_has_reason");
+await allows(db, "a failed transfer is retried with a new row", `UPDATE payouts SET status = 'failed', failure_reason = 'Bank unavailable' WHERE reference = 'scp_0123abcd_89efghij'; ${payout({ reference: "'scp_0123abcd_89efghio'" })}`);
+
+await rejects(db, "refuses an 11-digit account number (a NUBAN has ten)", `UPDATE partners SET bank_code = '058', bank_name = 'Guaranty Trust Bank', account_number = '01234567890' WHERE id = ${P}`, "partners_account_nuban");
+await rejects(db, "refuses an account number without its bank", `UPDATE partners SET account_number = '0123456789' WHERE id = ${P}`, "partners_account_complete");
+await rejects(db, "refuses a Paystack recipient on an account nobody has verified", `UPDATE partners SET bank_code = '058', bank_name = 'Guaranty Trust Bank', account_number = '0123456789', paystack_recipient_code = 'RCP_test' WHERE id = ${P}`, "partners_recipient_needs_verification");
+await allows(db, "records a verified account with its Paystack recipient", `UPDATE partners SET bank_code = '058', bank_name = 'Guaranty Trust Bank', account_number = '0123456789', account_name = 'ADA OKAFOR', account_verified_at = now(), account_verified_by = ${S}, paystack_recipient_code = 'RCP_test' WHERE id = ${P}`);
+
 console.log(
   `\n${passed} passed, ${failed} failed.` +
     (failed ? "  \x1b[31mSCHEMA NOT VERIFIED\x1b[0m\n" : "  \x1b[32mSchema verified.\x1b[0m\n"),
