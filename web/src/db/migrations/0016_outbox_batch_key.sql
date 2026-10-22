@@ -1,0 +1,2 @@
+ALTER TABLE "email_outbox" ADD COLUMN "batch_key" text;--> statement-breakpoint
+CREATE INDEX "email_outbox_batch_idx" ON "email_outbox" USING btree ("batch_key") WHERE "email_outbox"."batch_key" IS NOT NULL;

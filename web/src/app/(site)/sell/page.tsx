@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import { unstable_cache } from "next/cache";
 import Link from "next/link";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { SellForm } from "@/components/forms/SellForm";
 import { PageIntro } from "@/components/site/PageIntro";
+import { TAGS } from "@/lib/cache-tags";
 import { listedVehicles } from "@/lib/repositories/vehicles";
 import { SELL_INTENTS, type SellIntent } from "@/lib/sell";
 import { pageAddress, whatsappLink } from "@/lib/site";
@@ -24,6 +26,21 @@ const STEPS = [
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 
 /**
+ * The cars someone can trade towards. This page is rendered for each visitor
+ * (it reads ?intent= from the address), so the list comes from Next's data
+ * cache — read from the database once a minute, not once per visitor — and a
+ * staff change expires it at once (refreshPublicPages). Only names and prices,
+ * no Dates, so nothing needs reviving. The choice a visitor sends back is
+ * still checked against live stock when the form is saved.
+ */
+const tradeTowards = unstable_cache(
+  async () =>
+    (await listedVehicles()).filter((v) => v.status === "available").map((v) => ({ id: v.id, title: vehicleTitle(v), price: priceLabel(v) })),
+  ["sell-trade-towards"],
+  { revalidate: 60, tags: [TAGS.inventory] },
+);
+
+/**
  * Sell or trade in.
  *
  * Its one job: bring cars in. Sabicars' stock is its limit, and the people
@@ -34,7 +51,7 @@ export default async function SellPage({ searchParams }: Props) {
   const sp = await searchParams;
   const asked = Array.isArray(sp.intent) ? sp.intent[0] : sp.intent;
   const initialIntent: SellIntent = asked && asked in SELL_INTENTS ? (asked as SellIntent) : "sell";
-  const stock = (await listedVehicles()).filter((v) => v.status === "available").map((v) => ({ id: v.id, title: vehicleTitle(v), price: priceLabel(v) }));
+  const stock = await tradeTowards();
 
   return (
     <>

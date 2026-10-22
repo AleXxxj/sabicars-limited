@@ -31,7 +31,8 @@
     "test:e2e": "playwright test --project=flows",
     "e2e:seed": "node --env-file=.env.local --import tsx scripts/seed-e2e.mts",
     "backup:restore": "node --env-file=.env.local --import tsx scripts/restore-backup.mts",
-    "test:backup": "node --env-file-if-exists=.env.local --conditions=react-server --import tsx scripts/verify-backup.mts"
+    "test:backup": "node --env-file-if-exists=.env.local --conditions=react-server --import tsx scripts/verify-backup.mts",
+    "test:outbox": "node --env-file-if-exists=.env.local --conditions=react-server --import tsx scripts/verify-outbox.mts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.128.0",

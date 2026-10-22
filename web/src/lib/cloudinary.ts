@@ -40,15 +40,29 @@ export interface UploadTicket {
 }
 
 /**
+ * What Cloudinary does to a photo as it arrives, before storing it: at most
+ * 2000px on its long side, at automatic quality. A phone photo is 4000px and
+ * 3–5 MB; no screen shows more than 1600px of a car, and storage is billed
+ * per gigabyte (1 GB = 1 Cloudinary credit a month), so the stored copy is
+ * about a quarter of the size with no visible difference. Applies to new
+ * uploads only; nothing already stored is touched. (f_auto is never allowed
+ * here — Cloudinary refuses an automatic format on an incoming transformation.)
+ */
+export const INCOMING_TRANSFORMATION = "c_limit,w_2000,h_2000,q_auto:good";
+
+/**
  * Everything the browser needs to upload one photo into this vehicle's folder,
  * or a named folder inside it (inspection evidence goes in `inspection`).
  */
 export function uploadTicket(vehicleId: string, sub?: "inspection"): UploadTicket {
   const { cloudName, apiKey, apiSecret, folder } = config();
+  // Every parameter here is signed, the incoming transformation included, so a
+  // visitor cannot upload a different size or into a different folder.
   const params = {
     folder: sub ? `${folder}/${vehicleId}/${sub}` : `${folder}/${vehicleId}`,
     timestamp: Math.floor(Date.now() / 1000),
     allowed_formats: "jpg,jpeg,png,webp,avif,heic",
+    transformation: INCOMING_TRANSFORMATION,
   };
   return {
     url: `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,

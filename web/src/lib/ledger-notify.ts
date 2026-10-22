@@ -85,10 +85,19 @@ ${footRows}
 
 const firstNameOf = (name: string) => name.trim().split(/\s+/)[0] || "there";
 
-async function send(what: string, m: PartnerMail): Promise<void> {
-  const sent = await sendEmail(partnerEmail(m));
+/**
+ * `dedupeKey` makes a repeat of the same email harmless: the outbox sends a
+ * key once and quietly drops the second (lib/email.ts). Callers already
+ * notify only on a change of state; the key is the last guard, for a retried
+ * notice or two paths settling the same thing at the same moment.
+ */
+async function send(what: string, m: PartnerMail, dedupeKey?: string): Promise<void> {
+  const sent = await sendEmail(partnerEmail(m), { dedupeKey });
   if (!sent.ok) console.error(`[ledger-notify] ${what} not sent`, sent.error);
 }
+
+/** Today in Lagos as YYYY-MM-DD, for keys that allow one email a day. */
+const lagosDay = () => new Date().toLocaleDateString("en-CA", { timeZone: "Africa/Lagos" });
 
 /** A commission with the partner it is owed to and the vehicle it came from. */
 async function commissionWithContext(commissionId: string) {
@@ -123,7 +132,10 @@ export async function notifyPartnerWelcome(partnerId: string): Promise<void> {
     if (!p?.email) return;
     const share = referralLink(siteUrl(), p.code);
     const page = partnerPageUrl(p.accessToken);
-    await send("partner welcome", {
+    // Registering with a phone already on record answers with the existing code, and welcomes again.
+    // One welcome per partner per Lagos day, so a stranger re-submitting someone's phone cannot flood their inbox.
+    const key = `welcome:${p.id}:${lagosDay()}`;
+    const mail: PartnerMail = {
       to: p.email,
       subject: `Welcome to Sabicars Refer & Earn — your code is ${p.code}`,
       eyebrow: "Refer & Earn",
@@ -137,7 +149,8 @@ export async function notifyPartnerWelcome(partnerId: string): Promise<void> {
       ],
       cta: { label: "Open your partner page", url: page },
       foot: ["Anyone asking you to pay to join, or to pay for a better code, is not Sabicars."],
-    });
+    };
+    await send("partner welcome", mail, key);
   } catch (e) {
     console.error("[ledger-notify] welcome failed", e);
   }
@@ -153,7 +166,7 @@ export async function notifyCommissionRecorded(commissionId: string): Promise<vo
     const to = row.p.email;
     const page = partnerPageUrl(p.accessToken);
     const rate = `${c.rateBps / 100}%`;
-    await send("commission recorded", {
+    const mail: PartnerMail = {
       to,
       subject: `A sale you brought in is on record: ${title}`,
       eyebrow: "Your commission",
@@ -169,7 +182,9 @@ export async function notifyCommissionRecorded(commissionId: string): Promise<vo
           : "You have not registered a bank account yet. Add one on your page, in your own name, so the payout can go through.",
       ],
       cta: { label: "See it on your partner page", url: page },
-    });
+    };
+    // Once per commission. Callers already notify only when they created it; the key makes any retry of the notice harmless too.
+    await send("commission recorded", mail, `commission:${c.id}`);
   } catch (e) {
     console.error("[ledger-notify] commission recorded failed", e);
   }
@@ -186,7 +201,7 @@ export async function notifyCommissionPaid(payoutId: string): Promise<void> {
     const page = partnerPageUrl(p.accessToken);
     const account = o.accountNumber ? `${o.bankName ?? "bank"} account ${maskAccount(o.accountNumber)}` : (o.bankName ?? "bank account");
     const reference = o.method === "bank_transfer" && o.bankReference ? `Bank reference ${o.bankReference}` : `Reference ${o.reference}`;
-    await send("commission paid", {
+    const mail: PartnerMail = {
       to,
       subject: `Your Sabicars commission has been paid: ${formatNaira(o.amountMinor)}`,
       eyebrow: "Commission paid",
@@ -198,7 +213,9 @@ export async function notifyCommissionPaid(payoutId: string): Promise<void> {
       ],
       cta: { label: "See it on your partner page", url: page },
       foot: [`If it has not arrived after a working day, reply to this email or call ${site.phones[0].display} with the reference.`],
-    });
+    };
+    // Once per payout, even if Paystack's webhook and the daily payouts check settle the same transfer at the same moment.
+    await send("commission paid", mail, `paid:${o.id}`);
   } catch (e) {
     console.error("[ledger-notify] commission paid failed", e);
   }

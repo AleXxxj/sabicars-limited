@@ -107,6 +107,13 @@ jobs:
         # beside it, and compares every table row for row (scripts/verify-backup.mts).
         run: npm run test:backup
 
+      - name: Prove the email outbox loses nothing
+        # 250 emails at once against a stand-in for Resend that is busy at first and refuses one bad
+        # address: every email is sent exactly once, the bad one fails alone, a day-old one expires
+        # and a dead sender's claim is released (scripts/verify-outbox.mts). Runs before the site
+        # starts, so the outbox holds nothing else.
+        run: npm run test:outbox
+
       - name: Build the site
         run: npx next build
 

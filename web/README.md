@@ -47,9 +47,9 @@ the in-memory schema test, which only ever has one client.
 
 These are not part of `npm run build`. GitHub Actions runs the first two
 (`../.github/workflows/smoke.yml` on every production deploy,
-`../.github/workflows/e2e.yml` on every push to `platform`); all four can be
-run by hand. Playwright's browser is installed once with
-`npx playwright install chromium`.
+`../.github/workflows/e2e.yml` on every push to `platform`, which also runs
+`test:backup` and `test:outbox`); all of them can be run by hand.
+Playwright's browser is installed once with `npx playwright install chromium`.
 
 | Script | What it does |
 | --- | --- |
@@ -58,6 +58,7 @@ run by hand. Playwright's browser is installed once with
 | `e2e:seed` | puts the fixture rows the flows suite expects into the database in `.env.local` |
 | `backup:restore` | loads a backup file (from `/api/cron/backup` or the status page's download) into an empty database that has had `db:migrate`: `-- <file> --check` reads it, `-- <file> --yes` loads it |
 | `test:backup` | proves a backup restores exactly: exports the database in `DATABASE_URL` through `lib/backup.ts`, restores it into an empty database beside it, and compares every table row for row, then drops the copy; refuses a Supabase address; runs in CI on every push |
+| `test:outbox` | proves the email outbox (`lib/email.ts`) loses nothing and sends nothing twice: 250 emails at once against a stand-in for Resend that is busy at first, then refuses a batch for one bad address; checks every email is sent exactly once, the bad one fails alone, a day-old one expires, a dead sender's claim is released, and the "Email outbox" check on `/admin/status` reads it right; writes and removes `@outbox.test` rows in `DATABASE_URL`, refuses a Supabase address, and refuses to run while other email is waiting; runs in CI on every push |
 
 Staff screens in the tests sign in with `E2E_STAFF_EMAIL` and
 `E2E_STAFF_PASSWORD` (see `.env.example`); without them the staff tests are

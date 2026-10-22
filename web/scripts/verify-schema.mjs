@@ -337,6 +337,53 @@ await rejects(db, "refuses an account number without its bank", `UPDATE partners
 await rejects(db, "refuses a Paystack recipient on an account nobody has verified", `UPDATE partners SET bank_code = '058', bank_name = 'Guaranty Trust Bank', account_number = '0123456789', paystack_recipient_code = 'RCP_test' WHERE id = ${P}`, "partners_recipient_needs_verification");
 await allows(db, "records a verified account with its Paystack recipient", `UPDATE partners SET bank_code = '058', bank_name = 'Guaranty Trust Bank', account_number = '0123456789', account_name = 'ADA OKAFOR', account_verified_at = now(), account_verified_by = ${S}, paystack_recipient_code = 'RCP_test' WHERE id = ${P}`);
 
+// ── Throttles and the email outbox ─────────────────────────────────────────
+// The throttle must count one address in one window on one row, or two server
+// instances each allow the full ceiling; it must never hold an address in the
+// clear. The outbox must never claim an email was sent without saying when,
+// and a dedupe key must mean one email, or a welcome repeated by a stranger
+// floods a partner's inbox.
+console.log("\nThrottles and the email outbox");
+const KEY = "'0123456789abcdef0123456789abcdef'";
+const WIN = "'2026-10-22T09:00:00Z'";
+await allows(db, "counts one use of a form by one hashed address", `INSERT INTO rate_limits (bucket, key_hash, window_start) VALUES ('enquiry', ${KEY}, ${WIN})`);
+await rejects(db, "refuses a second row for the same form, address and window", `INSERT INTO rate_limits (bucket, key_hash, window_start) VALUES ('enquiry', ${KEY}, ${WIN})`, "rate_limits_bucket_key_hash_window_start_pk");
+await allows(
+  db,
+  "counts up on the same row instead (the limiter's own upsert)",
+  `INSERT INTO rate_limits (bucket, key_hash, window_start, count) VALUES ('enquiry', ${KEY}, ${WIN}, 1) ON CONFLICT (bucket, key_hash, window_start) DO UPDATE SET count = rate_limits.count + 1`,
+);
+const counted = await db.query(`SELECT count FROM rate_limits WHERE bucket = 'enquiry' AND key_hash = ${KEY}`);
+expect("the count is 2 on one row", counted.rows.length === 1 && counted.rows[0].count === 2, JSON.stringify(counted.rows));
+await allows(db, "the same address in the next window starts its own row", `INSERT INTO rate_limits (bucket, key_hash, window_start) VALUES ('enquiry', ${KEY}, '2026-10-22T09:10:00Z')`);
+await rejects(db, "refuses a count of zero", `INSERT INTO rate_limits (bucket, key_hash, window_start, count) VALUES ('partner', ${KEY}, ${WIN}, 0)`, "rate_limits_count_positive");
+await rejects(db, "refuses an address stored in the clear instead of hashed", `INSERT INTO rate_limits (bucket, key_hash, window_start) VALUES ('partner', '102.89.34.7', ${WIN})`, "rate_limits_key_hash_format");
+await rejects(db, "refuses a hash of the wrong shape (capitals)", `INSERT INTO rate_limits (bucket, key_hash, window_start) VALUES ('partner', '0123456789ABCDEF0123456789ABCDEF', ${WIN})`, "rate_limits_key_hash_format");
+
+/** A valid outbox email with one field overridden, to test that field alone. */
+function outbox(overrides = {}) {
+  const row = { to_address: "'ada@example.com'", subject: "'Welcome'", html: "'<p>Hi</p>'", text_body: "'Hi'", ...overrides };
+  const cols = Object.keys(row);
+  return `INSERT INTO email_outbox (${cols.join(", ")}) VALUES (${cols.map((c) => row[c]).join(", ")})`;
+}
+const ob = await db.query(`${outbox()} RETURNING status, attempts, next_attempt_at <= now() AS due`);
+expect("a new email waits as pending, untried, due at once", ob.rows[0]?.status === "pending" && ob.rows[0]?.attempts === 0 && ob.rows[0]?.due === true, JSON.stringify(ob.rows[0]));
+await rejects(db, "refuses a status outside the vocabulary", outbox({ status: "'queued'" }), "email_outbox_status");
+await rejects(db, "refuses an email marked sent without when", outbox({ status: "'sent'" }), "email_outbox_sent_has_date");
+await allows(db, "records a sent email with its time", outbox({ status: "'sent'", sent_at: "now()", attempts: "1" }));
+await rejects(db, "refuses a negative attempt count", outbox({ attempts: "-1" }), "email_outbox_attempts_range");
+await rejects(db, "refuses more than 50 attempts (a retry loop gone wrong)", outbox({ attempts: "51" }), "email_outbox_attempts_range");
+await allows(db, "stores an email under a dedupe key", outbox({ dedupe_key: "'welcome:p1:2026-10-22'" }));
+await rejects(db, "refuses a second email with the same dedupe key", outbox({ dedupe_key: "'welcome:p1:2026-10-22'" }), "email_outbox_dedupe_idx");
+await allows(db, "allows any number of emails without a key", `${outbox()}; ${outbox()}`);
+await allows(
+  db,
+  "drops a repeat quietly with the statement sendEmail uses",
+  `${outbox({ dedupe_key: "'welcome:p1:2026-10-22'" })} ON CONFLICT (dedupe_key) WHERE dedupe_key IS NOT NULL DO NOTHING`,
+);
+const keyed = await db.query(`SELECT count(*)::int AS n FROM email_outbox WHERE dedupe_key = 'welcome:p1:2026-10-22'`);
+expect("the keyed email is stored once", keyed.rows[0].n === 1, `${keyed.rows[0].n} rows`);
+
 console.log(
   `\n${passed} passed, ${failed} failed.` +
     (failed ? "  \x1b[31mSCHEMA NOT VERIFIED\x1b[0m\n" : "  \x1b[32mSchema verified.\x1b[0m\n"),

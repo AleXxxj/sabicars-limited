@@ -37,6 +37,7 @@ import {
   jsonb,
   index,
   uniqueIndex,
+  primaryKey,
   check,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
@@ -1154,6 +1155,80 @@ export const incidents = pgTable(
   ],
 );
 
+/* ── Operations: throttles and the email outbox ───────────────────────── */
+
+/**
+ * How many times one address has used one public form in the current
+ * window. One row per (bucket, address, window), counted up in a single
+ * upsert, so every server instance shares the same count. The address is
+ * stored as a hash, never as an IP. Old windows are swept away
+ * (lib/rate-limit.ts).
+ */
+export const rateLimits = pgTable(
+  "rate_limits",
+  {
+    bucket: text("bucket").notNull(),
+    /** sha256 of the client address, first 32 hex characters. */
+    keyHash: text("key_hash").notNull(),
+    windowStart: timestamp("window_start", { withTimezone: true }).notNull(),
+    count: integer("count").notNull().default(1),
+  },
+  (t) => [
+    primaryKey({ columns: [t.bucket, t.keyHash, t.windowStart] }),
+    index("rate_limits_window_idx").on(t.windowStart),
+    check("rate_limits_count_positive", sql`${t.count} >= 1`),
+    check("rate_limits_key_hash_format", sql`${t.keyHash} ~ '^[0-9a-f]{32}$'`),
+  ],
+);
+
+/**
+ * Every transactional email, written down before it is sent. A burst —
+ * thousands of partner welcomes in an hour — is sent at the provider's pace
+ * from here instead of being refused and lost; a failed send is retried with
+ * a growing wait; an email still unsent after a day is marked expired rather
+ * than delivered late. The newsletter keeps its own record (newsletter_sends)
+ * and does not pass through here.
+ */
+export const emailOutbox = pgTable(
+  "email_outbox",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    toAddress: text("to_address").notNull(),
+    subject: text("subject").notNull(),
+    html: text("html").notNull(),
+    textBody: text("text_body").notNull(),
+    replyTo: text("reply_to"),
+    headers: jsonb("headers").$type<Record<string, string>>(),
+    /** Optional: the same key twice means the same email, sent once (e.g. "welcome:<partner id>"). */
+    dedupeKey: text("dedupe_key"),
+    /** pending: waiting for its turn · sending: claimed by a sender right now · sent · failed: refused for good · expired: never sent within a day. */
+    status: text("status").notNull().default("pending"),
+    attempts: integer("attempts").notNull().default(0),
+    nextAttemptAt: timestamp("next_attempt_at", { withTimezone: true }).notNull().defaultNow(),
+    /** When a sender claimed it, so a sender that died mid-send releases it after a few minutes. */
+    claimedAt: timestamp("claimed_at", { withTimezone: true }),
+    /**
+     * The batch this email was first sent in. Kept until the batch's outcome is
+     * known, so a batch whose reply never arrived is retried as exactly the same
+     * set with the same idempotency key, and Resend sends nothing twice.
+     */
+    batchKey: text("batch_key"),
+    lastError: text("last_error"),
+    /** The provider's id for the sent email. */
+    providerId: text("provider_id"),
+    createdAt: createdAt(),
+    sentAt: timestamp("sent_at", { withTimezone: true }),
+  },
+  (t) => [
+    uniqueIndex("email_outbox_dedupe_idx").on(t.dedupeKey).where(sql`${t.dedupeKey} IS NOT NULL`),
+    index("email_outbox_due_idx").on(t.status, t.nextAttemptAt),
+    index("email_outbox_batch_idx").on(t.batchKey).where(sql`${t.batchKey} IS NOT NULL`),
+    check("email_outbox_status", sql`${t.status} IN ('pending', 'sending', 'sent', 'failed', 'expired')`),
+    check("email_outbox_sent_has_date", sql`${t.status} <> 'sent' OR ${t.sentAt} IS NOT NULL`),
+    check("email_outbox_attempts_range", sql`${t.attempts} BETWEEN 0 AND 50`),
+  ],
+);
+
 /* ── Convenience types ─────────────────────────────────────────────────── */
 
 export type Dealer = typeof dealers.$inferSelect;
@@ -1168,6 +1243,7 @@ export type Partner = typeof partners.$inferSelect;
 export type Commission = typeof commissions.$inferSelect;
 export type Payout = typeof payouts.$inferSelect;
 export type Incident = typeof incidents.$inferSelect;
+export type OutboxEmail = typeof emailOutbox.$inferSelect;
 export type RequestMatch = typeof requestMatches.$inferSelect;
 export type VehicleWatch = typeof vehicleWatches.$inferSelect;
 export type LeadActivity = typeof leadActivity.$inferSelect;

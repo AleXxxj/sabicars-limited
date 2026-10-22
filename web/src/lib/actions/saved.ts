@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { DECOY_REFERENCE, looksAutomated, sabicarsDealerId, saveWatch, tooManyFrom } from "@/lib/leads";
 import { normalisePhone } from "@/lib/phone";
+import { RATE_LIMITED_MESSAGE, withinLimit } from "@/lib/rate-limit";
 import { toCard, vehiclesBySlugs, type CardVehicle } from "@/lib/repositories/vehicles";
 import { vehicleTitle } from "@/lib/vehicle";
 
@@ -61,6 +62,8 @@ export async function watchVehicles(_prev: WatchResult | null, formData: FormDat
   const cars = (await vehiclesBySlugs(cleanSlugs(v.slugs))).filter((c) => c.status === "available" || c.status === "reserved");
   if (!cars.length) return { ok: false, error: "None of these cars is still for sale.", values };
   if (await tooManyFrom(phone)) return { ok: false, error: "We already have several requests from this number in the last hour.", values };
+  // A price alert is an enquiry like any other, so it shares the enquiry ceiling for this connection.
+  if (!(await withinLimit("enquiry"))) return { ok: false, error: RATE_LIMITED_MESSAGE, values };
 
   try {
     const reference = await saveWatch(

@@ -3,8 +3,9 @@ import { siteUrl } from "@/lib/site";
 import { and, count, eq, inArray, isNotNull, sql } from "drizzle-orm";
 import { db } from "@/db";
 import journal from "@/db/migrations/meta/_journal.json";
-import { askAnswers, blogPosts, dealers, pushSubscriptions, staff, vehicleMedia, vehicles } from "@/db/schema";
+import { askAnswers, blogPosts, dealers, emailOutbox, pushSubscriptions, staff, vehicleMedia, vehicles } from "@/db/schema";
 import { backupStatus } from "@/lib/backup";
+import { emailConfigured } from "@/lib/email";
 import { openIncidentCount } from "@/lib/incidents";
 import { LEGACY_PAGES } from "@/lib/legacy/urls";
 
@@ -146,6 +147,72 @@ async function incidentCheck(): Promise<Check> {
       label,
       status: "warn",
       detail: `Could not count errors: ${(e as Error).message.slice(0, 120)}`,
+      fix: "If the Database check above says schema updates are not applied, apply them first.",
+    };
+  }
+}
+
+/** An email waiting longer than this means the minute job is not draining the outbox. */
+const OUTBOX_STALE_MINUTES = 15;
+
+const plural = (n: number, one: string, many: string) => `${n.toLocaleString("en-NG")} ${n === 1 ? one : many}`;
+
+/**
+ * The email outbox (lib/email.ts): every email is written down first and sent
+ * by the minute job when Resend is busy. Healthy means nothing has waited
+ * longer than a quarter of an hour and nothing failed or expired in the last
+ * day. Exported for scripts/verify-outbox.mts, which proves it against a
+ * real outbox.
+ */
+export async function outboxCheck(): Promise<Check> {
+  const g = "Settings" as const;
+  const label = "Email outbox";
+  // The Email check above already says what to set; this one only says that nothing is queued.
+  if (!emailConfigured()) return { group: g, label, status: "warn", detail: "Email is not set up, so nothing is queued or sent. See Email above." };
+  try {
+    // Counted here rather than with outboxStatus() from lib/email, for two reasons. Every window is worked out by
+    // the database (now() - interval), so no Date is bound as a raw parameter, which postgres.js cannot send. And an
+    // email expires once it is a day old, so "expired in the last day" means created one to two days ago.
+    const [s] = await db
+      .select({
+        pending: sql<number>`count(*) filter (where ${emailOutbox.status} in ('pending', 'sending'))::int`,
+        failed: sql<number>`count(*) filter (where ${emailOutbox.status} = 'failed' and ${emailOutbox.createdAt} > now() - interval '1 day')::int`,
+        expired: sql<number>`count(*) filter (where ${emailOutbox.status} = 'expired' and ${emailOutbox.createdAt} > now() - interval '2 days')::int`,
+        sentToday: sql<number>`count(*) filter (where ${emailOutbox.status} = 'sent' and ${emailOutbox.sentAt} > now() - interval '1 day')::int`,
+        waitingMinutes: sql<number>`coalesce(floor(extract(epoch from now() - min(${emailOutbox.createdAt}) filter (where ${emailOutbox.status} in ('pending', 'sending'))) / 60), 0)::int`,
+      })
+      .from(emailOutbox);
+    const { pending, failed, expired, sentToday, waitingMinutes } = s ?? { pending: 0, failed: 0, expired: 0, sentToday: 0, waitingMinutes: 0 };
+    const stale = pending > 0 && waitingMinutes > OUTBOX_STALE_MINUTES;
+    const sent = `${plural(sentToday, "email", "emails")} sent in the last day.`;
+    if (!stale && !failed && !expired)
+      return {
+        group: g,
+        label,
+        status: "ok",
+        detail: pending ? `${plural(pending, "email is", "emails are")} waiting their turn, none for long. ${sent}` : `Nothing waiting. ${sent}`,
+      };
+    const found = [
+      pending ? `${plural(pending, "email is", "emails are")} waiting${stale ? `, the oldest for ${plural(waitingMinutes, "minute", "minutes")}` : ""}.` : null,
+      failed ? `${plural(failed, "email was", "emails were")} refused by Resend in the last day.` : null,
+      expired ? `${plural(expired, "email", "emails")} expired unsent after a day.` : null,
+      sent,
+    ];
+    const fixes = [
+      stale || expired
+        ? "The minute job /api/cron/outbox may not be running: check the scheduler has it every minute, with the same Authorization header as the other jobs, and that its last runs answered 200. If they did, Resend has been busy or down; the outbox keeps trying for a day."
+        : null,
+      failed
+        ? "A refused email is usually a mistyped address and needs nothing more. If many are refused, open Resend → Logs for the reason."
+        : null,
+    ];
+    return { group: g, label, status: "warn", detail: found.filter(Boolean).join(" "), fix: fixes.filter(Boolean).join(" ") };
+  } catch (e) {
+    return {
+      group: g,
+      label,
+      status: "warn",
+      detail: `Could not read the outbox: ${(e as Error).message.slice(0, 120)}`,
       fix: "If the Database check above says schema updates are not applied, apply them first.",
     };
   }
@@ -370,8 +437,8 @@ export async function launchChecks(base: string): Promise<Check[]> {
     setting(
       "Scheduled jobs",
       ["CRON_SECRET"],
-      "Escalation, viewing reminders, the Friday digest, the daily payouts check and the weekly backup can run.",
-      "Add a long random CRON_SECRET, and point a scheduler at /api/cron/escalate (every 5 minutes), /api/cron/viewings (daily 06:30 UTC), /api/cron/digest (Fridays), /api/cron/payouts (daily 06:00 UTC) and /api/cron/backup (Sundays 02:00 UTC). Paystack's webhook, /api/payments/paystack/webhook, needs no scheduler: set the URL in the Paystack dashboard. Also point a free uptime monitor (UptimeRobot or cron-job.org) at /api/health every minute, to email the owner and the developer whenever it does not answer 200 — nothing inside the site can check that for itself.",
+      "The email outbox, escalation, viewing reminders, the Friday digest, the daily payouts check and the weekly backup can run.",
+      "Add a long random CRON_SECRET, and point a scheduler at /api/cron/outbox (every minute), /api/cron/escalate (every 5 minutes), /api/cron/viewings (daily 06:30 UTC), /api/cron/digest (Fridays), /api/cron/payouts (daily 06:00 UTC) and /api/cron/backup (Sundays 02:00 UTC). Paystack's webhook, /api/payments/paystack/webhook, needs no scheduler: set the URL in the Paystack dashboard. Also point a free uptime monitor (UptimeRobot or cron-job.org) at /api/health every minute, to email the owner and the developer whenever it does not answer 200 — nothing inside the site can check that for itself.",
     ),
     setting(
       "Email",
@@ -379,6 +446,7 @@ export async function launchChecks(base: string): Promise<Check[]> {
       "Staff alerts, buyer alerts and the newsletter can send.",
       "Create a Resend account, verify sabicars.com, and add RESEND_API_KEY and RESEND_FROM_EMAIL.",
     ),
+    await outboxCheck(),
     (() => {
       const c = setting(
         "Partner payouts (Paystack)",

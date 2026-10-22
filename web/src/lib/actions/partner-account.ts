@@ -6,6 +6,7 @@ import { z } from "zod";
 import { bankNameFor } from "@/lib/banks";
 import { partnerByToken, saveBankAccount } from "@/lib/ledger";
 import { notifyAccountSaved } from "@/lib/ledger-notify";
+import { RATE_LIMITED_MESSAGE, withinLimit } from "@/lib/rate-limit";
 
 /**
  * A partner registers the bank account they are paid into, from their own
@@ -35,11 +36,17 @@ const schema = z.object({
 });
 
 /*
- * A light limit on saves, per token: each attempt asks the bank for the
- * account holder's name, and nobody needs to change their account more than
- * a few times an hour. Kept in memory — per server instance, gone on a cold
- * start — which is enough to stop a loop, not a determined attacker; the
- * token itself is the real gate.
+ * Two limits on saves, because each attempt asks the bank for the account
+ * holder's name and nobody needs to change their account more than a few
+ * times an hour:
+ *
+ * - per connection, in the database (lib/rate-limit.ts, "account"): shared by
+ *   every server instance, so a loop or a script is stopped wherever it lands;
+ * - per partner, in memory: a light second check that one partner's link is
+ *   not being worked from many addresses at once. Per server instance and
+ *   gone on a cold start, so it slows that down rather than stopping it.
+ *
+ * The token itself is the real gate.
  */
 const SAVES_PER_HOUR = 5;
 const WINDOW_MS = 60 * 60 * 1000;
@@ -74,7 +81,8 @@ export async function saveBankAccountByToken(_prev: BankAccountFormResult | null
     if (statement.partner.status !== "active") {
       return { ok: false, error: "This partner account is suspended, so the bank account cannot be changed. Please call Sabicars." };
     }
-    // Counted per real partner, after the token has proved itself, so guesses cannot fill the table.
+    // Both counted only after the token has proved itself, so guesses use up no one's allowance.
+    if (!(await withinLimit("account"))) return { ok: false, error: RATE_LIMITED_MESSAGE, values };
     if (tooManySaves(statement.partner.id)) {
       return { ok: false, error: "This account has been changed several times in the last hour. Please wait a while, then try again.", values };
     }

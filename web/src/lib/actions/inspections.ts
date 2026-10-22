@@ -43,7 +43,7 @@ function newCode(): string {
 }
 
 function refresh(vehicleId: string, slug: string, code: string) {
-  refreshPublicPages(slug);
+  refreshPublicPages(slug, { stock: false });
   revalidatePath(`/v/${code}`);
   revalidatePath(`/admin/vehicles/${vehicleId}`);
   revalidatePath(`/admin/vehicles/${vehicleId}/inspection`);

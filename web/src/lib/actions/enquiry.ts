@@ -6,6 +6,7 @@ import { db } from "@/db";
 import { vehicles } from "@/db/schema";
 import { DECOY_REFERENCE, looksAutomated, saveLead, saveViewing, SlotTaken, tooManyFrom } from "@/lib/leads";
 import { normalisePhone } from "@/lib/phone";
+import { RATE_LIMITED_MESSAGE, withinLimit } from "@/lib/rate-limit";
 import { isBookableSlot } from "@/lib/viewings";
 
 export interface EnquiryResult {
@@ -74,6 +75,9 @@ export async function submitEnquiry(_prev: EnquiryResult | null, formData: FormD
   if (await tooManyFrom(phone)) {
     return { ok: false, error: "We already have several enquiries from this number in the last hour — our team will be in touch.", values };
   }
+  // The ceiling per connection comes after the per-number check, so one person resending is told the kinder,
+  // more precise thing, and does not use up the allowance shared by everyone on their mobile network.
+  if (!(await withinLimit("enquiry"))) return { ok: false, error: RATE_LIMITED_MESSAGE, values };
 
   const [vehicle] = await db
     .select({ id: vehicles.id, dealerId: vehicles.dealerId })

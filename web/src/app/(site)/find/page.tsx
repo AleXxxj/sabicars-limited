@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { unstable_cache } from "next/cache";
 import Link from "next/link";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { SourcingForm } from "@/components/forms/SourcingForm";
@@ -25,6 +26,14 @@ type Props = { searchParams: Promise<Record<string, string | string[] | undefine
 const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
 
 /**
+ * "Most requested right now". This page is rendered for each visitor (it reads
+ * ?want= and ?budget= from the address), so the list comes from Next's data
+ * cache and the database is asked at most every five minutes — the same
+ * freshness the homepage gives it. Words and counts only, no Dates.
+ */
+const demandNow = unstable_cache(() => mostRequested(), ["most-requested"], { revalidate: 300 });
+
+/**
  * The Sourcing Desk.
  *
  * Its one job: turn "they don't have it" into a recorded request instead of a
@@ -35,7 +44,7 @@ export default async function FindPage({ searchParams }: Props) {
   const sp = await searchParams;
   const want = first(sp.want)?.slice(0, 120);
   const budget = BUDGET_OPTIONS.some((b) => b.value === first(sp.budget)) ? first(sp.budget) : undefined;
-  const demand = await mostRequested();
+  const demand = await demandNow();
 
   return (
     <>

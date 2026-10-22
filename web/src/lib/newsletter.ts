@@ -1,4 +1,5 @@
 import "server-only";
+import { createHash } from "node:crypto";
 import { and, desc, eq, gte, inArray, isNotNull, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { blogPosts, newsletterSends, subscribers, vehicleMedia, vehicles } from "@/db/schema";
@@ -252,12 +253,20 @@ export async function deliver(sendId: string): Promise<{ recipients: number; fai
   let lastError: string | undefined;
   for (let i = 0; i < audience.length; i += 100) {
     const chunk = audience.slice(i, i + 100);
-    const r = await sendBatch(chunk.map((s) => messageFor(s, send.subject, content)));
+    // Keyed by the send and exactly who is in the chunk: a retry after no answer cannot send it twice,
+    // and a later send to a different list is a different key.
+    const key = `newsletter-${send.id}-${createHash("sha256").update(`${send.subject}\n${chunk.map((s) => s.email).join("\n")}`).digest("hex").slice(0, 32)}`;
+    const r = await sendBatch(
+      chunk.map((s) => messageFor(s, send.subject, content)),
+      key,
+    );
     if (r.ok) recipients += chunk.length;
     else {
       failed += chunk.length;
       lastError = r.error;
     }
+    // Paced under Resend's ten requests a second, leaving room for the outbox's own sends.
+    await new Promise((resolve) => setTimeout(resolve, 250));
   }
   await db
     .update(newsletterSends)

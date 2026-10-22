@@ -12,6 +12,7 @@ import { notifyManagers } from "@/lib/alerts";
 import { audit } from "@/lib/audit";
 import { requireStaff } from "@/lib/auth";
 import { looksAutomated, sabicarsDealerId } from "@/lib/leads";
+import { RATE_LIMITED_MESSAGE, withinLimit } from "@/lib/rate-limit";
 import { buyerInvite } from "@/lib/repositories/reviews";
 
 export interface ReviewFormResult {
@@ -80,6 +81,9 @@ export async function submitReview(_prev: ReviewFormResult | null, formData: For
     if (n >= PER_ADDRESS_PER_HOUR)
       return { ok: false, error: "We have received several reviews from this connection in the last hour. Please try again later." };
   }
+  // No page offers this form without a buyer's link any more, but the action can still be called: it gets the
+  // review ceiling as well as the stricter hourly count above.
+  if (!(await withinLimit("review"))) return { ok: false, error: RATE_LIMITED_MESSAGE, values: values(formData) };
 
   try {
     await db
@@ -103,6 +107,8 @@ export async function submitBuyerReview(_prev: ReviewFormResult | null, formData
   const parsed = reviewSchema.safeParse(Object.fromEntries(formData.entries()));
   if (!parsed.success) return { ok: false, fieldErrors: firstErrors(parsed.error), values: values(formData) };
   const v = parsed.data;
+  // Counted once the link has proved itself and the review reads properly, so only real attempts use up the allowance.
+  if (!(await withinLimit("review"))) return { ok: false, error: RATE_LIMITED_MESSAGE, values: values(formData) };
 
   try {
     await db

@@ -5,6 +5,7 @@ import { FLEET_QUANTITIES, FLEET_TIMEFRAMES, FLEET_VEHICLES } from "@/lib/fleet"
 import { DECOY_REFERENCE, looksAutomated, recordShownMatches, sabicarsDealerId, saveLead, saveVehicleRequest, tooManyFrom } from "@/lib/leads";
 import { normalisePhone } from "@/lib/phone";
 import { formatNaira } from "@/lib/money";
+import { RATE_LIMITED_MESSAGE, withinLimit } from "@/lib/rate-limit";
 import { SELL_INTENTS, SELL_PAPERS } from "@/lib/sell";
 import { listedVehicleById, stockMatching, vehicleForDrivePlan } from "@/lib/repositories/vehicles";
 import { budgetLabel, budgetMaxMinor, PAYMENT_OPTIONS } from "@/lib/sourcing";
@@ -66,6 +67,8 @@ export async function submitContact(_prev: LeadFormResult | null, formData: Form
   const phone = normalisePhone(v.phone);
   if (!phone) return { ok: false, fieldErrors: { phone: "Please enter a phone number we can call, e.g. 0803 123 4567" }, values };
   if (await tooManyFrom(phone)) return { ok: false, error: "We already have several messages from this number in the last hour — our team will be in touch.", values };
+  // After the per-number check, so one person resending does not use up the allowance their whole mobile network shares.
+  if (!(await withinLimit("enquiry"))) return { ok: false, error: RATE_LIMITED_MESSAGE, values };
 
   try {
     const reference = await saveLead({
@@ -114,6 +117,7 @@ export async function submitFleetRequest(_prev: LeadFormResult | null, formData:
   const phone = normalisePhone(v.phone);
   if (!phone) return { ok: false, fieldErrors: { phone: "Please enter a phone number we can call, e.g. 0803 123 4567" }, values };
   if (await tooManyFrom(phone)) return { ok: false, error: "We already have several requests from this number in the last hour — our team will be in touch.", values };
+  if (!(await withinLimit("enquiry"))) return { ok: false, error: RATE_LIMITED_MESSAGE, values };
 
   // Structured in the message until fleet requests get their own table
   // (architecture phase 6), so staff read it at a glance.
@@ -180,6 +184,7 @@ export async function submitSourcingRequest(_prev: SourcingResult | null, formDa
   if (!phone) return { ok: false, fieldErrors: { phone: "Please enter a phone number we can reach, e.g. 0803 123 4567" }, values };
   if (v.preferredContact === "email" && !v.email) return { ok: false, fieldErrors: { email: "Add your email, or choose another way to hear from us" }, values };
   if (await tooManyFrom(phone)) return { ok: false, error: "We already have several requests from this number in the last hour — they are all on the desk.", values };
+  if (!(await withinLimit("enquiry"))) return { ok: false, error: RATE_LIMITED_MESSAGE, values };
 
   const budgetMax = budgetMaxMinor(v.budget);
   // The lead carries a readable summary, so the request makes sense in the
@@ -276,6 +281,7 @@ export async function submitSellRequest(_prev: LeadFormResult | null, formData: 
   if (!phone) return { ok: false, fieldErrors: { phone: "Please enter a phone number we can reach, e.g. 0803 123 4567" }, values };
   if (v.preferredContact === "email" && !v.email) return { ok: false, fieldErrors: { email: "Add your email, or choose another way to hear from us" }, values };
   if (await tooManyFrom(phone)) return { ok: false, error: "We already have several messages from this number in the last hour — our team will be in touch.", values };
+  if (!(await withinLimit("enquiry"))) return { ok: false, error: RATE_LIMITED_MESSAGE, values };
 
   const dealerId = await sabicarsDealerId();
   // Only a car actually on sale can be the one they trade towards.
@@ -346,6 +352,11 @@ export async function startDrivePlan(_prev: DrivePlanStart | null, formData: For
   const phone = normalisePhone(v.phone);
   if (!phone) return { ok: false, fieldErrors: { phone: "Please enter a phone number we can reach, e.g. 0803 123 4567" }, values };
   if (await tooManyFrom(phone)) return { ok: true, name: v.name.split(" ")[0], autochekUrl: vehicle.autochekUrl };
+  if (!(await withinLimit("enquiry"))) {
+    // Never stand between a buyer and their loan application: with an Autochek listing they go straight on
+    // (nothing is saved here); only a buyer with nowhere to apply yet is asked to wait, or to call.
+    return vehicle.autochekUrl ? { ok: true, name: v.name.split(" ")[0], autochekUrl: vehicle.autochekUrl } : { ok: false, error: RATE_LIMITED_MESSAGE, values };
+  }
 
   try {
     const reference = await saveLead({

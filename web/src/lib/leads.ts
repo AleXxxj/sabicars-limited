@@ -42,10 +42,23 @@ export async function tooManyFrom(phone: string): Promise<boolean> {
 /** Re-exported: forms and the admin read references from here. */
 export { referenceFor };
 
+/**
+ * The dealer row's id never changes, so each server instance looks it up
+ * once instead of on every form, read and reaction. A failed lookup is not
+ * remembered: the next call tries again.
+ */
+let dealerIdOnce: Promise<string> | null = null;
+
 export async function sabicarsDealerId(): Promise<string> {
-  const [row] = await db.select({ id: dealers.id }).from(dealers).where(eq(dealers.slug, "sabicars")).limit(1);
-  if (!row) throw new Error("The Sabicars dealer row is missing.");
-  return row.id;
+  dealerIdOnce ??= (async () => {
+    const [row] = await db.select({ id: dealers.id }).from(dealers).where(eq(dealers.slug, "sabicars")).limit(1);
+    if (!row) throw new Error("The Sabicars dealer row is missing.");
+    return row.id;
+  })().catch((e) => {
+    dealerIdOnce = null;
+    throw e;
+  });
+  return dealerIdOnce;
 }
 
 /**

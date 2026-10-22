@@ -46,7 +46,11 @@ export async function remindTodaysViewings(now = new Date()): Promise<{ viewings
       const where = location?.line1
         ? [location.line1, location.line2, location.city].filter(Boolean).join(", ")
         : `${site.address.line1}, ${site.address.line2}, ${site.address.city}`;
-      const sent = await sendEmail(reminderEmail(lead.email, lead.name, lead.viewingAt, title, vehicle?.slug ?? null, referenceFor(lead.id), where));
+      // Keyed by the lead and the viewing time: if the claim is released and the next run tries again,
+      // an email already queued for this viewing is not queued a second time.
+      const sent = await sendEmail(reminderEmail(lead.email, lead.name, lead.viewingAt, title, vehicle?.slug ?? null, referenceFor(lead.id), where), {
+        dedupeKey: `viewing-reminder:${lead.id}:${lead.viewingAt.toISOString()}`,
+      });
       if (sent.ok) {
         emailed++;
       } else {

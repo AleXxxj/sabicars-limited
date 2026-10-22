@@ -1,9 +1,11 @@
 import "server-only";
+import { unstable_cache } from "next/cache";
 import { cache } from "react";
 import { and, asc, count, desc, eq, isNull, ne, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { blogComments, blogPosts, type BlogPost } from "@/db/schema";
 import { readingMinutes } from "@/lib/blog/blocks";
+import { TAGS } from "@/lib/cache-tags";
 import { sabicarsDealerId } from "@/lib/leads";
 import { hummerBuses, listedVehicles, searchTerms, toCard, vehiclesBySlugs, vehiclesForTerm, type CardVehicle } from "@/lib/repositories/vehicles";
 
@@ -35,15 +37,39 @@ const toPostCard = (p: BlogPost): PostCard => ({
 
 const published = async () => and(eq(blogPosts.dealerId, await sabicarsDealerId()), eq(blogPosts.isPublished, true));
 
+/**
+ * The data cache keeps what a function returns as JSON, so publishedAt comes
+ * back as a string; every card read from the cache passes through this before
+ * use. A fresh read already holds a Date, and new Date() of a Date is the same
+ * moment, so both cases are safe.
+ */
+function revivePostCard(p: PostCard): PostCard {
+  return { ...p, publishedAt: new Date(p.publishedAt) };
+}
+
+/*
+ * The article list is read by the Insights page, which is rendered for each
+ * visitor (it reads the topic from the address), so it comes from Next's data
+ * cache: the database is asked at most every five minutes, whatever the
+ * crowd. Saving, publishing or unpublishing an article expires TAGS.blog at
+ * once (lib/actions/blog-admin.ts). The whole list is one entry, whatever the
+ * topic: the page filters it, so a made-up topic in a link cannot add entries.
+ */
+const publishedPostsFromCache = unstable_cache(
+  async (): Promise<PostCard[]> => {
+    const rows = await db
+      .select()
+      .from(blogPosts)
+      .where(await published())
+      .orderBy(desc(blogPosts.isFeatured), desc(blogPosts.publishedAt));
+    return rows.map(toPostCard);
+  },
+  ["published-posts"],
+  { revalidate: 300, tags: [TAGS.blog] },
+);
+
 /** Every published article, featured first, then newest. */
-export const publishedPosts = cache(async (): Promise<PostCard[]> => {
-  const rows = await db
-    .select()
-    .from(blogPosts)
-    .where(await published())
-    .orderBy(desc(blogPosts.isFeatured), desc(blogPosts.publishedAt));
-  return rows.map(toPostCard);
-});
+export const publishedPosts = cache(async (): Promise<PostCard[]> => (await publishedPostsFromCache()).map(revivePostCard));
 
 export async function latestPosts(limit = 3): Promise<PostCard[]> {
   const rows = await db

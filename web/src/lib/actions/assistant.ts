@@ -11,6 +11,7 @@ import { attachLead, summariseConversation } from "@/lib/assistant/summarise";
 import { DECOY_REFERENCE, looksAutomated, referenceFor, sabicarsDealerId, saveLead, tooManyFrom } from "@/lib/leads";
 import { activePartnerByCode, PARTNER_COOKIE } from "@/lib/partners";
 import { normalisePhone } from "@/lib/phone";
+import { RATE_LIMITED_MESSAGE, withinLimit } from "@/lib/rate-limit";
 
 export interface CallbackResult {
   ok: boolean;
@@ -41,6 +42,8 @@ export async function requestCallback(input: z.input<typeof schema>): Promise<Ca
   const phone = normalisePhone(v.phone);
   if (!phone) return { ok: false, error: "That number doesn’t look right — a Nigerian mobile, or include the country code." };
   if (await tooManyFrom(phone)) return { ok: false, error: "We already have your request — someone will call you shortly." };
+  // A call-back is an enquiry, so it shares the enquiry ceiling for this connection.
+  if (!(await withinLimit("enquiry"))) return { ok: false, error: RATE_LIMITED_MESSAGE };
 
   const dealerId = await sabicarsDealerId();
   const [conversation] = v.conversationId

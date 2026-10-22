@@ -1,8 +1,10 @@
 import "server-only";
+import { unstable_cache } from "next/cache";
 import { cache } from "react";
 import { and, asc, count, desc, eq, gte, inArray, lte, ne, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
 import { dealers, locations, settings, vehicleMedia, vehicles, type Vehicle, type VehicleMedia } from "@/db/schema";
+import { TAGS } from "@/lib/cache-tags";
 import { DRIVE_PLAN, depositMinorFor } from "@/lib/drive-plan";
 import { CAR_BODIES, type InventoryFilters } from "@/lib/inventory-filters";
 import { verificationMap, type Verification } from "@/lib/repositories/inspections";
@@ -45,6 +47,34 @@ export type CardVehicle = Pick<
 export function toCard(v: VehicleWithCover): CardVehicle {
   const { id, slug, year, make, model, priceMinor, status, badge, createdAt, condition, mileageKm, transmission, drivetrain, fuel, heldOffsite, cover, verification } = v;
   return { id, slug, year, make, model, priceMinor, status, badge, createdAt, condition, mileageKm, transmission, drivetrain, fuel, heldOffsite, cover, verification };
+}
+
+/* ── Reading through the data cache ────────────────────────────────────── */
+
+/*
+ * The pages a crowd lands on — the inventory with its filters — are rendered
+ * for each visitor, so without a cache every visitor would cost a dozen
+ * database queries, and a viral post would queue thousands of visitors behind
+ * a database that takes about a hundred connections. Those reads come from
+ * Next's data cache instead: the database is asked once a minute per view,
+ * whatever the crowd. A staff change does not wait for the minute:
+ * refreshPublicPages() expires TAGS.inventory at once.
+ */
+const STOCK_SECONDS = 60;
+
+/**
+ * The data cache keeps what a function returns as JSON, so its Dates come back
+ * as strings. Every card read from the cache passes through this before use,
+ * so "New arrival" (badgeFor), the verification date and every .getTime()
+ * keep working. A fresh read already holds real Dates; new Date() of a Date is
+ * the same moment, so both cases are safe.
+ */
+function reviveCard(c: CardVehicle): CardVehicle {
+  return {
+    ...c,
+    createdAt: new Date(c.createdAt),
+    verification: c.verification ? { ...c.verification, inspectedAt: new Date(c.verification.inspectedAt) } : null,
+  };
 }
 
 /** The dealer every public page belongs to until the dealer network opens (architecture §2.3). */
@@ -272,18 +302,27 @@ export async function hummerBuses(): Promise<VehicleWithCover[]> {
   return withCovers(rows);
 }
 
+const recentlySoldFromCache = unstable_cache(
+  async (limit: number): Promise<CardVehicle[]> => {
+    const rows = await db
+      .select()
+      .from(vehicles)
+      .where(and(eq(vehicles.dealerId, await sabicarsId()), eq(vehicles.status, "sold"), gte(vehicles.soldAt, new Date(Date.now() - 90 * 86_400_000))))
+      .orderBy(desc(vehicles.soldAt))
+      .limit(limit);
+    return (await withCovers(rows)).map(toCard);
+  },
+  ["recently-sold"],
+  { revalidate: STOCK_SECONDS, tags: [TAGS.inventory] },
+);
+
 /**
  * What Sabicars sold lately — proof that stock moves and that buyers trust
  * the showroom. Only the last 90 days, so it never shows a stale list.
+ * Shown under the inventory, so it is read from the data cache.
  */
 export async function recentlySold(limit = 6): Promise<CardVehicle[]> {
-  const rows = await db
-    .select()
-    .from(vehicles)
-    .where(and(eq(vehicles.dealerId, await sabicarsId()), eq(vehicles.status, "sold"), gte(vehicles.soldAt, new Date(Date.now() - 90 * 86_400_000))))
-    .orderBy(desc(vehicles.soldAt))
-    .limit(limit);
-  return (await withCovers(rows)).map(toCard);
+  return (await recentlySoldFromCache(limit)).map(reviveCard);
 }
 
 /** Vehicles on a visitor's shortlist, in the order they saved them. Sold cars stay, marked sold. */
@@ -304,29 +343,46 @@ export interface TermStock extends Term {
   fromMinor: number | null;
 }
 
+/*
+ * The site footer lists these on every page, so on a page rendered for each
+ * visitor they would otherwise be read once per visitor. They hold no Dates,
+ * so nothing needs reviving.
+ *
+ * Kept for an hour rather than a minute: a cached read lowers the refresh
+ * time of every pre-built page that makes it to its own, and the footer is
+ * on all of them — a minute here would rebuild every article, comparison and
+ * car page every minute. Nothing waits for the hour: every stock change goes
+ * through refreshPublicPages(), which expires TAGS.inventory at once.
+ */
+const searchTermsFromCache = unstable_cache(
+  async (): Promise<TermStock[]> => {
+    const rows = await db
+      .select({ make: vehicles.make, model: vehicles.model, status: vehicles.status, priceMinor: vehicles.priceMinor })
+      .from(vehicles)
+      .where(and(eq(vehicles.dealerId, await sabicarsId()), inArray(vehicles.status, [...HAS_PAGE])));
+    const terms = new Map<string, TermStock>();
+    for (const r of rows) {
+      for (const t of [termFor(r.make, null), termFor(r.make, modelFamily(r.make, r.model))]) {
+        const entry = terms.get(t.slug) ?? { ...t, inStock: 0, fromMinor: null };
+        if (r.status !== "sold") {
+          entry.inStock++;
+          if (r.priceMinor && (entry.fromMinor === null || r.priceMinor < entry.fromMinor)) entry.fromMinor = r.priceMinor;
+        }
+        terms.set(t.slug, entry);
+      }
+    }
+    return [...terms.values()].sort((a, b) => b.inStock - a.inStock || a.label.localeCompare(b.label));
+  },
+  ["search-terms"],
+  { revalidate: 3600, tags: [TAGS.terms] },
+);
+
 /**
  * Every make and model family Sabicars has sold or is selling, with what is in
  * stock now. A family that sells out keeps its page (people still search for
  * it, and the Sourcing Desk can take the request) but leaves the sitemap.
  */
-export const searchTerms = cache(async (): Promise<TermStock[]> => {
-  const rows = await db
-    .select({ make: vehicles.make, model: vehicles.model, status: vehicles.status, priceMinor: vehicles.priceMinor })
-    .from(vehicles)
-    .where(and(eq(vehicles.dealerId, await sabicarsId()), inArray(vehicles.status, [...HAS_PAGE])));
-  const terms = new Map<string, TermStock>();
-  for (const r of rows) {
-    for (const t of [termFor(r.make, null), termFor(r.make, modelFamily(r.make, r.model))]) {
-      const entry = terms.get(t.slug) ?? { ...t, inStock: 0, fromMinor: null };
-      if (r.status !== "sold") {
-        entry.inStock++;
-        if (r.priceMinor && (entry.fromMinor === null || r.priceMinor < entry.fromMinor)) entry.fromMinor = r.priceMinor;
-      }
-      terms.set(t.slug, entry);
-    }
-  }
-  return [...terms.values()].sort((a, b) => b.inStock - a.inStock || a.label.localeCompare(b.label));
-});
+export const searchTerms = cache((): Promise<TermStock[]> => searchTermsFromCache());
 
 /** The listed vehicles a search term covers, newest first. */
 export async function vehiclesForTerm(term: Term): Promise<VehicleWithCover[]> {
@@ -410,7 +466,8 @@ const ORDER: Record<InventoryFilters["sort"], SQL[]> = {
 };
 
 export interface InventoryResult {
-  vehicles: VehicleWithCover[];
+  /** Cards, not full rows: this is kept in the data cache, and a card is all the grid shows. */
+  vehicles: CardVehicle[];
   total: number;
   page: number;
   pages: number;
@@ -421,7 +478,7 @@ export interface InventoryResult {
   allTypesCount: number;
 }
 
-export async function searchInventory(f: InventoryFilters): Promise<InventoryResult> {
+async function queryInventory(f: InventoryFilters): Promise<InventoryResult> {
   const dealerId = await sabicarsId();
   const where = and(...filterConditions(dealerId, f));
 
@@ -453,7 +510,7 @@ export async function searchInventory(f: InventoryFilters): Promise<InventoryRes
   ]);
 
   return {
-    vehicles: await withCovers(rows),
+    vehicles: (await withCovers(rows)).map(toCard),
     total,
     page: f.page,
     pages: Math.max(1, Math.ceil(total / PAGE_SIZE)),
@@ -461,6 +518,41 @@ export async function searchInventory(f: InventoryFilters): Promise<InventoryRes
     bodies: bodies.filter((b): b is { body: NonNullable<Vehicle["body"]>; count: number } => b.body !== null),
     allTypesCount,
   };
+}
+
+/**
+ * The cache key for a set of filters: the same filters always make the same
+ * key, whatever order the link listed them in, and a filter that is not set
+ * is left out rather than written as null.
+ */
+function filtersKey(f: InventoryFilters): string {
+  const set = Object.entries(f).filter(([, v]) => v !== undefined && v !== null);
+  return JSON.stringify(Object.fromEntries(set.sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))));
+}
+
+const inventoryFromCache = unstable_cache((key: string) => queryInventory(JSON.parse(key) as InventoryFilters), ["inventory-search"], {
+  revalidate: STOCK_SECONDS,
+  tags: [TAGS.inventory],
+});
+
+/**
+ * Lookups already under way in this server instance, by key. When a crowd
+ * arrives just as an entry has been expired (a staff save), the first visitor
+ * refills it and everyone else in this instance waits for that one answer,
+ * instead of each running the same dozen queries.
+ */
+const inFlight = new Map<string, ReturnType<typeof inventoryFromCache>>();
+
+/** One view of the inventory — a page of cars and the counts beside it — read from the data cache. */
+export async function searchInventory(f: InventoryFilters): Promise<InventoryResult> {
+  const key = filtersKey(f);
+  let pending = inFlight.get(key);
+  if (!pending) {
+    pending = inventoryFromCache(key).finally(() => inFlight.delete(key));
+    inFlight.set(key, pending);
+  }
+  const result = await pending;
+  return { ...result, vehicles: result.vehicles.map(reviveCard) };
 }
 
 /* ── A single vehicle ──────────────────────────────────────────────────── */
@@ -555,10 +647,17 @@ export async function vehiclesWithPages(slugs: string[]): Promise<VehicleWithCov
   return slugs.map((s) => found.find((v) => v.slug === s)).filter((v): v is VehicleWithCover => Boolean(v));
 }
 
-/** Every vehicle address to offer search engines and to pre-render at build. */
-export async function listedVehicleSlugs(): Promise<{ slug: string; updatedAt: Date }[]> {
-  return db
+/**
+ * The addresses of the cars on sale, newest listing first — the order the
+ * inventory opens in. With a limit, only that many: the car pages worth
+ * building at deploy, before anyone has asked for them.
+ */
+export async function listedVehicleSlugs(limit?: number): Promise<{ slug: string; updatedAt: Date }[]> {
+  const query = db
     .select({ slug: vehicles.slug, updatedAt: vehicles.updatedAt })
     .from(vehicles)
-    .where(and(eq(vehicles.dealerId, await sabicarsId()), inArray(vehicles.status, [...LISTED])));
+    .where(and(eq(vehicles.dealerId, await sabicarsId()), inArray(vehicles.status, [...LISTED])))
+    .orderBy(desc(vehicles.createdAt), asc(vehicles.slug))
+    .$dynamic();
+  return limit ? query.limit(limit) : query;
 }

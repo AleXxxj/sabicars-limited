@@ -8,6 +8,7 @@ import { db } from "@/db";
 import { subscribers } from "@/db/schema";
 import { looksAutomated, sabicarsDealerId } from "@/lib/leads";
 import { sendWelcome } from "@/lib/newsletter";
+import { RATE_LIMITED_MESSAGE, withinLimit } from "@/lib/rate-limit";
 
 export interface SubscribeResult {
   ok: boolean;
@@ -34,6 +35,8 @@ export async function subscribe(_prev: SubscribeResult | null, formData: FormDat
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Please check your email address." };
   const v = parsed.data;
   if (looksAutomated(v.website, v.renderedAt)) return { ok: true, email: v.email };
+  // Before the look-up as well as the write: a script cycling through addresses is stopped at one query each.
+  if (!(await withinLimit("subscribe"))) return { ok: false, error: RATE_LIMITED_MESSAGE };
 
   const email = v.email.trim().toLowerCase();
   const dealerId = await sabicarsDealerId();

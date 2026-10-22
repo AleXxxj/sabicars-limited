@@ -1,16 +1,19 @@
 "use client";
 
 import Image, { type ImageProps } from "next/image";
-import { cloudinaryLoader } from "@/lib/media";
+import { cloudinaryLoader, deliveredByVercel, masterSource } from "@/lib/media";
 
 /**
- * next/image with Cloudinary doing the resizing.
+ * next/image for vehicle photos, resized by Cloudinary or by Vercel
+ * depending on NEXT_PUBLIC_IMAGE_DELIVERY (lib/media.ts explains the two).
  *
  * A client component because a loader is a function, and a Server Component
  * cannot pass a function to a Client Component (next/image is one). Pages hand
- * this plain data; the loader stays on this side of the boundary.
+ * this plain data; the choice of loader stays on this side of the boundary.
  */
-export function VehicleImage({ alt, ...props }: Omit<ImageProps, "loader">) {
-  const isCloudinary = typeof props.src === "string" && props.src.includes("res.cloudinary.com");
-  return <Image alt={alt} {...props} loader={isCloudinary ? cloudinaryLoader : undefined} />;
+export function VehicleImage({ alt, src, ...props }: Omit<ImageProps, "loader">) {
+  const isCloudinary = typeof src === "string" && src.includes("res.cloudinary.com");
+  if (!isCloudinary) return <Image alt={alt} src={src} {...props} />;
+  if (deliveredByVercel()) return <Image alt={alt} src={masterSource(src as string)} {...props} />;
+  return <Image alt={alt} src={src} {...props} loader={cloudinaryLoader} />;
 }

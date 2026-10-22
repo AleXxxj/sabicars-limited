@@ -17,7 +17,7 @@ import { comparePath } from "@/lib/assistant/parts";
 import { DRIVE_PLAN, depositMinorFor, depositPercentLabel, drivePlanTerms } from "@/lib/drive-plan";
 import { bookedSlots } from "@/lib/leads";
 import { liveReportFor } from "@/lib/repositories/inspections";
-import { listedVehicleSlugs, similarVehicles, vehicleBySlug } from "@/lib/repositories/vehicles";
+import { listedVehicleSlugs, PAGE_SIZE, similarVehicles, vehicleBySlug } from "@/lib/repositories/vehicles";
 import { shareImageUrl } from "@/lib/media";
 import { breadcrumbJsonLd, dealerJsonLd, jsonLdScript, vehicleJsonLd } from "@/lib/seo/structured-data";
 import { modelFamily, termFor, termHref } from "@/lib/seo/search-terms";
@@ -27,14 +27,21 @@ import { drivePlanBalance, drivePlanDeposit, priceLabel, specLine, specRows, veh
 type Props = { params: Promise<{ slug: string }> };
 
 /**
- * Pre-built at deploy so every vehicle loads instantly, refreshed every five
- * minutes; staff edits refresh a page immediately (revalidatePath in the admin
- * actions). A car listed after the deploy is built on its first visit.
+ * Refreshed every five minutes; staff edits refresh a page immediately
+ * (refreshPublicPages in the admin actions).
  */
 export const revalidate = 300;
 
+/**
+ * Only the 24 newest cars — the inventory's first page — are built at deploy.
+ * Building every car would make a deploy with 1,000+ cars slow, for pages
+ * nobody may ask for. Every other car (and one listed after the deploy) is
+ * built on its first visit and then cached for five minutes like these, so
+ * only that first visitor waits. dynamicParams must stay at its default
+ * (true): set to false, those cars would answer "not found".
+ */
 export async function generateStaticParams() {
-  return (await listedVehicleSlugs()).map(({ slug }) => ({ slug }));
+  return (await listedVehicleSlugs(PAGE_SIZE)).map(({ slug }) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

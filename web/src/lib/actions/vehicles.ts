@@ -310,7 +310,7 @@ export async function recordPhoto(vehicleId: string, asset: UploadedAsset): Prom
     alt: `${v.year} ${v.make} ${v.model} for sale in Lagos${position ? ` — photo ${position + 1}` : ""}`,
   });
   await audit(me, "vehicle", vehicleId, "photo_added", { publicId: asset.public_id });
-  refreshPublicPages(v.slug);
+  refreshPublicPages(v.slug, { stock: false });
   revalidatePath(`/admin/vehicles/${vehicleId}`);
   // The first photo on a listed car is the moment it can be announced.
   if (position === 0 && v.status === "available") offerToWaitingBuyers(vehicleId);
@@ -342,7 +342,7 @@ export async function reorderPhotos(vehicleId: string, orderedIds: string[]): Pr
     }
   });
   await audit(me, "vehicle", vehicleId, "photos_reordered", { order: orderedIds });
-  refreshPublicPages(v.slug);
+  refreshPublicPages(v.slug, { stock: false });
   revalidatePath(`/admin/vehicles/${vehicleId}`);
   return { ok: true };
 }
@@ -372,7 +372,7 @@ export async function removePhoto(vehicleId: string, mediaId: string): Promise<A
   if (!remaining) return { ok: false, error: "That photo was already removed." };
 
   await audit(me, "vehicle", vehicleId, "photo_removed", { url: remaining.url });
-  refreshPublicPages(v.slug);
+  refreshPublicPages(v.slug, { stock: false });
   revalidatePath(`/admin/vehicles/${vehicleId}`);
   return { ok: true };
 }

@@ -17,11 +17,19 @@ import { drivePlanDeposit, drivePlanMonthly, priceLabel, specRows, vehicleTitle 
 
 type Props = { params: Promise<{ pair: string }> };
 
-/** Built for the comparisons the site links to; any other pair is built on its first visit. Refreshed with the stock. */
+/** Refreshed with the stock. */
 export const revalidate = 300;
 
+/**
+ * The comparisons the site links to grow with the stock — about two per car —
+ * so only the first 30 are built at deploy, keeping a deploy quick however
+ * many cars there are. Any other pair is built on its first visit and then
+ * cached for five minutes like these.
+ */
+const PREBUILT_PAIRS = 30;
+
 export async function generateStaticParams() {
-  return (await comparisonPairs()).map((p) => ({ pair: p.path.replace("/compare/", "") }));
+  return (await comparisonPairs()).slice(0, PREBUILT_PAIRS).map((p) => ({ pair: p.path.replace("/compare/", "") }));
 }
 
 async function load(pair: string): Promise<VehicleWithCover[] | null> {

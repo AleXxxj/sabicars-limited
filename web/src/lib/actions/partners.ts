@@ -10,6 +10,7 @@ import { looksAutomated, sabicarsDealerId } from "@/lib/leads";
 import { notifyPartnerWelcome } from "@/lib/ledger-notify";
 import { codeFor, referralLink } from "@/lib/partners";
 import { normalisePhone } from "@/lib/phone";
+import { RATE_LIMITED_MESSAGE, withinLimit } from "@/lib/rate-limit";
 import { PARTNER_REACH } from "@/lib/referral";
 import { siteUrl } from "@/lib/site";
 
@@ -74,6 +75,8 @@ export async function registerPartner(_prev: PartnerFormResult | null, formData:
 
   const phone = normalisePhone(v.phone);
   if (!phone) return { ok: false, fieldErrors: { phone: "Please enter your phone number, e.g. 0803 123 4567" }, values };
+  // Counted after the bot check, so a bot keeps its decoy and never uses up the allowance real people share.
+  if (!(await withinLimit("partner"))) return { ok: false, error: RATE_LIMITED_MESSAGE, values };
 
   try {
     const dealerId = await sabicarsDealerId();

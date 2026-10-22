@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { after } from "next/server";
 import { and, eq, isNull } from "drizzle-orm";
 import { z } from "zod";
@@ -9,6 +9,7 @@ import { blogComments, blogPosts } from "@/db/schema";
 import { audit } from "@/lib/audit";
 import { requireStaff, type StaffMember } from "@/lib/auth";
 import { blocksSchema, plainText } from "@/lib/blog/blocks";
+import { TAGS } from "@/lib/cache-tags";
 import { isGenuineUpload, uploadTicket, type UploadedAsset, type UploadTicket } from "@/lib/cloudinary";
 import { shareImageUrl } from "@/lib/media";
 import { createArticleSend, deliver } from "@/lib/newsletter";
@@ -24,6 +25,8 @@ async function editor(): Promise<StaffMember> {
 }
 
 function refresh(slug?: string) {
+  // The article list is read from the data cache (lib/repositories/blog.ts): expire it now, not in five minutes.
+  revalidateTag(TAGS.blog, { expire: 0 });
   revalidatePath("/blog");
   if (slug) revalidatePath(`/blog/${slug}`);
   revalidatePath("/");
