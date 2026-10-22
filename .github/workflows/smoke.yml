@@ -1,17 +1,22 @@
-# The walkthrough of the live site, on every production deploy.
+# The walkthrough of the live site, after every production deploy.
 #
-# Vercel's GitHub integration records each deployment with GitHub's
-# Deployments API and sends a `deployment_status` event as it goes
-# (pending → success). Its production deployments are in the environment
-# named "Production". When one succeeds, this job walks the public production
-# address (https://sabicars.vercel.app, which Vercel points at the new
-# deployment as it goes live) as a buyer and as a member of staff, read-only,
-# with web/e2e/smoke (Playwright) on a desktop and on a phone viewport, after
-# confirming /api/health reports the deployment's own commit. The deployment's
-# unique address is not used: Vercel protects those with a login by default.
-# If the walkthrough fails, the site is told (/api/ops/alert), so the managers
+# Vercel builds every push to `platform` and marks the commit with its own
+# status ("Vercel": pending → success or failure). Vercel does not record its
+# deployments on GitHub for this project, so this job starts from the push
+# itself and waits:
+#   1. for Vercel's status on the commit to turn to success (or reports that
+#      the deploy failed, and the live site is still on the previous version);
+#   2. for the public production address to report that exact commit at
+#      /api/health — the moment the new version is what buyers get;
+# then walks it as a buyer and as a member of staff, read-only, with
+# web/e2e/smoke (Playwright) on a desktop and on a phone viewport.
+#
+# If the walkthrough fails, the site is told (/api/ops/alert): the managers
 # are pushed and emailed and the failure appears on /admin/status#errors with
 # a link to this run.
+#
+# The public address is walked, never a deployment's own unique address:
+# Vercel puts those behind its login by default ("Standard Protection").
 #
 # Settings it reads (repository → Settings → Secrets and variables → Actions):
 #   secrets.CRON_SECRET   the same value as in Vercel. Needed only to send the alert.
@@ -20,14 +25,16 @@
 #                         buyers use. (Before switch day that address is the old site;
 #                         leave the variable unset.)
 #
-# Vercel → Project → Settings → Git: the "deployment_status events" toggle must
-# stay on, or this workflow never starts. It can also be run by hand from the
-# Actions tab against any address.
+# It can also be run by hand from the Actions tab against any address.
 
 name: Smoke
 
 on:
-  deployment_status:
+  push:
+    branches: [platform]
+    paths:
+      - "web/**"
+      - ".github/workflows/smoke.yml"
   workflow_dispatch:
     inputs:
       base_url:
@@ -37,35 +44,29 @@ on:
 
 permissions:
   contents: read
+  # To read Vercel's status on the pushed commit.
+  statuses: read
 
-# One run per deployment: a later status for the same deployment replaces an earlier run.
+# A newer push replaces a walkthrough still waiting for the previous deploy.
 concurrency:
-  group: smoke-${{ github.event.deployment.id || github.run_id }}
+  group: smoke-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   smoke:
     name: Walk the deployed site
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.event.deployment_status.state == 'success' && github.event.deployment_status.environment == 'Production')
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 35
     defaults:
       run:
         working-directory: web
     env:
-      DEPLOY_SHA: ${{ github.event.deployment.sha || github.sha }}
-      # The public production address, never the deployment's own unique address: Vercel puts those
-      # behind its login by default ("Standard Protection"), so walking one fails with 401 on every
-      # deploy. The wait step below confirms the public address is serving this deployment's commit.
+      DEPLOY_SHA: ${{ github.sha }}
       BASE_URL: ${{ inputs.base_url || vars.SMOKE_BASE_URL || 'https://sabicars.vercel.app' }}
       RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      GH_TOKEN: ${{ github.token }}
     steps:
-      - name: Check out the deployed commit
-        uses: actions/checkout@v7
-        with:
-          ref: ${{ github.event.deployment.sha || github.sha }}
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-node@v7
         with:
@@ -79,28 +80,47 @@ jobs:
       - name: Install the browser
         run: npx playwright install --with-deps chromium
 
-      - name: Wait for the site to answer
+      - name: Wait for Vercel to deploy this commit
+        if: github.event_name == 'push'
         run: |
-          echo "Walking $BASE_URL for deployment ${DEPLOY_SHA:0:7}"
-          for attempt in $(seq 1 24); do
+          echo "Waiting for Vercel's status on ${DEPLOY_SHA:0:7}."
+          for attempt in $(seq 1 60); do
+            state=$(curl -sS --max-time 20 -H "Authorization: Bearer $GH_TOKEN" \
+              "https://api.github.com/repos/${{ github.repository }}/commits/$DEPLOY_SHA/statuses?per_page=100" \
+              | jq -r '[.[] | select(.context | test("^Vercel"))][0].state // "none"' || echo "none")
+            case "$state" in
+              success) echo "Vercel deployed it."; exit 0 ;;
+              failure|error)
+                echo "::error::Vercel could not deploy ${DEPLOY_SHA:0:7}; the live site is still on the previous version. Open the Vercel dashboard for the build log."
+                echo "DEPLOY_FAILED=1" >> "$GITHUB_ENV"
+                exit 1 ;;
+            esac
+            echo "Vercel: ${state} (attempt $attempt of 60)."
+            sleep 15
+          done
+          echo "::error::Vercel did not report on ${DEPLOY_SHA:0:7} within 15 minutes."
+          exit 1
+
+      - name: Wait for the site to serve it
+        run: |
+          echo "Waiting for $BASE_URL to serve ${DEPLOY_SHA:0:7}."
+          for attempt in $(seq 1 40); do
             code=$(curl -sS -o health.json -w '%{http_code}' --max-time 20 "$BASE_URL/api/health" || true)
+            version=$(jq -r '.version // ""' health.json 2>/dev/null || true)
             if [ "$code" = "200" ]; then
-              version=$(jq -r '.version // ""' health.json 2>/dev/null || true)
-              echo "Up, running version ${version:-unknown}."
-              if [ -n "$version" ] && [ "$version" != "local" ] && [ "$version" != "${DEPLOY_SHA:0:7}" ]; then
-                echo "::notice::$BASE_URL answers with version $version, not ${DEPLOY_SHA:0:7}: another deployment is live there, and that is what was walked."
+              if [ "${{ github.event_name }}" != "push" ] || [ "$version" = "${DEPLOY_SHA:0:7}" ]; then
+                echo "Up, running ${version:-an unknown version}."
+                exit 0
               fi
-              exit 0
             fi
             if [ "$code" = "401" ] || [ "$code" = "403" ]; then
-              echo "::error::$BASE_URL answers HTTP $code: the address is behind Vercel's deployment protection. Set the repository variable SMOKE_BASE_URL to the public address (https://sabicars.com), or switch protection off for production deployment addresses in Vercel → Settings → Deployment Protection."
+              echo "::error::$BASE_URL answers HTTP $code: the address is behind Vercel's deployment protection. Walk the public address instead (repository variable SMOKE_BASE_URL)."
               exit 1
             fi
-            echo "Not yet (HTTP ${code:-none}), attempt $attempt of 24."
-            sleep 5
+            echo "Not yet (HTTP ${code:-none}, version ${version:-none}), attempt $attempt of 40."
+            sleep 15
           done
-          echo "::error::$BASE_URL/api/health did not answer 200 within two minutes."
-          cat health.json 2>/dev/null || true
+          echo "::error::$BASE_URL did not start serving ${DEPLOY_SHA:0:7} within 10 minutes (last: HTTP ${code:-none}, version ${version:-none})."
           exit 1
 
       - name: Walk the site as a buyer and as staff
@@ -117,11 +137,14 @@ jobs:
             echo "::warning::CRON_SECRET is not set in this repository's secrets, so the site was not told. Add it under Settings → Secrets and variables → Actions."
             exit 0
           fi
-          payload=$(jq -n \
-            --arg title "Deploy check failed" \
-            --arg body "The walkthrough of ${DEPLOY_SHA:0:7} failed. See the run: $RUN_URL" \
-            --arg url "/admin/status#errors" \
-            '{title: $title, body: $body, url: $url}')
+          if [ "${DEPLOY_FAILED:-0}" = "1" ]; then
+            title="Deploy failed"
+            body="Vercel could not deploy ${DEPLOY_SHA:0:7}; the live site is still on the previous version. See: $RUN_URL"
+          else
+            title="Deploy check failed"
+            body="The walkthrough of ${DEPLOY_SHA:0:7} failed. See the run: $RUN_URL"
+          fi
+          payload=$(jq -n --arg title "$title" --arg body "$body" --arg url "/admin/status#errors" '{title: $title, body: $body, url: $url}')
           curl -sS --fail-with-body --max-time 30 -X POST "$BASE_URL/api/ops/alert" \
             -H "Authorization: Bearer $CRON_SECRET" \
             -H "Content-Type: application/json" \
