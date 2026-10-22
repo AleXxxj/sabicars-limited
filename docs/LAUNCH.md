@@ -61,6 +61,31 @@ needing attention, or missing. `npm run check:launch` prints the same list.
    - `/api/cron/payouts` every day at 06:00 UTC (07:00 in Lagos): checks every Paystack transfer still in flight against Paystack, and tells the owner and managers, once a day, how many commissions have passed their cooling-off and are waiting to be paid. Running it twice alerts nobody twice.
 8. **A day before:** lower the TTL of the domain's A and `www` records to 300 seconds. Both the switch and any switch-back will then take effect within minutes.
 
+9. **Capacity: what was measured, and what to do before the first viral day.**
+   The founder's reach (about 300k followers, posts in the millions of views) means a
+   spike of tens of thousands of visitors in an hour is a normal day, not a stress
+   test. Measured on 22 October 2026 against the live site and the production database:
+
+   | What | Result | Verdict |
+   |---|---|---|
+   | Pages (cars, home, articles, plan) | Served from Vercel's edge cache; a flood from one address was cut off by Vercel after a few hundred requests, which is its abuse protection working | Holds. A database outage leaves readers on the last good copy; only forms fail. |
+   | Sign-ups through the real registration code | 8,000 registrations, all accepted, 500 a second sustained on one server process; slowest answer 1.4 s at 400 at once | Holds. |
+   | Database gate (Supabase free tier pooler) | Limit 200 client connections; about 100 free in two separate measurements; each query from Lagos ≈ 0.5 s | **The weak point.** Thousands of submissions in the same few seconds queue here and the tail sees "try again". |
+   | Photos (Cloudinary free, 25 credits a month) | Last 30 days: 5.4 credits, 8,650 image views, 2 GB, ≈ ¼ MB per view | **A viral day is ≈ 90 credits**: photos stop loading mid-morning while pages keep working. |
+   | Inventory list with filters (`/vehicles?…`) | Rendered live on every visit, one database query per visitor | **The weak page** in a read spike. |
+   | Ask Sabicars | Capped at 4,000 answers a day (`ASSISTANT_DAILY_CAP`) | Degrades politely. |
+
+   Before the switch, in this order:
+   - **Vercel Pro** (about $20 a month). Required by Vercel's terms for a business; carries the photo traffic below; lifts function limits; proper scheduling.
+   - **Supabase Pro with a Small compute instance** (about $40 a month). Roughly doubles the pooler's capacity and is the dial to turn up on the day. Cost grows with the instance chosen, not with user count; the platform is plain Postgres and plain SQL, so another Postgres host later is a connection-string change.
+   - **Cloudinary stays on the free plan** once photos are served through Vercel's image cache (code change below): each size of each photo is fetched from Cloudinary once and served from Vercel's edge thereafter, so Cloudinary is storage and uploads only. A thousand more cars at ten photos each is about 3 GB stored, three credits a month. Fallback if the photo path is not changed: Cloudinary Small ($29 a month, 60 credits, $0.55 per extra credit; a viral day ≈ $20 of overage).
+   - Code, about two days, then re-run the same load test against the upgraded database with the real mix (browsing, searching, photos, enquiries, registrations together):
+     1. Serve photos through Vercel's image cache instead of straight from Cloudinary.
+     2. Cache each inventory search result for sixty seconds, cleared the moment staff save a car (new uploads appear within a minute at worst, usually at once; nothing is per car).
+     3. Build car and comparison pages on first visit and cache them, instead of pre-building every one at deploy, so a thousand-car catalogue keeps deploys quick.
+     4. Throttle the public forms per address, and queue outgoing email in an outbox sent at the provider's pace, so a burst of welcomes, reminders and digests is delayed, never lost.
+     5. A free uptime monitor on the site, alerting the owner and the developer within a minute.
+
 ## B. Switch day (a quiet hour, such as early morning)
 
 1. **Freeze the old admin.**
