@@ -1,0 +1,140 @@
+# The walkthrough of the live site, on every production deploy.
+#
+# Vercel's GitHub integration records each deployment with GitHub's
+# Deployments API and sends a `deployment_status` event as it goes
+# (pending → success). Its production deployments are in the environment
+# named "Production". When one succeeds, this job walks the public production
+# address (https://sabicars.vercel.app, which Vercel points at the new
+# deployment as it goes live) as a buyer and as a member of staff, read-only,
+# with web/e2e/smoke (Playwright) on a desktop and on a phone viewport, after
+# confirming /api/health reports the deployment's own commit. The deployment's
+# unique address is not used: Vercel protects those with a login by default.
+# If the walkthrough fails, the site is told (/api/ops/alert), so the managers
+# are pushed and emailed and the failure appears on /admin/status#errors with
+# a link to this run.
+#
+# Settings it reads (repository → Settings → Secrets and variables → Actions):
+#   secrets.CRON_SECRET   the same value as in Vercel. Needed only to send the alert.
+#   vars.SMOKE_BASE_URL   optional. Walk this address instead of https://sabicars.vercel.app:
+#                         set it to https://sabicars.com after switch day, the address
+#                         buyers use. (Before switch day that address is the old site;
+#                         leave the variable unset.)
+#
+# Vercel → Project → Settings → Git: the "deployment_status events" toggle must
+# stay on, or this workflow never starts. It can also be run by hand from the
+# Actions tab against any address.
+
+name: Smoke
+
+on:
+  deployment_status:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: "Address to walk (leave empty for the production site)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+# One run per deployment: a later status for the same deployment replaces an earlier run.
+concurrency:
+  group: smoke-${{ github.event.deployment.id || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    name: Walk the deployed site
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.deployment_status.state == 'success' && github.event.deployment_status.environment == 'Production')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: web
+    env:
+      DEPLOY_SHA: ${{ github.event.deployment.sha || github.sha }}
+      # The public production address, never the deployment's own unique address: Vercel puts those
+      # behind its login by default ("Standard Protection"), so walking one fails with 401 on every
+      # deploy. The wait step below confirms the public address is serving this deployment's commit.
+      BASE_URL: ${{ inputs.base_url || vars.SMOKE_BASE_URL || 'https://sabicars.vercel.app' }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      - name: Check out the deployed commit
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.deployment.sha || github.sha }}
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Install the browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Wait for the site to answer
+        run: |
+          echo "Walking $BASE_URL for deployment ${DEPLOY_SHA:0:7}"
+          for attempt in $(seq 1 24); do
+            code=$(curl -sS -o health.json -w '%{http_code}' --max-time 20 "$BASE_URL/api/health" || true)
+            if [ "$code" = "200" ]; then
+              version=$(jq -r '.version // ""' health.json 2>/dev/null || true)
+              echo "Up, running version ${version:-unknown}."
+              if [ -n "$version" ] && [ "$version" != "local" ] && [ "$version" != "${DEPLOY_SHA:0:7}" ]; then
+                echo "::notice::$BASE_URL answers with version $version, not ${DEPLOY_SHA:0:7}: another deployment is live there, and that is what was walked."
+              fi
+              exit 0
+            fi
+            if [ "$code" = "401" ] || [ "$code" = "403" ]; then
+              echo "::error::$BASE_URL answers HTTP $code: the address is behind Vercel's deployment protection. Set the repository variable SMOKE_BASE_URL to the public address (https://sabicars.com), or switch protection off for production deployment addresses in Vercel → Settings → Deployment Protection."
+              exit 1
+            fi
+            echo "Not yet (HTTP ${code:-none}), attempt $attempt of 24."
+            sleep 5
+          done
+          echo "::error::$BASE_URL/api/health did not answer 200 within two minutes."
+          cat health.json 2>/dev/null || true
+          exit 1
+
+      - name: Walk the site as a buyer and as staff
+        run: npm run test:smoke
+        env:
+          SMOKE_BASE_URL: ${{ env.BASE_URL }}
+
+      - name: Tell the site the check failed
+        if: failure()
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "::warning::CRON_SECRET is not set in this repository's secrets, so the site was not told. Add it under Settings → Secrets and variables → Actions."
+            exit 0
+          fi
+          payload=$(jq -n \
+            --arg title "Deploy check failed" \
+            --arg body "The walkthrough of ${DEPLOY_SHA:0:7} failed. See the run: $RUN_URL" \
+            --arg url "/admin/status#errors" \
+            '{title: $title, body: $body, url: $url}')
+          curl -sS --fail-with-body --max-time 30 -X POST "$BASE_URL/api/ops/alert" \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            -H "Content-Type: application/json" \
+            --data "$payload" \
+            || echo "::warning::The site did not accept the alert; the managers were not told by it. The failure is still in this run."
+
+      - name: Keep the report and the traces
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: smoke-report-${{ github.run_id }}
+          path: |
+            web/e2e-report
+            web/e2e-results
+          if-no-files-found: ignore
+          retention-days: 14

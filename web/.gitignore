@@ -50,3 +50,7 @@ next-env.d.ts
 
 # local preview configuration (machine-specific paths)
 /.claude/
+
+# Playwright
+/e2e-results
+/e2e-report

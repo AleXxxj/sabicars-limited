@@ -1115,6 +1115,45 @@ export const auditLog = pgTable(
   (t) => [index("audit_entity_idx").on(t.entity, t.entityId), index("audit_at_idx").on(t.at)],
 );
 
+/* ── Operations: errors the site saw ───────────────────────────────────── */
+
+/**
+ * One row per distinct error, counted, so a failure at 2 a.m. is on record
+ * and the managers were told, rather than waiting for a customer to
+ * complain. The fingerprint groups repeats of the same error; the message
+ * and stack are stored redacted (no account numbers, phones or emails).
+ */
+export const incidents = pgTable(
+  "incidents",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    /** sha256 of kind, message and the first stack frame: the same error again lands on the same row. */
+    fingerprint: text("fingerprint").notNull(),
+    /** server: thrown while rendering or in an action · client: caught by the browser's error boundary · check: a deploy check or monitor reported it. */
+    kind: text("kind").notNull(),
+    message: text("message").notNull(),
+    stack: text("stack"),
+    /** The page or route it happened on, and how it was reached. */
+    path: text("path"),
+    method: text("method"),
+    /** Next.js's own digest for the error, when it gives one. */
+    digest: text("digest"),
+    count: integer("count").notNull().default(1),
+    firstSeenAt: timestamp("first_seen_at", { withTimezone: true }).notNull().defaultNow(),
+    lastSeenAt: timestamp("last_seen_at", { withTimezone: true }).notNull().defaultNow(),
+    /** When the managers were last told about this one; alerts are throttled per fingerprint. */
+    lastAlertedAt: timestamp("last_alerted_at", { withTimezone: true }),
+    resolvedAt: timestamp("resolved_at", { withTimezone: true }),
+    resolvedBy: uuid("resolved_by").references(() => staff.id, { onDelete: "set null" }),
+  },
+  (t) => [
+    uniqueIndex("incidents_fingerprint_idx").on(t.fingerprint),
+    index("incidents_last_seen_idx").on(t.lastSeenAt),
+    check("incidents_kind", sql`${t.kind} IN ('server', 'client', 'check')`),
+    check("incidents_count_positive", sql`${t.count} >= 1`),
+  ],
+);
+
 /* ── Convenience types ─────────────────────────────────────────────────── */
 
 export type Dealer = typeof dealers.$inferSelect;
@@ -1128,6 +1167,7 @@ export type VehicleRequest = typeof vehicleRequests.$inferSelect;
 export type Partner = typeof partners.$inferSelect;
 export type Commission = typeof commissions.$inferSelect;
 export type Payout = typeof payouts.$inferSelect;
+export type Incident = typeof incidents.$inferSelect;
 export type RequestMatch = typeof requestMatches.$inferSelect;
 export type VehicleWatch = typeof vehicleWatches.$inferSelect;
 export type LeadActivity = typeof leadActivity.$inferSelect;

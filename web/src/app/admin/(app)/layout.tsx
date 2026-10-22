@@ -8,6 +8,10 @@ import { waitingCount } from "@/lib/repositories/leads";
 import { reviewCounts } from "@/lib/repositories/reviews";
 import { pendingCommentCount } from "@/lib/repositories/blog";
 import { payableCount } from "@/lib/ledger";
+import { openIncidentCount } from "@/lib/incidents";
+
+/** What a badge counts, for a screen reader: "3 waiting" on a queue, "3 open" on errors. */
+const BADGE_NOUN: Record<string, string> = { "/admin/status": "open" };
 
 /**
  * The staff workspace. Built for a phone first: most listings will be made
@@ -17,18 +21,21 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const me = await requireStaff();
   const nav = adminNavFor(me.role);
   // What is waiting for someone, shown on the section it is waiting in.
-  const [leadsWaiting, reviewsWaiting, commentsWaiting, payoutsReady] = await Promise.all([
+  const [leadsWaiting, reviewsWaiting, commentsWaiting, payoutsReady, errorsOpen] = await Promise.all([
     waitingCount(me.dealerId),
     me.role === "sales" ? 0 : reviewCounts(me.dealerId).then((c) => c.waiting),
     me.role === "sales" ? 0 : pendingCommentCount(me.dealerId),
     // Commissions past their cooling-off, waiting for a manager to pay them.
     can.payPartners(me) ? payableCount(me.dealerId) : 0,
+    // Errors the site has seen and nobody has resolved yet; the status page is the owner's and managers'.
+    can.seeMoney(me) ? openIncidentCount() : 0,
   ]);
   const badges: Record<string, number> = {
     "/admin/leads": leadsWaiting,
     "/admin/reviews": reviewsWaiting,
     "/admin/blog": commentsWaiting,
     "/admin/payouts": payoutsReady,
+    "/admin/status": errorsOpen,
   };
 
   return (
@@ -62,10 +69,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <NavLink key={item.href} href={item.href}>
               {item.label}
               {(badges[item.href] ?? 0) > 0 && (
-                <span className="figures ml-2 inline-flex min-w-5 items-center justify-center rounded-full bg-green-500 px-1.5 text-[0.7rem] font-bold text-[#090E0A]">
+                <span
+                  className={`figures ml-2 inline-flex min-w-5 items-center justify-center rounded-full px-1.5 text-[0.7rem] font-bold text-[#090E0A] ${
+                    item.href === "/admin/status" ? "bg-danger" : "bg-green-500"
+                  }`}
+                >
                   <span className="sr-only">, </span>
                   {badges[item.href]}
-                  <span className="sr-only"> waiting</span>
+                  <span className="sr-only"> {BADGE_NOUN[item.href] ?? "waiting"}</span>
                 </span>
               )}
             </NavLink>

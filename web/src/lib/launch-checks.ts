@@ -4,6 +4,8 @@ import { and, count, eq, inArray, isNotNull, sql } from "drizzle-orm";
 import { db } from "@/db";
 import journal from "@/db/migrations/meta/_journal.json";
 import { askAnswers, blogPosts, dealers, pushSubscriptions, staff, vehicleMedia, vehicles } from "@/db/schema";
+import { backupStatus } from "@/lib/backup";
+import { openIncidentCount } from "@/lib/incidents";
 import { LEGACY_PAGES } from "@/lib/legacy/urls";
 
 /**
@@ -74,6 +76,78 @@ async function assistantCheck(): Promise<Check> {
     };
   } catch {
     return { group: "Settings", label, status: "warn", detail: "The key is set, but Anthropic could not be reached just now." };
+  }
+}
+
+/** A day as the site prints it, in Lagos. */
+function lagosDate(iso: string): string {
+  return new Date(iso).toLocaleDateString("en-NG", { day: "numeric", month: "long", year: "numeric", timeZone: "Africa/Lagos" });
+}
+
+/** The weekly backup is late once it is older than a week and a day. */
+const BACKUP_STALE_DAYS = 8;
+
+/** The last copy of the database Sabicars holds itself (lib/backup.ts). */
+async function backupCheck(): Promise<Check> {
+  const g = "Settings" as const;
+  const label = "Last backup";
+  try {
+    const { last, lastError } = await backupStatus(await sabicarsDealerId());
+    if (lastError)
+      return {
+        group: g,
+        label,
+        status: "missing",
+        detail: `The last run, on ${lagosDate(lastError.at)}, failed: ${lastError.error.replace(/\.?\s*$/, ".")}${last ? ` The last good copy is from ${lagosDate(last.at)}.` : ""}`,
+        fix: "Put right what the error names, then wait for Sunday's run or open /api/cron/backup from the scheduler. Until it succeeds, download a copy from this page.",
+      };
+    if (!last)
+      return {
+        group: g,
+        label,
+        status: "warn",
+        detail: "The weekly backup has not run yet; schedule /api/cron/backup.",
+        fix: "Add /api/cron/backup to the scheduler, Sundays at 02:00 UTC, with the same Authorization header as the other jobs. Until it runs, download a copy from this page.",
+      };
+    const ageDays = (Date.now() - new Date(last.at).getTime()) / 86_400_000;
+    const rows = Object.values(last.counts).reduce((a, b) => a + b, 0);
+    const where = last.publicId ? "in Sabicars' Cloudinary account (Media Library → backups), private" : "not uploaded";
+    return {
+      group: g,
+      label,
+      status: ageDays <= BACKUP_STALE_DAYS ? "ok" : "warn",
+      detail: `${lagosDate(last.at)}, ${(last.bytes / 1e6).toFixed(1)} MB, ${rows.toLocaleString("en-NG")} rows, ${where}.`,
+      fix:
+        ageDays <= BACKUP_STALE_DAYS
+          ? undefined
+          : `No backup for ${Math.floor(ageDays)} days. Check the scheduler's /api/cron/backup job, and download a copy from this page meanwhile.`,
+    };
+  } catch (e) {
+    return { group: g, label, status: "warn", detail: `Could not read the backup record: ${(e as Error).message.slice(0, 120)}` };
+  }
+}
+
+/** Errors the site has seen and nobody has marked dealt with (lib/incidents.ts). */
+async function incidentCheck(): Promise<Check> {
+  const g = "Settings" as const;
+  const label = "Open errors";
+  try {
+    const n = await openIncidentCount();
+    return {
+      group: g,
+      label,
+      status: n > 0 ? "warn" : "ok",
+      detail: n > 0 ? `${n} ${n === 1 ? "error is" : "errors are"} open on this page.` : "None open. Every server error, browser error and failed deploy check lands here.",
+      fix: n > 0 ? "Read each one under Errors below. When it is dealt with, mark it resolved; if it happens again it reopens on the same row." : undefined,
+    };
+  } catch (e) {
+    return {
+      group: g,
+      label,
+      status: "warn",
+      detail: `Could not count errors: ${(e as Error).message.slice(0, 120)}`,
+      fix: "If the Database check above says schema updates are not applied, apply them first.",
+    };
   }
 }
 
@@ -296,8 +370,8 @@ export async function launchChecks(base: string): Promise<Check[]> {
     setting(
       "Scheduled jobs",
       ["CRON_SECRET"],
-      "Escalation, viewing reminders, the Friday digest and the daily payouts check can run.",
-      "Add a long random CRON_SECRET, and point a scheduler at /api/cron/escalate (every 5 minutes), /api/cron/viewings (daily 06:30 UTC), /api/cron/digest (Fridays) and /api/cron/payouts (daily 06:00 UTC). Paystack's webhook, /api/payments/paystack/webhook, needs no scheduler: set the URL in the Paystack dashboard.",
+      "Escalation, viewing reminders, the Friday digest, the daily payouts check and the weekly backup can run.",
+      "Add a long random CRON_SECRET, and point a scheduler at /api/cron/escalate (every 5 minutes), /api/cron/viewings (daily 06:30 UTC), /api/cron/digest (Fridays), /api/cron/payouts (daily 06:00 UTC) and /api/cron/backup (Sundays 02:00 UTC). Paystack's webhook, /api/payments/paystack/webhook, needs no scheduler: set the URL in the Paystack dashboard. Also point a free uptime monitor (UptimeRobot or cron-job.org) at /api/health every minute, to email the owner and the developer whenever it does not answer 200 — nothing inside the site can check that for itself.",
     ),
     setting(
       "Email",
@@ -329,6 +403,8 @@ export async function launchChecks(base: string): Promise<Check[]> {
       "Copy the App ID and REST API key from OneSignal → Settings → Keys & IDs.",
     ),
     await assistantCheck(),
+    await backupCheck(),
+    await incidentCheck(),
   ];
   const [content, addresses] = await Promise.all([contentChecks(), addressChecks(base)]);
   return [...settings, ...content, ...addresses];

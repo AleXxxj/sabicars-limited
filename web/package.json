@@ -26,7 +26,12 @@
     "test:drive-plan": "tsx scripts/verify-drive-plan.ts",
     "test:ledger": "tsx scripts/verify-ledger.ts",
     "auth:check": "node --env-file=.env.local scripts/check-auth.mjs",
-    "brand": "node scripts/build-brand.mjs"
+    "brand": "node scripts/build-brand.mjs",
+    "test:smoke": "playwright test --project=smoke --project=smoke-phone",
+    "test:e2e": "playwright test --project=flows",
+    "e2e:seed": "node --env-file=.env.local --import tsx scripts/seed-e2e.mts",
+    "backup:restore": "node --env-file=.env.local --import tsx scripts/restore-backup.mts",
+    "test:backup": "node --env-file-if-exists=.env.local --conditions=react-server --import tsx scripts/verify-backup.mts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.128.0",
@@ -45,6 +50,7 @@
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.4",
+    "@playwright/test": "^1.64.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/qrcode": "1.5.5",

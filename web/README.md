@@ -43,6 +43,26 @@ the in-memory schema test, which only ever has one client.
 | `test:drive-plan` | the Drive Plan deposit tiers by model year and the repayment estimate match what Autochek gave Sabicars |
 | `test:ledger` | the commission ledger's rules: 1.5% to the kobo, the 48-hour cooling-off, whose name a bank account must be in, the payout reference and Paystack's transfer fee |
 
+## Walkthroughs and the backup
+
+These are not part of `npm run build`. GitHub Actions runs the first two
+(`../.github/workflows/smoke.yml` on every production deploy,
+`../.github/workflows/e2e.yml` on every push to `platform`); all four can be
+run by hand. Playwright's browser is installed once with
+`npx playwright install chromium`.
+
+| Script | What it does |
+| --- | --- |
+| `test:smoke` | walks the site at `SMOKE_BASE_URL` (default `http://localhost:3000`) as a buyer and as staff, read-only, on a desktop and a phone viewport; it submits the public forms the way a bot would, which the site answers without saving a row, so the round trip is proved on the live site too |
+| `test:e2e` | drives the money paths — an enquiry, a partner registering and adding a bank account, a car sold with the commission attributed and paid — against `E2E_BASE_URL` (default `http://localhost:3000`) and the database in `.env.local`; run `e2e:seed` first, and never point either at the live database |
+| `e2e:seed` | puts the fixture rows the flows suite expects into the database in `.env.local` |
+| `backup:restore` | loads a backup file (from `/api/cron/backup` or the status page's download) into an empty database that has had `db:migrate`: `-- <file> --check` reads it, `-- <file> --yes` loads it |
+| `test:backup` | proves a backup restores exactly: exports the database in `DATABASE_URL` through `lib/backup.ts`, restores it into an empty database beside it, and compares every table row for row, then drops the copy; refuses a Supabase address; runs in CI on every push |
+
+Staff screens in the tests sign in with `E2E_STAFF_EMAIL` and
+`E2E_STAFF_PASSWORD` (see `.env.example`); without them the staff tests are
+skipped.
+
 ## The legacy import
 
 `npm run legacy:import` reads the legacy Mongo database (read-only — only
