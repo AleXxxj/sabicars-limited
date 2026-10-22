@@ -260,6 +260,17 @@ function fromRaw(r: Record<string, unknown>): OutboxEmail {
 }
 
 /**
+ * A batch is always sent in the same order — oldest first, then by id — so a
+ * retry of an uncertain batch is byte for byte the request first sent. The
+ * database returns claimed rows in no fixed order, and Resend refuses a reused
+ * idempotency key whose body differs (409 invalid_idempotent_request), and
+ * matches the ids in its answer to the emails by position.
+ */
+function inSendingOrder(rows: OutboxEmail[]): OutboxEmail[] {
+  return rows.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime() || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+}
+
+/**
  * The next batch to send: first a batch whose earlier attempt has no known
  * outcome (same rows, same key), otherwise up to 100 due emails, given a new
  * key. SKIP LOCKED lets two runs share the work without overlap.
@@ -283,7 +294,7 @@ async function claimBatch(): Promise<{
       )
       returning *
     `)) as unknown as Record<string, unknown>[];
-    if (rows.length) return { key: retry.batch_key, rows: rows.map(fromRaw) };
+    if (rows.length) return { key: retry.batch_key, rows: inSendingOrder(rows.map(fromRaw)) };
   }
   const key = randomUUID();
   const rows = (await db.execute(sql`
@@ -297,7 +308,7 @@ async function claimBatch(): Promise<{
     )
     returning *
   `)) as unknown as Record<string, unknown>[];
-  return rows.length ? { key, rows: rows.map(fromRaw) } : null;
+  return rows.length ? { key, rows: inSendingOrder(rows.map(fromRaw)) } : null;
 }
 
 /** Puts claimed emails back untouched, as if this run had never taken them. */

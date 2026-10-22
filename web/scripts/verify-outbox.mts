@@ -69,8 +69,10 @@ let singleCalls = 0;
 let batchCalls = 0;
 let badAuth = 0;
 let wrongFrom = 0;
-/** Idempotency-Key → the answer first given for it, as Resend keeps for 24 hours. */
-const keys = new Map<string, { status: number; body: unknown }>();
+/** Idempotency-Key → the request body first sent with it and the answer given, as Resend keeps for 24 hours. */
+const keys = new Map<string, { request: string; status: number; body: unknown }>();
+/** Keys reused with a different body: Resend refuses these (409), and so does the stand-in. */
+let keyMismatches = 0;
 let keyedRepeats = 0;
 const droppedOnce = new Set<string>();
 
@@ -97,16 +99,22 @@ async function handle(req: IncomingMessage, res: ServerResponse) {
     badAuth++;
     return reply(res, 401, { statusCode: 401, name: "missing_api_key", message: "Missing API key." });
   }
-  const body: unknown = JSON.parse(Buffer.concat(chunks).toString("utf8") || "null");
+  const raw = Buffer.concat(chunks).toString("utf8");
+  const body: unknown = JSON.parse(raw || "null");
   const key = typeof req.headers["idempotency-key"] === "string" ? req.headers["idempotency-key"] : null;
   if (key && keys.has(key)) {
-    keyedRepeats++;
     const first = keys.get(key)!;
+    // Like Resend: the same key with a different body is refused, never answered from memory.
+    if (first.request !== raw) {
+      keyMismatches++;
+      return reply(res, 409, { statusCode: 409, name: "invalid_idempotent_request", message: "Same idempotency key used with a different request payload." });
+    }
+    keyedRepeats++;
     return reply(res, first.status, first.body);
   }
   /** Accepted: remembered under its key, then answered — or, the first time for a "lost-reply" address, never answered. */
   const done = (status: number, answer: unknown, addresses: string[]) => {
-    if (key && status === 200) keys.set(key, { status, body: answer });
+    if (key && status === 200) keys.set(key, { request: raw, status, body: answer });
     const lost = addresses.find((a) => a.includes("lost-reply") && !droppedOnce.has(a));
     if (status === 200 && lost) {
       droppedOnce.add(lost);
@@ -279,6 +287,7 @@ try {
     lostAll.map((to) => `${to} × ${accepted.get(to) ?? 0}`).join(", "),
   );
   expect("the retries were answered from the key, not sent again", keyedRepeats - repeatsBefore >= 2, `${keyedRepeats - repeatsBefore} keyed repeats`);
+  expect("every retry was byte for byte the request first sent under its key (Resend refuses anything else)", keyMismatches === 0, `${keyMismatches} key(s) reused with a different body`);
 
   // ── What the outbox holds now, against what the stand-in received ────────
   console.log("\nAfter the runs");
