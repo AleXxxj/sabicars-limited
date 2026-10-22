@@ -92,7 +92,12 @@ jobs:
         run: node scripts/migrate.mjs
 
       - name: Seed the throwaway database
-        run: node --import tsx scripts/seed-e2e.mts
+        # The test cars, then the real articles and published answers from the repository, so the
+        # walkthrough opens an article (with its live illustrations) and an answer instead of skipping them.
+        run: |
+          node --import tsx scripts/seed-e2e.mts
+          node --import tsx scripts/seed-articles.mts
+          node --import tsx scripts/seed-ask.mts
 
       - name: Cheap gates first
         run: npm run test:ledger && npm run test:schema

@@ -41,8 +41,11 @@ test.describe("The Drive Plan page", () => {
     await expect(page.getByText("Any price, split"), "the price split is missing").toBeVisible();
     await tier.click();
     await expect(tier, "the 2008–2009 tier was not selected").toHaveAttribute("aria-checked", "true");
-    await expect(page.getByText("You pay (50%)", { exact: true }), "the split does not show a 50% deposit for a 2008–2009 car").toBeVisible();
-    await expect(page.getByText("Autochek finances (50%), once it approves", { exact: true }), "the split does not show Autochek financing 50%").toBeVisible();
+    // Read inside the split itself: the page's worked example also says "You pay (N%)", and when the
+    // example car is a 2008 or 2009 car (as with a small stock) the same words appear twice.
+    const split = page.locator(".surface-card").filter({ has: page.getByText("Any price, split") });
+    await expect(split.getByText("You pay (50%)", { exact: true }), "the split does not show a 50% deposit for a 2008–2009 car").toBeVisible();
+    await expect(split.getByText("Autochek finances (50%), once it approves", { exact: true }), "the split does not show Autochek financing 50%").toBeVisible();
     assertNoFaults(faults);
   });
 });
