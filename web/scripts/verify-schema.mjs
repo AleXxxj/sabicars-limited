@@ -59,6 +59,16 @@ async function rejects(db, label, sql, expectFragment) {
 
 const db = await PGlite.create();
 
+// Supabase's own starting point: the two Data API roles, granted every table
+// the migrations create. The lock below is proved against exactly this.
+await db.exec(`
+  CREATE ROLE anon NOLOGIN;
+  CREATE ROLE authenticated NOLOGIN;
+  ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO anon, authenticated;
+  ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO anon, authenticated;
+  ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON FUNCTIONS TO anon, authenticated;
+`);
+
 // ── Apply migrations exactly as production will ────────────────────────────
 console.log("\nApplying migrations");
 for (const file of readdirSync(migrationsDir).filter((f) => f.endsWith(".sql")).sort()) {
@@ -74,6 +84,25 @@ for (const file of readdirSync(migrationsDir).filter((f) => f.endsWith(".sql")).
     console.log("\nMigration failed — cannot continue.\n");
     process.exit(1);
   }
+}
+
+/** Public tables the given role may read or change, by name. */
+async function reachable(role) {
+  const r = await db.query(
+    `SELECT c.relname FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
+     WHERE n.nspname = 'public' AND c.relkind = 'r' AND has_table_privilege('${role}', c.oid, 'SELECT,INSERT,UPDATE,DELETE')`,
+  );
+  return r.rows.map((x) => x.relname);
+}
+const openedByDefault = await reachable("anon");
+const lockSql = readFileSync(join(here, "../src/db/lock.sql"), "utf8");
+try {
+  await db.exec(lockSql);
+  ok("lock.sql (every table closed to the Data API, as scripts/migrate.mjs does)");
+} catch (e) {
+  bad("lock.sql", e.message);
+  console.log("\nLock failed — cannot continue.\n");
+  process.exit(1);
 }
 
 const D = "'d0000000-0000-0000-0000-000000000001'";
@@ -383,6 +412,46 @@ await allows(
 );
 const keyed = await db.query(`SELECT count(*)::int AS n FROM email_outbox WHERE dedupe_key = 'welcome:p1:2026-10-22'`);
 expect("the keyed email is stored once", keyed.rows[0].n === 1, `${keyed.rows[0].n} rows`);
+
+// ── Closed to Supabase's Data API ──────────────────────────────────────────
+console.log("\nClosed to the Data API");
+expect(
+  "without the lock, Supabase's defaults open every table to anyone with the publishable key",
+  openedByDefault.length > 20,
+  `only ${openedByDefault.length} tables were open before the lock`,
+);
+const noRls = await db.query(
+  `SELECT c.relname FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname = 'public' AND c.relkind = 'r' AND NOT c.relrowsecurity`,
+);
+expect("every table has Row Level Security on", noRls.rows.length === 0, noRls.rows.map((r) => r.relname).join(", "));
+for (const role of ["anon", "authenticated"]) {
+  const open = await reachable(role);
+  expect(`${role} can read or change no table`, open.length === 0, open.join(", "));
+}
+try {
+  await db.exec(`SET ROLE anon; SELECT count(*) FROM staff`);
+  bad("the publishable key cannot read staff", "the read was allowed");
+} catch (e) {
+  expect("the publishable key cannot read staff", /permission denied/.test(e.message), e.message);
+} finally {
+  await db.exec(`RESET ROLE`);
+}
+await db.exec(`CREATE TABLE lock_probe (id int); INSERT INTO lock_probe VALUES (1)`);
+expect("a table created later is not granted to anon", !(await reachable("anon")).includes("lock_probe"));
+await db.exec(lockSql);
+const probe = await db.query(`SELECT relrowsecurity AS on FROM pg_class WHERE relname = 'lock_probe'`);
+expect("running the lock again closes a table created since", probe.rows[0]?.on === true);
+// Even granted by mistake, a table shows no rows: no policy lets anyone but the owner see one.
+await db.exec(`GRANT SELECT ON vehicles, lock_probe TO anon`);
+try {
+  await db.exec(`SET ROLE anon`);
+  const seen = await db.query(`SELECT (SELECT count(*) FROM vehicles)::int AS v, (SELECT count(*) FROM lock_probe)::int AS p`);
+  expect("a mistaken grant still shows no rows", seen.rows[0].v === 0 && seen.rows[0].p === 0, JSON.stringify(seen.rows[0]));
+} finally {
+  await db.exec(`RESET ROLE; REVOKE ALL ON vehicles, lock_probe FROM anon; DROP TABLE lock_probe`);
+}
+const ownerSees = await db.query(`SELECT count(*)::int AS n FROM vehicles`);
+expect("the site's own connection still sees every row", ownerSees.rows[0].n > 0, `${ownerSees.rows[0].n} vehicles`);
 
 console.log(
   `\n${passed} passed, ${failed} failed.` +

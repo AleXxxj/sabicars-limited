@@ -24,7 +24,7 @@ needing attention, or missing. `npm run check:launch` prints the same list.
    - This is the Supabase project's Postgres. Take both connection strings from Supabase → Connect:
      - the transaction pooler, for `DATABASE_URL`;
      - the session pooler, for `DIRECT_URL`.
-   - Apply the schema: `npm run db:migrate` with those strings.
+   - Apply the schema: `npm run db:migrate` with those strings. Every run also closes every table to Supabase's Data API (`web/src/db/lock.sql`): Row Level Security on with no policies, and no privileges for its `anon` and `authenticated` roles, now or on tables created later. The site reaches the database only through its own connection, which owns the tables and is unaffected. Found open on 23 October 2026 (all 30 tables readable and writable with the project's publishable key) and closed the same day; `/admin/status` shows "Database closed to outside access", and `npm run test:schema` proves the lock against Supabase's own defaults on every build.
 3. **Settings in Vercel** (Project → Settings → Environment Variables → Production). Every one listed on `/admin/status`:
    - Database: `DATABASE_URL`, `DIRECT_URL`
    - Supabase: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`

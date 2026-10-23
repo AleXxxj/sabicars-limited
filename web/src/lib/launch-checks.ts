@@ -223,6 +223,15 @@ async function databaseChecks(): Promise<Check[]> {
     const rows = await db.execute(sql`select count(*)::int as n from drizzle.__drizzle_migrations`);
     const applied = Number((rows as unknown as { n: number }[])[0]?.n ?? 0);
     const expected = journal.entries.length;
+    // Supabase's Data API reaches only tables that grant its two roles, and sees only rows a policy allows (src/db/lock.sql).
+    const lockRows = await db.execute(sql`
+      select
+        (select count(*)::int from pg_class c join pg_namespace n on n.oid = c.relnamespace
+          where n.nspname = 'public' and c.relkind in ('r', 'p') and not c.relrowsecurity) as without_rls,
+        (select count(distinct table_name)::int from information_schema.role_table_grants
+          where table_schema = 'public' and grantee in ('anon', 'authenticated')) as granted`);
+    const lock = (lockRows as unknown as { without_rls: number; granted: number }[])[0] ?? { without_rls: 0, granted: 0 };
+    const closed = Number(lock.without_rls) === 0 && Number(lock.granted) === 0;
     return [
       {
         group: "Settings",
@@ -233,6 +242,15 @@ async function databaseChecks(): Promise<Check[]> {
             ? `Connected; all ${expected} schema updates applied.`
             : `Connected, but ${expected - applied} of ${expected} schema updates are not applied.`,
         fix: applied >= expected ? undefined : "Run npm run db:migrate against this database.",
+      },
+      {
+        group: "Settings",
+        label: "Database closed to outside access",
+        status: closed ? "ok" : "missing",
+        detail: closed
+          ? "Only the site's own server reaches the data; Supabase's public Data API sees no table."
+          : `${Number(lock.without_rls)} tables without Row Level Security, ${Number(lock.granted)} open to Supabase's Data API roles. Anyone with the project's publishable key could read or change them.`,
+        fix: closed ? undefined : "Run npm run db:migrate against this database: it closes every table (src/db/lock.sql).",
       },
     ];
   } catch (e) {
