@@ -1,7 +1,7 @@
 import { db } from "@/db";
 import { settings } from "@/db/schema";
 import { alertManagers } from "@/lib/alerts";
-import { fromScheduler } from "@/lib/cron";
+import { answerInTime, fromScheduler } from "@/lib/cron";
 import { sabicarsDealerId } from "@/lib/leads";
 import { payableCount, reconcileProcessingPayouts } from "@/lib/ledger";
 import { notifyCommissionPaid, notifyPayoutFailed } from "@/lib/ledger-notify";
@@ -20,6 +20,10 @@ import { notifyCommissionPaid, notifyPayoutFailed } from "@/lib/ledger-notify";
  */
 export async function GET(request: Request) {
   if (!fromScheduler(request)) return Response.json({ ok: false }, { status: 401 });
+  return answerInTime("/api/cron/payouts", checkPayouts(), (result) => Response.json({ ok: true, ...result }));
+}
+
+async function checkPayouts(): Promise<{ checked: number; updated: number; payable: number }> {
   const dealerId = await sabicarsDealerId();
   const { checked, updated, settled } = await reconcileProcessingPayouts(dealerId);
   // A transfer that settled here, with no webhook, still tells the partner or the managers.
@@ -51,5 +55,5 @@ export async function GET(request: Request) {
     }
   }
 
-  return Response.json({ ok: true, checked, updated, payable });
+  return { checked, updated, payable };
 }

@@ -1,4 +1,4 @@
-import { fromScheduler } from "@/lib/cron";
+import { answerInTime, fromScheduler } from "@/lib/cron";
 import { remindTodaysViewings } from "@/lib/viewing-reminders";
 
 /**
@@ -8,6 +8,5 @@ import { remindTodaysViewings } from "@/lib/viewing-reminders";
  */
 export async function GET(request: Request) {
   if (!fromScheduler(request)) return Response.json({ ok: false }, { status: 401 });
-  const result = await remindTodaysViewings();
-  return Response.json({ ok: true, ...result });
+  return answerInTime("/api/cron/viewings", remindTodaysViewings(), (result) => Response.json({ ok: true, ...result }));
 }

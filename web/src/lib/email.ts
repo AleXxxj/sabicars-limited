@@ -338,7 +338,7 @@ async function release(rows: OutboxEmail[], forgetBatch: boolean): Promise<void>
  * well inside the job's time limit and anything it did not reach is simply
  * left for the next minute.
  */
-export async function drainOutbox(maxEmails = 1000, budgetMs = 40_000): Promise<{ sent: number; retried: number; failed: number; expired: number }> {
+export async function drainOutbox(maxEmails = 1000, budgetMs = 20_000): Promise<{ sent: number; retried: number; failed: number; expired: number }> {
   const result = { sent: 0, retried: 0, failed: 0, expired: 0 };
   if (!emailConfigured()) return result;
   const started = Date.now();
@@ -396,7 +396,8 @@ export async function drainOutbox(maxEmails = 1000, budgetMs = 40_000): Promise<
             "Idempotency-Key": `outbox-batch-${key}`,
           },
           body: JSON.stringify(rows.map(payload)),
-          signal: AbortSignal.timeout(20_000),
+          // Under the scheduler's 30 seconds with the 20-second budget; a reply this late is retried under the same key.
+          signal: AbortSignal.timeout(10_000),
         });
       } catch (e) {
         networkError = e instanceof Error ? e.message : String(e);

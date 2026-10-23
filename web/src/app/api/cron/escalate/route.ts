@@ -1,5 +1,5 @@
 import { escalateStaleLeads } from "@/lib/alerts";
-import { fromScheduler } from "@/lib/cron";
+import { answerInTime, fromScheduler } from "@/lib/cron";
 
 /**
  * The escalation sweep on a timer, for the quiet stretches when no new
@@ -7,6 +7,5 @@ import { fromScheduler } from "@/lib/cron";
  */
 export async function GET(request: Request) {
   if (!fromScheduler(request)) return Response.json({ ok: false }, { status: 401 });
-  const escalated = await escalateStaleLeads();
-  return Response.json({ ok: true, escalated });
+  return answerInTime("/api/cron/escalate", escalateStaleLeads(), (escalated) => Response.json({ ok: true, escalated }));
 }
