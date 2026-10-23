@@ -112,6 +112,17 @@ jobs:
                 echo "Up, running ${version:-an unknown version}."
                 exit 0
               fi
+              # A later push can be deployed before this one is seen (a docs-only push starts no walkthrough
+              # of its own). If what the site serves already contains this commit, walking it walks this code.
+              if [ -n "$version" ] && [ "$version" != "unknown" ]; then
+                relation=$(curl -sS --max-time 20 -H "Authorization: Bearer $GH_TOKEN" \
+                  "https://api.github.com/repos/${{ github.repository }}/compare/${DEPLOY_SHA}...${version}" \
+                  | jq -r '.status // ""' || true)
+                if [ "$relation" = "ahead" ]; then
+                  echo "Up, running $version, a later commit that includes ${DEPLOY_SHA:0:7}."
+                  exit 0
+                fi
+              fi
             fi
             if [ "$code" = "401" ] || [ "$code" = "403" ]; then
               echo "::error::$BASE_URL answers HTTP $code: the address is behind Vercel's deployment protection. Walk the public address instead (repository variable SMOKE_BASE_URL)."
