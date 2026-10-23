@@ -1,7 +1,8 @@
 import { after } from "next/server";
 import { applyTransferEvent } from "@/lib/ledger";
 import { notifyCommissionPaid, notifyPayoutFailed } from "@/lib/ledger-notify";
-import { verifyWebhookSignature, type TransferStatus } from "@/lib/paystack";
+import { TRANSFER_STATUSES, type TransferStatus } from "@/lib/ledger-rules";
+import { verifyWebhookSignature } from "@/lib/paystack";
 
 /**
  * Paystack's webhook: how a transfer's outcome reaches the ledger when the
@@ -17,8 +18,6 @@ import { verifyWebhookSignature, type TransferStatus } from "@/lib/paystack";
 
 export const dynamic = "force-dynamic";
 
-const TRANSFER_STATUSES: readonly TransferStatus[] = ["pending", "otp", "success", "failed", "reversed", "abandoned"];
-
 interface TransferData {
   reference?: unknown;
   status?: unknown;
@@ -32,6 +31,8 @@ function statusOf(event: string, data: TransferData): TransferStatus | null {
   if (event === "transfer.success") return "success";
   if (event === "transfer.failed") return "failed";
   if (event === "transfer.reversed") return "reversed";
+  // Not in Paystack's list of events, but reported in the wild after an approval check refused a transfer.
+  if (event === "transfer.rejected") return "rejected";
   const given = typeof data.status === "string" ? data.status : "";
   return (TRANSFER_STATUSES as readonly string[]).includes(given) ? (given as TransferStatus) : null;
 }

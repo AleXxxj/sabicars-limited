@@ -7,7 +7,22 @@
  * Run: npm run test:ledger
  */
 
-import { COOLING_OFF_HOURS, commissionFor, isPayable, maskAccount, nameMatches, payoutReference, PAYOUT_REFERENCE, transferFeeMinor } from "../src/lib/ledger-rules";
+import {
+  approvalDecision,
+  COOLING_OFF_HOURS,
+  commissionFor,
+  failureSentenceFor,
+  isPayable,
+  maskAccount,
+  nameMatches,
+  payoutReference,
+  PAYOUT_REFERENCE,
+  payoutStatusFor,
+  shapeOf,
+  transferFeeMinor,
+  transfersInApproval,
+  type LedgerPayout,
+} from "../src/lib/ledger-rules";
 import { formatNaira } from "../src/lib/money";
 
 let passed = 0;
@@ -73,6 +88,41 @@ throws("a short id cannot form one", () => payoutReference("abc", "def"));
 
 console.log("\nWhat others see of an account");
 eq("only the last four digits", maskAccount("0123456789"), "••••••6789");
+
+console.log("\nWhat Paystack's word means for a payout");
+eq("success is paid", payoutStatusFor("success"), "paid");
+eq("received (waiting on the approval check) is still with the bank", payoutStatusFor("received"), "processing");
+eq("pending is still with the bank", payoutStatusFor("pending"), "processing");
+eq("rejected by the approval check is failed, so it can be paid again", payoutStatusFor("rejected"), "failed");
+eq("blocked (the check did not answer) is failed", payoutStatusFor("blocked"), "failed");
+eq("abandoned is failed", payoutStatusFor("abandoned"), "failed");
+eq("reversed is reversed", payoutStatusFor("reversed"), "reversed");
+eq("a blocked transfer says what to do", failureSentenceFor("blocked").includes("Pay it again"), true);
+
+console.log("\nPaystack's approval check: only transfers this site started");
+const REF = "scp_1f36aad5_c22b5d99";
+const ledger = new Map<string, LedgerPayout>([[REF, { status: "pending", amountMinor: 57_000_000, recipientCode: "RCP_partner123" }]]);
+const decide = (body: unknown) => approvalDecision(transfersInApproval(body), ledger);
+eq("the flat initiate payload is approved", decide({ source: "balance", amount: 57_000_000, recipient: "RCP_partner123", reference: REF, currency: "NGN" }).approve, true);
+eq("…and the same wrapped in data", decide({ event: "transfer.approval", data: { amount: 57_000_000, reference: REF, recipient: { recipient_code: "RCP_partner123" } } }).approve, true);
+eq("…and with the amount as a string", decide({ amount: "57000000", reference: REF }).approve, true);
+eq("…and as a one-item batch", decide({ transfers: [{ amount: 57_000_000, reference: REF, recipient: "RCP_partner123" }] }).approve, true);
+eq("…and with the recipient as Paystack's numeric id, which is not compared", decide({ amount: 57_000_000, reference: REF, recipient: 56824902 }).approve, true);
+eq("…and once it is with the bank", approvalDecision(transfersInApproval({ reference: REF }), new Map([[REF, { ...ledger.get(REF)!, status: "processing" }]])).approve, true);
+eq("a transfer with someone else's reference is refused", decide({ amount: 57_000_000, reference: "trf_stolen_key_001", recipient: "RCP_thief" }).approve, false);
+eq("a body with no reference at all is refused", decide({ amount: 57_000_000 }).approve, false);
+eq("garbage is refused", decide(null).approve, false);
+eq("a reference in our shape the ledger never made is refused", decide({ reference: "scp_00000000_00000000" }).approve, false);
+eq("a different amount is refused", decide({ amount: 99_000_000, reference: REF }).approve, false);
+eq("a different recipient is refused", decide({ amount: 57_000_000, reference: REF, recipient: "RCP_thief" }).approve, false);
+eq("another currency is refused", decide({ amount: 57_000_000, reference: REF, currency: "USD" }).approve, false);
+eq("a batch that slips in a foreign transfer is refused", decide({ transfers: [{ reference: REF, amount: 57_000_000 }, { reference: "thief_ref_0001", amount: 1 }] }).approve, false);
+eq("a payout already paid is refused", approvalDecision(transfersInApproval({ reference: REF }), new Map([[REF, { ...ledger.get(REF)!, status: "paid" }]])).approve, false);
+const refusal = decide({ reference: "trf_stolen_key_001" });
+eq("a refusal says why", !refusal.approve && refusal.reason.includes("no payout reference this site made"), true);
+const mixed = decide({ transfers: [{ reference: REF, amount: 57_000_000 }, { reference: "thief_ref_0001", amount: 1 }] });
+eq("…and names a transfer slipped into a batch", !mixed.approve && mixed.reason.includes("did not start"), true);
+eq("the kept outline has keys and types, never values", JSON.stringify(shapeOf({ reference: REF, amount: 5, recipient: { name: "Ada" } })), JSON.stringify({ reference: "string", amount: "number", recipient: { name: "string" } }));
 
 console.log(`\n${passed} passed, ${failed} failed.` + (failed ? "  \x1b[31mLEDGER NOT VERIFIED\x1b[0m\n" : "  \x1b[32mLedger verified.\x1b[0m\n"));
 process.exit(failed ? 1 : 0);

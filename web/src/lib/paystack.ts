@@ -1,5 +1,6 @@
 import "server-only";
 import { createHmac, timingSafeEqual } from "node:crypto";
+import type { TransferStatus } from "@/lib/ledger-rules";
 
 /**
  * Paystack, for paying partners: the bank list, "resolve account" (the name
@@ -123,7 +124,7 @@ export async function createRecipient(input: { name: string; accountNumber: stri
   return { recipientCode: data.recipient_code };
 }
 
-export type TransferStatus = "pending" | "otp" | "success" | "failed" | "reversed" | "abandoned";
+export type { TransferStatus };
 
 /**
  * Sends money from Sabicars' Paystack balance. `reference` is ours and

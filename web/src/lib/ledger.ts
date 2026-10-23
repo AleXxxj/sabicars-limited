@@ -5,7 +5,7 @@ import { db } from "@/db";
 import { commissions, leads, partners, payouts, staff, vehicles, type Commission, type Partner, type Payout } from "@/db/schema";
 import { audit } from "@/lib/audit";
 import { can, type StaffMember } from "@/lib/auth";
-import { commissionFor, isPayable, maskAccount, nameMatches, payoutReference, transferFeeMinor } from "@/lib/ledger-rules";
+import { commissionFor, failureSentenceFor, isPayable, maskAccount, nameMatches, payoutReference, payoutStatusFor, transferFeeMinor } from "@/lib/ledger-rules";
 import { balanceMinor, createRecipient, initiateTransfer, paystackConfigured, PayoutError, resolveAccount, verifyTransfer, type TransferStatus } from "@/lib/paystack";
 import { vehicleTitle } from "@/lib/vehicle";
 
@@ -829,8 +829,7 @@ export async function applyTransferEvent(input: { reference: string; status: Tra
   const unchanged = { outcome: "unchanged" as const, payoutStatus: row.status, payoutId: row.id, commissionId: row.commissionId };
   if (input.transferCode && row.transferCode && input.transferCode !== row.transferCode) return unchanged;
   const now = new Date();
-  const next: Payout["status"] =
-    input.status === "success" ? "paid" : input.status === "failed" || input.status === "abandoned" ? "failed" : input.status === "reversed" ? "reversed" : "processing";
+  const next: Payout["status"] = payoutStatusFor(input.status);
   // Returned money is final: a late or replayed "success" cannot close the commission again.
   if (row.status === "reversed") return unchanged;
   if (row.status === "paid" && next !== "reversed") return unchanged;
@@ -842,7 +841,7 @@ export async function applyTransferEvent(input: { reference: string; status: Tra
       .set({
         status: next,
         transferCode: input.transferCode ?? row.transferCode,
-        failureReason: next === "failed" || next === "reversed" ? (input.reason ?? row.failureReason ?? "Paystack reported the transfer as not completed.") : row.failureReason,
+        failureReason: next === "failed" || next === "reversed" ? (input.reason ?? row.failureReason ?? failureSentenceFor(input.status)) : row.failureReason,
         paidAt: next === "paid" ? (row.paidAt ?? now) : row.paidAt,
         updatedAt: now,
       })
