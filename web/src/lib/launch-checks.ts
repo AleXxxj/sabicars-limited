@@ -438,7 +438,7 @@ export async function launchChecks(base: string): Promise<Check[]> {
       "Scheduled jobs",
       ["CRON_SECRET"],
       "The email outbox, escalation, viewing reminders, the Friday digest, the daily payouts check and the weekly backup can run.",
-      "Add a long random CRON_SECRET, and point a scheduler at /api/cron/outbox (every minute), /api/cron/escalate (every 5 minutes), /api/cron/viewings (daily 06:30 UTC), /api/cron/digest (Fridays), /api/cron/payouts (daily 06:00 UTC) and /api/cron/backup (Sundays 02:00 UTC). Paystack's webhook, /api/payments/paystack/webhook, needs no scheduler: set the URL in the Paystack dashboard. Also point a free uptime monitor (UptimeRobot or cron-job.org) at /api/health every minute, to email the owner and the developer whenever it does not answer 200 — nothing inside the site can check that for itself.",
+      "Add a long random CRON_SECRET, and point a scheduler at /api/cron/outbox (every minute), /api/cron/escalate (every 5 minutes), /api/cron/viewings (daily 06:30 UTC), /api/cron/digest (Fridays), /api/cron/payouts (daily 06:00 UTC) and /api/cron/backup (Sundays 02:00 UTC). Paystack's webhook, /api/payments/paystack/webhook, needs no scheduler: set the URL in the Paystack dashboard. Also point a free uptime monitor (UptimeRobot, every 5 minutes on its free plan) at /api/health, to alert the owner and the developer whenever it does not answer 200 — nothing inside the site can check that for itself.",
     ),
     setting(
       "Email",
