@@ -69,9 +69,8 @@ jobs:
       CRON_SECRET: e2e
       NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-      E2E_STAFF_EMAIL: ${{ secrets.E2E_STAFF_EMAIL }}
-      E2E_STAFF_PASSWORD: ${{ secrets.E2E_STAFF_PASSWORD }}
+      # The service key and the test staff password are given only to the one step that needs each,
+      # never to the whole job: npm ci runs other people's install scripts, and the repository is public.
     steps:
       - uses: actions/checkout@v7
 
@@ -94,6 +93,9 @@ jobs:
       - name: Seed the throwaway database
         # The test cars, then the real articles and published answers from the repository, so the
         # walkthrough opens an article (with its live illustrations) and an answer instead of skipping them.
+        env:
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          E2E_STAFF_EMAIL: ${{ secrets.E2E_STAFF_EMAIL }}
         run: |
           node --import tsx scripts/seed-e2e.mts
           node --import tsx scripts/seed-articles.mts
@@ -134,9 +136,13 @@ jobs:
           exit 1
 
       - name: Drive the money paths
+        # The staff sign-in happens in Node (e2e/helpers.ts signInAsStaff), so the password is never typed
+        # into a page whose trace the failure artifact below would publish, and the session is revoked at the end.
         run: npm run test:e2e
         env:
           E2E_BASE_URL: http://localhost:3000
+          E2E_STAFF_EMAIL: ${{ secrets.E2E_STAFF_EMAIL }}
+          E2E_STAFF_PASSWORD: ${{ secrets.E2E_STAFF_PASSWORD }}
 
       - name: Walk the site as a buyer and as staff
         # Runs even when a money path failed, so one run tells the whole story.

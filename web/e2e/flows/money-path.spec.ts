@@ -1,5 +1,17 @@
 import { expect, test } from "@playwright/test";
-import { E2E, assertNoFaults, db, lagosLongDate, lagosToday, signInAsStaff, staffCredentials, waitUntilFormLooksHuman, watchForFaults, type Db } from "../helpers";
+import {
+  E2E,
+  assertNoFaults,
+  db,
+  lagosLongDate,
+  lagosToday,
+  signInAsStaff,
+  signOutStaff,
+  staffCredentials,
+  waitUntilFormLooksHuman,
+  watchForFaults,
+  type Db,
+} from "../helpers";
 
 /**
  * The money path, end to end, against the throwaway database that
@@ -75,6 +87,7 @@ test.beforeAll(async ({ playwright }) => {
 });
 
 test.afterAll(async () => {
+  await signOutStaff();
   if (!sql) return;
   if (vehicleId) await removeEverythingThisSuiteCreates();
   await sql.end();

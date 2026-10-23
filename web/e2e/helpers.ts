@@ -1,6 +1,8 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { expect, type Locator, type Page, type Response } from "@playwright/test";
+import { expect, test, type Locator, type Page, type Response } from "@playwright/test";
+import { createServerClient } from "@supabase/ssr";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import postgres from "postgres";
 
 export { E2E, E2E_NAME_PREFIX, E2E_PHONES, E2E_SLUG_PREFIX, E2E_VEHICLES } from "./fixtures";
@@ -137,15 +139,53 @@ export async function openFirstVehicle(page: Page): Promise<{ title: string; slu
   return { title, slug };
 }
 
-/** Signs in on the real admin form (src/app/admin/login/LoginForm.tsx): the inputs are named email and password and sit inside their labels. */
+let staffSession: SupabaseClient | null = null;
+
+/**
+ * Signs the page in as the test member of staff without typing the password
+ * into it.
+ *
+ * The repository is public, and a failed run uploads its report and traces,
+ * which record everything typed into a page and every request the browser
+ * makes. So the password is used here, in Node, through the same Supabase
+ * library and cookie format the site itself uses (src/lib/supabase/server.ts),
+ * and only the resulting session reaches the browser. A trace can still hold
+ * that session, so `signOutStaff` revokes it when the suite ends: a copy in a
+ * downloaded report is already dead. The form itself is covered by
+ * e2e/flows/sign-in.spec.ts, with a wrong password.
+ */
 export async function signInAsStaff(page: Page): Promise<void> {
   const creds = staffCredentials();
   if (!creds) throw new Error("E2E_STAFF_EMAIL and E2E_STAFF_PASSWORD are not set");
-  await page.goto("/admin/login");
-  await expect(page.getByRole("heading", { name: "Staff sign in" }), "the sign-in page did not open").toBeVisible();
-  await page.locator('input[name="email"]').fill(creds.email);
-  await page.locator('input[name="password"]').fill(creds.password);
-  await page.getByRole("button", { name: /^sign in$/i }).click();
-  await page.waitForURL((url) => url.pathname.startsWith("/admin") && !url.pathname.startsWith("/admin/login"), { timeout: 30_000 });
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) throw new Error("NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are not set");
+  const jar = new Map<string, string>();
+  const supabase = createServerClient(url, key, {
+    cookies: {
+      getAll: () => [...jar].map(([name, value]) => ({ name, value })),
+      setAll: (toSet) => {
+        for (const { name, value } of toSet) {
+          if (value) jar.set(name, value);
+          else jar.delete(name);
+        }
+      },
+    },
+  });
+  const { error } = await supabase.auth.signInWithPassword(creds);
+  if (error) throw new Error(`Supabase refused the test staff sign-in: ${error.message}`);
+  staffSession = supabase;
+  const base = test.info().project.use.baseURL ?? "http://localhost:3000";
+  await page.context().addCookies([...jar].map(([name, value]) => ({ name, value, url: base })));
+  await page.goto("/admin");
+  await page.waitForURL((u) => u.pathname.startsWith("/admin") && !u.pathname.startsWith("/admin/login"), { timeout: 30_000 });
   await expect(page.getByRole("button", { name: "Sign out" }), "signed in, but the admin shows no Sign out button").toBeVisible();
+}
+
+/** Ends the test staff member's sessions everywhere, so one copied from a public report no longer works. */
+export async function signOutStaff(): Promise<void> {
+  if (!staffSession) return;
+  const { error } = await staffSession.auth.signOut({ scope: "global" });
+  if (error) console.warn(`Could not revoke the test staff session: ${error.message}`);
+  staffSession = null;
 }
