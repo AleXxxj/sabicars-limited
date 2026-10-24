@@ -65,7 +65,7 @@ export async function* devReply(message: string, stock: VehicleWithCover[], page
     const shown = pick(mentioned.length ? mentioned : pageVehicle && !body && !cap ? [pageVehicle] : pool);
     reply = shown.length
       ? `Here ${shown.length === 1 ? "is one" : `are ${shown.length}`} worth a look${cap ? ` within ${formatNaira(cap)}` : ""}.\n\n[[cars: ${shown.map((v) => v.slug).join(", ")}]]\n\n${shown.map((v) => `**${vehicleTitle(v)}** — ${v.priceMinor ? formatNaira(v.priceMinor) : "price on request"}.`).join("\n")}\n\n(Development stand-in — add ANTHROPIC_API_KEY for the real assistant.)`
-      : "Nothing in the showroom matches that today. The [Sourcing Desk](/find) can look for one for you.";
+      : "Nothing in the showroom matches that today. [Request a car](/find) and we can look for one for you.";
   }
 
   // Released a few characters at a time, the way a real reply streams in.

@@ -143,7 +143,7 @@ export async function notifyPartnerWelcome(partnerId: string): Promise<void> {
       headline: `Your code is ${p.code}`,
       lines: [
         linkIn("Share your link with anyone looking for a car: ", share, share, ""),
-        "You earn 1.5% of what a car sells for when a buyer you sent completes a purchase, paid after a cooling-off of a day or two into a bank account in your own name.",
+        "You earn 1.5% of what a car sells for when a buyer you sent completes a purchase, paid once the sale is final, after a wait of a day or two, into a bank account in your own name.",
         "Joining is free, and you never earn from signing up other partners: only from buyers you bring.",
         linkIn("Your partner page shows every enquiry and commission, and is where you register the account you are paid into. It is private to you, so keep the link to yourself: ", page, page, ""),
       ],

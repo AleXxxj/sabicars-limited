@@ -92,7 +92,7 @@ export const bestSuvsForNigerianRoads = {
     },
     {
       type: "p",
-      text: "It is also the most demanding of the five to own. Repairs are costly and specialist, so buy only after a thorough inspection, with a trusted Land Rover mechanic on call. If there is none in the showroom when you read this, the [Sourcing Desk](/find?want=Range%20Rover%20Sport) can look for one.",
+      text: "It is also the most demanding of the five to own. Repairs are costly and specialist, so buy only after a thorough inspection, with a trusted Land Rover mechanic on call. If there is none in the showroom when you read this, [request one](/find?want=Range%20Rover%20Sport) and we can look for it.",
     },
 
     { type: "h2", text: "All five, side by side" },

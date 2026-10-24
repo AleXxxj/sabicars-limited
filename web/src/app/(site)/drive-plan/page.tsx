@@ -28,7 +28,7 @@ const STEPS = [
   {
     icon: CarFront,
     title: "Choose your vehicle",
-    text: `In the showroom or online. Every price shows the deposit for that car — 40% for a car from ${standardYear}, 50% for ${olderYears} — and what Autochek finances.`,
+    text: `In the showroom or online. Each car shows its deposit: 40% for a car from ${standardYear} or newer, 50% for a ${olderYears} car. It also shows what the loan covers.`,
   },
   {
     icon: FileSignature,
@@ -43,15 +43,15 @@ const STEPS = [
   {
     icon: KeyRound,
     title: "Pay your deposit and drive",
-    text: "Once approved, you pay the deposit, take the keys, and repay the balance to Autochek in monthly instalments.",
+    text: "Once approved, you pay the deposit and take the keys. Then you repay the rest through Autochek in monthly instalments.",
   },
 ];
 
 /** What Autochek asks of the car. */
 const CAR_RULES: [string, string][] = [
-  [`${standardYear} or newer`, "40% down. Autochek finances 60%."],
-  [olderYears, "50% down. Autochek finances 50%."],
-  [`${minYear - 1} or older`, "Not financed. These are cash purchases."],
+  [`${standardYear} or newer`, "40% down. A loan covers 60%."],
+  [olderYears, "50% down. A loan covers 50%."],
+  [`${minYear - 1} or older`, "No loan. You pay the full price."],
 ];
 
 /** What Autochek asks of the buyer. */
@@ -71,8 +71,8 @@ const QUESTIONS: [string, string][] = [
     "As soon as Autochek’s lender approves the financing and your deposit is paid. The car leaves the showroom with you then — it does not leave before approval.",
   ],
   [
-    "Who finances the balance?",
-    "Autochek’s lending partners, through Autochek, Sabicars’ financing partner. The balance is their facility, on their terms — Sabicars does not lend.",
+    "Who lends the rest of the price?",
+    "Lenders who work with Autochek, our finance partner. The loan for the rest of the price is theirs, on their terms. Sabicars does not lend money.",
   ],
   [
     "What is the interest rate?",
@@ -80,7 +80,7 @@ const QUESTIONS: [string, string][] = [
   ],
   [
     "Why is the deposit 50% on some cars?",
-    `Autochek’s lenders ask for 50% on a ${olderYears} car and 40% on anything from ${standardYear}. Cars older than ${minYear} are not financed at all, so those are cash purchases — the finder above only shows cars that can go on the plan.`,
+    `Autochek’s lenders ask for 50% on a ${olderYears} car and 40% on anything from ${standardYear}. Cars older than ${minYear} cannot get a loan, so you pay for them in full. The finder above only shows cars that can go on the plan.`,
   ],
   [
     "I don’t have a registered business. Can I still apply?",
@@ -90,13 +90,13 @@ const QUESTIONS: [string, string][] = [
     "Are there fees?",
     `Autochek charges a processing fee (its published example is ${formatNaira(published.processingFeeMinor)}), credited against your final payment if the loan goes through. The monthly repayment on the car’s Autochek listing includes ${MONTHLY_INCLUDES}; the estimates on this site are the loan alone.`,
   ],
-  ["Can I put down more than the minimum?", `Yes, up to ${maxDepositBps / 100}% of the price. A bigger deposit means a smaller balance and smaller repayments.`],
+  ["Can I put down more than the minimum?", `Yes, up to ${maxDepositBps / 100}% of the price. Pay more now and you borrow less, so each monthly payment is smaller.`],
   [
     "Can I find Sabicars cars on Autochek?",
-    "Yes. Sabicars’ stock is also listed on its Autochek dealer store. Wherever you find the car, the loan is assessed and approved through Autochek.",
+    "Yes. Sabicars’ stock is also listed on its Autochek dealer store. Wherever you find the car, Autochek’s lenders check and approve the loan.",
   ],
   ["What if the car I want is not on Autochek?", "Press “Apply for the Drive Plan” on its page. Sabicars lists it on its Autochek store and sends you the link."],
-  ["Can I pay the full price instead?", "Yes. Every vehicle can be bought outright, and the finder above shows which ones your amount already covers."],
+  ["Can I pay the full price instead?", "Yes. You can pay the full price for any vehicle. The finder above shows which ones your amount already covers."],
   ["Can I see the car before I apply?", "Please do. Walk in, inspect it, and apply once you are sure — the application is about the car you have chosen."],
 ];
 
@@ -127,10 +127,10 @@ export default async function DrivePlanPage() {
 
   return (
     <>
-      <PageIntro eyebrow="The 40% Drive Plan" title="Pay 40%. Autochek finances the rest." imageUrl={example?.cover?.url ?? null}>
+      <PageIntro eyebrow="The 40% Drive Plan" title="Pay 40% down. Pay the rest monthly." imageUrl={example?.cover?.url ?? null}>
         <p>
-          Choose any car from {standardYear}, put down 40% of the price, and Autochek — Sabicars’ financing partner — finances the remaining 60%.
-          On a {olderYears} car the deposit is 50%.
+          Choose a car from {standardYear} or newer and pay 40% of the price. A loan through Autochek, our finance partner, covers the other 60%
+          if its lender approves you. You repay it monthly. For a {olderYears} car, you pay 50%.
         </p>
       </PageIntro>
 
@@ -196,7 +196,7 @@ export default async function DrivePlanPage() {
                       <dd className="figures mt-1 font-semibold">{drivePlanBalance(example)}</dd>
                       {exampleMonthly && (
                         <dd className="figures mt-1 text-xs text-text-muted">
-                          est. {exampleMonthly} a month over {DEFAULT_ESTIMATE_MONTHS} months
+                          est. {exampleMonthly} a month for {DEFAULT_ESTIMATE_MONTHS} months
                         </dd>
                       )}
                     </div>
@@ -285,11 +285,11 @@ export default async function DrivePlanPage() {
             <p className="kicker">Questions first?</p>
             <h2 className="mt-4 text-display-2">Ask before you apply.</h2>
             <p className="mt-5 text-lg leading-relaxed text-text-secondary">
-              Applications start from the vehicle you choose — use the finder above, or{" "}
+              Every application starts from one car. Find it with the finder above or in the{" "}
               <Link href="/vehicles" className="text-green-300 underline-offset-4 hover:underline">
-                browse the inventory
+                cars for sale
               </Link>
-              , then press “Apply” on its page. Anything you want to know first, ask here: it is recorded with a reference.
+              , then press “Apply” on its page. Ask here and you get a reference number.
             </p>
           </ScrollReveal>
           <ContactForm

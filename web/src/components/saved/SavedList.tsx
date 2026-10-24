@@ -36,9 +36,9 @@ export function SavedList() {
           <Heart aria-hidden size={24} />
         </span>
         <p className="mt-5 text-lg font-semibold text-text-primary">No saved cars yet.</p>
-        <p className="mt-2 text-text-secondary">Tap the heart on any car to keep it here, then ask to be told if its price drops.</p>
+        <p className="mt-2 text-text-secondary">Cars you save will show here.</p>
         <ButtonLink href="/vehicles" className="mt-6">
-          Browse cars
+          See cars for sale
         </ButtonLink>
       </div>
     );

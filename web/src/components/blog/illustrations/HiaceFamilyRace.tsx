@@ -452,7 +452,7 @@ function FamilyFacts({ stock }: { stock: FamilyStock }) {
                   href={`/find?want=${encodeURIComponent(`Toyota Hiace — ${m.name}`)}`}
                   className="group mt-2.5 inline-flex min-h-9 items-center gap-1.5 text-xs font-semibold text-text-muted hover:text-green-200"
                 >
-                  None in today — ask the Sourcing Desk
+                  None in today — request it
                   <ArrowRight aria-hidden size={13} className="transition-transform group-hover:translate-x-1" />
                 </Link>
               )}

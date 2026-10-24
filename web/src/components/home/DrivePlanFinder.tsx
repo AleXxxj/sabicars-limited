@@ -38,7 +38,7 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
 
   // `vehicles` is cheapest first, so the last few within reach are the most car for the money.
   const within = vehicles.filter((v) => v.depositMinor <= budgetMinor);
-  const outright = vehicles.filter((v) => v.priceMinor <= budgetMinor).length;
+  const inFull = vehicles.filter((v) => v.priceMinor <= budgetMinor).length;
   const picks = within.slice(-4).reverse();
   const reachNaira = Math.floor(reachMinorFor(budgetMinor) / 100);
   const cheapest = vehicles.reduce<FinderVehicle | null>((best, v) => (best === null || v.depositMinor < best.depositMinor ? v : best), null);
@@ -102,13 +102,14 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
               </span>
             </p>
             <p className="mt-4 text-sm leading-relaxed text-text-secondary">
-              Up to <span className="figures text-text-primary">{formatNaira(reachNaira * 100)}</span> for a car from {DRIVE_PLAN.standardYear}.{" "}
-              {outright > 0 ? (
+              On a car from {DRIVE_PLAN.standardYear} or newer, that is enough for a price of up to{" "}
+              <span className="figures text-text-primary">{formatNaira(reachNaira * 100)}</span>.{" "}
+              {inFull > 0 ? (
                 <>
-                  <span className="figures">{outright}</span> of them you could buy outright.
+                  <span className="figures">{inFull}</span> of them you could pay for in full.
                 </>
               ) : (
-                "Here is the most car your deposit reaches:"
+                "The most expensive cars you can get with this deposit:"
               )}
             </p>
 
@@ -135,7 +136,7 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
                       </p>
                       {monthly !== null && (
                         <p className="figures truncate text-xs text-text-muted">
-                          est. {formatNaira(monthly)}/mo over {DEFAULT_ESTIMATE_MONTHS} months
+                          est. {formatNaira(monthly)} a month for {DEFAULT_ESTIMATE_MONTHS} months
                         </p>
                       )}
                     </Link>
@@ -152,7 +153,7 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
                 </Link>
               )}
               <Link href="/find" className="inline-flex min-h-11 items-center text-sm text-text-secondary hover:text-text-primary">
-                Not what you want? Tell the Sourcing Desk →
+                Not what you want? Request a car →
               </Link>
             </div>
           </>
@@ -171,7 +172,7 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
               </p>
             )}
             <Link href="/find" className="group mt-8 inline-flex min-h-11 items-center gap-2 font-semibold text-green-300 hover:text-green-200">
-              Or tell the Sourcing Desk what you want <ArrowRight aria-hidden size={17} className="transition-transform group-hover:translate-x-1" />
+              Or request the car you want <ArrowRight aria-hidden size={17} className="transition-transform group-hover:translate-x-1" />
             </Link>
           </div>
         )}

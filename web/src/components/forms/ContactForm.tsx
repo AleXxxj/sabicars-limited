@@ -8,7 +8,7 @@ import { Confirmation, FieldError, fieldClass, Label, PrivacyLink, SpamGuard } f
 const TOPICS: { value: "buying" | "drive_plan" | "fleet" | "general"; label: string }[] = [
   { value: "buying", label: "Buying a vehicle" },
   { value: "drive_plan", label: "The 40% Drive Plan" },
-  { value: "fleet", label: "Fleet or bulk supply" },
+  { value: "fleet", label: "Buying in bulk (2 or more vehicles)" },
   { value: "general", label: "Something else" },
 ];
 

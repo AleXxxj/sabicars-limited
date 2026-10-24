@@ -168,9 +168,9 @@ export async function categoryTiles(): Promise<CategoryTile[]> {
   const dealerId = await sabicarsId();
   const isHummer = sql`${vehicles.model} ~* 'hum+er'`;
   const defs: { key: CategoryTile["key"]; label: string; href: string; where: SQL; prefer?: SQL }[] = [
-    { key: "cars", label: "Cars", href: "/vehicles?body=car", where: inArray(vehicles.body, [...CAR_BODIES]) },
+    { key: "cars", label: "Saloon cars", href: "/vehicles?body=car", where: inArray(vehicles.body, [...CAR_BODIES]) },
     { key: "suvs", label: "SUVs", href: "/vehicles?body=suv", where: eq(vehicles.body, "suv") },
-    { key: "buses", label: "Buses & Hummer", href: "/vehicles?body=bus", where: eq(vehicles.body, "bus"), prefer: isHummer },
+    { key: "buses", label: "Buses", href: "/vehicles?body=bus", where: eq(vehicles.body, "bus"), prefer: isHummer },
     { key: "trucks", label: "Trucks", href: "/vehicles?body=truck", where: eq(vehicles.body, "truck") },
   ];
   const candidates = await Promise.all(

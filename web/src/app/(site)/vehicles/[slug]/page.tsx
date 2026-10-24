@@ -94,7 +94,7 @@ export default async function VehiclePage({ params }: Props) {
   const makeTerm = termFor(v.make, null);
   const familyTerm = termFor(v.make, modelFamily(v.make, v.model));
   const trail = [
-    { name: "Inventory", path: "/vehicles" },
+    { name: "Cars for sale", path: "/vehicles" },
     { name: v.make, path: termHref(makeTerm.slug) },
     { name: familyTerm.family!, path: termHref(familyTerm.slug) },
     { name: title, path: `/vehicles/${v.slug}` },
@@ -110,7 +110,7 @@ export default async function VehiclePage({ params }: Props) {
   // A car Sabicars lists but holds elsewhere (a partner's or an owner's): viewed and inspected on
   // request, never under the Sabicars Verified seal, and never "see it at the showroom".
   const offsite = v.heldOffsite;
-  const offsiteNotice = "Not at the Sabicars showroom. Viewing and an inspection by the Sabicars team are arranged on request; this car does not carry the Sabicars Verified seal.";
+  const offsiteNotice = "This car is not at our showroom. Ask us, and we will arrange for you to see it and for our team to inspect it. It does not have the Sabicars Verified seal.";
   const [similar, live, taken] = await Promise.all([similarVehicles(v), liveReportFor(v.id), sold ? Promise.resolve({}) : bookedSlots(v.dealerId)]);
 
   return (
@@ -165,6 +165,24 @@ export default async function VehiclePage({ params }: Props) {
               <p className="figures mt-2 text-[2rem] font-semibold leading-none tracking-tight">{priceLabel(v)}</p>
             </div>
 
+            {/* The next step straight after the price, so it is on the first screen of a laptop too. */}
+            <div className="mt-6 flex flex-col gap-3">
+              {sold ? (
+                <ButtonLink href="#similar" size="lg">
+                  See similar vehicles
+                </ButtonLink>
+              ) : (
+                <>
+                  <ButtonLink href="#enquire" size="lg">
+                    Enquire about this vehicle
+                  </ButtonLink>
+                  <ButtonLink href="#book-viewing" size="lg" variant="secondary">
+                    Book a viewing
+                  </ButtonLink>
+                </>
+              )}
+            </div>
+
             {offsite && (
               <p className="mt-4 text-sm leading-relaxed text-text-muted">
                 {offsiteNotice}
@@ -193,18 +211,26 @@ export default async function VehiclePage({ params }: Props) {
                     <dd className="figures mt-1 text-lg font-semibold text-accent-text">{deposit}</dd>
                   </div>
                   <div>
-                    <dt className="text-xs text-text-muted">{terms.financedPercent}%, financed by Autochek</dt>
+                    <dt className="text-xs text-text-muted">{terms.financedPercent}%, paid by a loan through Autochek</dt>
                     <dd className="figures mt-1 text-lg font-semibold">{balance}</dd>
                   </div>
                 </dl>
-                {balanceMinor !== null && (
-                  <div className="mt-5 border-t border-white/[0.06] pt-5">
-                    <RepaymentEstimate balanceMinor={balanceMinor} />
-                  </div>
-                )}
-                <p className="mt-4 text-xs text-text-muted">
-                  Once approved, you pay the {terms.depositPercent}% and drive it home. Autochek’s lender assesses you and sets the rate and term.
-                </p>
+                {/* Folded away, so the deposit and the apply button stay close together; one tap opens it. */}
+                <details className="group mt-5 border-t border-white/[0.06] pt-3 [&_summary::-webkit-details-marker]:hidden">
+                  <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-text-primary">
+                    Monthly estimate
+                    <span aria-hidden className="text-green-300 transition-transform group-open:rotate-45">+</span>
+                  </summary>
+                  {balanceMinor !== null && (
+                    <div className="mt-3">
+                      <RepaymentEstimate balanceMinor={balanceMinor} />
+                    </div>
+                  )}
+                  <p className="mt-4 text-xs text-text-muted">
+                    Autochek’s lender checks your details and sets your rate and how many months you repay. Once approved, you pay the{" "}
+                    {terms.depositPercent}% and drive it home.
+                  </p>
+                </details>
                 <DrivePlanApply vehicleId={v.id} autochekUrl={v.autochekUrl} financedPercent={terms.financedPercent} />
                 <Link href="/drive-plan" className="group mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-green-300 hover:text-green-200">
                   How the Drive Plan works <ArrowRight aria-hidden size={16} className="transition-transform group-hover:translate-x-1" />
@@ -214,31 +240,14 @@ export default async function VehiclePage({ params }: Props) {
             {/* Autochek's lenders do not finance cars this old: say so, rather than leave a buyer wondering where the plan went. */}
             {v.priceMinor && !terms.eligible && !sold && (
               <p className="mt-6 rounded-xl border border-border-default bg-surface-1 px-4 py-3 text-sm leading-relaxed text-text-secondary">
-                <span className="font-semibold text-text-primary">Cash purchase.</span> Autochek’s lenders do not finance cars older than {DRIVE_PLAN.minYear}, so
-                the Drive Plan is not available on this one.{" "}
+                <span className="font-semibold text-text-primary">Full payment only.</span> Autochek’s lenders do not give loans on cars older than{" "}
+                {DRIVE_PLAN.minYear}. So the Drive Plan is not open for this one.{" "}
                 <Link href="/drive-plan#finder" className="text-green-300 underline-offset-4 hover:underline">
-                  See what your deposit reaches
+                  See cars you can get on the Drive Plan
                 </Link>
                 .
               </p>
             )}
-
-            <div className="mt-8 flex flex-col gap-3">
-              {sold ? (
-                <ButtonLink href="#similar" size="lg">
-                  See similar vehicles
-                </ButtonLink>
-              ) : (
-                <>
-                  <ButtonLink href="#enquire" size="lg">
-                    Enquire about this vehicle
-                  </ButtonLink>
-                  <ButtonLink href="#book-viewing" size="lg" variant="secondary">
-                    Book a viewing
-                  </ButtonLink>
-                </>
-              )}
-            </div>
 
             {/* For the buyer who is not ready yet: a reason to come back, on its own. */}
             <div className="mt-6 grid gap-2">
@@ -339,7 +348,7 @@ export default async function VehiclePage({ params }: Props) {
                   {offsite
                     ? "Ask anything, or ask to see it — the Sabicars team arranges the viewing and an inspection on request."
                     : "Ask anything, or arrange to see it at the showroom."}{" "}
-                  Your enquiry is recorded with a reference, so whoever picks it up knows exactly which vehicle you mean.
+                  You get a reference number, so whoever replies knows exactly which car you mean.
                 </p>
                 <p className="figures mt-8 text-sm text-text-muted">
                   Or call{" "}
@@ -371,7 +380,7 @@ export default async function VehiclePage({ params }: Props) {
         {similar.length > 0 && (
           <section id="similar" className="scroll-mt-24 border-t border-border-subtle py-14 md:py-20">
             <div className="mx-auto max-w-7xl px-5 md:px-10">
-              <p className="kicker">You may also consider</p>
+              <p className="kicker">You might also like</p>
               <h2 className="mt-3 text-display-3">Similar vehicles</h2>
               <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                 {similar.map((s) => (

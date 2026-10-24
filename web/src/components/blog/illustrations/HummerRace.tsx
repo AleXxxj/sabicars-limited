@@ -336,13 +336,13 @@ function Result({
         ) : (
           <>
             <p className="text-sm leading-relaxed text-text-secondary">
-              There is no {name(winner)} Hummer in the showroom today. The Sourcing Desk can find one, and tells you the moment it lands.
+              There is no {name(winner)} Hummer in the showroom today. We can look for one, and tell you the moment it lands.
             </p>
             <Link
               href={`/find?want=${encodeURIComponent(`Toyota Hiace Hummer bus, ${name(winner)}`)}`}
               className="group mt-3 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-green-300 hover:text-green-200"
             >
-              Ask the Sourcing Desk
+              Request it
               <ArrowRight aria-hidden size={16} className="transition-transform group-hover:translate-x-1" />
             </Link>
           </>

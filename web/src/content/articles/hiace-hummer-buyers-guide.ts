@@ -253,7 +253,7 @@ export const hiaceHummerGuide = {
         },
         {
           q: "What if the bus I want is not in stock?",
-          a: "Tell the [Sourcing Desk](/find) the year, layout and budget you want. Your request is recorded, and you are told the moment a match arrives.",
+          a: "[Request a car](/find) and tell us the year, layout and budget you want. Your request is recorded, and you are told the moment a match arrives.",
         },
       ],
     },

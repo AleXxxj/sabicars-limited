@@ -11,7 +11,7 @@ test.describe("The Drive Plan page", () => {
     const faults = watchForFaults(page);
     const response = await page.goto("/drive-plan");
     expect(response?.status(), "the Drive Plan page did not answer 200").toBe(200);
-    await expect(page.getByRole("heading", { level: 1 }), "the Drive Plan page shows no headline").toContainText(/Autochek finances the rest/);
+    await expect(page.getByRole("heading", { level: 1 }), "the Drive Plan page shows no headline").toContainText(/Pay the rest monthly/);
     await expect(page.getByRole("heading", { name: "Four steps from choosing to driving." }), "the page no longer explains the four steps").toBeVisible();
     assertNoFaults(faults);
   });
@@ -45,7 +45,7 @@ test.describe("The Drive Plan page", () => {
     // example car is a 2008 or 2009 car (as with a small stock) the same words appear twice.
     const split = page.locator(".surface-card").filter({ has: page.getByText("Any price, split") });
     await expect(split.getByText("You pay (50%)", { exact: true }), "the split does not show a 50% deposit for a 2008–2009 car").toBeVisible();
-    await expect(split.getByText("Autochek finances (50%), once it approves", { exact: true }), "the split does not show Autochek financing 50%").toBeVisible();
+    await expect(split.getByText("50%, paid by a loan through Autochek, once approved", { exact: true }), "the split does not show the loan covering 50%").toBeVisible();
     assertNoFaults(faults);
   });
 });

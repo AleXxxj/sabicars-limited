@@ -183,7 +183,7 @@ export async function submitSourcingRequest(_prev: SourcingResult | null, formDa
   const phone = normalisePhone(v.phone);
   if (!phone) return { ok: false, fieldErrors: { phone: "Please enter a phone number we can reach, e.g. 0803 123 4567" }, values };
   if (v.preferredContact === "email" && !v.email) return { ok: false, fieldErrors: { email: "Add your email, or choose another way to hear from us" }, values };
-  if (await tooManyFrom(phone)) return { ok: false, error: "We already have several requests from this number in the last hour — they are all on the desk.", values };
+  if (await tooManyFrom(phone)) return { ok: false, error: "We already have several requests from this number in the last hour — we have them all.", values };
   if (!(await withinLimit("enquiry"))) return { ok: false, error: RATE_LIMITED_MESSAGE, values };
 
   const budgetMax = budgetMaxMinor(v.budget);

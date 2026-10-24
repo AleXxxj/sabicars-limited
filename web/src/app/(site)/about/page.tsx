@@ -26,23 +26,23 @@ export const metadata: Metadata = {
  */
 const STANDARDS = [
   {
-    title: "Registered and accountable",
-    body: `Sabicars Limited is registered with the Corporate Affairs Commission under RC ${site.rcNumber} — a company you can hold to account, not a roadside stand.`,
+    title: "Registered and responsible",
+    body: `Sabicars Limited is registered with the Corporate Affairs Commission under RC ${site.rcNumber}. It is a real company that answers for what it sells, not a roadside stand.`,
     link: { href: site.cacSearchUrl, label: "Check it on the CAC register" },
   },
   {
     title: "See it before you pay",
-    body: "Walk in and inspect any vehicle in person before any money changes hands.",
+    body: "Walk in and inspect the cars at our showroom before any money changes hands.",
     link: { href: site.mapsUrl, label: "Directions to the showroom" },
   },
   {
     title: "Exactly as described",
-    body: "Every vehicle is listed with its own photographs, its specification and its price. What you see is what you get on delivery.",
-    link: { href: "/vehicles", label: "See the inventory" },
+    body: "Every vehicle is listed with its own photographs, its details and its price. The car you get is the car in the photos.",
+    link: { href: "/vehicles", label: "See cars for sale" },
   },
   {
     title: "Every enquiry on record",
-    body: "Each enquiry is saved with a reference, so whoever you speak to knows exactly which vehicle and which conversation you mean.",
+    body: "Each enquiry gets a reference number. Whoever you speak to can see which car and which conversation you mean.",
     link: { href: "/contact", label: "Talk to us" },
   },
 ];
@@ -54,8 +54,8 @@ export default async function AboutPage() {
     <>
       <PageIntro eyebrow="About Sabicars" title="A dealer that tells the truth about what it sells.">
         <p>
-          Sabicars Limited was founded by Ccristian Dee on a simple principle: Nigerian car buyers deserve dealers who tell the truth
-          about what they are selling.
+          Ccristian Dee started Sabicars Limited with one simple belief: Nigerian car buyers deserve dealers who tell the truth about
+          what they sell.
         </p>
       </PageIntro>
 
@@ -70,20 +70,19 @@ export default async function AboutPage() {
 
         <ScrollReveal delay={120}>
           <p className="kicker">The founder</p>
-          <h2 className="mt-4 text-display-2">From single vehicles to a registered company.</h2>
+          <h2 className="mt-4 text-display-2">From one car at a time to a registered company.</h2>
           <div className="mt-8 space-y-6 text-lg leading-relaxed text-text-secondary">
             <p>
-              Ccristian Dee — born Prince Emmanuel Abisoye, and known to many as Ccrist D — started Sabicars as a small operation
-              moving individual vehicles.
+              Ccristian Dee started Sabicars small, selling one vehicle at a time. He was born Prince Emmanuel Abisoye, and many know
+              him as Ccrist D.
             </p>
             <p>
-              That operation has grown into a company registered with the Corporate Affairs Commission (RC {site.rcNumber}), trusted by
-              individual buyers and by corporate fleet clients across Lagos and beyond — every order held to the same standard,
-              whatever its size.
+              Today it is a company registered with the Corporate Affairs Commission (RC {site.rcNumber}). People buying one car trust
+              it, and so do companies buying many, in Lagos and beyond. Every order gets the same care, big or small.
             </p>
             <p>
-              Today Sabicars sells from its Lagos showroom and online — with the 40% Drive Plan, financed with Autochek, and fleet
-              supply for companies and government.
+              Sabicars sells from its Lagos showroom and online. You can buy on the 40% Drive Plan, with a loan through Autochek.
+              Companies and government offices can buy in bulk.
             </p>
           </div>
           <blockquote className="mt-12 border-l-2 border-green-500 pl-6">
@@ -99,12 +98,12 @@ export default async function AboutPage() {
         <div className="mx-auto max-w-7xl px-5 py-20 md:px-10 md:py-28">
           <ScrollReveal className="flex flex-wrap items-end justify-between gap-10">
             <div className="max-w-2xl">
-              <p className="kicker">The standard</p>
+              <p className="kicker">Our promises</p>
               <h2 className="mt-4 text-display-2">What buying from Sabicars means.</h2>
               <p className="mt-5 text-lg leading-relaxed text-text-secondary">
-                The Sabicars Verified seal stands for these four promises — and carries the registration number anyone can check. It is
-                given only to cars at the Sabicars showroom, inspected by the Sabicars team. A car we list from elsewhere is inspected on
-                your request and does not carry it.
+                The Sabicars Verified seal means our team has inspected the car at our showroom. It stands for these four promises and
+                shows our registration number, so anyone can check us. A car we list from somewhere else can be inspected if you ask,
+                but it does not get the seal.
               </p>
             </div>
             {/* eslint-disable-next-line @next/next/no-img-element -- a vector seal, cached across pages; nothing for next/image to optimise */}
@@ -136,9 +135,9 @@ export default async function AboutPage() {
           <ScrollReveal>
             <p className="kicker">Today</p>
             <p className="figures mt-4 font-display text-[3.5rem] leading-none md:text-[4.5rem]">{stats.inStock}</p>
-            <p className="mt-3 text-lg text-text-secondary">vehicles in stock right now, across {stats.makes} makes.</p>
+            <p className="mt-3 text-lg text-text-secondary">vehicles in stock right now, from {stats.makes} brands.</p>
             <div className="mt-8 flex flex-wrap gap-4">
-              <ButtonLink href="/vehicles">View the inventory</ButtonLink>
+              <ButtonLink href="/vehicles">See cars for sale</ButtonLink>
               <ButtonLink href="/contact" variant="secondary">
                 Visit or get in touch
               </ButtonLink>

@@ -120,15 +120,15 @@ export function PriceSplit({ vehicles }: { vehicles: FinderVehicle[] }) {
           </dd>
         </div>
         <div>
-          <dt className="text-sm text-text-muted">Autochek finances ({terms.eligible ? `${terms.financedPercent}%` : "—"}), once it approves</dt>
+          <dt className="text-sm text-text-muted">{terms.eligible ? `${terms.financedPercent}%` : "—"}, paid by a loan through Autochek, once approved</dt>
           <dd className="figures mt-1 font-display text-[1.9rem] leading-none text-text-primary">
             {naira && terms.eligible ? formatNaira(financedMinor) : "—"}
           </dd>
         </div>
         {naira > 0 && terms.eligible && <RepaymentEstimate balanceMinor={financedMinor} size="hero" />}
         <p className="text-sm leading-relaxed text-text-secondary">
-          Autochek&rsquo;s lender sets the rate and the term when it assesses you. The vehicle leaves the showroom once Autochek approves and the
-          deposit is paid.
+          Autochek&rsquo;s lender checks your details and sets your rate and how many months you repay. You take the car once the loan is
+          approved and your deposit is paid.
         </p>
         {chosen && (
           <Link href={`/vehicles/${chosen.slug}#drive-plan`} className="text-sm font-semibold text-green-300 hover:text-green-200">

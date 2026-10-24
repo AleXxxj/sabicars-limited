@@ -57,7 +57,7 @@ const QUESTIONS = [
     key: "plan",
     q: "Which sounds more like you?",
     options: [
-      { v: "cash", label: "Pay once and own it outright", icon: Coins },
+      { v: "cash", label: "Pay the full price at once", icon: Coins },
       { v: "plan", label: "Drive something better, pay monthly", icon: CalendarClock },
     ],
   },
@@ -299,9 +299,9 @@ export function BudgetQuiz({ cars }: { cars: QuizCar[] }) {
                     <Link
                       href={`/find?want=${encodeURIComponent(result.body === "bus" ? "Toyota Hiace bus" : result.body === "suv" ? "SUV" : "Toyota saloon")}`}
                     >
-                      ask the Sourcing Desk
+                      request one
                     </Link>{" "}
-                    to find one within your figure.
+                    within your figure and we can look for it.
                   </span>
                 </span>
               </div>
@@ -311,7 +311,7 @@ export function BudgetQuiz({ cars }: { cars: QuizCar[] }) {
                 <Link
                   href={`/find?want=${encodeURIComponent(result.body === "bus" ? "Toyota Hiace bus" : result.body === "suv" ? "SUV" : "Toyota saloon")}`}
                 >
-                  Put it on the Sourcing Desk
+                  Request a car
                 </Link>{" "}
                 and hear the moment one arrives.
               </p>
@@ -322,7 +322,7 @@ export function BudgetQuiz({ cars }: { cars: QuizCar[] }) {
                 href={result.plan ? "/drive-plan" : "/vehicles"}
                 className="inline-flex min-h-12 items-center gap-2 rounded-full bg-[linear-gradient(180deg,var(--orange-400),var(--orange-500))] px-6 font-semibold text-[#090E0A] !no-underline"
               >
-                {result.plan ? "See the Drive Plan" : "Browse the inventory"} <ArrowRight aria-hidden size={17} />
+                {result.plan ? "See the Drive Plan" : "See cars for sale"} <ArrowRight aria-hidden size={17} />
               </Link>
               <button
                 type="button"

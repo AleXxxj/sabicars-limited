@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { PRIMARY_NAV } from "@/lib/navigation";
+import { CARS_NAV, MAIN_NAV, MORE_ITEMS, TAB_BAR } from "@/lib/navigation";
 import { assertNoFaults, watchForFaults } from "../helpers";
 
 /**
@@ -9,7 +9,7 @@ import { assertNoFaults, watchForFaults } from "../helpers";
 
 /** The live "Vehicles in stock today" figure the page states. */
 async function vehiclesInStockToday(page: Page): Promise<number> {
-  const tile = page.locator("dd").filter({ hasText: "Vehicles in stock today" }).first();
+  const tile = page.locator("dd").filter({ hasText: /vehicles? in stock today/i }).first();
   await expect(tile, "the homepage no longer states how many vehicles are in stock").toBeVisible();
   const figure = (await tile.innerText()).match(/^\s*(\d+)/)?.[1];
   return Number(figure ?? 0);
@@ -24,26 +24,35 @@ test.describe("Home", () => {
     assertNoFaults(faults);
   });
 
-  test("every primary section is one tap away", async ({ page, isMobile }) => {
+  test("every section is in the header, the tab bar or More", async ({ page, isMobile }) => {
     const faults = watchForFaults(page);
     await page.goto("/");
     if (isMobile) {
-      // On a phone the sections live behind the Menu button and in the bottom bar.
-      await page.getByRole("button", { name: "Menu" }).click();
-      const menu = page.getByRole("dialog", { name: "Menu" });
-      await expect(menu, "the phone menu did not open").toBeVisible();
-      for (const item of PRIMARY_NAV) {
-        await expect(menu.getByRole("link", { name: item.label }), `the phone menu has no "${item.label}" link`).toBeVisible();
+      // On a phone the main sections live in the bottom bar.
+      const tabs = page.getByRole("navigation", { name: "Quick" });
+      await expect(tabs.getByRole("link", { name: "Cars", exact: true }), "the phone's bottom bar has no Cars tab").toBeVisible();
+      for (const item of TAB_BAR) {
+        await expect(tabs.getByRole("link", { name: item.label, exact: true }), `the phone's bottom bar has no "${item.label}" tab`).toBeVisible();
       }
-      await page.getByRole("button", { name: "Close menu" }).click();
-      await expect(page.getByRole("navigation", { name: "Quick" }).getByRole("link", { name: "Cars" }), "the phone's bottom bar has no Cars tab").toBeVisible();
     } else {
       const nav = page.getByRole("navigation", { name: "Main" });
-      for (const item of PRIMARY_NAV) {
+      for (const item of MAIN_NAV) {
         await expect(nav.getByRole("link", { name: item.label, exact: true }), `the header has no "${item.label}" link`).toBeVisible();
       }
-      await expect(page.getByRole("link", { name: "Browse cars" }).first(), "the header has no Browse cars button").toBeVisible();
+      await expect(
+        page.getByRole("banner").getByRole("link", { name: CARS_NAV.label, exact: true }),
+        `the header has no ${CARS_NAV.label} button`,
+      ).toBeVisible();
     }
+    // On every width, everything else is behind More.
+    await page.getByRole("button", { name: "More", exact: true }).click();
+    const menu = page.getByRole("dialog", { name: "More" });
+    await expect(menu, "the More menu did not open").toBeVisible();
+    for (const item of MORE_ITEMS) {
+      await expect(menu.getByRole("link", { name: item.label }), `the More menu has no "${item.label}" link`).toBeVisible();
+    }
+    await page.getByRole("button", { name: "Close menu" }).click();
+    await expect(menu, "the More menu did not close").toBeHidden();
     assertNoFaults(faults);
   });
 

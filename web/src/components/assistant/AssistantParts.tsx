@@ -49,7 +49,7 @@ function CarCard({ car, wide }: { car: AssistantCar; wide: boolean }) {
         )}
         {car.monthlyMinor && (
           <span className="figures block text-xs text-text-muted">
-            est. {formatNaira(car.monthlyMinor)}/mo over {DEFAULT_ESTIMATE_MONTHS} months
+            est. {formatNaira(car.monthlyMinor)} a month for {DEFAULT_ESTIMATE_MONTHS} months
           </span>
         )}
         <span className="mt-2 block truncate text-xs text-text-secondary">{specs(car)}</span>

@@ -30,6 +30,7 @@
     "test:smoke": "playwright test --project=smoke --project=smoke-phone",
     "test:e2e": "playwright test --project=flows",
     "e2e:seed": "node --env-file=.env.local --import tsx scripts/seed-e2e.mts",
+    "content:sync": "node --env-file=.env.local scripts/sync-content.mjs",
     "backup:restore": "node --env-file=.env.local --import tsx scripts/restore-backup.mts",
     "test:backup": "node --env-file-if-exists=.env.local --conditions=react-server --import tsx scripts/verify-backup.mts",
     "test:outbox": "node --env-file-if-exists=.env.local --conditions=react-server --import tsx scripts/verify-outbox.mts"

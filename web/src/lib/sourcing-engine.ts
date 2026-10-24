@@ -140,7 +140,7 @@ function matchEmail(m: {
   const html = `<!doctype html><html><body style="margin:0;background:#090E0A;font-family:Helvetica,Arial,sans-serif;color:#F2F2EC">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#090E0A"><tr><td align="center" style="padding:32px 16px">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px">
-<tr><td style="padding:0 0 28px"><img src="${esc(siteUrl())}/brand/logo-email.png" width="220" height="45" alt="Sabicars" style="display:block;border:0"><div style="padding-top:14px;font-size:12px;letter-spacing:3px;color:#8DC74D">SOURCING DESK</div></td></tr>
+<tr><td style="padding:0 0 28px"><img src="${esc(siteUrl())}/brand/logo-email.png" width="220" height="45" alt="Sabicars" style="display:block;border:0"><div style="padding-top:14px;font-size:12px;letter-spacing:3px;color:#8DC74D">YOUR CAR REQUEST</div></td></tr>
 <tr><td style="font-size:16px;line-height:1.6;color:#CFD2CC">Hello ${esc(m.firstName)},<br><br>You asked us to find a <strong style="color:#F2F2EC">${esc(m.want)}</strong> (reference ${esc(m.reference)}). One has just arrived.</td></tr>
 ${m.imageUrl ? `<tr><td style="padding:24px 0 0"><a href="${esc(m.url)}"><img src="${esc(m.imageUrl)}" width="560" alt="${esc(m.title)}" style="display:block;width:100%;height:auto;border:0"></a></td></tr>` : ""}
 <tr><td style="padding:20px 0 0;font-family:Helvetica,Arial,sans-serif;font-weight:bold;letter-spacing:-0.4px;font-size:26px;line-height:1.2;color:#F2F2EC">${esc(m.title)}</td></tr>

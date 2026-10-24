@@ -25,16 +25,16 @@ export function commissionMinor(priceMinor: number): number {
 /** The programme's rules, in the order a sceptical reader needs them. */
 export const PARTNER_RULES = [
   ["Free to join", "You never pay Sabicars anything — not to register, not ever. Anyone asking you to pay to join is not Sabicars."],
-  ["Paid on completed sales", "You earn only when a buyer you sent completes a purchase. Commission is paid once the sale is final, after a cooling-off of a day or two."],
-  ["No recruiting", "You earn from buyers you bring, never from other partners you sign up. There are no levels and no uplines."],
-  ["Your buyer is on record", `A buyer who comes through your link is recorded against your code from their first enquiry, and stays yours for ${ATTRIBUTION_DAYS} days.`],
+  ["Paid on completed sales", "You earn only when a buyer you sent completes a purchase. We pay you once the sale is final, after a wait of a day or two in case it falls through."],
+  ["No recruiting", "You earn only from buyers you bring, never from people you sign up as partners. There are no levels."],
+  ["Your buyer is on record", `Once a buyer uses your link, they are yours for ${ATTRIBUTION_DAYS} days from their first enquiry.`],
 ] as const;
 
 /** The practical terms, confirmed by the owner — shown on the programme page after the rules. */
 export const PARTNER_TERMS = [
   ["Where your money goes", "Straight into the bank account you register, which must be in your own name. Your identity is confirmed before your first payout, so nobody else can collect what you earned."],
-  ["Buying for yourself?", "Your own purchase doesn’t earn a commission — you get the partner price instead: 1.5% off, the same value as the commission."],
-  ["Fleet orders count in full", "Send a company or government buyer and your 1.5% is on the whole order."],
+  ["Buying for yourself?", "If you buy a car yourself, you don’t earn 1.5%. You get 1.5% off the price instead."],
+  ["Bulk orders count in full", "Send a company or government buyer and your 1.5% is on the whole order."],
 ] as const;
 
 /** How partners expect to find buyers — tells Sabicars which channels work. */

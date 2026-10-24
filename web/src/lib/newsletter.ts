@@ -29,7 +29,7 @@ export interface EmailVehicle {
 
 /** The Friday digest's opening line — shared with the staff preview, so what staff see is what subscribers get. */
 export const DIGEST_INTRO =
-  "Photographed, priced and ready to inspect at the showroom. Every one can be bought outright, and cars from 2008 can go on the Drive Plan — you pay 40% (50% on a 2008 or 2009 car), Autochek finances the rest once its lender approves.";
+  "Photographed, priced and ready to inspect at the showroom. You can pay the full price for any of them. Cars from 2008 can go on the Drive Plan. You pay 40% (50% on a 2008 or 2009 car). A loan through Autochek covers the rest if its lender approves you.";
 
 async function withCovers(
   rows: { id: string; year: number; make: string; model: string; slug: string; priceMinor: number | null }[],
@@ -198,7 +198,7 @@ async function contentOf(send: typeof newsletterSends.$inferSelect): Promise<New
       .limit(1);
     const path = post ? `/blog/${post.slug}` : "/blog";
     return {
-      kicker: "New on Sabicars Insights",
+      kicker: "New Sabicars buying guide",
       headline: post?.title ?? send.subject,
       intro: post?.standfirst || post?.excerpt || send.body || "",
       image: post?.cover ? { url: post.cover, href: path } : null,

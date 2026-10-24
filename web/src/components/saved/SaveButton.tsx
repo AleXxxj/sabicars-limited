@@ -50,7 +50,7 @@ export function SavedLink({ className = "" }: { className?: string }) {
   return (
     <Link
       href="/saved"
-      aria-label={count ? `Saved cars (${count})` : "Saved cars"}
+      aria-label={count ? `My saved cars (${count})` : "My saved cars"}
       className={`glass relative inline-flex size-11 items-center justify-center rounded-full text-text-primary transition-colors hover:text-green-300 ${className}`}
     >
       <Heart aria-hidden size={19} strokeWidth={1.75} className={count ? "fill-green-400 text-green-400" : ""} />

@@ -261,7 +261,7 @@ Decisions made while building, recorded so they are not re-litigated:
   own tier (deposit and balance — the rate and term are the lender's, shown
   as Autochek's published ceiling and range; since 2026-10-21 also an
   estimated monthly repayment at that ceiling over a term the buyer picks,
-  labelled as an estimate, §8 item 3), or "Cash purchase"
+  labelled as an estimate, §8 item 3), or "Full payment only"
   on a car older than 2008; only the
   specifications actually recorded; `Car` + `AutoDealer` structured data;
   1200×630 share image for WhatsApp previews. Pre-rendered at build and
@@ -325,8 +325,12 @@ live page it replaces so nothing is lost silently. Built on that basis:
 - **Homepage**, ordered by the visitor's questions: is this real (live facts,
   CAC link) → what can I afford (**Drive Plan finder**: type what you can pay
   today, see the live count and the best cars it reaches) → browse → what if
-  it isn't here (**Sourcing Desk** first step) → fleet → the founder → can I
-  earn (**Refer & Earn**, with commission on real cars in stock) → visit.
+  it isn't here (**Request a car**, the Sourcing Desk's first step) → the
+  founder and the reviews → can I earn (**Refer & Earn**, with commission on
+  real cars in stock) → visit. Buying in bulk sits beside the Hummer bus (or
+  on its own when no Hummer with a photo is listed). *Since 2026-10-24* (two trainees'
+  walk-throughs: words too hard, desktop too crowded, one page under several
+  names): 10 calmer blocks, at most one orange button in each, three in all.
 - **/find — the Sourcing Desk.** A standing request for a car not in stock:
   a `sourcing` lead (one inbox, one reference) plus a `vehicle_requests` row
   with the criteria. On submit it replies at once with any in-stock matches.
@@ -357,10 +361,16 @@ and navigation are to understand. What changed, site-wide:
   sentence case at a readable size. Model names set in the sans.
 - **Obvious calls.** Brushed-gold pill for the one primary action, frosted
   pill for the alternative, arrows and icons (lucide) on every action.
-- **Navigation like an app.** Phones get a bottom tab bar (Home, Cars, Drive
-  Plan, Find a car, Earn) and a menu with an icon and a one-line explanation
-  per section, plus Call / WhatsApp / Directions. Desktop gets sentence-case
-  links and a "Browse cars" button.
+- **Navigation like an app.** One set of names, in `web/src/lib/navigation.ts`,
+  read by every surface (*since 2026-10-24*; the buyer-facing names are Cars for
+  sale, 40% Drive Plan, Request a car, Refer & Earn, Sell your car, Buy in bulk,
+  Compare cars, My saved cars, Ask Sabicars, Buying guides, About, Contact).
+  Phones get a bottom tab bar (Home · Cars · Drive Plan · Request a car ·
+  Refer & Earn) and a "More" menu with everything else, in two groups, each
+  item with an icon and a one-line explanation, plus Call / WhatsApp /
+  Directions. From 1024px the header shows the same three sections, a "More"
+  pill that opens the same menu as a side panel, and the orange "Cars for sale"
+  button. Staff screens keep their own names (the admin's "Sourcing Desk").
 - **Photography.** Every vehicle photo passes through Cloudinary `e_improve`
   (auto exposure and colour), chosen after comparing it with a stronger
   outdoor/vibrance treatment on real listings.
@@ -537,7 +547,7 @@ A comparison with Jiji, Cars45, Autochek and Cars.ng graded Sabicars 5.2/10 (Aut
 - **The record.** It lands in the inbox as a new enquiry type, "Sell or trade-in" (migration 0010, `lead_type` gains `sell`), alerted like any other. The details form one readable brief, and the car they want is attached.
 - **Photos** are asked for afterwards on WhatsApp with the reference. Public uploads into the Cloudinary account would invite abuse.
 - **The promises.** The page promises nothing beyond "we come back to you; nothing is final until we have seen the car". It warns that Sabicars never charges to look at a car.
-- **Where it is linked.** The phone menu and the footer. The desktop header has no room for a ninth item. Also the Sourcing Desk page and the sitemap. Ask Sabicars knows it, and never quotes what a car is worth.
+- **Where it is linked.** "Sell your car" in the More menu on every width (since 2026-10-24), and the footer. Also the Request a car page and the sitemap. Ask Sabicars knows it, and never quotes what a car is worth.
 - **Needs the owner's word:** that Sabicars buys cars outright and takes trade-ins, as well as selling on consignment. The three choices are in `lib/sell.ts`.
 
 **Stage 8 groundwork, sale prices (built):**
@@ -584,7 +594,7 @@ These block content and go-live, not architecture. Building continues without th
 2. **Reservation policy** — deposit amount, how long a car is held, and whether the deposit is refundable.
 3. **Drive Plan terms** — *Answered 2026-09-26:* the buyer pays 40%; **Autochek finances the remaining 60%**. Sabicars has an Autochek dealer store; its stock is listed there and each listing already carries its loan configuration (tenor, interest). Loan buyers are profiled and processed by Autochek, and the vehicle must be on the store. Built: a per-vehicle Autochek link (legacy `financeUrl`, empty on all 48 today), "Apply for the 60% on Autochek" on each vehicle (records the buyer first, then sends them to the listing), a request path for vehicles not yet listed, and an admin flag on available vehicles with no link. *Answered 2026-09-26:* the car leaves the showroom only after Autochek approves; the buyer pays the 40% then.
 
-   *Answered 2026-10-20 — the terms depend on the car's year.* Autochek's team told Sabicars: its lenders finance nothing older than 2008; a 2008 or 2009 car needs 50% down; a car from 2010 needs 40%; the buyer shows six months of bank statements; a business owner shows a CAC registration, and a registered business name is enough — Autochek can arrange one for about ₦35,000; the interest rate is "on the site". Verified against Autochek's own pages the same day: every listing, including 2004–2009 cars, shows "40% minimum", so the year tiers and the 50% rule are its lenders' rule, not something Autochek's website states; listings give the rate as "available on request", and the only published figures are in its app-store listing: the 30% a year ceiling, 6–48 month terms, a worked example (₦1,000,000 over 12 months at 30% ≈ ₦97,487 a month, which the build checks is an ordinary amortised loan) and a ₦20,000 processing fee, which the pages quote as Autochek's own; its listings also say "40% minimum (max 70%)"; six months of statements matches its financing pages; the CAC requirement (a BN1 business-name registration) is confirmed; the ₦35,000 could not be verified anywhere Autochek publishes. Decision: the site publishes the stricter lender rule, attributed and dated — the deposit tiers and the year floor "as Autochek's team gave them to Sabicars on 20 October 2026", and only the rate ceiling, the terms, the documents and the fee "as Autochek publishes", never implying Autochek's website states the tiers — never states a rate or a monthly figure as fact, and never offers the plan or computes a deposit on a car older than 2008. `web/src/lib/drive-plan.ts` is the source of record for every figure, and `web/scripts/verify-drive-plan.ts` gates the build (`npm run test:drive-plan`) so no page can state a different rule. The published answers and the Drive Plan article are seeded content: a change to `content/ask-answers.ts` or `content/articles/*.ts` reaches production only with `ask:seed -- --force` / `blog:seed -- --force` against the production database, since the seeders keep existing rows otherwise. Still needed from the business, in writing from Autochek: the year tiers and the 50% rule for 2008–2009 cars.
+   *Answered 2026-10-20 — the terms depend on the car's year.* Autochek's team told Sabicars: its lenders finance nothing older than 2008; a 2008 or 2009 car needs 50% down; a car from 2010 needs 40%; the buyer shows six months of bank statements; a business owner shows a CAC registration, and a registered business name is enough — Autochek can arrange one for about ₦35,000; the interest rate is "on the site". Verified against Autochek's own pages the same day: every listing, including 2004–2009 cars, shows "40% minimum", so the year tiers and the 50% rule are its lenders' rule, not something Autochek's website states; listings give the rate as "available on request", and the only published figures are in its app-store listing: the 30% a year ceiling, 6–48 month terms, a worked example (₦1,000,000 over 12 months at 30% ≈ ₦97,487 a month, which the build checks is an ordinary amortised loan) and a ₦20,000 processing fee, which the pages quote as Autochek's own; its listings also say "40% minimum (max 70%)"; six months of statements matches its financing pages; the CAC requirement (a BN1 business-name registration) is confirmed; the ₦35,000 could not be verified anywhere Autochek publishes. Decision: the site publishes the stricter lender rule, attributed and dated — the deposit tiers and the year floor "as Autochek's team gave them to Sabicars on 20 October 2026", and only the rate ceiling, the terms, the documents and the fee "as Autochek publishes", never implying Autochek's website states the tiers — never states a rate or a monthly figure as fact, and never offers the plan or computes a deposit on a car older than 2008. `web/src/lib/drive-plan.ts` is the source of record for every figure, and `web/scripts/verify-drive-plan.ts` gates the build (`npm run test:drive-plan`) so no page can state a different rule. The published answers and the Drive Plan article are seeded content: a change to `content/ask-answers.ts` or `content/articles/*.ts` reaches the database with `npm run content:sync -- <commit the database holds>` (dry run, then `--apply`; the live connection string for production, as for a migration). It replaces the changed wording only where a row still holds it word for word, so staff's edits survive; `ask:seed -- --force` / `blog:seed -- --force` would overwrite them, and the seeders otherwise keep existing rows. Still needed from the business, in writing from Autochek: the year tiers and the 50% rule for 2008–2009 cars.
 
    *Answered 2026-10-21 — the monthly figure: yes, as an estimate; and bank-app statements.* The site shows an estimated monthly repayment on the financed balance: an ordinary amortised loan at Autochek's published ceiling of 30% a year over a term the buyer picks (12, 24, 36 or 48 months; default 48). It is always labelled an estimate at Autochek's published ceiling — never "your repayment is", never the lender's quote — because the lender's offer sets the real rate, which can be lower, and may add insurance, a tracker and maintenance. Source of record: `monthlyAtCeilingMinor` in `web/src/lib/drive-plan.ts`, with `ESTIMATE_MONTHS`, `DEFAULT_ESTIMATE_MONTHS` and `ESTIMATE_NOTE` (the sentence shown under every estimate); gated by `web/scripts/verify-drive-plan.ts` (a ₦24,000,000 car from 2013 finances ₦14,400,000 → ₦518,486 a month over 48 months, ₦1,403,815 over 12; a ₦20,000,000 car from 2009 finances ₦10,000,000 → ₦360,060 over 48). `drivePlanMonthly()` in `lib/vehicle.ts` formats it for a car, and `components/vehicle/RepaymentEstimate.tsx` renders the figure with term chips wherever the buyer can pick a term; where there is no room for chips the figure carries "est.". Bank statements: six months from every applicant. A buyer without a commercial bank account can use statements from the bank app they actually use (`DRIVE_PLAN.statementAlternative`, "a bank app such as OPay"), as long as they show money coming in and going out — as Autochek's team told Sabicars on 20 October 2026, so it is attributed like the deposit tiers and never as something Autochek publishes. House wording: "The last 6 months from the account you actually use — a commercial bank, or a bank app such as OPay — showing money coming in and going out."
 4. **Consignment terms** — what the truck importer is paid, and what they should be able to see.

@@ -8,7 +8,7 @@ export const ASK_ANSWERS: { slug: string; question: string; answer: string }[] =
   {
     slug: "how-does-the-40-percent-drive-plan-work",
     question: "How does the 40% Drive Plan work?",
-    answer: `You pay a deposit — 40% of the car’s price on a car from 2010, or 50% on a 2008 or 2009 car — and Autochek, Sabicars’ financing partner, finances the rest, which you repay to Autochek monthly. Autochek’s lenders do not finance cars older than 2008, so those are cash purchases.
+    answer: `You pay a deposit — 40% of the car’s price on a car from 2010, or 50% on a 2008 or 2009 car — and Autochek, Sabicars’ financing partner, finances the rest, which you repay to Autochek monthly. Autochek’s lenders do not finance cars older than 2008, so you pay for those in full.
 
 1. Choose the car at the showroom, and inspect and test-drive it.
 2. Apply on the car’s Autochek listing (the Drive Plan button on every car’s page).
@@ -32,7 +32,7 @@ The lender sets the rate and the repayment term when it assesses you, and you se
   {
     slug: "why-is-the-drive-plan-deposit-50-percent-on-some-cars",
     question: "Why is the deposit 50% on some cars?",
-    answer: `The deposit depends on the car’s model year. Autochek’s lenders ask for 40% on a car from 2010 and 50% on a 2008 or 2009 car, and they do not finance cars older than 2008 — those are cash purchases. This is the rule Autochek’s team gave Sabicars on 20 October 2026, and every car’s page shows its own deposit.
+    answer: `The deposit depends on the car’s model year. Autochek’s lenders ask for 40% on a car from 2010 and 50% on a 2008 or 2009 car, and they do not finance cars older than 2008 — you pay for those in full. This is the rule Autochek’s team gave Sabicars on 20 October 2026, and every car’s page shows its own deposit.
 
 You can always put down more than the minimum, up to 70% of the price — a bigger deposit means a smaller balance and smaller repayments.`,
   },
@@ -63,17 +63,17 @@ Our [20-minute inspection guide](/blog/5-things-to-check-before-buying-a-used-ca
   {
     slug: "can-sabicars-find-a-car-that-is-not-in-stock",
     question: "Can Sabicars find a car that isn’t in the showroom?",
-    answer: `Yes. Tell the [Sourcing Desk](/find) the make, model, year and budget you want. Your request is recorded with a reference, and you are told the moment a matching car arrives.`,
+    answer: `Yes. [Request a car](/find) and tell us the make, model, year and budget you want. You get a reference number, and we tell you as soon as a matching car arrives.`,
   },
   {
     slug: "how-does-refer-and-earn-work",
     question: "How does Refer & Earn work?",
-    answer: `Register free as a partner, share your personal link, and earn **1.5% of the price** when a buyer you sent completes a purchase — paid into a bank account in your own name once the sale is final. It is a commission on sales only; there is nothing to pay and no recruiting. [Become a partner](/partners).`,
+    answer: `Register free as a partner, share your personal link, and earn **1.5% of the price** when a buyer you sent completes a purchase — paid into a bank account in your own name once the sale is final. It is a commission on sales only; there is nothing to pay and no recruiting. [Get your free link](/partners).`,
   },
   {
     slug: "does-sabicars-supply-fleets-to-companies",
-    question: "Does Sabicars supply fleets to companies and government?",
-    answer: `Yes. Companies and government bodies buy in volume from Sabicars — sourced, documented and delivered as a single order, with one team accountable from quotation to handover. [Request a fleet quotation](/fleet).`,
+    question: "Can companies and government buy vehicles in bulk from Sabicars?",
+    answer: `Yes. Companies and government offices buy several vehicles at once from Sabicars. We find them, check them, prepare the papers and deliver them as one order. One team looks after you from start to finish. [Get a price for several vehicles](/fleet).`,
   },
   {
     slug: "what-is-a-toyota-hiace-hummer-bus",
@@ -85,7 +85,7 @@ Our [20-minute inspection guide](/blog/5-things-to-check-before-buying-a-used-ca
   {
     slug: "are-sabicars-cars-foreign-used-or-nigerian-used",
     question: "Are your cars foreign used, Nigerian used or new?",
-    answer: `All three are sold. Every listing states which it is, alongside its photographs, specification and price — and you can filter the [inventory](/vehicles) by condition.`,
+    answer: `All three are sold. Every listing states which it is, alongside its photographs, details and price — and you can filter the [cars for sale](/vehicles) by condition.`,
   },
   {
     slug: "can-i-get-an-alert-if-a-car-price-drops",

@@ -277,7 +277,7 @@ export function AskSabicars() {
         aria-expanded={open}
         aria-controls="ask-sabicars"
         aria-label={open ? "Close Ask Sabicars" : "Ask Sabicars a question"}
-        className={`ask-launcher group fixed right-4 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-40 flex items-center gap-2.5 rounded-full border border-green-500/35 bg-surface-1/90 p-1.5 shadow-[0_18px_40px_-12px_rgb(0_0_0/0.8),0_0_0_6px_rgb(120_176_48/0.06)] backdrop-blur-md transition-[transform,opacity] duration-300 hover:border-green-400/60 sm:pr-5 xl:right-6 xl:bottom-6 ${open ? "pointer-events-none scale-90 opacity-0" : ""}`}
+        className={`ask-launcher group fixed right-4 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-40 flex items-center gap-2.5 rounded-full border border-green-500/35 bg-surface-1/90 p-1.5 shadow-[0_18px_40px_-12px_rgb(0_0_0/0.8),0_0_0_6px_rgb(120_176_48/0.06)] backdrop-blur-md transition-[transform,opacity] duration-300 hover:border-green-400/60 sm:pr-5 lg:right-6 lg:bottom-6 ${open ? "pointer-events-none scale-90 opacity-0" : ""}`}
       >
         <Avatar size={44} />
         <span className="hidden text-left leading-tight sm:block">
@@ -291,7 +291,7 @@ export function AskSabicars() {
           id="ask-sabicars"
           role="dialog"
           aria-label="Ask Sabicars"
-          className="ask-panel fixed inset-0 z-50 flex flex-col bg-surface-0 sm:inset-auto sm:right-4 sm:bottom-[calc(4.75rem+env(safe-area-inset-bottom))] sm:h-[min(44rem,calc(100dvh-10.5rem))] sm:w-[26.5rem] sm:overflow-hidden sm:rounded-3xl sm:border sm:border-white/[0.09] sm:bg-surface-1 sm:shadow-[0_40px_90px_-30px_rgb(0_0_0/0.9)] xl:right-6 xl:bottom-6 xl:h-[min(46rem,calc(100dvh-8rem))]"
+          className="ask-panel fixed inset-0 z-50 flex flex-col bg-surface-0 sm:inset-auto sm:right-4 sm:bottom-[calc(4.75rem+env(safe-area-inset-bottom))] sm:h-[min(44rem,calc(100dvh-10.5rem))] sm:w-[26.5rem] sm:overflow-hidden sm:rounded-3xl sm:border sm:border-white/[0.09] sm:bg-surface-1 sm:shadow-[0_40px_90px_-30px_rgb(0_0_0/0.9)] lg:right-6 lg:bottom-6 lg:h-[min(46rem,calc(100dvh-8rem))]"
         >
           <header className="flex items-center gap-3 border-b border-white/[0.07] px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3">
             <Avatar />

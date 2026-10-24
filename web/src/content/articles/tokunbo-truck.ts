@@ -128,7 +128,7 @@ export const tokunboTruck = {
     { type: "cars", body: "truck", limit: 3, title: "Trucks in the showroom now" },
     {
       type: "p",
-      text: "Looking for something specific — a tipper, a prime mover, a particular make and year? Put it on the [Sourcing Desk](/find?want=Truck) and hear the moment one arrives. Buying several for a business? The [fleet team](/fleet) quotes and delivers them as one order.",
+      text: "Looking for something specific — a tipper, a prime mover, a particular make and year? [Request it](/find?want=Truck) and hear the moment one arrives. Buying several for a business? The [bulk order team](/fleet) quotes and delivers them as one order.",
     },
 
     { type: "h2", text: "Questions buyers ask" },

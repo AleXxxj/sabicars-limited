@@ -9,7 +9,7 @@ import { pageAddress, whatsappLink } from "@/lib/site";
 import { BUDGET_OPTIONS } from "@/lib/sourcing";
 
 export const metadata: Metadata = {
-  title: "Find me a car — the Sourcing Desk",
+  title: "Request a car that is not in stock",
   description:
     "Can't find the car you want in stock? Tell Sabicars the vehicle, year and budget. Your request is recorded with a reference, and you are told the moment a match arrives.",
   ...pageAddress("/find"),
@@ -17,8 +17,8 @@ export const metadata: Metadata = {
 
 const STEPS = [
   ["Tell us", "The vehicle, the year, your budget, and how you would pay."],
-  ["It goes on record", "Your request gets a reference and joins the list Sabicars sources from. If something in stock already matches, you see it straight away."],
-  ["You hear when it arrives", "When a vehicle that matches is listed, you are told — by WhatsApp, phone or email, as you choose."],
+  ["We keep your request", "You get a reference number, and your request goes on the list of cars we look for. If a car in stock already matches, you see it straight away."],
+  ["You hear when it arrives", "When a matching car is listed, we tell you by WhatsApp, phone or email, as you choose."],
 ];
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
@@ -34,7 +34,7 @@ const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v
 const demandNow = unstable_cache(() => mostRequested(), ["most-requested"], { revalidate: 300 });
 
 /**
- * The Sourcing Desk.
+ * Request a car (staff call it the Sourcing Desk).
  *
  * Its one job: turn "they don't have it" into a recorded request instead of a
  * lost buyer. Sabicars' audience is bigger than its showroom; this is where
@@ -48,17 +48,14 @@ export default async function FindPage({ searchParams }: Props) {
 
   return (
     <>
-      <PageIntro eyebrow="The Sourcing Desk" title="Tell us the car you want.">
-        <p>
-          If it isn’t in the showroom today, your request goes on record with a reference — and you are told the moment a vehicle that
-          matches arrives.
-        </p>
+      <PageIntro eyebrow="Request a car" title="Tell us the car you want.">
+        <p>Can’t find it in our showroom? Tell us. You get a reference number, and we tell you as soon as a matching car arrives.</p>
       </PageIntro>
 
       <section className="mx-auto grid max-w-7xl gap-14 px-5 py-16 md:px-10 md:py-24 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
         <div>
           <ScrollReveal>
-            <p className="kicker">How the desk works</p>
+            <p className="kicker">How a request works</p>
             <ol className="mt-8 grid gap-8">
               {STEPS.map(([step, text], i) => (
                 <li key={step} className="border-t border-green-700 pt-4">
@@ -87,13 +84,13 @@ export default async function FindPage({ searchParams }: Props) {
           )}
 
           <p className="mt-12 text-sm text-text-muted">
-            Seen a car you like in the{" "}
+            Seen a car you like among the{" "}
             <Link href="/vehicles" className="text-text-secondary underline-offset-4 hover:text-text-primary hover:underline">
-              inventory
+              cars for sale
             </Link>
-            ? Enquire on its page — it tells us exactly which one you mean. Selling a car instead?{" "}
+            ? Use the form on that car’s page, so we know which car you mean. Selling a car instead?{" "}
             <Link href="/sell" className="text-text-secondary underline-offset-4 hover:text-text-primary hover:underline">
-              Sell or trade it in
+              Sell your car
             </Link>
             .
           </p>

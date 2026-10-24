@@ -180,7 +180,7 @@ export function EngagementPrompt() {
       <aside
         data-prompt
         aria-label={title}
-        className="surface-card fixed inset-x-3 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-40 !rounded-2xl p-5 sm:inset-x-auto sm:left-5 sm:w-[24rem] xl:bottom-5"
+        className="surface-card fixed inset-x-3 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-40 !rounded-2xl p-5 sm:inset-x-auto sm:left-5 sm:w-[24rem] lg:left-auto lg:right-6 lg:bottom-24"
       >
         <button
           type="button"

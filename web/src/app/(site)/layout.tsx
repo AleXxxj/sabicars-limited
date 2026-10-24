@@ -14,7 +14,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
       </a>
       <SiteHeader />
       {/* Room at the foot for the phone's tab bar, so it never covers the footer. */}
-      <div className="pb-[calc(4rem+env(safe-area-inset-bottom))] xl:pb-0">
+      <div className="pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0">
         <main id="main">{children}</main>
         <SiteFooter />
       </div>

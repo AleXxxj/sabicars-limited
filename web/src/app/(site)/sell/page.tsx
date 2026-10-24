@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 const STEPS = [
   ["Tell us about the car", "The make, model and year, its condition and papers, and a price if you have one in mind."],
   ["Send a few photos", "On WhatsApp, with your reference: the outside, the dashboard with the engine running, and the papers."],
-  ["We come back to you", "With what we can do: buy it, take it in exchange for one of ours, or sell it for you. Nothing is final until we have seen the car."],
+  ["We come back to you", "With what we can do: buy it, take it as part-payment for one of ours, or sell it for you. Nothing is final until we have seen the car."],
 ];
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
@@ -41,7 +41,7 @@ const tradeTowards = unstable_cache(
 );
 
 /**
- * Sell or trade in.
+ * Sell your car.
  *
  * Its one job: bring cars in. Sabicars' stock is its limit, and the people
  * who buy from it also own cars. Every offer is recorded with a reference,
@@ -55,8 +55,11 @@ export default async function SellPage({ searchParams }: Props) {
 
   return (
     <>
-      <PageIntro eyebrow="Sell or trade in" title="Selling a car? Start with Sabicars.">
-        <p>Sell it to us, trade it in for one of our cars, or have us sell it for you. Tell us about it here, and it is on record with a reference.</p>
+      <PageIntro eyebrow="Sell your car" title="Selling a car? Start with Sabicars.">
+        <p>
+          Sell it to us, trade it in for one of our cars, or let us sell it for you. Tell us about it here and you get a reference
+          number.
+        </p>
       </PageIntro>
 
       <section className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)] gap-14 px-5 py-16 md:px-10 md:py-24 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
@@ -77,7 +80,8 @@ export default async function SellPage({ searchParams }: Props) {
           <div className="surface-card mt-12 p-6 text-sm leading-relaxed text-text-secondary">
             <p className="font-semibold text-text-primary">Sabicars never charges to look at your car.</p>
             <p className="mt-2">
-              Anyone who asks for an inspection fee, a deposit or a &ldquo;registration&rdquo; payment to buy your car in our name is not us.
+              Someone may say they are Sabicars and ask you for an inspection fee, a deposit or a &ldquo;registration&rdquo; fee. That is
+              not us.
               Our only numbers are on the{" "}
               <Link href="/contact" className="text-link underline underline-offset-2">
                 contact page
@@ -89,13 +93,13 @@ export default async function SellPage({ searchParams }: Props) {
           <p className="mt-12 text-sm text-text-muted">
             Buying instead? See the{" "}
             <Link href="/vehicles" className="text-text-secondary underline-offset-4 hover:text-text-primary hover:underline">
-              inventory
+              cars for sale
             </Link>
-            , or tell the{" "}
+            , or{" "}
             <Link href="/find" className="text-text-secondary underline-offset-4 hover:text-text-primary hover:underline">
-              Sourcing Desk
-            </Link>{" "}
-            the car you want.
+              request the car you want
+            </Link>
+            .
           </p>
         </div>
 

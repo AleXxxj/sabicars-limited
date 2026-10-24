@@ -22,16 +22,16 @@ export const metadata: Metadata = {
 const WHY = [
   { icon: BadgeCheck, title: "What Sabicars is known for", text: "Hummer buses are Sabicars’ speciality — the vehicle the business built its name on." },
   { icon: Eye, title: "See it before you pay", text: "Every bus here is in stock. Walk in, sit in it, start it, and inspect it before any money moves." },
-  { icon: Truck, title: "One bus or a whole fleet", text: "Staff transport, schools, churches, hotels, routes — one quotation and one accountable team for any number." },
-  { icon: Wallet, title: "Pay 40%", text: "Put down 40% on a bus from 2010 (50% on a 2008 or 2009 bus) and Autochek, Sabicars’ financing partner, finances the rest — subject to its lender’s approval." },
+  { icon: Truck, title: "One bus or many", text: "Staff transport, schools, churches, hotels, routes: one written quote and one team, however many you need." },
+  { icon: Wallet, title: "Pay 40%", text: "Pay 40% of the price on a bus from 2010 or newer, or 50% on a 2008 or 2009 bus. A loan through Autochek, our finance partner, covers the rest if its lender approves you." },
 ];
 
 /**
  * The Hummer bus — the Toyota Hiace high-roof, Sabicars' signature vehicle.
  *
  * Its one job: be the page Nigeria finds when it searches for a Hummer bus,
- * and turn that search into a viewing, a Drive Plan application or a fleet
- * quotation. The name is spelt the way the market searches ("Hummer"), with
+ * and turn that search into a viewing, a Drive Plan application or a price
+ * for several buses. The name is spelt the way the market searches ("Hummer"), with
  * "Humer" (how some listings were typed) kept in the description.
  */
 export default async function HummerBusPage() {
@@ -49,7 +49,7 @@ export default async function HummerBusPage() {
       <PageIntro eyebrow="The Hummer bus specialists" title="The Toyota Hiace Hummer bus." imageUrl={cover}>
         <p>
           The high-roof Hiace Nigeria calls the Hummer bus — for staff transport, schools, churches, hotels and commercial routes.
-          Sabicars keeps them in stock, supplies them as fleets, and puts them on the 40% Drive Plan.
+          Sabicars keeps them in stock, sells one or several at once, and puts them on the 40% Drive Plan.
         </p>
       </PageIntro>
 
@@ -92,9 +92,9 @@ export default async function HummerBusPage() {
         ) : (
           <div className="surface-card mt-12 p-8 text-center">
             <p className="text-lg text-text-primary">Every Hummer bus has just been sold.</p>
-            <p className="mt-2 text-text-secondary">Put one on the Sourcing Desk and you will hear the moment the next one arrives.</p>
+            <p className="mt-2 text-text-secondary">Request one and we will tell you as soon as the next one arrives.</p>
             <ButtonLink href="/find?want=Toyota+Hiace+Hummer+bus" className="mt-6">
-              Find me a Hummer bus
+              Request a Hummer bus
             </ButtonLink>
           </div>
         )}
@@ -119,7 +119,7 @@ export default async function HummerBusPage() {
           </ul>
           <div className="mt-12 flex flex-wrap gap-3">
             <ButtonLink href="/fleet#quote" size="lg">
-              Quote me a fleet
+              Get a price for several buses
             </ButtonLink>
             <ButtonLink href="/drive-plan" size="lg" variant="secondary">
               How the Drive Plan works
@@ -133,7 +133,7 @@ export default async function HummerBusPage() {
         <div className="mx-auto max-w-7xl px-5 py-16 md:px-10 md:py-20">
           <Link href="/blog/toyota-hiace-hummer-bus-buyers-guide" className="surface-card group flex flex-wrap items-center justify-between gap-6 p-6 md:p-10">
             <span className="max-w-2xl">
-              <span className="kicker">The buyer&rsquo;s guide</span>
+              <span className="kicker">Buying guide</span>
               <span className="mt-3 block font-display text-[1.9rem] leading-tight text-text-primary group-hover:text-green-100 md:text-[2.3rem]">
                 How to tell a good Hummer bus from a tired one — before you pay a kobo.
               </span>

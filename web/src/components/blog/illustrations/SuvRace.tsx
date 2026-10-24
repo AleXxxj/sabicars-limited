@@ -310,7 +310,7 @@ export function SuvRace({ stock }: { stock: SuvStock }) {
                 href={`/find?want=${encodeURIComponent(winner.name)}`}
                 className="group mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-green-300 hover:text-green-200"
               >
-                Not in the showroom today — ask the Sourcing Desk
+                Not in the showroom today — request it
                 <ArrowRight aria-hidden size={16} className="transition-transform group-hover:translate-x-1" />
               </Link>
             )}

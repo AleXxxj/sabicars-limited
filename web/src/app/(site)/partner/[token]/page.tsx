@@ -80,7 +80,7 @@ export default async function PartnerPage({ params }: Props) {
   const whatsapp = whatsappLink(`Hello Sabicars, I am partner ${partner.code} and I have a question about my commission.`);
 
   const figures: [string, number][] = [
-    ["In cooling-off", totals.pendingMinor],
+    ["Not final yet", totals.pendingMinor],
     ["Ready to be paid", totals.payableMinor],
     ["Paid", totals.paidMinor],
   ];
@@ -108,7 +108,7 @@ export default async function PartnerPage({ params }: Props) {
         <section className="surface-card p-6 md:p-8">
           <ReferralShare link={link} />
           <p className="mt-6 text-sm leading-relaxed text-text-muted">
-            Anyone who opens this link and then enquires is recorded against your code. Buyers who visit the showroom can simply give
+            Anyone who opens this link and then enquires is linked to your code. Buyers who visit the showroom can simply give
             your code.
           </p>
         </section>
@@ -238,8 +238,8 @@ export default async function PartnerPage({ params }: Props) {
         <section className="border-t border-border-subtle pt-10">
           <p className="kicker">How you are paid</p>
           <ul className="mt-5 list-disc space-y-2 pl-5 text-sm leading-relaxed text-text-secondary marker:text-green-400">
-            <li>One commission per sale: 1.5% of what the vehicle actually sold for, recorded against you when a buyer you brought completes a purchase. Fleet orders count in full.</li>
-            <li>It is paid once the sale is final, after a cooling-off of {coolingOff}. If the sale falls through before then, the commission is void and the reason is shown above.</li>
+            <li>One commission per sale: 1.5% of what the car sold for. It is added to your page when your buyer completes the purchase. Bulk orders count in full.</li>
+            <li>It can be paid {coolingOff} after the sale is final. If the sale is cancelled before then, the commission is void and the reason is shown above.</li>
             <li>Only into a bank account in your own name. The account holder&rsquo;s name is checked before your first payout, so nobody else can collect what you earned.</li>
             <li>You never pay Sabicars anything — not to register, not to be paid, not ever. Anyone asking you to pay is not Sabicars.</li>
             <li>You earn from buyers you bring, never from signing up other partners.</li>

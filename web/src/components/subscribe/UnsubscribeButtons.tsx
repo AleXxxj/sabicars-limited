@@ -34,7 +34,7 @@ export function UnsubscribeButtons({ token, email, active }: { token: string; em
           {pending ? "One moment…" : "Subscribe again"}
         </Button>
         <ButtonLink href="/vehicles" variant="quiet">
-          See the inventory
+          See cars for sale
         </ButtonLink>
       </div>
     </>

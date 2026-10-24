@@ -34,11 +34,13 @@ test.describe("A car's page", () => {
       await expect(status, "the car's status note is not shown").toBeVisible();
     } else {
       const plan = page.getByText(/^Your \d+% deposit$/);
-      const cash = page.getByText("Cash purchase.", { exact: true });
-      await expect(plan.or(cash).first(), 'the car page neither offers the Drive Plan nor says "Cash purchase."').toBeVisible();
+      const cash = page.getByText("Full payment only.", { exact: true });
+      await expect(plan.or(cash).first(), 'the car page neither offers the Drive Plan nor says "Full payment only."').toBeVisible();
       if (await plan.count()) {
+        await expect(page.getByText(/^\d+%, paid by a loan through Autochek$/), "the Drive Plan card does not say what the loan covers").toBeVisible();
+        // The estimate is folded away under "Monthly estimate", so the price stays the first thing read.
+        await page.locator("summary").filter({ hasText: "Monthly estimate" }).first().click();
         await expect(page.getByText("Estimated monthly repayment"), "the Drive Plan card shows no estimated monthly repayment").toBeVisible();
-        await expect(page.getByText(/^\d+%, financed by Autochek$/), "the Drive Plan card does not say what Autochek finances").toBeVisible();
       }
     }
     assertNoFaults(faults);

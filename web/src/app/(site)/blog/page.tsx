@@ -8,7 +8,7 @@ import { pageAddress } from "@/lib/site";
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: "Insights — buying, financing and running a vehicle in Nigeria",
+  title: "Buying guides — buying, financing and running a vehicle in Nigeria",
   description:
     "Straight answers about buying, financing and running a vehicle in Nigeria, from people who sell them every day: buyer's guides, the 40% Drive Plan, inspections and the Toyota Hiace Hummer bus.",
   ...pageAddress("/blog"),
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 type Props = { searchParams: Promise<{ category?: string }> };
 
 /**
- * Insights.
+ * Buying guides.
  *
  * Its one job: make the reader better at buying a vehicle than the person
  * selling it to them expects — and trust Sabicars because of it. The newest
@@ -33,13 +33,12 @@ export default async function BlogIndex({ searchParams }: Props) {
   return (
     <>
       <header className="mx-auto max-w-7xl px-5 pt-12 pb-10 md:px-10 md:pt-20 md:pb-14">
-        <p className="kicker">Insights</p>
+        <p className="kicker">Buying guides</p>
         <h1 className="mt-5 max-w-4xl font-display text-[clamp(2.6rem,1.7rem+3.6vw,4.8rem)] leading-[1.02] tracking-[-0.02em]">
           Know more than the seller.
         </h1>
         <p className="mt-6 max-w-2xl text-xl leading-relaxed text-text-secondary">
-          Straight answers about buying, financing and running a vehicle in Nigeria — from people who sell them every day, and would rather
-          you bought well.
+          Plain answers about buying, paying for and running a car in Nigeria. They come from people who sell cars every day.
         </p>
         {categories.length > 1 && (
           <nav aria-label="Topics" className="mt-10 flex flex-wrap gap-2">

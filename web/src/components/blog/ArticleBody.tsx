@@ -258,22 +258,22 @@ const CALLOUT = {
 
 const CTA = {
   "drive-plan": {
-    title: "Pay 40%. Autochek finances the rest.",
+    title: "Pay 40% down. Pay the rest monthly.",
     text: "40% down on a car from 2010, 50% on a 2008 or 2009 car. See what your deposit can drive home today.",
     href: "/drive-plan",
     label: "Start with the Drive Plan",
   },
   find: {
     title: "Not in the showroom?",
-    text: "Tell the Sourcing Desk what you want and your budget. Hear the moment one arrives.",
+    text: "Tell us the car you want and your budget. Hear as soon as one arrives.",
     href: "/find",
-    label: "Put it on the desk",
+    label: "Request a car",
   },
   fleet: {
     title: "Buying more than one?",
-    text: "Companies, schools and churches buy buses from Sabicars as a single order, with one team accountable.",
+    text: "Companies, schools and churches buy buses from Sabicars as one order, with one team from start to finish.",
     href: "/fleet",
-    label: "Request a fleet quotation",
+    label: "Get a price for several vehicles",
   },
   hummer: {
     title: "Every Hummer bus in stock",
@@ -285,7 +285,7 @@ const CTA = {
     title: "See what is in the showroom",
     text: "Every vehicle photographed, priced and ready to inspect.",
     href: "/vehicles",
-    label: "Browse the inventory",
+    label: "See cars for sale",
   },
 } as const;
 

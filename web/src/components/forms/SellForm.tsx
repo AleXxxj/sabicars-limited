@@ -334,7 +334,7 @@ export function SellForm({
           disabled={pending}
           className="w-full sm:w-auto"
         >
-          {pending ? "Sending…" : "Send my car's details"}
+          {pending ? "Sending…" : "Send my car’s details"}
         </Button>
         <p className="mt-4 text-xs text-text-muted">
           Your details are used only to reply about your car. <PrivacyLink />

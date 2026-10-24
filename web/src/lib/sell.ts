@@ -1,8 +1,8 @@
-/** The choices on the "Sell or trade in your car" form (/sell), shared by the form and the server. */
+/** The choices on the "Sell your car" form (/sell), shared by the form and the server. */
 
 export const SELL_INTENTS = {
   sell: "Sell it to Sabicars",
-  trade_in: "Trade it in for one of your cars",
+  trade_in: "Trade it in towards one of your cars",
   consign: "Have Sabicars sell it for me",
 } as const;
 

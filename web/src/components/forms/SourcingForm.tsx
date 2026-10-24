@@ -15,8 +15,9 @@ const REPLY_BY = [
 ] as const;
 
 /**
- * The Sourcing Desk's intake. Starts with the car, not the person — what they
- * want is why they are here — and may arrive pre-filled from the homepage.
+ * The "Request a car" form (to staff, the Sourcing Desk's intake). Starts with
+ * the car, not the person — what they want is why they are here — and may
+ * arrive pre-filled from the homepage.
  */
 export function SourcingForm({ whatsappBase, initial }: { whatsappBase: string; initial: Record<string, string | undefined> }) {
   const [state, action, pending] = useActionState(submitSourcingRequest, null);
@@ -30,8 +31,8 @@ export function SourcingForm({ whatsappBase, initial }: { whatsappBase: string; 
         <Confirmation
           name={state.name}
           reference={state.reference}
-          body="Your request is on the desk. When a vehicle that matches arrives, you will be told straight away."
-          whatsappHref={`${whatsappBase}?text=${encodeURIComponent(`Hello Sabicars, I put a request on the Sourcing Desk (reference ${state.reference}).`)}`}
+          body="Your request is saved. When a matching car arrives, we will tell you straight away."
+          whatsappHref={`${whatsappBase}?text=${encodeURIComponent(`Hello Sabicars, I sent a car request (reference ${state.reference}).`)}`}
         />
         {matches.length > 0 && (
           <div className="surface-card p-6 md:p-8">
@@ -187,7 +188,7 @@ export function SourcingForm({ whatsappBase, initial }: { whatsappBase: string; 
 
       <div>
         <Button type="submit" size="lg" disabled={pending} className="w-full sm:w-auto">
-          {pending ? "Saving…" : "Put it on the desk"}
+          {pending ? "Sending…" : "Send my request"}
         </Button>
         <p className="mt-4 text-xs text-text-muted">Your details are used only to tell you about vehicles that match this request. <PrivacyLink /></p>
       </div>

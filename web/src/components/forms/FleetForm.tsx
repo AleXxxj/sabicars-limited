@@ -26,7 +26,7 @@ export function FleetForm({ whatsappBase }: { whatsappBase: string }) {
       <Confirmation
         name={state.name}
         reference={state.reference}
-        body="Sabicars will contact you to confirm the specification and prepare a quotation."
+        body="We will contact you to confirm exactly which vehicles you need, then send you a written price."
         whatsappHref={`${whatsappBase}?text=${encodeURIComponent(`Hello Sabicars, I just sent a fleet request through your website (reference ${state.reference}).`)}`}
       />
     );
@@ -127,9 +127,9 @@ export function FleetForm({ whatsappBase }: { whatsappBase: string }) {
 
       <div>
         <Button type="submit" size="lg" disabled={pending} className="w-full sm:w-auto">
-          {pending ? "Sending…" : "Request a quotation"}
+          {pending ? "Sending…" : "Ask for a price"}
         </Button>
-        <p className="mt-4 text-xs text-text-muted">Your details are used only to prepare and discuss this quotation. <PrivacyLink /></p>
+        <p className="mt-4 text-xs text-text-muted">Your details are used only to prepare your price and discuss it with you. <PrivacyLink /></p>
       </div>
     </form>
   );

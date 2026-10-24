@@ -30,7 +30,7 @@ export default function ContactPage() {
   return (
     <>
       <PageIntro eyebrow="Contact" title="Talk to Sabicars.">
-        <p>Walk in, call, or send a message. Every message is recorded with a reference, so nothing is lost between conversations.</p>
+        <p>Walk in, call or send a message. Every message gets a reference number, so nothing is lost between conversations.</p>
       </PageIntro>
 
       <section className="mx-auto max-w-7xl px-5 py-16 md:px-10 md:py-20">
@@ -97,8 +97,7 @@ export default function ContactPage() {
             <p className="kicker">Send a message</p>
             <h2 className="mt-4 text-display-2">How can we help?</h2>
             <p className="mt-5 text-lg leading-relaxed text-text-secondary">
-              Asking about a particular vehicle? You will get a faster answer from the enquiry form on its page — it tells us exactly
-              which one you mean.
+              Asking about one car? Use the form on that car’s page. It tells us which car you mean, so you get an answer faster.
             </p>
             <p className="mt-8 text-sm text-text-muted">
               {site.legalName} · CAC RC {site.rcNumber} ·{" "}

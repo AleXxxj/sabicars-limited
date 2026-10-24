@@ -22,7 +22,7 @@ import { BODY_LABEL, CONDITION_LABEL } from "@/lib/vehicle";
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 
-const PLURAL: Partial<Record<string, string>> = { car: "Cars", bus: "Buses", suv: "SUVs", truck: "Trucks", sedan: "Sedans", van: "Vans", pickup: "Pickups", coupe: "Coupes" };
+const PLURAL: Partial<Record<string, string>> = { car: "Saloon cars", bus: "Buses", suv: "SUVs", truck: "Trucks", sedan: "Sedans", van: "Vans", pickup: "Pickups", coupe: "Coupes" };
 
 /** "Luxury Lexus SUVs" — the heading reads the way a buyer would say it. */
 function headingFor(f: InventoryFilters): string {
@@ -74,7 +74,7 @@ export default async function InventoryPage({ searchParams }: Props) {
     <>
       <section className="border-b border-border-subtle">
         <div className="mx-auto max-w-7xl px-5 pb-10 pt-14 md:px-10 md:pt-20">
-          <p className="kicker">Inventory</p>
+          <p className="kicker">Cars for sale</p>
           <h1 className="mt-4 text-display-2">{headingFor(f)}</h1>
           <p className="figures mt-4 text-text-secondary">
             {result.total} {result.total === 1 ? "vehicle" : "vehicles"} in stock
@@ -98,10 +98,11 @@ export default async function InventoryPage({ searchParams }: Props) {
             <Chip href={filtersHref(f, { segment: f.segment === "luxury" ? undefined : "luxury", body: undefined })} active={f.segment === "luxury"}>
               Luxury
             </Chip>
-            {/* Saloons, coupés and the like are one chip, "Cars" — the way buyers ask. */}
+            {/* Saloons, coupés and the like are one chip, "Saloon cars" — the name the footer uses for it too.
+                Plain "Cars" would read as the whole page, which is "Cars for sale". */}
             {cars > 0 && (
               <Chip href={filtersHref(f, { body: f.body === "car" ? undefined : "car", segment: undefined })} active={f.body === "car"}>
-                Cars <span className="figures opacity-70">{cars}</span>
+                Saloon cars <span className="figures opacity-70">{cars}</span>
               </Chip>
             )}
             {result.bodies
@@ -190,12 +191,15 @@ export default async function InventoryPage({ searchParams }: Props) {
         ) : (
           <div className="border border-border-subtle bg-surface-1 px-6 py-16 text-center">
             <h2 className="text-display-3">Nothing matches those filters</h2>
-            <p className="mx-auto mt-4 max-w-md text-text-secondary">
-              Try fewer filters — or tell us what you are looking for, and Sabicars can source it.
-            </p>
-            <Link href="/vehicles" className="group inline-flex min-h-11 items-center gap-1.5 text-[0.95rem] font-semibold text-green-300 hover:text-green-200 mt-6">
-              See all vehicles →
-            </Link>
+            <p className="mx-auto mt-4 max-w-md text-text-secondary">Try fewer filters, or request the car you want and we can look for it.</p>
+            <div className="mt-6 flex flex-wrap justify-center gap-x-6 gap-y-2">
+              <Link href="/find" className="group inline-flex min-h-11 items-center gap-1.5 text-[0.95rem] font-semibold text-green-300 hover:text-green-200">
+                Request a car →
+              </Link>
+              <Link href="/vehicles" className="group inline-flex min-h-11 items-center gap-1.5 text-[0.95rem] font-semibold text-green-300 hover:text-green-200">
+                See all cars for sale →
+              </Link>
+            </div>
           </div>
         )}
 
@@ -228,9 +232,13 @@ export default async function InventoryPage({ searchParams }: Props) {
             <p id="recently-sold" className="kicker">
               Recently sold
             </p>
-            <h2 className="mt-3 text-display-3">Vehicles that found new homes.</h2>
+            <h2 className="mt-3 text-display-3">Already sold.</h2>
             <p className="mt-3 max-w-xl text-text-secondary">
-              Missed one? Put it on the Sourcing Desk and hear the moment a similar one arrives.
+              Missed one?{" "}
+              <Link href="/find" className="text-green-300 underline-offset-4 hover:underline">
+                Request a car
+              </Link>{" "}
+              and we will tell you if a similar one arrives.
             </p>
             <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
               {sold.map((v) => (

@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Pause, Play, Volume2, VolumeX, Wallet } from "lucide-react";
+import { ArrowRight, Pause, Play, Sparkles, Volume2, VolumeX, Wallet } from "lucide-react";
+import { AskButton } from "@/components/assistant/AskButton";
 import { ButtonAnchor, ButtonLink } from "@/components/ui/Button";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { VehicleImage } from "@/components/VehicleImage";
@@ -151,27 +152,34 @@ export function HeroShowcase({
       <div aria-hidden className="absolute inset-0 -z-10" style={{ background: "var(--hero-scrim-bottom)" }} />
 
       <div className="mx-auto w-full max-w-7xl px-5 pb-20 pt-14 md:px-10 md:pb-28 md:pt-28">
-        <p className="kicker">CAC registered · RC 1560100</p>
+        <p className="kicker">Car dealer in Lagos · CAC registered</p>
         <h1 className="mt-6 max-w-4xl text-display-1 text-[var(--hero-text)]">
           {allVerified ? "Every car verified." : "Real cars, real prices."}
           <br />
           <em className="text-green-300">Every deal</em> on record.
         </h1>
         <p className="mt-5 max-w-xl text-base leading-relaxed text-[var(--hero-text-secondary)] md:mt-6 md:text-lg">
-          Toyota Hiace Hummer buses, luxury cars, SUVs and trucks — photographed, priced and documented. Put down 40% on a car from 2010 and
-          Autochek finances the rest, or let us supply your whole fleet.
+          Hiace Hummer buses, luxury cars, SUVs and trucks, each one photographed and priced. Pay 40% of the price on a car from 2010 or
+          newer, and a loan through Autochek covers the rest if approved.
         </p>
         <div className="mt-8 flex flex-wrap gap-3 md:mt-10 md:gap-4">
           <ButtonLink href="/vehicles" size="lg">
-            Browse cars
+            See cars for sale
           </ButtonLink>
           <ButtonAnchor href="#drive-plan" size="lg" variant="secondary">
             <Wallet aria-hidden size={18} strokeWidth={1.75} /> What can I afford?
           </ButtonAnchor>
         </div>
+        {/* For the visitor who has neither a car nor a budget in mind yet: the same panel as the floating Ask button. */}
+        <AskButton className="group mt-4 inline-flex min-h-11 items-center gap-2 text-left text-[0.95rem] text-[var(--hero-text-secondary)] transition-colors hover:text-[var(--hero-text)] md:mt-5">
+          <Sparkles aria-hidden size={17} className="shrink-0 text-green-300" />
+          <span>
+            Not sure where to start? <span className="font-semibold text-green-300 group-hover:text-green-200">Ask Sabicars</span>
+          </span>
+        </AskButton>
 
-        {/* What is on screen, and a way to it. */}
-        <div className="mt-10 flex flex-wrap items-end justify-between gap-6 border-t border-white/15 pt-5 md:mt-14">
+        {/* What is on screen, and a way to it. On a phone, clear of the floating Ask button. */}
+        <div className="mt-10 flex flex-wrap items-end justify-between gap-6 border-t border-white/15 pt-5 max-sm:pr-20 md:mt-14">
           {current && !videoOn ? (
             <Link href={current.href} aria-live="polite" className="glass group flex min-w-0 max-w-full items-center gap-3 rounded-full py-2 pl-4 pr-3 text-sm text-white">
               <span className="shrink-0 text-xs text-white/60">Now showing</span>

@@ -19,8 +19,8 @@ export const metadata: Metadata = {
 const HOW = [
   ["Register", "Free, in a minute, with your phone number. Your personal code and link are ready at once."],
   ["Share", "Send your link on WhatsApp, Instagram or TikTok — or give your code to anyone who is buying."],
-  ["They buy", "Your buyer enquires through your link, or gives your code at the showroom. It is recorded against you."],
-  ["You are paid", "When the sale is final, 1.5% of the price goes into your bank account. Fleet orders count in full."],
+  ["They buy", "Your buyer enquires through your link, or gives your code at the showroom. Either way, the buyer is linked to you."],
+  ["You are paid", "When the sale is final, 1.5% of the price goes into your bank account. Bulk orders count in full."],
 ];
 
 /**
@@ -38,8 +38,8 @@ export default async function PartnersPage() {
     <>
       <PageIntro eyebrow="Refer & Earn" title="Send a buyer. Earn 1.5%.">
         <p>
-          Know someone looking for a car, a bus or a whole fleet? Register free, share your link, and when they buy from Sabicars,
-          1.5% of the price is yours.
+          Know someone who wants a car, a bus or many vehicles? Register free and send them your link. When they buy from Sabicars, 1.5% of
+          the price is yours.
         </p>
       </PageIntro>
 
@@ -67,8 +67,8 @@ export default async function PartnersPage() {
             <p className="kicker">The rules</p>
             <h2 className="mt-4 text-display-2">A commission on sales. Nothing else.</h2>
             <p className="mt-5 text-lg leading-relaxed text-text-secondary">
-              You earn when a car is sold to someone you brought — the way commission has always worked in this trade, written down so
-              nobody can bend it.
+              You earn when someone you brought buys a car. That is how commission has always worked in car sales. Here the rules
+              are written down, and they are the same for everyone.
             </p>
           </ScrollReveal>
           <div className="mt-14">
@@ -101,7 +101,8 @@ export default async function PartnersPage() {
               One minute, no fee. Your code and link appear as soon as you register.
             </p>
             <p className="mt-4 text-text-secondary">
-              You get a private page link when you register — your earnings, and where you add the bank account you are paid into.
+              When you register, you get a private link to your own page. It shows what you have earned, and it is where you add the bank
+              account we pay into.
             </p>
           </ScrollReveal>
           <PartnerForm />

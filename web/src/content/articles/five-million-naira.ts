@@ -98,7 +98,7 @@ export const fiveMillionNaira = {
         },
         {
           q: "Does Sabicars sell cars under ₦5 million?",
-          a: "The showroom starts above that today. But ₦5 million as a Drive Plan deposit reaches cars in it now — and the [Sourcing Desk](/find) can look for a specific car in your budget.",
+          a: "The showroom starts above that today. But ₦5 million as a Drive Plan deposit reaches cars in it now — or [request a car](/find) in your budget and we can look for it.",
         },
       ],
     },

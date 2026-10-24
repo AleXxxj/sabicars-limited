@@ -30,7 +30,7 @@ export function EarningsExamples({ vehicles }: { vehicles: CatalogueItem[] }) {
         ))}
       </ul>
       <p className="border-t border-white/[0.06] bg-white/[0.02] px-6 py-4 text-sm text-text-secondary md:px-8">
-        Fleet orders count in full: on a <span className="figures">₦100,000,000</span> order, 1.5% is{" "}
+        Bulk orders count in full: on a <span className="figures">₦100,000,000</span> order, 1.5% is{" "}
         <span className="figures text-text-primary">{formatNaira(commissionMinor(100_000_000 * 100))}</span>.
       </p>
     </div>

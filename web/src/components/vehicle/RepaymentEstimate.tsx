@@ -19,7 +19,7 @@ export function RepaymentEstimate({ balanceMinor, size = "card" }: { balanceMino
       <p className="text-xs text-text-muted">Estimated monthly repayment</p>
       <p aria-live="polite" className={`figures mt-1 ${size === "hero" ? "font-display text-[1.9rem] leading-none text-text-primary" : "text-lg font-semibold text-text-primary"}`}>
         {formatNaira(monthly)}{" "}
-        <span className={`font-sans font-normal text-text-muted ${size === "hero" ? "text-sm" : "text-xs"}`}>a month over {months} months</span>
+        <span className={`font-sans font-normal text-text-muted ${size === "hero" ? "text-sm" : "text-xs"}`}>a month for {months} months</span>
       </p>
       <div role="radiogroup" aria-label="Repayment term" className="mt-3 flex flex-wrap gap-2">
         {ESTIMATE_MONTHS.map((m) => (

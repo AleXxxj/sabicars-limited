@@ -19,6 +19,7 @@ import {
   monthlyAtCeilingMinor,
 } from "@/lib/drive-plan";
 import { BODY_LABEL, CONDITION_LABEL, DRIVETRAIN_LABEL, vehicleTitle } from "@/lib/vehicle";
+import { CARS_NAV, MAIN_NAV, MORE_NAV } from "@/lib/navigation";
 import type { AssistantCar } from "./parts";
 import { familyGuide } from "@/lib/hiace-family";
 
@@ -125,7 +126,7 @@ function vehicleEntry(v: VehicleWithCover, now: Date, report: string | undefined
     `### ${vehicleTitle(v)}${v.trim ? ` (${v.trim})` : ""}`,
     `slug: ${v.slug} · page: /vehicles/${v.slug}`,
     `Price: ${v.priceMinor ? formatNaira(v.priceMinor) : "on request"}${
-      deposit ? ` · Drive Plan deposit (${depositPercentLabel(v.year)}): ${formatNaira(deposit)}${estimate}` : v.priceMinor ? ` · NOT on the Drive Plan (older than ${DRIVE_PLAN.minYear}): cash only` : ""
+      deposit ? ` · Drive Plan deposit (${depositPercentLabel(v.year)}): ${formatNaira(deposit)}${estimate}` : v.priceMinor ? ` · NOT on the Drive Plan (older than ${DRIVE_PLAN.minYear}): full payment only` : ""
     }${flags.length ? ` · ${flags.join(" · ")}` : ""}`,
     `Facts: ${facts.join(" · ")}`,
     v.features.length ? `Features: ${v.features.join(", ")}` : null,
@@ -157,6 +158,42 @@ function stockSummary(stock: VehicleWithCover[]): string {
   ].join("\n");
 }
 
+/**
+ * Every public page by the name buyers see, read from the one list the header,
+ * the tab bar, the More menu and the footer use, so the assistant never sends
+ * a buyer to a page by a name the site no longer shows.
+ */
+const PAGES = [CARS_NAV, ...MAIN_NAV, ...MORE_NAV.flatMap<(typeof MORE_NAV)[number]["items"][number]>((g) => g.items)];
+type PageHref = (typeof PAGES)[number]["href"];
+
+/** A page as the assistant should name it: "Request a car (/find)". */
+function page(href: PageHref): string {
+  return `${PAGES.find((p) => p.href === href)!.label} (${href})`;
+}
+
+/**
+ * Names from the old site and menus that buyers still use, and the page each
+ * one now is. The assistant has to understand them, then answer with the new name.
+ */
+const OLD_NAMES: [string, PageHref][] = [
+  ['"Sourcing Desk"', "/find"],
+  ['"Fleet", "Fleet & Government" or "fleet supply"', "/fleet"],
+  ['"Insights"', "/blog"],
+  ['"Inventory"', "/vehicles"],
+  ['"Sell or trade in" or "Sell or swap your car"', "/sell"],
+  ['"Find a car"', "/find"],
+  ['"Earn"', "/partners"],
+  ['"Saved cars"', "/saved"],
+  ['"Browse cars"', "/vehicles"],
+];
+
+function pageNames(): string {
+  return [
+    ...PAGES.map((p) => `- ${p.label} (${p.href})${"short" in p ? `, "${p.short}" on the phone's tab bar` : ""}: ${p.hint}`),
+    `Older names a buyer may still use: ${OLD_NAMES.map(([old, href]) => `${old} means ${page(href)}`).join("; ")}. Understand them, but answer with the names above.`,
+  ].join("\n");
+}
+
 function articles(posts: PostCard[]): string {
   return posts.map((p) => `- [${p.title}](/blog/${p.slug}) — ${p.standfirst}`).join("\n");
 }
@@ -176,19 +213,19 @@ export const knowledge = cache(async () => {
 
   const text = `# Sabicars
 
-${site.legalName} (CAC RC ${site.rcNumber}) sells cars, SUVs, Toyota Hiace "Hummer" buses and trucks from its showroom in Lagos, and supplies fleets to companies and government bodies.
+${site.legalName} (CAC RC ${site.rcNumber}) sells cars, SUVs, Toyota Hiace "Hummer" buses and trucks from its showroom in Lagos, and sells vehicles in bulk to companies and government offices.
 
 - Showroom: ${site.address.line1}, ${site.address.line2}, ${site.address.city}. Directions: ${site.mapsUrl}
 - Hours: ${site.hours.map((h) => `${h.days} ${h.time}`).join("; ")} (Lagos time).
 - Phone: ${site.phones.map((p) => p.display).join(" or ")}. WhatsApp: ${site.whatsapp.display}. Email: ${site.email}.
 - Every car at the showroom can be inspected there before any money changes hands, and buyers are welcome to bring their own mechanic. A car marked HELD ELSEWHERE in its entry is not at the showroom: viewing and an inspection by the Sabicars team are arranged on request, and it does not carry the Sabicars Verified seal.
 - Sabicars Verified: the Sabicars team inspects a car at the showroom, every check answered and photographed where needed, and the seal goes only to a car inspected that way. An entry that carries a Sabicars Verified report says so, with its link.
-- Selling or trading in: someone with a car to sell uses /sell. They can sell it to Sabicars, trade it in towards a car in stock, or have Sabicars sell it for them, then send photos on WhatsApp with their reference. Sabicars replies after looking at the car; never quote what a car is worth.
+- ${page("/sell")}: someone with a car to sell can sell it to Sabicars, trade it in towards a car in stock, or have Sabicars sell it for them, then send photos on WhatsApp with their reference. Sabicars replies after looking at the car; never quote what a car is worth.
 - Viewings: a buyer books a time on the car's own page (Book a viewing), choosing an hourly slot within opening hours, from two hours ahead up to a week ahead. They get a reference and a calendar file.
 - Privacy: chats and enquiries are kept so the team can follow up, and Sabicars does not sell personal data. Anyone can ask to see, correct or delete their details by emailing ${site.email}. The full notice is at /privacy.
 
 ## The 40% Drive Plan (Autochek finances the balance)
-- The deposit depends on the car's model year: 40% for a car from ${DRIVE_PLAN.standardYear} (Autochek finances 60%); 50% for a ${DRIVE_PLAN.minYear} or ${DRIVE_PLAN.standardYear - 1} car (Autochek finances 50%). Autochek's lenders do not finance cars older than ${DRIVE_PLAN.minYear}: those are bought outright. Each car's entry below states its own deposit, or that it is not on the plan. A buyer may put down more than the minimum (up to ${DRIVE_PLAN.maxDepositBps / 100}%).
+- The deposit depends on the car's model year: 40% for a car from ${DRIVE_PLAN.standardYear} (Autochek finances 60%); 50% for a ${DRIVE_PLAN.minYear} or ${DRIVE_PLAN.standardYear - 1} car (Autochek finances 50%). Autochek's lenders do not finance cars older than ${DRIVE_PLAN.minYear}: those can only be paid for in full. Each car's entry below states its own deposit, or that it is not on the plan. A buyer may put down more than the minimum (up to ${DRIVE_PLAN.maxDepositBps / 100}%).
 - Autochek's lender sets the interest rate and the term when it assesses the buyer. Autochek publishes a ceiling of ${DRIVE_PLAN.maxAnnualRatePercent}% a year and terms of ${DRIVE_PLAN.tenureMonths.min} to ${DRIVE_PLAN.tenureMonths.max} months; the exact rate is given when the buyer applies. Never quote a rate or a monthly figure as fact: say "set by the lender, up to ${DRIVE_PLAN.maxAnnualRatePercent}% a year, over ${DRIVE_PLAN.tenureMonths.min} to ${DRIVE_PLAN.tenureMonths.max} months"; a monthly figure is only ever the estimate described below.
 - Monthly estimate: the site shows an estimated monthly repayment at Autochek's published ceiling of ${DRIVE_PLAN.maxAnnualRatePercent}% a year over ${ESTIMATE_MONTHS.slice(0, -1).join(", ")} or ${ESTIMATE_MONTHS.at(-1)} months (${DEFAULT_ESTIMATE_MONTHS} by default); each car's entry carries its estimate. Give it ONLY as "an estimate at Autochek's published ceiling over N months — your offer sets the real rate and can be lower"; never as the lender's quote, never as "your repayment". The offer may also add ${MONTHLY_INCLUDES}.
 - What Autochek asks for: a BVN, a valid ID, bank statements for the last ${DRIVE_PLAN.statementMonths} months from the account the buyer actually uses — a commercial bank, or ${DRIVE_PLAN.statementAlternative} — showing money coming in and going out (every applicant; the app is the alternative for those without a commercial bank account), proof of income (an employment letter or payslips for salary earners; a CAC business registration for business owners, and a registered business name is enough), and a utility bill. A business owner without a CAC registration can register a business name first, at pre.cac.gov.ng for the CAC's published fee (about ₦21,700 in 2026, usually within a few working days); Autochek's team told Sabicars in October 2026 that it can arrange one for about ₦35,000 (say it exactly that way — it is what its team said, not a published Autochek price).
@@ -198,14 +235,17 @@ ${site.legalName} (CAC RC ${site.rcNumber}) sells cars, SUVs, Toyota Hiace "Humm
 - These rules — the deposit tiers, and that statements from ${DRIVE_PLAN.statementAlternative} count for a buyer without a commercial bank account — were given to Sabicars by Autochek's team on 20 October 2026; say so that way, never as something Autochek publishes. Autochek's lenders decide each application.
 
 ## Other ways Sabicars helps
-- The Sourcing Desk (/find): a buyer describes a car that is not in stock — make, model, year, budget — and is told the moment one arrives.
-- Refer & Earn (/partners): anyone can register free, share their link, and earn 1.5% of the price when a buyer they sent completes a purchase.
-- Fleet supply (/fleet): companies and government bodies buy in volume, quoted and delivered as one order.
-- Price-drop alerts: on any car's page, a buyer can ask to be told if the price drops. Saved cars: the heart on any car.
-- Comparisons: any two or three cars can be compared side by side at /compare.
+- ${page("/find")}: a buyer describes a car that is not in stock — make, model, year, budget — gets a reference number, and is told the moment one arrives.
+- ${page("/partners")}: anyone can register free, share their link, and earn 1.5% of the price when a buyer they sent completes a purchase.
+- ${page("/fleet")}: companies and government offices buy several vehicles as one order, with one written quote.
+- Price-drop alerts: on any car's page, a buyer can ask to be told if the price drops. ${page("/saved")}: tap the heart on any car to keep it there with today's price.
+- ${page("/compare")}: any two or three cars side by side.
+
+## The site's pages, by the names buyers see in the menus
+${pageNames()}
 
 ## Useful links
-- All stock: /vehicles · SUVs: /vehicles?body=suv · Buses: /vehicles?body=bus · Saloons: /vehicles?body=sedan · Pickups: /vehicles?body=pickup · Trucks: /vehicles?body=truck
+- All stock: /vehicles · SUVs: /vehicles?body=suv · Buses: /vehicles?body=bus · Saloon cars: /vehicles?body=car · Pickups: /vehicles?body=pickup · Trucks: /vehicles?body=truck
 - Luxury: /vehicles?segment=luxury · By price: /vehicles?maxPrice=20000000 (whole naira)
 - The Hummer bus: /hummer-bus · Contact: /contact · About: /about · Answers to common questions: /ask
 

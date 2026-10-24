@@ -46,7 +46,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
  * An article.
  *
  * Its one job: be worth reading to the end — and at the end, make the next
- * step obvious: a car in the showroom, the Drive Plan, the Sourcing Desk, or
+ * step obvious: a car in the showroom, the Drive Plan, Request a car, or
  * the newsletter. Everything around the text serves the reading: a progress
  * line, the sections within reach, and nothing that interrupts.
  */
@@ -62,7 +62,7 @@ export default async function ArticlePage({ params }: Props) {
   const coverVideo = post.coverVideoUrl ? videoSource(post.coverVideoUrl) : null;
   const trail = [
     { name: "Home", path: "/" },
-    { name: "Insights", path: "/blog" },
+    { name: "Buying guides", path: "/blog" },
     { name: post.title, path: `/blog/${post.slug}` },
   ];
 
@@ -92,7 +92,7 @@ export default async function ArticlePage({ params }: Props) {
       <header className="mx-auto max-w-5xl px-5 pt-10 md:px-10 md:pt-16">
         <nav aria-label="Breadcrumb" className="text-sm text-text-muted">
           <Link href="/blog" className="hover:text-text-primary">
-            Insights
+            Buying guides
           </Link>
           <span aria-hidden className="mx-2">
             ›
@@ -198,7 +198,7 @@ export default async function ArticlePage({ params }: Props) {
                 Keep reading
               </h2>
               <Link href="/blog" className="group inline-flex min-h-11 items-center gap-2 font-semibold text-green-300 hover:text-green-200">
-                All insights <ArrowRight aria-hidden size={17} className="transition-transform group-hover:translate-x-1" />
+                All buying guides <ArrowRight aria-hidden size={17} className="transition-transform group-hover:translate-x-1" />
               </Link>
             </div>
             <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">

@@ -48,7 +48,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
  * A search landing page: "Toyota Highlander for sale in Lagos".
  *
  * Its one job: be the result a buyer lands on when they search for a model
- * Sabicars stocks — and from there, a car page or a Sourcing Desk request.
+ * Sabicars stocks — and from there, a car page or a car request (/find).
  * One page per make and per model family, generated from the stock itself,
  * so a newly listed model gets its page without anyone writing it.
  */
@@ -69,7 +69,7 @@ export default async function TermPage({ params }: Props) {
   const makeTerm = all.find((t) => t.make === term.make && !t.family);
   const trail = [
     { name: "Home", path: "/" },
-    { name: "Inventory", path: "/vehicles" },
+    { name: "Cars for sale", path: "/vehicles" },
     ...(term.family && makeTerm ? [{ name: term.make, path: termHref(makeTerm.slug) }] : []),
     { name: term.family ?? term.make, path: termHref(term.slug) },
   ];
@@ -131,16 +131,16 @@ export default async function TermPage({ params }: Props) {
         ) : (
           <div className="surface-card p-8 text-center">
             <p className="text-lg text-text-primary">No {noun(term)} in the showroom right now.</p>
-            <p className="mt-2 text-text-secondary">Put one on the Sourcing Desk and you will hear the moment one arrives.</p>
+            <p className="mt-2 text-text-secondary">Request one and we will tell you as soon as one arrives.</p>
           </div>
         )}
 
         <div className="surface-card mt-12 flex flex-wrap items-center justify-between gap-6 p-6 md:p-8">
           <div>
             <p className="text-lg font-semibold text-text-primary">Want a different year, colour or budget?</p>
-            <p className="mt-1 text-text-secondary">Tell the Sourcing Desk and hear the moment a {term.family ? term.label : `${term.make}`} that fits arrives.</p>
+            <p className="mt-1 text-text-secondary">Request one and hear as soon as a {term.family ? term.label : `${term.make}`} that fits arrives.</p>
           </div>
-          <ButtonLink href={`/find?want=${encodeURIComponent(term.label)}`}>Find me one</ButtonLink>
+          <ButtonLink href={`/find?want=${encodeURIComponent(term.label)}`}>Request one</ButtonLink>
         </div>
       </section>
 

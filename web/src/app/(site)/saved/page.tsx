@@ -4,14 +4,14 @@ import { PageIntro } from "@/components/site/PageIntro";
 import { pageAddress } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Saved cars",
+  title: "My saved cars",
   // Personal to each visitor's device: nothing here for a search engine.
   robots: { index: false, follow: true },
   ...pageAddress("/saved"),
 };
 
 /**
- * Saved cars.
+ * My saved cars.
  *
  * Its one job: bring a visitor back. A shortlist to return to, and a price
  * alert that brings them back on its own when a car they want gets cheaper.
@@ -19,8 +19,8 @@ export const metadata: Metadata = {
 export default function SavedPage() {
   return (
     <>
-      <PageIntro eyebrow="Your shortlist" title="Saved cars.">
-        <p>The cars you have hearted, with today’s prices — and an alert if any of them drops.</p>
+      <PageIntro eyebrow="My saved cars" title="Cars you have saved.">
+        <p>Tap the heart on any car and it is kept here with today’s price. You can ask to be told if the price drops.</p>
       </PageIntro>
       <section className="mx-auto max-w-7xl px-5 py-14 md:px-10 md:py-20">
         <SavedList />

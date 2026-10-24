@@ -8,8 +8,8 @@ import { VehicleCard } from "@/components/VehicleCard";
 import { VehicleImage } from "@/components/VehicleImage";
 import { DrivePlanFinder } from "@/components/home/DrivePlanFinder";
 import { HeroShowcase, type HeroSlide } from "@/components/home/HeroShowcase";
-import { EarningsExamples, PartnerRules } from "@/components/referral/Referral";
-import { ArrowRight, CarFront, Layers, MapPin, ShieldCheck, Wallet } from "lucide-react";
+import { EarningsExamples } from "@/components/referral/Referral";
+import { ArrowRight, MapPin } from "lucide-react";
 import { Button, ButtonAnchor, ButtonLink } from "@/components/ui/Button";
 import { fieldClass } from "@/components/forms/field";
 import {
@@ -24,10 +24,11 @@ import {
 } from "@/lib/repositories/vehicles";
 import { mostRequested } from "@/lib/repositories/sourcing";
 import { publishedReviews, reviewSummary } from "@/lib/repositories/reviews";
-import { ReviewsSection } from "@/components/reviews/ReviewsSection";
-import { PostCard } from "@/components/blog/PostCard";
+import { ReviewRating, ReviewsSection } from "@/components/reviews/ReviewsSection";
+import { WriteReview } from "@/components/reviews/WriteReview";
 import { latestPosts } from "@/lib/repositories/blog";
 import { formatNaira } from "@/lib/money";
+import { PARTNER_RULES } from "@/lib/referral";
 import { dealerJsonLd, jsonLdScript } from "@/lib/seo/structured-data";
 import { pageAddress, site, siteUrl } from "@/lib/site";
 import { BUDGET_OPTIONS } from "@/lib/sourcing";
@@ -82,7 +83,7 @@ export default async function Home() {
     latestPosts(3),
     everyListedCarVerified(),
   ]);
-  // The signature: Hummer buses, newest first, those with a photograph.
+  // Hummer buses, newest first, those with a photograph.
   const hummers = buses.filter((b) => /hum+er/i.test(b.model) && b.cover);
   const hummerFrom = hummers.map((b) => b.priceMinor).filter((p): p is number => Boolean(p)).sort((a, b) => a - b)[0] ?? null;
 
@@ -94,7 +95,20 @@ export default async function Home() {
   // The smallest deposit that drives a car home today: each car at its own tier, so a 2009 car at 50% is not mistaken for the cheapest.
   const lowestDeposit = catalogue.length ? Math.min(...catalogue.map((v) => v.depositMinor)) : null;
   const hummerDepositFrom = hummers.map((b) => depositMinorFor(b.priceMinor, b.year)).filter((d): d is number => d !== null).sort((a, b) => a - b)[0] ?? null;
-  const busCover = tiles.find((t) => t.key === "buses")?.coverUrl;
+
+  // The way in for buying several vehicles: beside the Hummer bus, or on its own when no Hummer is listed.
+  const bulkBuying = (Heading: "h2" | "h3") => (
+    <>
+      <Heading className="text-[1.35rem] leading-snug text-text-primary">Buying several vehicles at once?</Heading>
+      <p className="mt-2 leading-relaxed text-text-secondary">
+        Companies and government offices buy buses, SUVs and staff cars from us as one order. You get one written quote for the whole
+        order, and one team.
+      </p>
+      <ButtonLink href="/fleet#quote" variant="quiet" className="mt-2">
+        Get a price for several vehicles
+      </ButtonLink>
+    </>
+  );
 
   return (
     <>
@@ -110,68 +124,77 @@ export default async function Home() {
 
       <HeroShowcase slides={slides} videoUrl={videoUrl} allVerified={allVerified} />
 
-      {/* Is this real? Facts, live from the inventory and the register. */}
+      {/* Is this real? Three facts, live from the stock and the register. */}
       <section aria-label="At a glance" className="relative z-10 -mt-12 md:-mt-16">
-        <dl className="mx-auto grid max-w-7xl grid-cols-2 gap-3 px-5 md:grid-cols-4 md:gap-4 md:px-10">
-          {[
-            { value: String(stats.inStock), label: "Vehicles in stock today", icon: CarFront },
-            { value: lowestDeposit ? formatNaira(lowestDeposit, { compact: true }) : "—", label: "Lowest deposit on the Drive Plan", icon: Wallet },
-            { value: String(stats.makes), label: "Makes, from Toyota to Mercedes-Benz", icon: Layers },
-            { value: site.rcNumber, label: "CAC registered — verify it", href: site.cacSearchUrl, icon: ShieldCheck },
-          ].map(({ value, label, href, icon: Icon }) => (
-            <div key={label} className="glass rounded-2xl p-4 shadow-[0_24px_60px_-30px_rgb(0_0_0/0.9)] md:p-6">
-              <dt className="sr-only">{label}</dt>
+        <div className="mx-auto max-w-7xl px-5 md:px-10">
+          <dl className="glass grid divide-y divide-white/10 rounded-2xl text-[0.95rem] leading-snug text-text-secondary shadow-[0_24px_60px_-30px_rgb(0_0_0/0.9)] md:auto-cols-fr md:grid-flow-col md:divide-x md:divide-y-0">
+            <div className="px-5 py-4 md:px-6 md:py-5">
+              <dt className="sr-only">Stock</dt>
               <dd>
-                <Icon aria-hidden size={20} strokeWidth={1.75} className="text-green-300" />
-                <span className="figures mt-3 block font-display text-[2.1rem] leading-none text-text-primary md:text-[2.75rem]">{value}</span>
-                {href ? (
-                  <a href={href} target="_blank" rel="noopener noreferrer" className="mt-2 block text-[0.82rem] leading-snug text-text-secondary underline-offset-4 hover:text-text-primary hover:underline">
-                    {label} ↗
-                  </a>
-                ) : (
-                  <span className="mt-2 block text-[0.82rem] leading-snug text-text-secondary">{label}</span>
+                <span className="figures font-semibold text-text-primary">{stats.inStock}</span> {stats.inStock === 1 ? "vehicle" : "vehicles"} in stock today
+                {stats.makes > 0 && (
+                  <>
+                    , from <span className="figures font-semibold text-text-primary">{stats.makes}</span> {stats.makes === 1 ? "brand" : "brands"}
+                  </>
                 )}
               </dd>
             </div>
-          ))}
-        </dl>
+            {lowestDeposit !== null && (
+              <div className="px-5 py-4 md:px-6 md:py-5">
+                <dt className="sr-only">Drive Plan</dt>
+                <dd>
+                  Drive Plan deposits from <span className="figures font-semibold text-text-primary">{formatNaira(lowestDeposit, { compact: true })}</span>
+                </dd>
+              </div>
+            )}
+            <div className="px-5 py-4 md:px-6 md:py-5">
+              <dt className="sr-only">Registration</dt>
+              <dd>
+                <a href={site.cacSearchUrl} target="_blank" rel="noopener noreferrer" className="underline-offset-4 hover:text-text-primary hover:underline">
+                  CAC registered, RC <span className="figures font-semibold text-text-primary">{site.rcNumber}</span> — check it ↗
+                </a>
+              </dd>
+            </div>
+          </dl>
+        </div>
       </section>
 
-      {/* The signature vehicle: what Sabicars is known for, first. */}
+      {/* The signature vehicle: what Sabicars is known for, first — and the way in for buying several. */}
+      {hummers.length === 0 && (
+        // No Hummer listed with a photo (sold out, or not yet photographed): the way in for buying several still shows.
+        <section className="border-t border-border-subtle">
+          <div className="mx-auto max-w-7xl px-5 py-12 md:px-10 md:py-14">
+            <p className="kicker">Buy in bulk</p>
+            <div className="mt-3">{bulkBuying("h2")}</div>
+          </div>
+        </section>
+      )}
       {hummers.length > 0 && (
         <section className="relative isolate overflow-hidden">
           <div aria-hidden className="absolute inset-0 -z-10 bg-[radial-gradient(800px_420px_at_85%_40%,rgb(120_176_48/0.1),transparent_70%)]" />
-          <div className="mx-auto grid max-w-7xl gap-10 px-5 py-20 md:px-10 md:py-28 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:items-center lg:gap-16">
+          <div className="mx-auto grid max-w-7xl gap-10 px-5 py-16 md:px-10 md:py-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:items-center lg:gap-16">
             <ScrollReveal>
-              <SectionHead eyebrow="The signature" title="The home of the Hummer bus.">
+              <SectionHead eyebrow="Hummer buses" title="The home of the Hummer bus.">
                 <p>
-                  The Toyota Hiace high-roof — for staff, schools, churches, hotels and routes — is what Sabicars is known for. In stock,
-                  open to inspection, supplied one at a time or as a fleet, and on the 40% Drive Plan.
+                  Sabicars is known for the Toyota Hiace high-roof bus, for staff, schools, churches, hotels and routes. Come and inspect one,
+                  buy one or several, or buy on the 40% Drive Plan.
                 </p>
               </SectionHead>
-              <dl className="mt-8 grid grid-cols-3 gap-3">
+              <p className="figures mt-6 text-text-primary">
                 {[
-                  [String(hummers.length), "in stock now"],
-                  [hummerFrom ? formatNaira(hummerFrom, { compact: true }) : "—", "starting price"],
-                  [hummerDepositFrom ? formatNaira(hummerDepositFrom, { compact: true }) : "—", "Drive Plan deposit from"],
-                ].map(([value, label]) => (
-                  <div key={label} className="surface-card !rounded-2xl p-4">
-                    <dt className="sr-only">{label}</dt>
-                    <dd>
-                      <span className="figures block font-display text-[1.8rem] leading-none md:text-[2.2rem]">{value}</span>
-                      <span className="mt-1.5 block text-[0.78rem] text-text-muted">{label}</span>
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <ButtonLink href="/hummer-bus" size="lg">
-                  See every Hummer bus
-                </ButtonLink>
-                <ButtonLink href="/fleet#quote" size="lg" variant="secondary">
-                  Quote me a fleet
-                </ButtonLink>
-              </div>
+                  `${hummers.length} in stock`,
+                  hummerFrom && `from ${formatNaira(hummerFrom, { compact: true })}`,
+                  hummerDepositFrom && `Drive Plan deposit from ${formatNaira(hummerDepositFrom, { compact: true })}`,
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
+              </p>
+              <ButtonLink href="/hummer-bus" size="lg" variant="secondary" className="mt-8">
+                See every Hummer bus
+              </ButtonLink>
+
+              {/* Companies and government buy buses in numbers: the fleet route lives here, beside the bus. */}
+              <div className="mt-10 border-t border-white/[0.08] pt-6">{bulkBuying("h3")}</div>
             </ScrollReveal>
 
             <ScrollReveal delay={120}>
@@ -189,18 +212,6 @@ export default async function Home() {
                   <span className="figures shrink-0 font-semibold text-green-200">{priceLabel(hummers[0])}</span>
                 </span>
               </Link>
-              {hummers.length > 1 && (
-                <ul className="mt-3 grid grid-cols-3 gap-3">
-                  {hummers.slice(1, 4).map((b) => (
-                    <li key={b.id}>
-                      <Link href={`/vehicles/${b.slug}`} className="group relative block aspect-[4/3] overflow-hidden rounded-xl border border-white/[0.08]">
-                        <VehicleImage src={b.cover!.url} alt={vehicleTitle(b)} fill sizes="(min-width: 1024px) 18vw, 30vw" className="object-cover transition-transform group-hover:scale-[1.05]" />
-                        <span className="figures absolute bottom-1.5 left-1.5 rounded-full bg-[#090E0A]/75 px-2 py-0.5 text-[0.7rem] text-white">{b.year}</span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              )}
             </ScrollReveal>
           </div>
         </section>
@@ -209,14 +220,14 @@ export default async function Home() {
       {/* What can I afford? Answered from live stock, as they type. */}
       {catalogue.length > 0 && (
         <section id="drive-plan" className="scroll-mt-20 border-t border-white/[0.06] md:scroll-mt-24">
-          <div className="mx-auto max-w-7xl px-5 py-20 md:px-10 md:py-28">
+          <div className="mx-auto max-w-7xl px-5 py-16 md:px-10 md:py-20">
             <DrivePlanFinder vehicles={catalogue}>
               <ScrollReveal>
                 <SectionHead eyebrow="The 40% Drive Plan" title="What can your deposit drive home?">
                   <p>
-                    Pay 40% of the price on a car from {DRIVE_PLAN.standardYear} (50% on a {DRIVE_PLAN.minYear} or {DRIVE_PLAN.standardYear - 1} car), and Autochek,
-                    Sabicars’ financing partner, finances the rest, subject to its lender’s approval. Tell us what you can put down — the answer
-                    comes from what is in stock right now.
+                    Pay 40% of the price on a car from {DRIVE_PLAN.standardYear} or newer, or 50% on a {DRIVE_PLAN.minYear} or{" "}
+                    {DRIVE_PLAN.standardYear - 1} car. A loan through Autochek, our finance partner, covers the rest if its lender approves you.
+                    You repay it monthly. Type how much you can pay now to see which cars in stock you can get with it.
                   </p>
                 </SectionHead>
                 <ButtonLink href="/drive-plan" variant="quiet" className="mt-4">
@@ -228,72 +239,51 @@ export default async function Home() {
         </section>
       )}
 
-      {/* Ways in. */}
-      {tiles.length > 0 && (
-        <section className="border-t border-border-subtle bg-surface-1">
-          <div className="mx-auto max-w-7xl px-5 py-20 md:px-10 md:py-28">
-            <ScrollReveal>
-              <SectionHead eyebrow="The inventory" title="Start with what you need." />
-            </ScrollReveal>
-            <div className="mt-12 grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
-              {tiles.slice(0, 4).map((t, i) => (
-                <ScrollReveal key={t.href} delay={i * 90}>
-                  <Link href={t.href} className="group relative block aspect-[3/4] overflow-hidden rounded-2xl border border-white/[0.07] bg-surface-2 sm:aspect-[4/5]">
-                    {t.coverUrl && (
-                      <VehicleImage
-                        src={t.coverUrl}
-                        alt=""
-                        fill
-                        sizes="(min-width: 1024px) 25vw, 50vw"
-                        className="object-cover transition-transform duration-[var(--duration-slow)] ease-[var(--ease-out)] group-hover:scale-[1.05]"
-                      />
-                    )}
-                    <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[#090E0A] via-[#090E0A]/35 to-transparent" />
-                    <div className="absolute inset-x-0 bottom-0 p-5 md:p-6">
-                      <p className="figures glass inline-block rounded-full px-2.5 py-0.5 text-xs text-white/85">{t.count} in stock</p>
-                      <p className="mt-1 font-display text-[1.7rem] leading-tight text-white md:text-[2rem]">{t.label}</p>
-                      <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-green-300">
-                        Browse <ArrowRight aria-hidden size={16} className="transition-transform duration-[var(--duration-base)] group-hover:translate-x-1" />
-                      </span>
-                    </div>
-                  </Link>
-                </ScrollReveal>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* The stock itself. */}
-      {featured.length > 0 && (
+      {/* What is here? The stock by the shape buyers ask for, then the cars themselves. */}
+      {(tiles.length > 0 || featured.length > 0) && (
         <section className="border-t border-border-subtle">
-          <div className="mx-auto max-w-7xl px-5 py-20 md:px-10 md:py-28">
+          <div className="mx-auto max-w-7xl px-5 py-16 md:px-10 md:py-20">
             <ScrollReveal className="flex flex-wrap items-end justify-between gap-6">
-              <SectionHead eyebrow="In the showroom now" title="Selected vehicles." />
+              <SectionHead eyebrow="Cars for sale" title="Start with what you need." />
               <ButtonLink href="/vehicles" variant="quiet">
-                See all {stats.inStock} vehicles
+                See all {stats.inStock} cars for sale
               </ButtonLink>
             </ScrollReveal>
-            {/* On a phone, a row to swipe through — the pattern every shopping app uses — instead of 4,000px of stacked cards. */}
-            <div className="-mx-5 mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-5 px-5 pb-4 [scrollbar-width:none] md:mx-0 md:mt-12 md:grid md:snap-none md:grid-cols-2 md:gap-6 md:overflow-visible md:px-0 md:pb-0 xl:grid-cols-3 [&::-webkit-scrollbar]:hidden">
-              {featured.map((v, i) => (
-                <ScrollReveal key={v.id} delay={(i % 3) * 90} className="w-[84%] shrink-0 snap-start sm:w-[60%] md:w-auto">
-                  <VehicleCard vehicle={v} href={`/vehicles/${v.slug}`} />
-                </ScrollReveal>
-              ))}
-            </div>
+            {tiles.length > 0 && (
+              <nav aria-label="Vehicle type" className="-mx-5 mt-8 flex gap-2 overflow-x-auto px-5 [scrollbar-width:none] md:mx-0 md:flex-wrap md:px-0 [&::-webkit-scrollbar]:hidden">
+                {tiles.slice(0, 4).map((t) => (
+                  <Link
+                    key={t.href}
+                    href={t.href}
+                    className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border border-border-default px-4 text-sm font-semibold text-text-secondary transition-colors duration-[var(--duration-fast)] hover:border-border-strong hover:text-text-primary"
+                  >
+                    {t.label} <span className="figures opacity-70">{t.count}</span>
+                  </Link>
+                ))}
+              </nav>
+            )}
+            {/* On a phone, a row to swipe through — the pattern every shopping app uses — instead of 4,000px of stacked cards. On a desktop, one row. */}
+            {featured.length > 0 && (
+              <div className="-mx-5 mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-5 px-5 pb-4 [scrollbar-width:none] md:mx-0 md:mt-10 md:grid md:snap-none md:grid-cols-2 md:gap-6 md:overflow-visible md:px-0 md:pb-0 xl:grid-cols-3 [&::-webkit-scrollbar]:hidden md:[&>*:nth-child(n+5)]:hidden xl:[&>*:nth-child(n+4)]:hidden">
+                {featured.map((v, i) => (
+                  <ScrollReveal key={v.id} delay={(i % 3) * 90} className="w-[84%] shrink-0 snap-start sm:w-[60%] md:w-auto">
+                    <VehicleCard vehicle={v} href={`/vehicles/${v.slug}`} />
+                  </ScrollReveal>
+                ))}
+              </div>
+            )}
           </div>
         </section>
       )}
 
       {/* What if it isn't here? The request is kept, not lost. */}
       <section className="border-t border-border-subtle bg-surface-1">
-        <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 md:px-10 md:py-28 lg:grid-cols-2 lg:items-center lg:gap-20">
+        <div className="mx-auto grid max-w-7xl gap-12 px-5 py-16 md:px-10 md:py-20 lg:grid-cols-2 lg:items-center lg:gap-20">
           <ScrollReveal>
-            <SectionHead eyebrow="The Sourcing Desk" title="Not in the showroom? Put it on the desk.">
+            <SectionHead eyebrow="Request a car" title="Not in our showroom? Request it.">
               <p>
-                Tell us the vehicle and your budget. Your request is recorded with a reference, it joins the list Sabicars sources from,
-                and the moment a match arrives, you are told.
+                Tell us the car and your budget. You get a reference number, and your request goes on the list of cars we look for. When a
+                matching car arrives, we tell you.
               </p>
             </SectionHead>
             {demand.length > 0 && (
@@ -338,35 +328,17 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Fleet and government. */}
-      <section className="relative isolate overflow-hidden border-t border-border-subtle bg-[#090E0A]">
-        {busCover && <VehicleImage src={busCover} alt="" fill sizes="100vw" className="-z-20 object-cover opacity-45" />}
-        <div aria-hidden className="absolute inset-0 -z-10" style={{ background: "var(--hero-scrim)" }} />
-        <div className="mx-auto max-w-7xl px-5 py-24 md:px-10 md:py-32">
-          <ScrollReveal className="max-w-2xl">
-            <p className="kicker">Fleet &amp; Government</p>
-            <h2 className="mt-4 text-display-2 text-[var(--hero-text)]">One supplier for the whole fleet.</h2>
-            <p className="mt-5 text-lg leading-relaxed text-[var(--hero-text-secondary)]">
-              Companies and government bodies buy from Sabicars in volume — Toyota Hiace buses, SUVs and staff cars, sourced,
-              documented and delivered as a single order, with one team accountable from quotation to handover.
-            </p>
-            <ButtonLink href="/fleet" size="lg" className="mt-10">
-              Request a fleet quotation
-            </ButtonLink>
-          </ScrollReveal>
-        </div>
-      </section>
-
-      {/* The man the audience came for. */}
-      <section className="border-t border-border-subtle">
-        <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 md:px-10 md:py-28 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-center">
+      {/* Who you are buying from: the man the audience came for, then his customers in their own words, each read by a person first.
+          #reviews lands here, on the founder block; the rating and "Write a review" follow the quote, and the reviews come just below. */}
+      <section id="reviews" className="scroll-mt-24 border-t border-border-subtle">
+        <div className="mx-auto grid max-w-7xl gap-12 px-5 pt-16 md:px-10 md:pt-20 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-center">
           <ScrollReveal>
-            <div className="relative aspect-[4/5] overflow-hidden rounded-3xl border border-white/[0.08] bg-surface-2 shadow-[0_40px_90px_-40px_rgb(0_0_0/0.9)]">
+            <div className="relative aspect-[4/5] overflow-hidden rounded-3xl border border-white/[0.08] bg-surface-2 shadow-[0_40px_90px_-40px_rgb(0_0_0/0.9)] lg:aspect-square">
               <Image src="/founder.jpg" alt="Ccristian Dee, founder of Sabicars Limited" fill sizes="(min-width: 1024px) 40vw, 100vw" className="object-cover object-[60%_center]" />
             </div>
           </ScrollReveal>
           <ScrollReveal delay={120}>
-            <p className="kicker">The founder</p>
+            <p className="kicker">Who you are buying from</p>
             <blockquote className="mt-6">
               <p className="font-display text-[1.9rem] leading-[1.25] text-text-primary md:text-[2.4rem]">
                 “Every vehicle that leaves our plaza carries my name on it … That’s not a slogan, it’s how I built this.”
@@ -376,100 +348,90 @@ export default async function Home() {
                 <p className="text-sm text-text-muted">Prince Emmanuel Abisoye · Founder &amp; CEO, {site.legalName}</p>
               </footer>
             </blockquote>
-            <div className="mt-10">
+            <ReviewRating summary={reviewStats} className="mt-8" />
+            <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-3">
+              <WriteReview />
               <ButtonLink href="/about" variant="quiet">
-                The Sabicars story
+                About Sabicars
               </ButtonLink>
             </div>
           </ScrollReveal>
         </div>
       </section>
-
-      {/* Is it true? In customers' own words, each read by a person first. */}
-      <ReviewsSection reviews={reviews} summary={reviewStats} />
+      <ReviewsSection reviews={reviews} summary={reviewStats} head={false} />
 
       {/* Can I earn from this? A commission on sales, on plain terms. */}
       <section className="border-t border-border-subtle bg-surface-1">
-        <div className="mx-auto max-w-7xl px-5 py-20 md:px-10 md:py-28">
+        <div className="mx-auto max-w-7xl px-5 py-16 md:px-10 md:py-20">
           <div className="grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-20">
             <ScrollReveal>
               <SectionHead eyebrow="Refer & Earn" title="Know a buyer? Earn 1.5% when they buy.">
                 <p>
-                  Register free and get your own link. When a buyer you sent completes a purchase, 1.5% of the price is yours — and they
-                  are recorded against your code from their first enquiry, so nobody can claim them.
+                  Register free and get your own link. When someone you sent buys from Sabicars, 1.5% of the price is yours. They are linked to
+                  your code from their first enquiry, so nobody else can claim them.
                 </p>
               </SectionHead>
               <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3">
                 <ButtonLink href="/partners#register" size="lg">
-                  Become a partner
+                  Get your free link
                 </ButtonLink>
                 <ButtonLink href="/partners" variant="quiet">
                   How it works
                 </ButtonLink>
               </div>
+              {/* The rules by name, from the same list /partners spells out in full, so the two never drift. */}
+              <p className="mt-6 text-sm text-text-muted">{PARTNER_RULES.map((r) => r[0]).join(" · ")}</p>
             </ScrollReveal>
             <ScrollReveal delay={120}>
               <EarningsExamples vehicles={catalogue} />
             </ScrollReveal>
           </div>
-          <div className="mt-16 md:mt-20">
-            <PartnerRules />
-          </div>
         </div>
       </section>
 
-      {/* Know more than the seller: the latest from Insights. */}
+      {/* Read before you buy: the latest buying guides, as a list to scan. */}
       {posts.length > 0 && (
         <section className="border-t border-border-subtle">
-          <div className="mx-auto max-w-7xl px-5 py-20 md:px-10 md:py-28">
+          <div className="mx-auto max-w-7xl px-5 py-16 md:px-10 md:py-20">
             <ScrollReveal className="flex flex-wrap items-end justify-between gap-6">
-              <SectionHead eyebrow="Insights" title="Know more than the seller." />
+              <SectionHead eyebrow="Buying guides" title="Read before you buy." />
               <ButtonLink href="/blog" variant="quiet">
-                Every article
+                All buying guides
               </ButtonLink>
             </ScrollReveal>
-            <div className="mt-10 grid gap-6 md:mt-12 md:grid-cols-2 lg:grid-cols-3">
+            <ul className="mt-8 divide-y divide-white/[0.06] border-y border-white/[0.06] md:mt-10">
               {posts.map((p, i) => (
-                <ScrollReveal key={p.slug} delay={i * 90}>
-                  <PostCard post={p} />
+                <ScrollReveal as="li" key={p.slug} delay={i * 90}>
+                  <Link href={`/blog/${p.slug}`} className="group flex items-center justify-between gap-6 py-5 md:py-6">
+                    <div className="min-w-0">
+                      <p className="text-sm text-text-muted">
+                        <span className="font-medium text-green-300">{p.category.charAt(0) + p.category.slice(1).toLowerCase()}</span> <span className="figures">· {p.minutes} min read</span>
+                      </p>
+                      <h3 className="mt-1.5 text-[1.3rem] leading-snug text-text-primary transition-colors group-hover:text-green-100 md:text-[1.55rem]">{p.title}</h3>
+                    </div>
+                    <ArrowRight aria-hidden size={20} className="shrink-0 text-green-300 transition-transform duration-[var(--duration-base)] group-hover:translate-x-1" />
+                  </Link>
                 </ScrollReveal>
               ))}
-            </div>
+            </ul>
           </div>
         </section>
       )}
 
-      {/* Come and see it. */}
+      {/* Come and see it. The phones and email are in the footer, just below. */}
       <section className="border-t border-border-subtle">
-        <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 md:px-10 md:py-24 lg:grid-cols-2 lg:items-end">
+        <div className="mx-auto grid max-w-7xl gap-10 px-5 py-20 md:px-10 md:py-24 lg:grid-cols-2 lg:items-end">
           <ScrollReveal>
-            <SectionHead eyebrow="Visit" title="See it before you commit.">
-              <p>Walk in and inspect any vehicle in person before you pay.</p>
+            <SectionHead eyebrow="Visit" title="See it before you pay.">
+              <p>Walk in and inspect the cars at our showroom before you pay.</p>
             </SectionHead>
           </ScrollReveal>
-          <ScrollReveal delay={120} className="grid gap-8 sm:grid-cols-2">
-            <div>
-              <p className="text-sm font-medium text-text-muted">Showroom</p>
-              <Address className="mt-3 text-text-secondary" />
-              <ButtonAnchor href={site.mapsUrl} target="_blank" rel="noopener noreferrer" variant="secondary" className="mt-5">
-                <MapPin aria-hidden size={17} /> Get directions
-              </ButtonAnchor>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-text-muted">Call</p>
-              <ul className="mt-3 space-y-1">
-                {site.phones.map((p) => (
-                  <li key={p.e164}>
-                    <a href={`tel:${p.e164}`} className="figures text-lg text-text-primary hover:text-accent-text">
-                      {p.display}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-              <a href={`mailto:${site.email}`} className="mt-3 block text-sm text-text-secondary hover:text-text-primary">
-                {site.email}
-              </a>
-            </div>
+          <ScrollReveal delay={120}>
+            <p className="text-sm font-medium text-text-muted">Showroom</p>
+            <Address className="mt-3 text-text-secondary" />
+            <ButtonAnchor href={site.mapsUrl} target="_blank" rel="noopener noreferrer" variant="secondary" className="mt-5">
+              <MapPin aria-hidden size={17} /> Get directions
+            </ButtonAnchor>
           </ScrollReveal>
         </div>
       </section>

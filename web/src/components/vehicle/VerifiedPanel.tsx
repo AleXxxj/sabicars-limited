@@ -25,7 +25,7 @@ export function VerifiedPanel({ report, tally: t }: { report: Inspection; tally:
           Sabicars Verified{fresh ? "" : " · report older than four months"}
         </span>
         <span className="figures mt-0.5 block text-sm text-text-secondary">
-          Inspected {date} · {t.pass} of {t.total} checks good
+          Inspected by our team on {date} · {t.pass} of {t.total} checks good
           {findings ? ` · ${findings} finding${findings === 1 ? "" : "s"}, with photos` : ""}
         </span>
         <span className="mt-1 inline-flex items-center gap-1.5 text-sm font-semibold text-green-300">

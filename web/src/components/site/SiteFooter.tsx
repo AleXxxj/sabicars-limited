@@ -2,15 +2,24 @@ import Link from "next/link";
 import { Logo } from "@/components/Logo";
 import { Address } from "@/components/site/Address";
 import { SubscribeForm } from "@/components/subscribe/SubscribeForm";
-import { INVENTORY_SHORTCUTS, PRIMARY_NAV, SELL_NAV } from "@/lib/navigation";
+import { CARS_NAV, INVENTORY_SHORTCUTS, MAIN_NAV, MORE_ITEMS } from "@/lib/navigation";
 import { searchTerms } from "@/lib/repositories/vehicles";
 import { termHref } from "@/lib/seo/search-terms";
 import { site, whatsappLink } from "@/lib/site";
 
-function Column({ title, children }: { title: string; children: React.ReactNode }) {
+/** A column of links. With `href`, the heading is itself a link — the section the items are ways into. */
+function Column({ title, href, children }: { title: string; href?: string; children: React.ReactNode }) {
   return (
     <div>
-      <p className="text-sm font-semibold text-text-primary">{title}</p>
+      <p className="text-sm font-semibold text-text-primary">
+        {href ? (
+          <Link href={href} className="transition-colors hover:text-green-300">
+            {title}
+          </Link>
+        ) : (
+          title
+        )}
+      </p>
       <ul className="mt-5 space-y-3 text-sm">{children}</ul>
     </div>
   );
@@ -44,8 +53,8 @@ export async function SiteFooter() {
         <div>
           <Logo />
           <p className="mt-6 max-w-xs text-sm leading-relaxed text-text-secondary">
-            Toyota Hiace Hummer buses, luxury cars, SUVs and trucks from Lagos — with the 40% Drive Plan and fleet supply
-            for companies and government.
+            Toyota Hiace Hummer buses, luxury cars, SUVs and trucks in Lagos. Buy on the 40% Drive Plan, or buy in bulk for
+            a company or government.
           </p>
           <a
             href={site.cacSearchUrl}
@@ -63,7 +72,7 @@ export async function SiteFooter() {
           </a>
         </div>
 
-        <Column title="Inventory">
+        <Column title={CARS_NAV.label} href={CARS_NAV.href}>
           {INVENTORY_SHORTCUTS.map((s) => (
             <li key={s.href}>
               <Link href={s.href} className={link}>
@@ -73,29 +82,15 @@ export async function SiteFooter() {
           ))}
         </Column>
 
+        {/* Every section, under the names the header, the tab bar and More use. */}
         <Column title="Sabicars">
-          {PRIMARY_NAV.filter((n) => n.href !== "/vehicles").map((n) => (
+          {[...MAIN_NAV, ...MORE_ITEMS].map((n) => (
             <li key={n.href}>
               <Link href={n.href} className={link}>
                 {n.label}
               </Link>
             </li>
           ))}
-          <li>
-            <Link href={SELL_NAV.href} className={link}>
-              {SELL_NAV.label}
-            </Link>
-          </li>
-          <li>
-            <Link href="/compare" className={link}>
-              Compare cars
-            </Link>
-          </li>
-          <li>
-            <Link href="/ask" className={link}>
-              Ask Sabicars
-            </Link>
-          </li>
         </Column>
 
         <Column title="Visit or call">

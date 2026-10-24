@@ -55,9 +55,14 @@ export function VehicleCard({
         )}
         {href && <SaveButton slug={v.slug} title={`${v.year} ${v.make} ${v.model}`} className="absolute right-3 top-3 z-[2]" />}
         {/* Only a fresh, published inspection report earns the mark. A car held offsite never gets a
-            verification (the repository forces it to null): the seal is only given at the showroom. */}
+            verification (the repository forces it to null): the seal is only given at the showroom.
+            The label says what the seal means, for a listener who cannot see the shield. */}
         {v.verification?.fresh && (
-          <span className="glass absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[0.72rem] font-semibold text-green-200">
+          <span
+            role="img"
+            aria-label="Sabicars Verified: inspected by our team at our showroom"
+            className="glass absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[0.72rem] font-semibold text-green-200"
+          >
             <ShieldCheck aria-hidden size={14} /> Sabicars Verified
           </span>
         )}
@@ -88,7 +93,7 @@ export function VehicleCard({
                 {drivePlanDepositLabel(v)}
                 {monthly && (
                   <span className="figures mt-0.5 block text-[0.72rem] text-text-muted">
-                    est. {monthly}/mo over {DEFAULT_ESTIMATE_MONTHS} months at {DRIVE_PLAN.maxAnnualRatePercent}%
+                    est. {monthly} a month for {DEFAULT_ESTIMATE_MONTHS} months, at {DRIVE_PLAN.maxAnnualRatePercent}% a year
                   </span>
                 )}
               </span>

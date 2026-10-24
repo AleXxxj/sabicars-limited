@@ -36,6 +36,23 @@ function ReviewCard({ r }: { r: PublicReview }) {
   );
 }
 
+type ReviewSummary = { count: number; average: number | null; verified: number };
+
+/** The average, its stars and how many reviews it rests on. Nothing until there is a review. */
+export function ReviewRating({ summary, className = "" }: { summary: ReviewSummary; className?: string }) {
+  if (summary.count === 0 || summary.average === null) return null;
+  return (
+    <p className={`flex flex-wrap items-center gap-x-3 gap-y-1 text-text-secondary ${className}`}>
+      <span className="figures font-display text-[2.2rem] leading-none text-text-primary">{summary.average.toFixed(1)}</span>
+      <Stars rating={summary.average} size={18} />
+      <span>
+        from {summary.count} {summary.count === 1 ? "review" : "reviews"}
+        {summary.verified > 0 && ` · ${summary.verified} verified ${summary.verified === 1 ? "buyer" : "buyers"}`}
+      </span>
+    </p>
+  );
+}
+
 /**
  * What customers say. Every review shown was read by a person before it
  * appeared; "Verified buyer" marks one left through the private link Sabicars
@@ -44,37 +61,43 @@ function ReviewCard({ r }: { r: PublicReview }) {
 export function ReviewsSection({
   reviews,
   summary,
+  head = true,
   className = "",
 }: {
   reviews: PublicReview[];
-  summary: { count: number; average: number | null; verified: number };
+  summary: ReviewSummary;
+  /**
+   * The kicker, title, rating and "Write a review". Off where the page shows
+   * the rating itself and the reviews continue that section (the homepage's
+   * "Who you are buying from").
+   */
+  head?: boolean;
   className?: string;
 }) {
   // A short row still glides smoothly: repeat it until one copy is wider than a desktop screen.
   const row = reviews.length ? Array.from({ length: Math.max(1, Math.ceil(8 / reviews.length)) }, () => reviews).flat() : [];
   return (
-    <section id="reviews" aria-labelledby="reviews-title" className={`scroll-mt-24 border-t border-border-subtle ${className}`}>
-      <div className="mx-auto max-w-7xl px-5 pt-20 md:px-10 md:pt-28">
-        <ScrollReveal className="flex flex-wrap items-end justify-between gap-8">
-          <div className="max-w-2xl">
-            <p className="kicker">Reviews</p>
-            <h2 id="reviews-title" className="mt-4 text-display-2">
-              What customers say.
-            </h2>
-            {summary.count > 0 && summary.average !== null && (
-              <p className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-1 text-text-secondary">
-                <span className="figures font-display text-[2.2rem] leading-none text-text-primary">{summary.average.toFixed(1)}</span>
-                <Stars rating={summary.average} size={18} />
-                <span>
-                  from {summary.count} {summary.count === 1 ? "review" : "reviews"}
-                  {summary.verified > 0 && ` · ${summary.verified} verified ${summary.verified === 1 ? "buyer" : "buyers"}`}
-                </span>
-              </p>
-            )}
-          </div>
-          <WriteReview />
-        </ScrollReveal>
-      </div>
+    <section
+      id={head ? "reviews" : undefined}
+      // Without the head there is no title to point at, so the section names itself.
+      aria-labelledby={head ? "reviews-title" : undefined}
+      aria-label={head ? undefined : "Reviews"}
+      className={`scroll-mt-24 ${head ? "border-t border-border-subtle" : ""} ${className}`}
+    >
+      {head && (
+        <div className="mx-auto max-w-7xl px-5 pt-20 md:px-10 md:pt-28">
+          <ScrollReveal className="flex flex-wrap items-end justify-between gap-8">
+            <div className="max-w-2xl">
+              <p className="kicker">Reviews</p>
+              <h2 id="reviews-title" className="mt-4 text-display-2">
+                What customers say.
+              </h2>
+              <ReviewRating summary={summary} className="mt-5" />
+            </div>
+            <WriteReview />
+          </ScrollReveal>
+        </div>
+      )}
 
       {row.length > 0 ? (
         <div
@@ -111,7 +134,8 @@ export function ReviewsSection({
         <p className="mx-auto max-w-7xl px-5 pt-10 text-text-secondary md:px-10">No reviews yet — be the first.</p>
       )}
 
-      <p className="mx-auto max-w-7xl px-5 pt-6 pb-20 text-sm text-text-muted md:px-10 md:pb-28">
+      {/* Headless, it closes the section it continues, so it keeps that section's rhythm. */}
+      <p className={`mx-auto max-w-7xl px-5 pt-6 text-sm text-text-muted md:px-10 ${head ? "pb-20 md:pb-28" : "pb-16 md:pb-20"}`}>
         Every review is read by the team before it appears. “Verified buyer” means it was left through the private link Sabicars sends with
         each purchase.
       </p>
