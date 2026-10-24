@@ -43,6 +43,9 @@ export default async function HummerBusPage() {
   const from = priced[0]?.priceMinor ?? null;
   // Each bus at its own deposit tier; a pre-2008 bus is cash only and does not set the figure.
   const depositFrom = priced.map((b) => depositMinorFor(b.priceMinor, b.year)).filter((d): d is number => d !== null).sort((a, b) => a - b)[0] ?? null;
+  // The newest model on offer rather than a head count: a small number in stock reads as little choice.
+  const years = (hummers.length ? hummers : buses).map((b) => b.year);
+  const newest = years.length ? String(Math.max(...years)) : "—";
 
   return (
     <>
@@ -56,7 +59,7 @@ export default async function HummerBusPage() {
       <section aria-label="At a glance" className="relative z-10 -mt-10 md:-mt-14">
         <dl className="mx-auto grid max-w-7xl grid-cols-3 gap-3 px-5 md:gap-4 md:px-10">
           {[
-            [String(hummers.length || buses.length), hummers.length === 1 ? "Hummer bus in stock" : "Hummer buses in stock"],
+            [newest, "Newest model in the showroom"],
             [from ? formatNaira(from, { compact: true }) : "—", "Starting price"],
             [depositFrom ? formatNaira(depositFrom, { compact: true }) : "—", "Lowest Drive Plan deposit"],
           ].map(([value, label]) => (

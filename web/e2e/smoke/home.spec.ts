@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { CARS_NAV, MAIN_NAV, MORE_ITEMS, TAB_BAR } from "@/lib/navigation";
+import { PARTNER_RULES } from "@/lib/referral";
 import { assertNoFaults, watchForFaults } from "../helpers";
 
 /**
@@ -69,14 +70,54 @@ test.describe("Home", () => {
     await page.goto("/");
     const search = page.getByRole("combobox", { name: "Find your car" });
     await expect(search, "the homepage has no search field").toBeVisible();
-    await search.fill("toyota");
     const options = page.getByRole("listbox", { name: "Suggestions" }).getByRole("option");
+    // A budget is read wherever it sits in the sentence, past a year typed before it.
+    await search.fill("2018 highlander 30m");
+    await expect(options.filter({ hasText: "Cars up to ₦30M" }), "a budget typed after a year is not understood").toHaveCount(1);
+    await search.fill("toyota");
     await expect(options.last(), "the last suggestion does not offer Ask Sabicars").toContainText("Ask Sabicars");
     if ((await vehiclesInStockToday(page)) > 0 && (await options.count()) > 1) {
       // A make in stock comes first, and it leads to that make's page.
       await options.first().click();
       await page.waitForURL(/\/buy\/[a-z0-9-]+$|\/hummer-bus$/);
     }
+    assertNoFaults(faults);
+  });
+
+  test("the Hummer section shows the bus in pictures, with prices and never a head count", async ({ page }) => {
+    const faults = watchForFaults(page);
+    await page.goto("/");
+    const heading = page.getByRole("heading", { name: "The home of the Hummer bus." });
+    test.skip((await heading.count()) === 0, "No Hummer bus is in stock, so the section is hidden");
+    const section = page.locator("section").filter({ has: heading }).last();
+    // A small number in stock reads as little choice; the owner asked for the count to go.
+    await expect(section, "the Hummer section states how many are in stock").not.toContainText(/\d+\s+in stock/i);
+    await expect(section.getByRole("link", { name: /See every Hummer bus/ }), "the Hummer section does not lead to the Hummer page").toHaveAttribute("href", "/hummer-bus");
+    // One large photograph and up to three more beneath it.
+    const photos = await section.getByRole("img").count();
+    expect(photos, "the Hummer section shows no photograph").toBeGreaterThanOrEqual(1);
+    expect(photos, "the Hummer section shows more than a main photo and three beneath it").toBeLessThanOrEqual(4);
+    assertNoFaults(faults);
+  });
+
+  test("Refer & Earn sets out the partner rules in full", async ({ page }) => {
+    const faults = watchForFaults(page);
+    await page.goto("/");
+    const section = page.locator("section").filter({ has: page.getByRole("heading", { name: /Earn 1\.5% when they buy/ }) }).last();
+    for (const [rule] of PARTNER_RULES) {
+      await expect(section.getByText(rule, { exact: true }), `the partner rule "${rule}" is missing from the homepage`).toBeVisible();
+    }
+    assertNoFaults(faults);
+  });
+
+  test("the buying guides show as cards with their pictures", async ({ page }) => {
+    const faults = watchForFaults(page);
+    await page.goto("/");
+    const heading = page.getByRole("heading", { name: "Read before you buy." });
+    test.skip((await heading.count()) === 0, "No guide is published, so the section is hidden");
+    const cards = page.locator("section").filter({ has: heading }).last().locator('a[href^="/blog/"]');
+    await expect(cards.first(), "the guides section shows no article card").toBeVisible();
+    await expect(cards.filter({ has: page.locator("img") }).first(), "no guide card on the homepage shows its picture").toBeAttached();
     assertNoFaults(faults);
   });
 

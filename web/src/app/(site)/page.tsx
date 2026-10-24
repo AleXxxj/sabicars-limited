@@ -35,6 +35,7 @@ import { dealerJsonLd, jsonLdScript } from "@/lib/seo/structured-data";
 import { pageAddress, site, siteUrl } from "@/lib/site";
 import { BUDGET_OPTIONS } from "@/lib/sourcing";
 import { DRIVE_PLAN, depositMinorFor } from "@/lib/drive-plan";
+import { ATTRIBUTION_DAYS } from "@/lib/referral";
 import { priceLabel, vehicleTitle } from "@/lib/vehicle";
 
 /**
@@ -90,12 +91,17 @@ export default async function Home() {
   const hummers = buses.filter((b) => /hum+er/i.test(b.model) && b.cover);
   const hummerFrom = hummers.map((b) => b.priceMinor).filter((p): p is number => Boolean(p)).sort((a, b) => a - b)[0] ?? null;
 
-  // The featured row: staff's choice (Inventory → Featured), with the signature bus always among the first three, the ones a desktop shows.
+  // The featured row: staff's choice (Inventory → Featured), with the signature bus among the first three, the ones a desktop
+  // shows, whenever one is listed. Staff's own Hummer pick if they ticked one; otherwise a Hummer 1, then any Hummer.
   const featured = [...featuredStock];
   const firstHummer = featured.findIndex((v) => /hum+er/i.test(v.model));
   if (firstHummer > 2) featured.splice(1, 0, ...featured.splice(firstHummer, 1));
+  else if (firstHummer === -1 && hummers.length) {
+    featured.splice(1, 0, hummers.find((b) => /hum+er\s*1\b/i.test(b.model)) ?? hummers[0]);
+    featured.splice(6); // the row holds six
+  }
 
-  // Find your car: every make and model family in stock, and the searches buyers make most.
+  // Find your car: every make and model family in stock; the shortcuts are the Hummer bus, the model families with the most cars in stock, and two budgets.
   const stockTerms = terms.filter((t) => t.inStock > 0);
   const shortcuts = [
     ...(hummers.length ? [{ label: "Hummer buses", href: "/hummer-bus" }] : []),
@@ -151,7 +157,7 @@ export default async function Home() {
       {/* Do they have what I want? One field, answered from the stock as they type — or by Ask Sabicars. */}
       <section aria-label="Find your car" className="relative z-10 -mt-12 md:-mt-16">
         <div className="mx-auto max-w-7xl px-5 md:px-10">
-          <HomeSearch terms={stockTerms.map((t) => ({ slug: t.slug, label: t.label, fromMinor: t.fromMinor }))} shortcuts={shortcuts} />
+          <HomeSearch terms={stockTerms.map((t) => ({ slug: t.slug, label: t.label, fromMinor: t.fromMinor }))} shortcuts={shortcuts} hummers={hummers.length > 0} />
         </div>
       </section>
 
@@ -375,7 +381,7 @@ export default async function Home() {
               <SectionHead eyebrow="Refer & Earn" title="Know a buyer? Earn 1.5% when they buy.">
                 <p>
                   Register free and get your own link. When someone you sent buys from Sabicars, 1.5% of the price is yours. They are linked to
-                  your code from their first enquiry, so nobody else can claim them.
+                  your code for {ATTRIBUTION_DAYS} days from their first enquiry, so nobody else can claim them.
                 </p>
               </SectionHead>
               <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3">

@@ -123,7 +123,11 @@ export function VehicleForm({ vehicle: v, options, canSetPrices }: { vehicle?: V
             ))}
           </datalist>
         </Field>
-        <Field error={err("model")} label="Model" hint="The model only — e.g. “Land Cruiser Prado”, not the whole description">
+        <Field
+          error={err("model")}
+          label="Model"
+          hint="The model only — e.g. “Land Cruiser Prado”, not the whole description. For a Hummer bus, write “Hiace Hummer 1” (or 2, 3): the Hummer pages find buses by this word."
+        >
           <input name="model" required defaultValue={v?.model} className={input} />
         </Field>
         <Field error={err("year")} label="Year">
@@ -219,7 +223,7 @@ export function VehicleForm({ vehicle: v, options, canSetPrices }: { vehicle?: V
         <div className="grid gap-3 sm:col-span-2">
           <label className="inline-flex min-h-11 items-center gap-3 text-text-secondary">
             <input type="checkbox" name="isFeatured" defaultChecked={v?.isFeatured} className="size-4 accent-[var(--green-500)]" />
-            Feature on the homepage and at the top of the inventory
+            Feature on the homepage and the Drive Plan page (the first six featured, newest added first)
           </label>
           <label className="inline-flex min-h-11 items-center gap-3 text-text-secondary">
             <input type="checkbox" name="inHero" defaultChecked={v?.inHero} className="size-4 accent-[var(--green-500)]" />

@@ -155,8 +155,9 @@ export function HeroShowcase({
       <div className="mx-auto w-full max-w-7xl px-5 pb-20 pt-14 md:px-10 md:pb-28 md:pt-28">
         <p className="kicker">
           Car dealer in Lagos ·{" "}
+          {/* The number travels with the link: CAC's register opens on an empty search, and this is what to type into it. */}
           <a href={site.cacSearchUrl} target="_blank" rel="noopener noreferrer" className="underline-offset-4 hover:underline">
-            CAC registered ↗
+            CAC RC {site.rcNumber} ↗
           </a>
         </p>
         <h1 className="mt-6 max-w-4xl text-display-1 text-[var(--hero-text)]">

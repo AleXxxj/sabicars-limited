@@ -87,7 +87,7 @@ export default async function AboutPage() {
           </div>
           <blockquote className="mt-12 border-l-2 border-green-500 pl-6">
             <p className="font-display text-[1.7rem] leading-snug md:text-[2rem]">
-              “Every vehicle that leaves our plaza carries my name on it … That’s not a slogan, it’s how I built this.”
+              “Every vehicle that leaves our showroom carries my name on it … That’s not a slogan, it’s how I built this.”
             </p>
             <footer className="mt-4 text-sm text-text-muted">— Ccristian Dee</footer>
           </blockquote>

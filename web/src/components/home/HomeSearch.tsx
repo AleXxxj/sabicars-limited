@@ -24,19 +24,19 @@ interface Suggestion {
 
 /**
  * A budget typed the way people say it — "20m", "₦20,000,000", "20 million",
- * "under 15m" — in whole naira, or null. A bare small number ("20") is not a
- * budget: it could be a year or a seat count.
+ * "under 15m" — in whole naira, or null. A bare small number ("20", "2018",
+ * "7-seater") is not a budget: it could be a year or a seat count, so the
+ * first number that reads as money wins, wherever it sits ("2018 highlander 30m").
  */
 export function budgetFrom(text: string): number | null {
-  const m = text
-    .toLowerCase()
-    .replace(/[₦,]/g, "")
-    .match(/(\d+(?:\.\d+)?)\s*(m\b|mil\b|million|k\b)?/);
-  if (!m) return null;
-  const n = Number(m[1]);
-  const unit = m[2];
-  const naira = unit === "k" ? n * 1_000 : unit ? n * 1_000_000 : n;
-  return naira >= 100_000 ? Math.round(naira) : null;
+  const plain = text.toLowerCase().replace(/[₦,]/g, "");
+  for (const m of plain.matchAll(/(\d+(?:\.\d+)?)\s*(m\b|mil\b|million|k\b)?/g)) {
+    const n = Number(m[1]);
+    const unit = m[2];
+    const naira = unit === "k" ? n * 1_000 : unit ? n * 1_000_000 : n;
+    if (naira >= 100_000) return Math.round(naira);
+  }
+  return null;
 }
 
 /**
@@ -51,9 +51,18 @@ export function budgetFrom(text: string): number | null {
  * not an empty result. Enter takes the highlighted line, or the first one.
  * Without JavaScript the form opens Ask Sabicars with the words (/?ask=…).
  *
- * The shortcuts under it are the questions buyers ask most, built from stock.
+ * The shortcuts under it are quick ways in, built from what is in stock.
  */
-export function HomeSearch({ terms, shortcuts }: { terms: SearchTerm[]; shortcuts: { label: string; href: string }[] }) {
+export function HomeSearch({
+  terms,
+  shortcuts,
+  hummers,
+}: {
+  terms: SearchTerm[];
+  shortcuts: { label: string; href: string }[];
+  /** Whether a Hummer bus is in stock: the Hummer page is only offered when there is one to see. */
+  hummers: boolean;
+}) {
   const router = useRouter();
   const id = useId();
   const [text, setText] = useState("");
@@ -65,7 +74,7 @@ export function HomeSearch({ terms, shortcuts }: { terms: SearchTerm[]; shortcut
     if (!q) return [];
     const words = q.toLowerCase().split(/\s+/).filter((w) => w.length > 1 && !/^\d/.test(w) && !/^(under|below|less|than|for|a|an|the|my|with|down)$/.test(w));
     const out: Suggestion[] = [];
-    if (/hum+er/i.test(q)) out.push({ key: "hummer", label: "Hummer buses", hint: "Every Toyota Hiace high-roof in stock", href: "/hummer-bus" });
+    if (hummers && /hum+er/i.test(q)) out.push({ key: "hummer", label: "Hummer buses", hint: "Every Toyota Hiace high-roof in stock", href: "/hummer-bus" });
     if (words.length) {
       for (const t of terms) {
         const label = t.label.toLowerCase();
@@ -85,7 +94,7 @@ export function HomeSearch({ terms, shortcuts }: { terms: SearchTerm[]; shortcut
     }
     out.push({ key: "ask", label: `Ask Sabicars: “${q}”`, hint: "Answers from every car in stock", ask: q });
     return out;
-  }, [text, terms]);
+  }, [text, terms, hummers]);
 
   const choose = (s: Suggestion | undefined) => {
     if (!s) return;
@@ -175,7 +184,7 @@ export function HomeSearch({ terms, shortcuts }: { terms: SearchTerm[]; shortcut
         )}
       </form>
       {shortcuts.length > 0 && (
-        <ul aria-label="Popular searches" className="-mx-1 mt-3 flex gap-2 overflow-x-auto px-1 [scrollbar-width:none] md:flex-wrap [&::-webkit-scrollbar]:hidden">
+        <ul aria-label="Quick searches"className="-mx-1 mt-3 flex gap-2 overflow-x-auto px-1 [scrollbar-width:none] md:flex-wrap [&::-webkit-scrollbar]:hidden">
           {shortcuts.map((s) => (
             <li key={s.href} className="shrink-0">
               <Link

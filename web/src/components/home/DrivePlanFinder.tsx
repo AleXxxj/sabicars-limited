@@ -31,7 +31,12 @@ const grouped = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
  * percentage.
  */
 export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicle[]; children: React.ReactNode }) {
-  const [text, setText] = useState(grouped(START));
+  const cheapest = vehicles.reduce<FinderVehicle | null>((best, v) => (best === null || v.depositMinor < best.depositMinor ? v : best), null);
+  // The quick amounts start at the smallest deposit that drives a car home today, rounded up to the next ₦100,000,
+  // so every button finds a car and they follow the stock as cheaper cars arrive.
+  const floor = cheapest ? Math.ceil(cheapest.depositMinor / 100 / 100_000) * 100_000 : 0;
+  const presets = floor ? [floor, ...PRESETS.filter((p) => p > floor)] : PRESETS;
+  const [text, setText] = useState(grouped(Math.max(START, floor)));
   const inputId = useId();
   const naira = Number(text.replace(/\D/g, "")) || 0;
   const budgetMinor = naira * 100;
@@ -41,7 +46,6 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
   const inFull = vehicles.filter((v) => v.priceMinor <= budgetMinor).length;
   const picks = within.slice(-4).reverse();
   const reachNaira = Math.floor(reachMinorFor(budgetMinor) / 100);
-  const cheapest = vehicles.reduce<FinderVehicle | null>((best, v) => (best === null || v.depositMinor < best.depositMinor ? v : best), null);
 
   return (
     <div className="grid gap-12 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-16">
@@ -71,7 +75,7 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
             />
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
-            {PRESETS.map((p) => (
+            {presets.map((p) => (
               <button
                 key={p}
                 type="button"
