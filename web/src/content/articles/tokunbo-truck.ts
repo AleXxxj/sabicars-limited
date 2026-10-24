@@ -13,7 +13,7 @@ export const tokunboTruck = {
   category: "Buying Guide",
   standfirst:
     "A truck is a business, not a car. Buy the right one and it earns for years; buy the wrong one and it lives at the mechanic’s. Here is how to choose it, test it and check its papers — before any money moves.",
-  coverImageUrl: "https://res.cloudinary.com/dbmtqpex2/image/upload/v1782081810/sabicars/qseerbq9nswzpbenpzy8.jpg",
+  coverImageUrl: "https://res.cloudinary.com/dbmtqpex2/image/upload/v1792863865/sabicars/blog/tokunbo-truck-daf-xf-430.jpg",
   tags: ["truck", "tokunbo", "commercial"],
   blocks: [
     {

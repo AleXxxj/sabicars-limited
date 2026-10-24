@@ -8,8 +8,10 @@ import { VehicleCard } from "@/components/VehicleCard";
 import { VehicleImage } from "@/components/VehicleImage";
 import { DrivePlanFinder } from "@/components/home/DrivePlanFinder";
 import { HeroShowcase, type HeroSlide } from "@/components/home/HeroShowcase";
-import { EarningsExamples } from "@/components/referral/Referral";
-import { ArrowRight, MapPin } from "lucide-react";
+import { EarningsExamples, PartnerRules } from "@/components/referral/Referral";
+import { HomeSearch } from "@/components/home/HomeSearch";
+import { PostCard } from "@/components/blog/PostCard";
+import { MapPin } from "lucide-react";
 import { Button, ButtonAnchor, ButtonLink } from "@/components/ui/Button";
 import { fieldClass } from "@/components/forms/field";
 import {
@@ -21,6 +23,7 @@ import {
   heroVideoUrl,
   hummerBuses,
   inventoryStats,
+  searchTerms,
 } from "@/lib/repositories/vehicles";
 import { mostRequested } from "@/lib/repositories/sourcing";
 import { publishedReviews, reviewSummary } from "@/lib/repositories/reviews";
@@ -28,7 +31,6 @@ import { ReviewRating, ReviewsSection } from "@/components/reviews/ReviewsSectio
 import { WriteReview } from "@/components/reviews/WriteReview";
 import { latestPosts } from "@/lib/repositories/blog";
 import { formatNaira } from "@/lib/money";
-import { PARTNER_RULES } from "@/lib/referral";
 import { dealerJsonLd, jsonLdScript } from "@/lib/seo/structured-data";
 import { pageAddress, site, siteUrl } from "@/lib/site";
 import { BUDGET_OPTIONS } from "@/lib/sourcing";
@@ -69,7 +71,7 @@ function SectionHead({ eyebrow, title, children }: { eyebrow: string; title: str
  * built to capture the audience, not just display the lot.
  */
 export default async function Home() {
-  const [hero, featured, stats, tiles, videoUrl, catalogue, demand, buses, reviews, reviewStats, posts, allVerified] = await Promise.all([
+  const [hero, featuredStock, stats, tiles, videoUrl, catalogue, demand, buses, reviews, reviewStats, posts, allVerified, terms] = await Promise.all([
     heroVehicles(8),
     featuredVehicles(6),
     inventoryStats(),
@@ -82,10 +84,27 @@ export default async function Home() {
     reviewSummary(),
     latestPosts(3),
     everyListedCarVerified(),
+    searchTerms(),
   ]);
   // Hummer buses, newest first, those with a photograph.
   const hummers = buses.filter((b) => /hum+er/i.test(b.model) && b.cover);
   const hummerFrom = hummers.map((b) => b.priceMinor).filter((p): p is number => Boolean(p)).sort((a, b) => a - b)[0] ?? null;
+
+  // The featured row: staff's choice (Inventory → Featured), with the signature bus always among the first three, the ones a desktop shows.
+  const featured = [...featuredStock];
+  const firstHummer = featured.findIndex((v) => /hum+er/i.test(v.model));
+  if (firstHummer > 2) featured.splice(1, 0, ...featured.splice(firstHummer, 1));
+
+  // Find your car: every make and model family in stock, and the searches buyers make most.
+  const stockTerms = terms.filter((t) => t.inStock > 0);
+  const shortcuts = [
+    ...(hummers.length ? [{ label: "Hummer buses", href: "/hummer-bus" }] : []),
+    ...stockTerms
+      .filter((t) => t.family && !/hum+er/i.test(t.label))
+      .slice(0, 3)
+      .map((t) => ({ label: t.label, href: `/buy/${t.slug}` })),
+    { label: "Under ₦20M", href: "/vehicles?maxPrice=20000000&sort=price_desc" },
+  ];
 
   // Staff choose hero vehicles; if none are chosen, lead with featured stock
   // rather than an empty backdrop.
@@ -94,6 +113,11 @@ export default async function Home() {
 
   // The smallest deposit that drives a car home today: each car at its own tier, so a 2009 car at 50% is not mistaken for the cheapest.
   const lowestDeposit = catalogue.length ? Math.min(...catalogue.map((v) => v.depositMinor)) : null;
+  if (lowestDeposit !== null) {
+    // Rounded up to the next ₦100,000, so the cheapest car is always in the list it opens.
+    const reach = Math.ceil(lowestDeposit / 100 / 100_000) * 100_000;
+    shortcuts.push({ label: `Drive Plan from ${formatNaira(lowestDeposit, { compact: true })} down`, href: `/vehicles?maxDeposit=${reach}` });
+  }
   const hummerDepositFrom = hummers.map((b) => depositMinorFor(b.priceMinor, b.year)).filter((d): d is number => d !== null).sort((a, b) => a - b)[0] ?? null;
 
   // The way in for buying several vehicles: beside the Hummer bus, or on its own when no Hummer is listed.
@@ -124,38 +148,10 @@ export default async function Home() {
 
       <HeroShowcase slides={slides} videoUrl={videoUrl} allVerified={allVerified} />
 
-      {/* Is this real? Three facts, live from the stock and the register. */}
-      <section aria-label="At a glance" className="relative z-10 -mt-12 md:-mt-16">
+      {/* Do they have what I want? One field, answered from the stock as they type — or by Ask Sabicars. */}
+      <section aria-label="Find your car" className="relative z-10 -mt-12 md:-mt-16">
         <div className="mx-auto max-w-7xl px-5 md:px-10">
-          <dl className="glass grid divide-y divide-white/10 rounded-2xl text-[0.95rem] leading-snug text-text-secondary shadow-[0_24px_60px_-30px_rgb(0_0_0/0.9)] md:auto-cols-fr md:grid-flow-col md:divide-x md:divide-y-0">
-            <div className="px-5 py-4 md:px-6 md:py-5">
-              <dt className="sr-only">Stock</dt>
-              <dd>
-                <span className="figures font-semibold text-text-primary">{stats.inStock}</span> {stats.inStock === 1 ? "vehicle" : "vehicles"} in stock today
-                {stats.makes > 0 && (
-                  <>
-                    , from <span className="figures font-semibold text-text-primary">{stats.makes}</span> {stats.makes === 1 ? "brand" : "brands"}
-                  </>
-                )}
-              </dd>
-            </div>
-            {lowestDeposit !== null && (
-              <div className="px-5 py-4 md:px-6 md:py-5">
-                <dt className="sr-only">Drive Plan</dt>
-                <dd>
-                  Drive Plan deposits from <span className="figures font-semibold text-text-primary">{formatNaira(lowestDeposit, { compact: true })}</span>
-                </dd>
-              </div>
-            )}
-            <div className="px-5 py-4 md:px-6 md:py-5">
-              <dt className="sr-only">Registration</dt>
-              <dd>
-                <a href={site.cacSearchUrl} target="_blank" rel="noopener noreferrer" className="underline-offset-4 hover:text-text-primary hover:underline">
-                  CAC registered, RC <span className="figures font-semibold text-text-primary">{site.rcNumber}</span> — check it ↗
-                </a>
-              </dd>
-            </div>
-          </dl>
+          <HomeSearch terms={stockTerms.map((t) => ({ slug: t.slug, label: t.label, fromMinor: t.fromMinor }))} shortcuts={shortcuts} />
         </div>
       </section>
 
@@ -182,14 +178,13 @@ export default async function Home() {
               </SectionHead>
               <p className="figures mt-6 text-text-primary">
                 {[
-                  `${hummers.length} in stock`,
-                  hummerFrom && `from ${formatNaira(hummerFrom, { compact: true })}`,
+                  hummerFrom && `From ${formatNaira(hummerFrom, { compact: true })}`,
                   hummerDepositFrom && `Drive Plan deposit from ${formatNaira(hummerDepositFrom, { compact: true })}`,
                 ]
                   .filter(Boolean)
                   .join(" · ")}
               </p>
-              <ButtonLink href="/hummer-bus" size="lg" variant="secondary" className="mt-8">
+              <ButtonLink href="/hummer-bus" size="lg" variant="signature" className="mt-8">
                 See every Hummer bus
               </ButtonLink>
 
@@ -212,6 +207,18 @@ export default async function Home() {
                   <span className="figures shrink-0 font-semibold text-green-200">{priceLabel(hummers[0])}</span>
                 </span>
               </Link>
+              {hummers.length > 1 && (
+                <ul className="mt-3 grid grid-cols-3 gap-3">
+                  {hummers.slice(1, 4).map((b) => (
+                    <li key={b.id}>
+                      <Link href={`/vehicles/${b.slug}`} className="group relative block aspect-[4/3] overflow-hidden rounded-xl border border-white/[0.08]">
+                        <VehicleImage src={b.cover!.url} alt={vehicleTitle(b)} fill sizes="(min-width: 1024px) 18vw, 30vw" className="object-cover transition-transform group-hover:scale-[1.05]" />
+                        <span className="figures absolute bottom-1.5 left-1.5 rounded-full bg-[#090E0A]/75 px-2 py-0.5 text-[0.7rem] text-white">{b.year}</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </ScrollReveal>
           </div>
         </section>
@@ -341,7 +348,7 @@ export default async function Home() {
             <p className="kicker">Who you are buying from</p>
             <blockquote className="mt-6">
               <p className="font-display text-[1.9rem] leading-[1.25] text-text-primary md:text-[2.4rem]">
-                “Every vehicle that leaves our plaza carries my name on it … That’s not a slogan, it’s how I built this.”
+                “Every vehicle that leaves our showroom carries my name on it … That’s not a slogan, it’s how I built this.”
               </p>
               <footer className="mt-8">
                 <p className="font-medium text-text-primary">Ccristian Dee</p>
@@ -352,7 +359,7 @@ export default async function Home() {
             <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-3">
               <WriteReview />
               <ButtonLink href="/about" variant="quiet">
-                About Sabicars
+                The Sabicars story
               </ButtonLink>
             </div>
           </ScrollReveal>
@@ -379,17 +386,19 @@ export default async function Home() {
                   How it works
                 </ButtonLink>
               </div>
-              {/* The rules by name, from the same list /partners spells out in full, so the two never drift. */}
-              <p className="mt-6 text-sm text-text-muted">{PARTNER_RULES.map((r) => r[0]).join(" · ")}</p>
             </ScrollReveal>
             <ScrollReveal delay={120}>
               <EarningsExamples vehicles={catalogue} />
             </ScrollReveal>
           </div>
+          {/* The rules in full, the same cards /partners shows: what keeps this a commission on sales, never a scheme. */}
+          <div className="mt-14 md:mt-16">
+            <PartnerRules />
+          </div>
         </div>
       </section>
 
-      {/* Read before you buy: the latest buying guides, as a list to scan. */}
+      {/* Read before you buy: the latest buying guides, each with its picture — the way most readers find them. */}
       {posts.length > 0 && (
         <section className="border-t border-border-subtle">
           <div className="mx-auto max-w-7xl px-5 py-16 md:px-10 md:py-20">
@@ -399,21 +408,13 @@ export default async function Home() {
                 All buying guides
               </ButtonLink>
             </ScrollReveal>
-            <ul className="mt-8 divide-y divide-white/[0.06] border-y border-white/[0.06] md:mt-10">
+            <div className="mt-10 grid gap-6 md:mt-12 md:grid-cols-2 lg:grid-cols-3">
               {posts.map((p, i) => (
-                <ScrollReveal as="li" key={p.slug} delay={i * 90}>
-                  <Link href={`/blog/${p.slug}`} className="group flex items-center justify-between gap-6 py-5 md:py-6">
-                    <div className="min-w-0">
-                      <p className="text-sm text-text-muted">
-                        <span className="font-medium text-green-300">{p.category.charAt(0) + p.category.slice(1).toLowerCase()}</span> <span className="figures">· {p.minutes} min read</span>
-                      </p>
-                      <h3 className="mt-1.5 text-[1.3rem] leading-snug text-text-primary transition-colors group-hover:text-green-100 md:text-[1.55rem]">{p.title}</h3>
-                    </div>
-                    <ArrowRight aria-hidden size={20} className="shrink-0 text-green-300 transition-transform duration-[var(--duration-base)] group-hover:translate-x-1" />
-                  </Link>
+                <ScrollReveal key={p.slug} delay={i * 90}>
+                  <PostCard post={p} />
                 </ScrollReveal>
               ))}
-            </ul>
+            </div>
           </div>
         </section>
       )}

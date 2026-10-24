@@ -9,13 +9,15 @@ import type { ComponentProps, ReactNode } from "react";
  *   from above. If a screen has two primaries, one of them is wrong.
  * - secondary: frosted glass with a hairline edge, for the alternative path.
  *   Works over photography as well as the page.
+ * - signature: brand green, for the way to the signature product (the Hummer
+ *   bus) — noticed, without competing with the orange action.
  * - quiet: a text link with an arrow, for "read more" weight.
  *
  * Sentence case at a readable size: a call to action is read in a glance on
  * a phone, and spaced-out capitals at 11px were the hardest text on the site
  * to take in. At least 48px tall — a reliable thumb target.
  */
-type Variant = "primary" | "secondary" | "quiet";
+type Variant = "primary" | "secondary" | "signature" | "quiet";
 type Size = "md" | "lg";
 
 const base =
@@ -29,6 +31,10 @@ const variants: Record<Variant, string> = {
     "shadow-[inset_0_1px_0_rgb(255_255_255/0.35),0_12px_32px_-12px_rgb(247_128_30/0.55)] hover:brightness-[1.06] hover:shadow-[inset_0_1px_0_rgb(255_255_255/0.35),0_16px_40px_-12px_rgb(247_128_30/0.7)]",
   secondary:
     "rounded-full border border-white/20 bg-white/[0.04] text-text-primary backdrop-blur-md hover:border-white/45 hover:bg-white/[0.08]",
+  // Green, the brand's colour for its signature and for trust: the way to the Hummer bus. Orange stays the colour of the page's one action.
+  signature:
+    "rounded-full text-[#0B1206] bg-[linear-gradient(180deg,var(--green-400)_0%,var(--green-500)_100%)] " +
+    "shadow-[inset_0_1px_0_rgb(255_255_255/0.3),0_12px_32px_-12px_rgb(120_176_48/0.55)] hover:brightness-[1.06] hover:shadow-[inset_0_1px_0_rgb(255_255_255/0.3),0_16px_40px_-12px_rgb(120_176_48/0.7)]",
   quiet: "text-accent-text hover:text-text-primary",
 };
 

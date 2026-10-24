@@ -6,6 +6,7 @@ import { AskButton } from "@/components/assistant/AskButton";
 import { ButtonAnchor, ButtonLink } from "@/components/ui/Button";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { VehicleImage } from "@/components/VehicleImage";
+import { site } from "@/lib/site";
 
 export interface HeroSlide {
   url: string;
@@ -152,7 +153,12 @@ export function HeroShowcase({
       <div aria-hidden className="absolute inset-0 -z-10" style={{ background: "var(--hero-scrim-bottom)" }} />
 
       <div className="mx-auto w-full max-w-7xl px-5 pb-20 pt-14 md:px-10 md:pb-28 md:pt-28">
-        <p className="kicker">Car dealer in Lagos · CAC registered</p>
+        <p className="kicker">
+          Car dealer in Lagos ·{" "}
+          <a href={site.cacSearchUrl} target="_blank" rel="noopener noreferrer" className="underline-offset-4 hover:underline">
+            CAC registered ↗
+          </a>
+        </p>
         <h1 className="mt-6 max-w-4xl text-display-1 text-[var(--hero-text)]">
           {allVerified ? "Every car verified." : "Real cars, real prices."}
           <br />

@@ -7,12 +7,11 @@ import { assertNoFaults, watchForFaults } from "../helpers";
  * ways in, the Drive Plan question, and a car with a price on it.
  */
 
-/** The live "Vehicles in stock today" figure the page states. */
+/** The live stock count the page states, on its "See all N cars for sale" link (0 when nothing is in stock and the section is hidden). */
 async function vehiclesInStockToday(page: Page): Promise<number> {
-  const tile = page.locator("dd").filter({ hasText: /vehicles? in stock today/i }).first();
-  await expect(tile, "the homepage no longer states how many vehicles are in stock").toBeVisible();
-  const figure = (await tile.innerText()).match(/^\s*(\d+)/)?.[1];
-  return Number(figure ?? 0);
+  const link = page.getByRole("link", { name: /See all \d+ cars for sale/ }).first();
+  if (!(await link.count())) return 0;
+  return Number((await link.innerText()).match(/(\d+)/)?.[1] ?? 0);
 }
 
 test.describe("Home", () => {
@@ -62,6 +61,22 @@ test.describe("Home", () => {
     const link = page.getByRole("link", { name: /what can i afford/i });
     await expect(link, 'the hero has no "What can I afford?" link').toBeVisible();
     await expect(link, "the affordability link does not lead to the Drive Plan finder").toHaveAttribute("href", /#drive-plan$/);
+    assertNoFaults(faults);
+  });
+
+  test("Find your car suggests what is in stock, and always offers to ask", async ({ page }) => {
+    const faults = watchForFaults(page);
+    await page.goto("/");
+    const search = page.getByRole("combobox", { name: "Find your car" });
+    await expect(search, "the homepage has no search field").toBeVisible();
+    await search.fill("toyota");
+    const options = page.getByRole("listbox", { name: "Suggestions" }).getByRole("option");
+    await expect(options.last(), "the last suggestion does not offer Ask Sabicars").toContainText("Ask Sabicars");
+    if ((await vehiclesInStockToday(page)) > 0 && (await options.count()) > 1) {
+      // A make in stock comes first, and it leads to that make's page.
+      await options.first().click();
+      await page.waitForURL(/\/buy\/[a-z0-9-]+$|\/hummer-bus$/);
+    }
     assertNoFaults(faults);
   });
 
