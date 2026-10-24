@@ -10,7 +10,7 @@ export const revalidate = 3600;
 export const metadata: Metadata = {
   title: "Buy vehicles in bulk: fleet supply for companies and government",
   description:
-    "Toyota Hiace buses, Coasters, SUVs, staff cars and trucks supplied in volume to companies and government bodies by Sabicars Limited (RC 1560100), Lagos.",
+    `Toyota Hiace buses, Coasters, SUVs, staff cars and trucks supplied in volume to companies and government bodies by ${site.legalName} (RC ${site.rcNumber}), Lagos.`,
   ...pageAddress("/fleet"),
 };
 
@@ -79,7 +79,7 @@ export default async function FleetPage() {
             ))}
           </ol>
           <ScrollReveal className="mt-14 border-t border-border-subtle pt-8 text-sm text-text-secondary">
-            Sabicars Limited is registered with the Corporate Affairs Commission under RC {site.rcNumber}.{" "}
+            {site.legalName} is registered with the Corporate Affairs Commission under RC {site.rcNumber}.{" "}
             <a href={site.cacSearchUrl} target="_blank" rel="noopener noreferrer" className="text-accent-text underline-offset-4 hover:underline">
               Your buying team can check it on the CAC register.
             </a>

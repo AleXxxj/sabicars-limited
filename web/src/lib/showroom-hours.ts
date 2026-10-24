@@ -5,6 +5,7 @@
  * sent at 2am starts its clock when the showroom opens. The hours are the
  * published ones in `site.hours` — weekdays 8am–7pm, weekends 9am–6pm.
  */
+import { site } from "@/lib/site";
 
 const LAGOS_OFFSET_MS = 60 * 60 * 1000; // UTC+1 all year — Nigeria has no daylight saving.
 const HOUR = 3600_000;
@@ -13,7 +14,9 @@ const HOUR = 3600_000;
 export function showroomHours(at = new Date()): { opens: Date; closes: Date } {
   const lagos = new Date(at.getTime() + LAGOS_OFFSET_MS);
   const day = lagos.getUTCDay(); // 0 = Sunday
-  const [open, close] = day >= 1 && day <= 5 ? [8, 19] : [9, 18];
+  const hours = site.hours.find((h) => (h.weekdays as readonly number[]).includes(day));
+  if (!hours) throw new Error(`site.hours does not cover day ${day}`);
+  const { opens: open, closes: close } = hours;
   const midnight = Date.UTC(lagos.getUTCFullYear(), lagos.getUTCMonth(), lagos.getUTCDate()) - LAGOS_OFFSET_MS;
   return { opens: new Date(midnight + open * HOUR), closes: new Date(midnight + close * HOUR) };
 }

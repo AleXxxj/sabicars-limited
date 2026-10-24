@@ -7,6 +7,7 @@ import { normalisePhone } from "@/lib/phone";
 import { formatNaira } from "@/lib/money";
 import { RATE_LIMITED_MESSAGE, withinLimit } from "@/lib/rate-limit";
 import { SELL_INTENTS, SELL_PAPERS } from "@/lib/sell";
+import { helpPhone } from "@/lib/site";
 import { listedVehicleById, stockMatching, vehicleForDrivePlan } from "@/lib/repositories/vehicles";
 import { budgetLabel, budgetMaxMinor, PAYMENT_OPTIONS } from "@/lib/sourcing";
 import { drivePlanDeposit, priceLabel, vehicleTitle } from "@/lib/vehicle";
@@ -85,7 +86,7 @@ export async function submitContact(_prev: LeadFormResult | null, formData: Form
     return { ok: true, reference, name: v.name.split(" ")[0] };
   } catch (e) {
     console.error("[contact] insert failed", e);
-    return { ok: false, error: "Something went wrong sending your message. Please call 0810 188 5558.", values };
+    return { ok: false, error: `Something went wrong sending your message. Please call ${helpPhone}.`, values };
   }
 }
 
@@ -148,7 +149,7 @@ export async function submitFleetRequest(_prev: LeadFormResult | null, formData:
     return { ok: true, reference, name: v.name.split(" ")[0] };
   } catch (e) {
     console.error("[fleet] insert failed", e);
-    return { ok: false, error: "Something went wrong sending your request. Please call 0810 188 5558.", values };
+    return { ok: false, error: `Something went wrong sending your request. Please call ${helpPhone}.`, values };
   }
 }
 
@@ -231,7 +232,7 @@ export async function submitSourcingRequest(_prev: SourcingResult | null, formDa
     };
   } catch (e) {
     console.error("[sourcing] insert failed", e);
-    return { ok: false, error: "Something went wrong saving your request. Please call 0810 188 5558.", values };
+    return { ok: false, error: `Something went wrong saving your request. Please call ${helpPhone}.`, values };
   }
 }
 
@@ -313,7 +314,7 @@ export async function submitSellRequest(_prev: LeadFormResult | null, formData: 
     return { ok: true, reference, name: v.name.split(" ")[0] };
   } catch (e) {
     console.error("[sell] insert failed", e);
-    return { ok: false, error: "Something went wrong sending your details. Please call 0810 188 5558.", values };
+    return { ok: false, error: `Something went wrong sending your details. Please call ${helpPhone}.`, values };
   }
 }
 
@@ -376,6 +377,6 @@ export async function startDrivePlan(_prev: DrivePlanStart | null, formData: For
   } catch (e) {
     console.error("[drive plan] insert failed", e);
     // Never stand between a buyer and their loan application.
-    return vehicle.autochekUrl ? { ok: true, name: v.name.split(" ")[0], autochekUrl: vehicle.autochekUrl } : { ok: false, error: "Something went wrong. Please call 0810 188 5558.", values };
+    return vehicle.autochekUrl ? { ok: true, name: v.name.split(" ")[0], autochekUrl: vehicle.autochekUrl } : { ok: false, error: `Something went wrong. Please call ${helpPhone}.`, values };
   }
 }

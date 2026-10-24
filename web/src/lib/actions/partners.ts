@@ -12,7 +12,7 @@ import { codeFor, referralLink } from "@/lib/partners";
 import { normalisePhone } from "@/lib/phone";
 import { RATE_LIMITED_MESSAGE, withinLimit } from "@/lib/rate-limit";
 import { PARTNER_REACH } from "@/lib/referral";
-import { siteUrl } from "@/lib/site";
+import { helpPhone, siteUrl } from "@/lib/site";
 
 export interface PartnerFormResult {
   ok: boolean;
@@ -83,7 +83,7 @@ export async function registerPartner(_prev: PartnerFormResult | null, formData:
     const byPhone = and(eq(partners.dealerId, dealerId), eq(partners.phone, phone));
     const [existing] = await db.select({ id: partners.id, code: partners.code, status: partners.status }).from(partners).where(byPhone).limit(1);
     if (existing) {
-      if (existing.status !== "active") return { ok: false, error: "This number cannot be registered online. Please call 0810 188 5558.", values };
+      if (existing.status !== "active") return { ok: false, error: `This number cannot be registered online. Please call ${helpPhone}.`, values };
       // The private page link is never handed to whoever types a phone number: it goes to the email on
       // record, or the partner gets it from Sabicars. The public code is fine to repeat.
       welcome(existing.id);
@@ -110,6 +110,6 @@ export async function registerPartner(_prev: PartnerFormResult | null, formData:
     throw new Error("Could not draw a free partner code");
   } catch (e) {
     console.error("[partners] registration failed", e);
-    return { ok: false, error: "Something went wrong registering you. Please try again, or call 0810 188 5558.", values };
+    return { ok: false, error: `Something went wrong registering you. Please try again, or call ${helpPhone}.`, values };
   }
 }

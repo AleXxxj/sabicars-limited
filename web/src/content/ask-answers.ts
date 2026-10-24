@@ -4,6 +4,16 @@
  * them from real conversations in the admin; `npm run ask:seed` puts these in
  * and never overwrites an answer staff have edited (unless run with --force).
  */
+import { site } from "@/lib/site";
+
+/** "8am", "7pm": an hour on the clock, the way the answers say it. */
+const clock = (h: number) => `${h % 12 || 12}${h < 12 ? "am" : "pm"}`;
+
+/** The published hours as the answer's list: "- Monday to Friday: 8am – 7pm", "- Saturday and Sunday: 9am – 6pm". */
+const hoursList = site.hours
+  .map((h) => `- ${h.days.replace(" – ", h.weekdays.length === 2 ? " and " : " to ")}: ${clock(h.opens)} – ${clock(h.closes)}`)
+  .join("\n");
+
 export const ASK_ANSWERS: { slug: string; question: string; answer: string }[] = [
   {
     slug: "how-does-the-40-percent-drive-plan-work",
@@ -53,10 +63,9 @@ Our [20-minute inspection guide](/blog/5-things-to-check-before-buying-a-used-ca
   {
     slug: "where-is-the-sabicars-showroom-and-when-is-it-open",
     question: "Where is the Sabicars showroom, and when is it open?",
-    answer: `Amazing Grace Shopping Complex, Km 16, Alhaji Ede Bus Stop, Lasu Road, Igando, Lagos.
+    answer: `${site.address.line1}, ${site.address.line2}, ${site.address.city}.
 
-- Monday to Friday: 8am – 7pm
-- Saturday and Sunday: 9am – 6pm
+${hoursList}
 
 [Directions and contact details](/contact).`,
   },
@@ -95,6 +104,6 @@ Our [20-minute inspection guide](/blog/5-things-to-check-before-buying-a-used-ca
   {
     slug: "is-sabicars-a-registered-company",
     question: "Is Sabicars a registered company?",
-    answer: `Yes. Sabicars Limited is registered with the Corporate Affairs Commission, RC 1560100. Anyone can check it on the [CAC’s public search](https://search.cac.gov.ng).`,
+    answer: `Yes. ${site.legalName} is registered with the Corporate Affairs Commission, RC ${site.rcNumber}. Anyone can check it on the [CAC’s public search](${site.cacSearchUrl}).`,
   },
 ];

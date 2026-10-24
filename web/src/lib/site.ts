@@ -4,9 +4,18 @@
  * Everything here is published on every page, so every line has to be true.
  * Where the legacy site contradicted itself, the choice and the reason are
  * noted — see docs/ARCHITECTURE.md §8 for what still needs the owner's word.
+ *
+ * Pages, metadata and messages read the dealer's name, registration, address
+ * and phone from here rather than typing them out, so they change in one
+ * place — and so a second dealer is a second set of facts, not a search
+ * through the code (docs/ARCHITECTURE.md §2.3).
  */
 import type { Metadata } from "next";
 
+const DOMAIN = "sabicars.com";
+const PREMISES = "Amazing Grace Shopping Complex";
+const AREA = "Igando";
+const INSTAGRAM = "sabicarsltd";
 const MAP_QUERY = "Sabicars+Autos+Amazing+Grace+Shopping+Complex+Alhaji+Ede+Bus+Stop+Km+16+Igando+Lagos+100267";
 
 export const site = {
@@ -14,6 +23,8 @@ export const site = {
   legalName: "Sabicars Limited",
   rcNumber: "1560100",
   tagline: "Luxury Auto · Lagos",
+  /** The dealer's own domain: its email, and the stable identifiers in calendar invites. */
+  domain: DOMAIN,
 
   /**
    * As the legacy contact page gives it (its "verified location" block, with
@@ -22,9 +33,14 @@ export const site = {
    * owner's confirmation.
    */
   address: {
-    line1: "Amazing Grace Shopping Complex, Km 16",
-    line2: "Alhaji Ede Bus Stop, Lasu Road, Igando",
+    line1: `${PREMISES}, Km 16`,
+    line2: `Alhaji Ede Bus Stop, Lasu Road, ${AREA}`,
     city: "Lagos",
+    /** The state, for search engines' address format and the locations table. */
+    region: "Lagos",
+    /** The building and the district on their own, for a short mention ("… at Amazing Grace Shopping Complex, Igando"). */
+    premises: PREMISES,
+    area: AREA,
     postcode: "100267",
     country: "NG",
   },
@@ -34,10 +50,14 @@ export const site = {
   /** The same listing as an embeddable map — satellite view, as on the legacy contact page. */
   mapEmbedUrl: `https://maps.google.com/maps?q=${MAP_QUERY}&t=k&z=16&ie=UTF8&iwloc=&output=embed`,
 
-  /** Published on the legacy contact page. */
+  /**
+   * Published on the legacy contact page. `weekdays` (0 = Sunday) and the
+   * opening and closing hour, Lagos time, are the same hours as a clock the
+   * lead engine runs on (showroom-hours.ts).
+   */
   hours: [
-    { days: "Monday – Friday", time: "8:00am – 7:00pm", schema: "Mo-Fr 08:00-19:00" },
-    { days: "Saturday – Sunday", time: "9:00am – 6:00pm", schema: "Sa-Su 09:00-18:00" },
+    { days: "Monday – Friday", time: "8:00am – 7:00pm", schema: "Mo-Fr 08:00-19:00", weekdays: [1, 2, 3, 4, 5], opens: 8, closes: 19 },
+    { days: "Saturday – Sunday", time: "9:00am – 6:00pm", schema: "Sa-Su 09:00-18:00", weekdays: [6, 0], opens: 9, closes: 18 },
   ],
 
   /** Anyone can check the registration themselves — an institution invites it. */
@@ -56,12 +76,16 @@ export const site = {
    * record at all, so the info@sabicars.ng address printed across the legacy
    * site cannot receive mail.
    */
-  email: "info@sabicars.com",
+  email: `info@${DOMAIN}`,
 
   social: {
-    instagram: "https://instagram.com/sabicarsltd",
+    instagram: `https://instagram.com/${INSTAGRAM}`,
+    instagramHandle: INSTAGRAM,
   },
 } as const;
+
+/** The number to call when something goes wrong online: the first published line. */
+export const helpPhone = site.phones[0].display;
 
 /**
  * The site's own address: canonical links, link previews, the sitemap, emails.
@@ -75,7 +99,7 @@ export const site = {
  */
 export function siteUrl(): string {
   const production = process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL ?? process.env.VERCEL_PROJECT_PRODUCTION_URL;
-  return (process.env.NEXT_PUBLIC_SITE_URL ?? (production ? `https://${production}` : "https://sabicars.com")).replace(/\/+$/, "");
+  return (process.env.NEXT_PUBLIC_SITE_URL ?? (production ? `https://${production}` : `https://${site.domain}`)).replace(/\/+$/, "");
 }
 
 type OpenGraph = NonNullable<Metadata["openGraph"]>;

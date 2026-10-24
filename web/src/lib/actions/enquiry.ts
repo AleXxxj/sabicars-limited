@@ -7,6 +7,7 @@ import { vehicles } from "@/db/schema";
 import { DECOY_REFERENCE, looksAutomated, saveLead, saveViewing, SlotTaken, tooManyFrom } from "@/lib/leads";
 import { normalisePhone } from "@/lib/phone";
 import { RATE_LIMITED_MESSAGE, withinLimit } from "@/lib/rate-limit";
+import { helpPhone } from "@/lib/site";
 import { isBookableSlot } from "@/lib/viewings";
 
 export interface EnquiryResult {
@@ -110,6 +111,6 @@ export async function submitEnquiry(_prev: EnquiryResult | null, formData: FormD
       return { ok: false, fieldErrors: { viewingAt: "That time has just been booked. Please choose another." }, values };
     }
     console.error("[enquiry] insert failed", e);
-    return { ok: false, error: "Something went wrong saving your enquiry. Please call 0810 188 5558 and we will help straight away.", values };
+    return { ok: false, error: `Something went wrong saving your enquiry. Please call ${helpPhone} and we will help straight away.`, values };
   }
 }

@@ -1,5 +1,5 @@
 import "server-only";
-import { siteUrl } from "@/lib/site";
+import { site, siteUrl } from "@/lib/site";
 import { and, count, eq, inArray, isNotNull, sql } from "drizzle-orm";
 import { db } from "@/db";
 import journal from "@/db/migrations/meta/_journal.json";
@@ -403,25 +403,26 @@ async function addressChecks(base: string): Promise<Check[]> {
 
 export async function launchChecks(base: string): Promise<Check[]> {
   const address = siteUrl();
+  const home = `https://${site.domain}`;
   const preview = /\.vercel\.app$/.test(new URL(address).hostname);
   const settings: Check[] = [
     ...(await databaseChecks()),
     {
       group: "Settings",
       label: "Site address",
-      status: address === "https://sabicars.com" ? "ok" : "warn",
+      status: address === home ? "ok" : "warn",
       detail:
-        address === "https://sabicars.com"
-          ? "https://sabicars.com"
+        address === home
+          ? home
           : preview
-            ? `${address} — Vercel's address, used until sabicars.com is added as the project's domain. Right for the rehearsal.`
+            ? `${address} — Vercel's address, used until ${site.domain} is added as the project's domain. Right for the rehearsal.`
             : `Set to ${address} — links in emails and search results will point there.`,
       fix:
-        address === "https://sabicars.com"
+        address === home
           ? undefined
           : preview
-            ? "On switch day: add sabicars.com as the project's domain in Vercel, then redeploy."
-            : "For the live site, remove NEXT_PUBLIC_SITE_URL (or set it to https://sabicars.com).",
+            ? `On switch day: add ${site.domain} as the project's domain in Vercel, then redeploy.`
+            : `For the live site, remove NEXT_PUBLIC_SITE_URL (or set it to ${home}).`,
     },
     setting(
       "Staff sign-in",

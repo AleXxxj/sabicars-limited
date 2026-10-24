@@ -17,7 +17,7 @@ import {
 } from "@/lib/inventory-filters";
 import { DRIVE_PLAN } from "@/lib/drive-plan";
 import { formatNaira } from "@/lib/money";
-import { pageAddress } from "@/lib/site";
+import { pageAddress, site } from "@/lib/site";
 import { BODY_LABEL, CONDITION_LABEL } from "@/lib/vehicle";
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
@@ -40,7 +40,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   const canonical = filtersHref({ sort: "newest", page: 1, body: f.body, segment: f.segment, make: f.make }, {});
   return {
     title,
-    description: `${title} from Sabicars Limited (RC 1560100), a CAC-registered dealer in Lagos, Nigeria. Every vehicle with photos, specifications and prices.`,
+    description: `${title} from ${site.legalName} (RC ${site.rcNumber}), a CAC-registered dealer in Lagos, Nigeria. Every vehicle with photos, specifications and prices.`,
     ...pageAddress(canonical),
   };
 }

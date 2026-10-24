@@ -6,7 +6,7 @@ import { db } from "@/db";
 import { inspections, vehicles } from "@/db/schema";
 import { PrintButton } from "@/components/admin/PrintButton";
 import { requireStaff } from "@/lib/auth";
-import { siteUrl } from "@/lib/site";
+import { site, siteUrl } from "@/lib/site";
 import { vehicleTitle } from "@/lib/vehicle";
 
 export const metadata: Metadata = { title: "Windscreen seal · Admin", robots: { index: false, follow: false } };
@@ -50,7 +50,7 @@ export default async function SealPage({ params }: Props) {
         </p>
         {preview && (
           <p role="alert" className="mt-4 border-l-4 border-[#B54F05] bg-[#FFF3E8] px-4 py-3 text-sm leading-relaxed">
-            The code points to <strong>{shortUrl}</strong>, the preview address. Print seals after the switch to sabicars.com, so every
+            The code points to <strong>{shortUrl}</strong>, the preview address. Print seals after the switch to {site.domain}, so every
             sticker carries the permanent address.
           </p>
         )}
@@ -75,7 +75,7 @@ export default async function SealPage({ params }: Props) {
             {shortUrl}
           </p>
           <p className="figures" style={{ fontSize: "2.6mm", marginTop: "0.6mm", color: "#586059" }}>
-            Report SV-{row.report.code} · Sabicars Limited · RC 1560100
+            Report SV-{row.report.code} · {site.legalName} · RC {site.rcNumber}
           </p>
         </div>
       </div>

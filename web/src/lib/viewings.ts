@@ -1,4 +1,5 @@
 import { showroomHours } from "@/lib/showroom-hours";
+import { site } from "@/lib/site";
 
 /**
  * Viewing slots: what a buyer can book, straight from the showroom's hours.
@@ -88,7 +89,7 @@ export function viewingCalendar(at: Date, title: string, location: string, refer
     "VERSION:2.0",
     "PRODID:-//Sabicars//Viewings//EN",
     "BEGIN:VEVENT",
-    `UID:${reference}@sabicars.com`,
+    `UID:${reference}@${site.domain}`,
     `DTSTAMP:${stamp(new Date())}`,
     `DTSTART:${stamp(at)}`,
     `DTEND:${stamp(end)}`,

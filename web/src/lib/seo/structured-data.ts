@@ -34,7 +34,7 @@ export function dealerJsonLd() {
       "@type": "PostalAddress",
       streetAddress: `${site.address.line1}, ${site.address.line2}`,
       addressLocality: site.address.city,
-      addressRegion: "Lagos",
+      addressRegion: site.address.region,
       postalCode: site.address.postcode,
       addressCountry: site.address.country,
     },

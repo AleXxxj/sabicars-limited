@@ -69,6 +69,49 @@ there is exactly one: Sabicars. Multi-tenancy (Phase 7) then becomes a
 permissions layer over a model that is already correct, rather than a migration
 of live data under pressure.
 
+**Where the one dealer is still fixed (2026-10-24).** The dealer's facts —
+name, legal name, RC number, address, opening hours, phones, WhatsApp, email,
+domain, Instagram — are typed once, in `web/src/lib/site.ts`. Pages, page
+descriptions, search-engine data, form error messages, emails, calendar
+invites, the admin launch checks and the lead engine's showroom clock read
+them from there. Three copies sit outside it, and changing a fact means
+changing them too:
+
+- **The showroom's `locations` row.** The legacy import creates it from
+  `site.address` once. Car pages, viewing confirmations, calendar files and
+  viewing reminders read the row, because a car can sit at another park.
+- **The /ask starter answers.** `content/ask-answers.ts` builds them from
+  `site.ts`, but `npm run ask:seed` copies them into the database, and /ask,
+  llms.txt and the assistant read the database, where staff edit them. Update
+  them in the admin; reseeding with `--force` overwrites staff edits.
+- **The artwork.** The Verified seal ("CAC RC 1560100 · LAGOS") and the share
+  image ("SABICARS.COM · LAGOS") carry the facts as drawn lettering
+  (`scripts/build-brand.mjs`, `scripts/fonts/seal-ring.json`).
+
+What still ties the public site to Sabicars, in the order a second dealer
+would need it undone:
+
+1. **Which dealer a request is for.** `sabicarsId()` (repositories/vehicles.ts),
+   `sabicarsDealerId()` (lib/leads.ts) and the launch checks look the dealer up
+   by the fixed slug `"sabicars"`. Every query already filters by dealer; what
+   is missing is choosing the dealer per request — by the domain asked for —
+   and passing it down.
+2. **Where the facts live.** `site` is a code constant. The `dealers` table
+   (name, legal_name, rc_number) is not read by the public site, and the
+   `locations` table only for a car's own park. The step is to load the
+   request's dealer and its main location from those tables (cached), with
+   `site.ts` becoming Sabicars' seed row — which also ends the copies above.
+3. **The brand in the copy.** "Sabicars" is written into headlines, page
+   titles, "Ask Sabicars", the logo and the palette across the site. These are
+   brand, not facts; a second dealer needs them per dealer, or a neutral voice.
+4. **Sabicars' own offer.** The Hummer bus section and page (and the rule that
+   a Hummer is a model containing "Hummer"), the founder's story, quote and
+   photo, the Drive Plan with Autochek (the 40%/50% tiers and 2008/2010 years in
+   `drive-plan.ts`), Refer & Earn (1.5% and 90 days in `referral.ts`), the
+   curated category covers (`CURATED_COVERS`), the home page's fixed
+   "Under ₦20M" shortcut, the /ask starter answers and the articles. Each is a
+   per-dealer setting, or a feature a dealer turns on.
+
 ### 2.4 Every naira paid out is backed by a closed sale or an approved budget
 
 The reward programme has two funding pools and never a third:

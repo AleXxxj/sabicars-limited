@@ -14,7 +14,7 @@ export const revalidate = 3600;
 export const metadata: Metadata = {
   title: "About Sabicars — founded by Ccristian Dee",
   description:
-    "Sabicars Limited (RC 1560100) was founded by Ccristian Dee — Prince Emmanuel Abisoye — on a simple principle: Nigerian car buyers deserve dealers who tell the truth about what they sell.",
+    `${site.legalName} (RC ${site.rcNumber}) was founded by Ccristian Dee — Prince Emmanuel Abisoye — on a simple principle: Nigerian car buyers deserve dealers who tell the truth about what they sell.`,
   ...pageAddress("/about"),
 };
 
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
 const STANDARDS = [
   {
     title: "Registered and responsible",
-    body: `Sabicars Limited is registered with the Corporate Affairs Commission under RC ${site.rcNumber}. It is a real company that answers for what it sells, not a roadside stand.`,
+    body: `${site.legalName} is registered with the Corporate Affairs Commission under RC ${site.rcNumber}. It is a real company that answers for what it sells, not a roadside stand.`,
     link: { href: site.cacSearchUrl, label: "Check it on the CAC register" },
   },
   {
@@ -54,7 +54,7 @@ export default async function AboutPage() {
     <>
       <PageIntro eyebrow="About Sabicars" title="A dealer that tells the truth about what it sells.">
         <p>
-          Ccristian Dee started Sabicars Limited with one simple belief: Nigerian car buyers deserve dealers who tell the truth about
+          Ccristian Dee started {site.legalName} with one simple belief: Nigerian car buyers deserve dealers who tell the truth about
           what they sell.
         </p>
       </PageIntro>
@@ -62,7 +62,7 @@ export default async function AboutPage() {
       <section className="mx-auto grid max-w-7xl gap-12 px-5 py-20 md:px-10 md:py-28 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-start">
         <ScrollReveal className="lg:sticky lg:top-28">
           <div className="relative aspect-[4/5] overflow-hidden bg-surface-2">
-            <Image src="/founder.jpg" alt="Ccristian Dee, founder of Sabicars Limited" fill priority sizes="(min-width: 1024px) 40vw, 100vw" className="object-cover object-[60%_center]" />
+            <Image src="/founder.jpg" alt={`Ccristian Dee, founder of ${site.legalName}`} fill priority sizes="(min-width: 1024px) 40vw, 100vw" className="object-cover object-[60%_center]" />
           </div>
           <p className="mt-4 font-medium">Ccristian Dee</p>
           <p className="text-sm text-text-muted">Born Prince Emmanuel Abisoye · Founder &amp; CEO</p>
@@ -107,7 +107,7 @@ export default async function AboutPage() {
               </p>
             </div>
             {/* eslint-disable-next-line @next/next/no-img-element -- a vector seal, cached across pages; nothing for next/image to optimise */}
-            <img src="/brand/seal.svg" alt="The Sabicars Verified seal, with CAC RC 1560100" width={168} height={168} className="size-36 md:size-42" />
+            <img src="/brand/seal.svg" alt={`The ${site.name} Verified seal, with CAC RC ${site.rcNumber}`} width={168} height={168} className="size-36 md:size-42" />
           </ScrollReveal>
           <div className="mt-14 grid gap-px overflow-hidden rounded-2xl border border-white/[0.07] bg-border-subtle sm:grid-cols-2">
             {STANDARDS.map((s, i) => (

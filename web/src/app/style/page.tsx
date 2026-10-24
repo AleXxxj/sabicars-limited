@@ -8,6 +8,7 @@ import { VehicleCard } from "@/components/VehicleCard";
 import { featuredVehicles, heroVehicles } from "@/lib/repositories/vehicles";
 import { VehicleImage } from "@/components/VehicleImage";
 import { vehicleTitle } from "@/lib/vehicle";
+import { site } from "@/lib/site";
 
 /**
  * The design system, rendered with live inventory.
@@ -74,7 +75,9 @@ export default async function StylePage() {
         <div aria-hidden className="absolute inset-0 -z-10" style={{ background: "var(--hero-scrim)" }} />
         <div aria-hidden className="absolute inset-0 -z-10" style={{ background: "var(--hero-scrim-bottom)" }} />
         <div className="mx-auto w-full max-w-7xl px-5 pb-16 pt-32 md:px-10 md:pb-24">
-          <p className="eyebrow !text-green-300">Sabicars Limited · Lagos · RC 1560100</p>
+          <p className="eyebrow !text-green-300">
+            {site.legalName} · {site.address.city} · RC {site.rcNumber}
+          </p>
           <h1 className="mt-6 max-w-4xl text-display-1 text-[var(--hero-text)]">
             Real cars, real prices. <span className="text-green-300">Every deal</span> on record.
           </h1>
@@ -192,7 +195,7 @@ export default async function StylePage() {
 
       <footer className="border-t border-border-subtle py-10">
         <div className="mx-auto max-w-7xl px-5 text-xs text-text-muted md:px-10">
-          Sabicars Limited · RC 1560100 · Design system reference — not indexed.
+          {site.legalName} · RC {site.rcNumber} · Design system reference — not indexed.
         </div>
       </footer>
     </main>

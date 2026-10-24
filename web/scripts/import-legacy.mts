@@ -145,7 +145,7 @@ try {
       (
         await tx
           .insert(schema.locations)
-          .values({ dealerId: D, name: "Sabicars showroom", addressLine1: site.address.line1, addressLine2: site.address.line2, city: site.address.city, state: "Lagos", phone: site.phones[0].e164 })
+          .values({ dealerId: D, name: "Sabicars showroom", addressLine1: site.address.line1, addressLine2: site.address.line2, city: site.address.city, state: site.address.region, phone: site.phones[0].e164 })
           .returning()
       )[0].id;
 

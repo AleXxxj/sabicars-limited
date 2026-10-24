@@ -150,7 +150,7 @@ ${paragraphs.map((p) => `<tr><td style="padding:14px 0 0;font-size:16px;line-hei
 <tr><td style="padding:28px 0 0"></td></tr>
 ${cars.map((x) => x.html).join("\n")}
 <tr><td style="padding:4px 0 36px"><a href="${esc(cta.url)}" style="display:inline-block;background:#F7801E;color:#090E0A;padding:16px 28px;border-radius:999px;font-size:15px;font-weight:bold;text-decoration:none">${esc(cta.label)}</a></td></tr>
-<tr><td style="border-top:1px solid #262B26;padding:24px 0 0;font-size:12px;line-height:1.7;color:#8E958F">You are receiving this because you subscribed at sabicars.com. <a href="${esc(unsubscribeUrl)}" style="color:#9FA59E">Unsubscribe</a> — one click, no questions.<br>${esc(legal)}</td></tr>
+<tr><td style="border-top:1px solid #262B26;padding:24px 0 0;font-size:12px;line-height:1.7;color:#8E958F">You are receiving this because you subscribed at ${site.domain}.<a href="${esc(unsubscribeUrl)}" style="color:#9FA59E">Unsubscribe</a> — one click, no questions.<br>${esc(legal)}</td></tr>
 </table></td></tr></table></body></html>`;
 
   const text = [

@@ -5,10 +5,13 @@ import { Address } from "@/components/site/Address";
 import { PageIntro } from "@/components/site/PageIntro";
 import { pageAddress, site, whatsappLink } from "@/lib/site";
 
+/** "Open every day" only while the published hours cover all seven days. */
+const openEveryDay = new Set(site.hours.flatMap((h) => h.weekdays)).size === 7;
+
 export const metadata: Metadata = {
   title: "Contact Sabicars — showroom, phone and hours",
   description:
-    "Visit the Sabicars showroom at Amazing Grace Shopping Complex, Km 16, Lasu Road, Igando, Lagos — or call 0810 188 5558. Open every day.",
+    `Visit the ${site.name} showroom at ${site.address.line1}, ${site.address.line2}, ${site.address.city} — or call ${site.phones[0].display}.${openEveryDay ? " Open every day." : ""}`,
   ...pageAddress("/contact"),
 };
 
@@ -57,7 +60,7 @@ export default function ContactPage() {
           <div className="relative min-h-80 bg-surface-2 md:min-h-[28rem]">
             <iframe
               src={site.mapEmbedUrl}
-              title="Map showing the Sabicars showroom at Amazing Grace Shopping Complex, Igando, Lagos"
+              title={`Map showing the ${site.name} showroom at ${site.address.premises}, ${site.address.area}, ${site.address.city}`}
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
               allowFullScreen
@@ -85,7 +88,7 @@ export default function ContactPage() {
               WhatsApp <span className="figures">{site.whatsapp.display}</span>
             </a>
             <a href={site.social.instagram} target="_blank" rel="noopener noreferrer" className="mt-3 block hover:text-text-primary">
-              Instagram @sabicarsltd
+              Instagram @{site.social.instagramHandle}
             </a>
           </Channel>
         </div>

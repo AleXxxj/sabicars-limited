@@ -347,7 +347,7 @@ export default async function Home() {
         <div className="mx-auto grid max-w-7xl gap-12 px-5 pt-16 md:px-10 md:pt-20 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-center">
           <ScrollReveal>
             <div className="relative aspect-[4/5] overflow-hidden rounded-3xl border border-white/[0.08] bg-surface-2 shadow-[0_40px_90px_-40px_rgb(0_0_0/0.9)] lg:aspect-square">
-              <Image src="/founder.jpg" alt="Ccristian Dee, founder of Sabicars Limited" fill sizes="(min-width: 1024px) 40vw, 100vw" className="object-cover object-[60%_center]" />
+              <Image src="/founder.jpg" alt={`Ccristian Dee, founder of ${site.legalName}`} fill sizes="(min-width: 1024px) 40vw, 100vw" className="object-cover object-[60%_center]" />
             </div>
           </ScrollReveal>
           <ScrollReveal delay={120}>
