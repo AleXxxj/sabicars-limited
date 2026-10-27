@@ -39,6 +39,26 @@ export function responseMinutes(createdAt: Date, firstResponseAt: Date): number 
   return Math.max(0, (firstResponseAt.getTime() - clockStartsAt(createdAt).getTime()) / 60_000);
 }
 
+/**
+ * The reply promise a page may make, from the showroom minutes it really took
+ * to answer recent enquiries — or null, when the record does not earn one.
+ *
+ * A tester on another marketplace messaged a seller and never heard back;
+ * Sabicars can beat that visibly, but only with a claim its own numbers
+ * back. So: at least 10 answered enquiries, and the promised minutes are the
+ * slowest of the fastest four in five (the 80th percentile), rounded up to
+ * five, and only when that is within an hour. "Most" is then literally true.
+ */
+export const PROMISE_MIN_ANSWERED = 10;
+export const PROMISE_MAX_MINUTES = 60;
+export function replyPromiseFrom(minutes: number[]): number | null {
+  if (minutes.length < PROMISE_MIN_ANSWERED) return null;
+  const sorted = [...minutes].sort((a, b) => a - b);
+  const p80 = sorted[Math.min(sorted.length - 1, Math.ceil(sorted.length * 0.8) - 1)];
+  const promised = Math.max(5, Math.ceil(p80 / 5) * 5);
+  return promised <= PROMISE_MAX_MINUTES ? promised : null;
+}
+
 /** "4 min", "1 h 20 min", "2 days" — how long, in the words staff would use. */
 export function formatWait(minutes: number): string {
   const m = Math.round(minutes);

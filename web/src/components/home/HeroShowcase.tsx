@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Pause, Play, Sparkles, Volume2, VolumeX, Wallet } from "lucide-react";
+import { ArrowRight, HandCoins, Pause, Play, Sparkles, Volume2, VolumeX, Wallet } from "lucide-react";
 import { AskButton } from "@/components/assistant/AskButton";
 import { ButtonAnchor, ButtonLink } from "@/components/ui/Button";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { VehicleImage } from "@/components/VehicleImage";
+import { REFERRAL_COMMISSION_BPS } from "@/lib/referral";
 import { site } from "@/lib/site";
 
 export interface HeroSlide {
@@ -177,13 +178,26 @@ export function HeroShowcase({
             <Wallet aria-hidden size={18} strokeWidth={1.75} /> What can I afford?
           </ButtonAnchor>
         </div>
-        {/* For the visitor who has neither a car nor a budget in mind yet: the same panel as the floating Ask button. */}
-        <AskButton className="group mt-4 inline-flex min-h-11 items-center gap-2 text-left text-[0.95rem] text-[var(--hero-text-secondary)] transition-colors hover:text-[var(--hero-text)] md:mt-5">
-          <Sparkles aria-hidden size={17} className="shrink-0 text-green-300" />
-          <span>
-            Not sure where to start? <span className="font-semibold text-green-300 group-hover:text-green-200">Ask Sabicars</span>
-          </span>
-        </AskButton>
+        {/* Two more doors on the first screen: for the visitor with neither a car nor a budget in mind yet, the same panel as the
+            floating Ask button; and for the one who has no car to buy but knows someone who does — on Jiji a visitor sees at
+            once that they can earn there, and a tester called that "infrastructure". The figure is the one the ledger pays. */}
+        <div className="mt-4 flex flex-wrap gap-x-8 gap-y-1 md:mt-5">
+          <AskButton className="group inline-flex min-h-11 items-center gap-2 text-left text-[0.95rem] text-[var(--hero-text-secondary)] transition-colors hover:text-[var(--hero-text)]">
+            <Sparkles aria-hidden size={17} className="shrink-0 text-green-300" />
+            <span>
+              Not sure where to start? <span className="font-semibold text-green-300 group-hover:text-green-200">Ask Sabicars</span>
+            </span>
+          </AskButton>
+          <Link
+            href="/partners"
+            className="group inline-flex min-h-11 items-center gap-2 text-left text-[0.95rem] text-[var(--hero-text-secondary)] transition-colors hover:text-[var(--hero-text)]"
+          >
+            <HandCoins aria-hidden size={17} className="shrink-0 text-green-300" />
+            <span>
+              Know a buyer? <span className="font-semibold text-green-300 group-hover:text-green-200">Earn {REFERRAL_COMMISSION_BPS / 100}% when they buy</span>
+            </span>
+          </Link>
+        </div>
 
         {/* What is on screen, and a way to it. On a phone, clear of the floating Ask button. */}
         <div className="mt-10 flex flex-wrap items-end justify-between gap-6 border-t border-white/15 pt-5 max-sm:pr-20 md:mt-14">

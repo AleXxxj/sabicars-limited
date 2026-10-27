@@ -7,7 +7,7 @@
  * Run: npm run test:hours
  */
 
-import { clockStartsAt, formatWait, isOpen, responseMinutes, showroomHours } from "../src/lib/showroom-hours";
+import { clockStartsAt, formatWait, isOpen, replyPromiseFrom, responseMinutes, showroomHours } from "../src/lib/showroom-hours";
 
 let passed = 0;
 let failed = 0;
@@ -59,6 +59,15 @@ eq("14 min", formatWait(14), "14 min");
 eq("90 min", formatWait(90), "1 h 30 min");
 eq("120 min", formatWait(120), "2 h");
 eq("3 days", formatWait(3 * 24 * 60), "3 days");
+
+console.log("\nThe reply promise (only what the record earns)");
+eq("nine answered enquiries earn no promise, however fast", replyPromiseFrom([1, 2, 3, 4, 5, 6, 7, 8, 9]), null);
+eq("ten quick answers promise 10 minutes", replyPromiseFrom([2, 4, 5, 6, 7, 7, 8, 8, 9, 40]), 10);
+eq("rounded up to five, never down", replyPromiseFrom([11, 11, 11, 11, 11, 11, 11, 11, 11, 11]), 15);
+eq("never under five minutes", replyPromiseFrom([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]), 5);
+eq("one slow reply in five does not break it", replyPromiseFrom([5, 5, 5, 5, 5, 5, 5, 5, 300, 300]), 5);
+eq("two slow in ten do break it", replyPromiseFrom([5, 5, 5, 5, 5, 5, 5, 300, 300, 300]), null);
+eq("slower than an hour: no promise", replyPromiseFrom([70, 70, 70, 70, 70, 70, 70, 70, 70, 70]), null);
 
 console.log(`\n${passed} passed, ${failed} failed\n`);
 if (failed) process.exit(1);

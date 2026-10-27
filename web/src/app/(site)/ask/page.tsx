@@ -34,7 +34,7 @@ export default async function AskIndex() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdScript(faqJsonLd(answers.map((a) => ({ q: a.question, a: a.answer })))) }}
       />
-      <PageIntro eyebrow="Ask Sabicars" title="Straight answers to what buyers ask.">
+      <PageIntro eyebrow="Help" title="Straight answers to what buyers ask.">
         <p>
           The questions we hear most, answered plainly. Something else on your mind? Ask — the assistant knows every car in the showroom and
           replies in seconds, day or night.

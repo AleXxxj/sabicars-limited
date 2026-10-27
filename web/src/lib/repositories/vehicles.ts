@@ -24,7 +24,8 @@ const LISTED = ["available", "reserved"] as const;
  * record of what Sabicars has sold is proof in itself — but it leaves the
  * listings and is not offered to search engines.
  */
-const HAS_PAGE = ["available", "reserved", "sold"] as const;
+/** The statuses whose car page still answers: on sale, reserved, or sold (kept as a record). */
+export const HAS_PAGE = ["available", "reserved", "sold"] as const;
 
 export const PAGE_SIZE = 24;
 

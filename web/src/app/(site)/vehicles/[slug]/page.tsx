@@ -6,6 +6,7 @@ import { AskButton } from "@/components/assistant/AskButton";
 import { ButtonLink } from "@/components/ui/Button";
 import { VehicleCard } from "@/components/VehicleCard";
 import { EnquiryForm } from "@/components/vehicle/EnquiryForm";
+import { ReplyPromise } from "@/components/site/ReplyPromise";
 import { DrivePlanApply } from "@/components/vehicle/DrivePlanApply";
 import { SaveButton } from "@/components/saved/SaveButton";
 import { WatchForm } from "@/components/saved/WatchForm";
@@ -350,6 +351,7 @@ export default async function VehiclePage({ params }: Props) {
                     : "Ask anything, or arrange to see it at the showroom."}{" "}
                   You get a reference number, so whoever replies knows exactly which car you mean.
                 </p>
+                <ReplyPromise className="mt-5" />
                 <p className="figures mt-8 text-sm text-text-muted">
                   Or call{" "}
                   <a href={`tel:${site.phones[0].e164}`} className="text-text-primary">

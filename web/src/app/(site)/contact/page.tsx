@@ -3,6 +3,7 @@ import { ScrollReveal } from "@/components/ScrollReveal";
 import { ContactForm } from "@/components/forms/ContactForm";
 import { Address } from "@/components/site/Address";
 import { PageIntro } from "@/components/site/PageIntro";
+import { ReplyPromise } from "@/components/site/ReplyPromise";
 import { pageAddress, site, whatsappLink } from "@/lib/site";
 
 /** "Open every day" only while the published hours cover all seven days. */
@@ -102,6 +103,7 @@ export default function ContactPage() {
             <p className="mt-5 text-lg leading-relaxed text-text-secondary">
               Asking about one car? Use the form on that car’s page. It tells us which car you mean, so you get an answer faster.
             </p>
+            <ReplyPromise className="mt-5" />
             <p className="mt-8 text-sm text-text-muted">
               {site.legalName} · CAC RC {site.rcNumber} ·{" "}
               <a href={site.cacSearchUrl} target="_blank" rel="noopener noreferrer" className="underline-offset-4 hover:text-text-primary hover:underline">

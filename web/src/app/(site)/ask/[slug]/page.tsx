@@ -48,7 +48,7 @@ export default async function AskAnswerPage({ params }: Props) {
             faqJsonLd([{ q: a.question, a: a.answer }]),
             breadcrumbJsonLd([
               { name: "Home", path: "/" },
-              { name: "Ask Sabicars", path: "/ask" },
+              { name: "Help", path: "/ask" },
               { name: a.question, path: `/ask/${a.slug}` },
             ]),
           ]),
@@ -56,7 +56,7 @@ export default async function AskAnswerPage({ params }: Props) {
       />
       <nav aria-label="Breadcrumb" className="text-sm text-text-muted">
         <Link href="/ask" className="hover:text-text-primary">
-          Ask Sabicars
+          Help
         </Link>
       </nav>
       <h1 className="mt-5 text-display-2">{a.question}</h1>

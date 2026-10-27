@@ -1,8 +1,9 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { notifications, vehicleMedia } from "@/db/schema";
+import { notifications, vehicleMedia, vehicles } from "@/db/schema";
 import { sabicarsDealerId } from "@/lib/leads";
 import { shareImageUrl } from "@/lib/media";
+import { HAS_PAGE } from "@/lib/repositories/vehicles";
 
 /**
  * Old posts were written for Instagram — a shouted first line ("🔥 NEW
@@ -41,13 +42,27 @@ export async function GET() {
     .orderBy(desc(notifications.createdAt))
     .limit(20);
 
+  // A post about a car outlives the car: once it is taken down, its page answers 404, and a feed
+  // item must never lead a visitor there. The link stays only while the car still has a page.
+  const carSlugs = rows.map((r) => r.link?.match(/^\/vehicles\/([a-z0-9-]+)$/)?.[1]).filter((s): s is string => Boolean(s));
+  const withPage = new Set(
+    carSlugs.length
+      ? (await db.select({ slug: vehicles.slug }).from(vehicles).where(and(inArray(vehicles.slug, carSlugs), inArray(vehicles.status, [...HAS_PAGE])))).map((v) => v.slug)
+      : [],
+  );
+  const stillThere = (link: string | null) => {
+    if (!link?.startsWith("/")) return null;
+    const slug = link.match(/^\/vehicles\/([a-z0-9-]+)$/)?.[1];
+    return slug && !withPage.has(slug) ? null : link;
+  };
+
   const items = rows.map((r) => ({
     id: r.id,
     title: r.title,
     message: summary(r.message),
     kind: r.kind,
-    // Only this site's own pages: a feed item never sends a visitor somewhere unexpected.
-    link: r.link?.startsWith("/") ? r.link : null,
+    // Only this site's own pages, and only pages that still answer.
+    link: stillThere(r.link),
     image: r.imageUrl ?? (r.cover ? shareImageUrl(r.cover) : null),
     at: r.createdAt.toISOString(),
   }));

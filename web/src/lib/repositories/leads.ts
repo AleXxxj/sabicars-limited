@@ -1,4 +1,5 @@
 import "server-only";
+import { unstable_cache } from "next/cache";
 import { aliasedTable, and, asc, count, desc, eq, gte, ilike, inArray, ne, or, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
 import {
@@ -16,7 +17,7 @@ import {
 import { RESPONSE_TARGET_MINUTES } from "@/lib/lead-labels";
 import { normalisePhone } from "@/lib/phone";
 import { referenceFor } from "@/lib/reference";
-import { clockStartsAt, responseMinutes } from "@/lib/showroom-hours";
+import { clockStartsAt, replyPromiseFrom, responseMinutes } from "@/lib/showroom-hours";
 
 /**
  * The staff inbox: every enquiry from every form, in one place.
@@ -164,6 +165,28 @@ const median = (xs: number[]) => {
   const mid = Math.floor(s.length / 2);
   return s.length % 2 ? s[mid] : (s[mid - 1] + s[mid]) / 2;
 };
+
+/**
+ * The reply promise public pages may make — "Most messages get a reply within
+ * N minutes in opening hours" — from the last 30 days, or null when the record
+ * does not earn one (see replyPromiseFrom). Cached for an hour: it is a
+ * statistic, and a crowd must never make the leads table answer per visitor.
+ */
+const replyPromiseFromCache = unstable_cache(
+  async (dealerId: string): Promise<{ minutes: number; answered: number } | null> => {
+    const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const rows = await db
+      .select({ createdAt: leads.createdAt, firstResponseAt: leads.firstResponseAt })
+      .from(leads)
+      .where(and(eq(leads.dealerId, dealerId), gte(leads.createdAt, since), isWork));
+    const answered = rows.filter((r) => r.firstResponseAt).map((r) => responseMinutes(r.createdAt, r.firstResponseAt!));
+    const minutes = replyPromiseFrom(answered);
+    return minutes === null ? null : { minutes, answered: answered.length };
+  },
+  ["reply-promise"],
+  { revalidate: 3600 },
+);
+export const replyPromise = (dealerId: string) => replyPromiseFromCache(dealerId);
 
 /**
  * How fast Sabicars answers, measured on showroom time: the minutes between

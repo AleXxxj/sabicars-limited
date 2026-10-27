@@ -32,7 +32,8 @@ export const MORE_NAV = [
   {
     group: "Help",
     items: [
-      { href: "/ask", label: "Ask Sabicars", hint: "Questions buyers ask, answered" },
+      // "Help" is the word both testers looked for on another site; the page itself is the answers, and the assistant.
+      { href: "/ask", label: "Help", hint: "Questions buyers ask, answered — or ask your own" },
       { href: "/blog", label: "Buying guides", hint: "Plain guides to buying and paying for a car" },
       { href: "/about", label: "About", hint: "Who we are, and the promises we keep" },
       { href: "/contact", label: "Contact", hint: "Visit, call or write, with a map" },
