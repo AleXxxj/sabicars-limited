@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { HandledButton } from "@/components/admin/HandledButton";
 import { PublishFromChat } from "@/components/admin/PublishFromChat";
-import { requireStaff } from "@/lib/auth";
+import { can, requireStaff } from "@/lib/auth";
 import { describeDirectives } from "@/lib/assistant/parts";
 import { referenceFor } from "@/lib/reference";
 import { conversationDetail } from "@/lib/repositories/ask";
@@ -43,7 +43,12 @@ export default async function ConversationPage({ params }: Props) {
 
       <div className="mt-6 grid gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <section className="order-2 grid gap-4 lg:order-1">
-          {c.messages.map((m, i) => {
+          {!can.readTranscripts(me) && (
+            <p className="rounded-2xl border border-border-subtle bg-surface-1 px-4 py-3 text-sm text-text-secondary">
+              The words of a chat are read by the owner and managers. The summary and the buyer&rsquo;s details are on the right, which is what a call needs.
+            </p>
+          )}
+          {(can.readTranscripts(me) ? c.messages : []).map((m, i) => {
             const text = describeDirectives(m.content, title);
             const prev = c.messages[i - 1];
             return m.role === "user" ? (

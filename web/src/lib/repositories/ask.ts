@@ -3,6 +3,7 @@ import { cache } from "react";
 import { and, asc, count, desc, eq, isNotNull, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { askAnswers, assistantConversations, assistantMessages, leads, vehicles, type AskAnswer } from "@/db/schema";
+import { openMessage } from "@/lib/assistant/vault";
 import { sabicarsDealerId } from "@/lib/leads";
 
 /* ── Public answers (/ask) ─────────────────────────────────────────────── */
@@ -70,7 +71,7 @@ export async function conversations(view: ConversationView, limit = 60): Promise
     where ${assistantMessages.conversationId} = ${assistantConversations.id} and ${assistantMessages.role} = 'user'
     order by ${assistantMessages.createdAt} asc limit 1
   )`;
-  return db
+  const rows = await db
     .select({
       id: assistantConversations.id,
       createdAt: assistantConversations.createdAt,
@@ -90,6 +91,7 @@ export async function conversations(view: ConversationView, limit = 60): Promise
     .where(and(...where))
     .orderBy(desc(assistantConversations.lastMessageAt))
     .limit(limit);
+  return rows.map((r) => ({ ...r, firstQuestion: r.firstQuestion ? openMessage(r.firstQuestion) : null }));
 }
 
 export async function conversationCounts(): Promise<Record<ConversationView, number>> {
@@ -128,5 +130,11 @@ export async function conversationDetail(id: string) {
     .select({ id: askAnswers.id, question: askAnswers.question, isPublished: askAnswers.isPublished })
     .from(askAnswers)
     .where(eq(askAnswers.conversationId, id));
-  return { ...conversation.c, leadName: conversation.leadName, vehicleSlug: conversation.vehicleSlug, messages, published };
+  return {
+    ...conversation.c,
+    leadName: conversation.leadName,
+    vehicleSlug: conversation.vehicleSlug,
+    messages: messages.map((m) => ({ ...m, content: openMessage(m.content) })),
+    published,
+  };
 }

@@ -62,4 +62,6 @@ export const can = {
   publishInspection: (s: StaffMember) => s.role === "owner" || s.role === "manager",
   /** Paying partners, confirming their bank accounts and attributing sales: money, so managers and the owner. */
   payPartners: (s: StaffMember) => s.role === "owner" || s.role === "manager",
+  /** The words of a buyer's chat: the owner and managers. Sales see the summary and the buyer's details, which is what a call needs. */
+  readTranscripts: (s: StaffMember) => s.role === "owner" || s.role === "manager",
 };

@@ -1,4 +1,5 @@
 import { answerInTime, fromScheduler } from "@/lib/cron";
+import { sealBacklog } from "@/lib/assistant/vault";
 import { drainOutbox, pruneOutbox } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
@@ -17,8 +18,11 @@ export async function GET(request: Request) {
   const work = (async () => {
     const result = await drainOutbox(600);
     // Once an hour is plenty for housekeeping; the first run of each hour does it.
-    const pruned = new Date().getUTCMinutes() === 0 ? await pruneOutbox() : 0;
-    return { ...result, pruned };
+    const hourly = new Date().getUTCMinutes() === 0;
+    const pruned = hourly ? await pruneOutbox() : 0;
+    // Chat messages written before the chat key existed are sealed, a batch an hour, until none are left.
+    const sealed = hourly ? await sealBacklog() : 0;
+    return { ...result, pruned, sealed };
   })();
   return answerInTime("/api/cron/outbox", work, (result) => Response.json({ ok: true, ...result }));
 }

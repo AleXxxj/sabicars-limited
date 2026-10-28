@@ -8,6 +8,7 @@ import { db } from "@/db";
 import { assistantConversations, assistantMessages } from "@/db/schema";
 import { escalateStaleLeads, notifyNewLead } from "@/lib/alerts";
 import { attachLead, summariseConversation } from "@/lib/assistant/summarise";
+import { openMessage } from "@/lib/assistant/vault";
 import { DECOY_REFERENCE, looksAutomated, referenceFor, sabicarsDealerId, saveLead, tooManyFrom } from "@/lib/leads";
 import { activePartnerByCode, PARTNER_COOKIE } from "@/lib/partners";
 import { normalisePhone } from "@/lib/phone";
@@ -82,7 +83,7 @@ export async function requestCallback(input: z.input<typeof schema>): Promise<Ca
     phone,
     email: null,
     vehicleId: conversation.vehicleId,
-    message: `[Ask Sabicars] Asked for a call back.${said.length ? `\n\nThey asked: ${said.map((s) => `“${s.content.slice(0, 200)}”`).join(" · ")}` : ""}`,
+    message: `[Ask Sabicars] Asked for a call back.${said.length ? `\n\nThey asked: ${said.map((s) => `“${openMessage(s.content).slice(0, 200)}”`).join(" · ")}` : ""}`,
     type: "question",
     landingPath: conversation.landingPath,
     partnerId: partner && partner.phone !== phone ? partner.id : null,

@@ -454,10 +454,17 @@ export async function launchChecks(base: string): Promise<Check[]> {
       "Generate a VAPID key pair (npx web-push generate-vapid-keys) and add both keys.",
     ),
     setting(
+      "Chat privacy",
+      ["ASSISTANT_MESSAGES_KEY"],
+      "The words of every chat are sealed in the database; a copy of the database alone cannot read them.",
+      "Generate a key — openssl rand -base64 32 — and add it as ASSISTANT_MESSAGES_KEY. Chats already stored are sealed within the hour. Keep the key with the backups: without it, a backup's chats cannot be read.",
+      true,
+    ),
+    setting(
       "Scheduled jobs",
       ["CRON_SECRET"],
-      "The email outbox, escalation, viewing reminders, the Friday digest, the daily payouts check and the weekly backup can run.",
-      "Add a long random CRON_SECRET, and point a scheduler at /api/cron/outbox (every minute), /api/cron/escalate (every 5 minutes), /api/cron/viewings (daily 06:30 UTC), /api/cron/digest (Fridays), /api/cron/payouts (daily 06:00 UTC) and /api/cron/backup (Sundays 02:00 UTC). Paystack's webhook, /api/payments/paystack/webhook, needs no scheduler: set the URL in the Paystack dashboard. Also point a free uptime monitor (UptimeRobot, every 5 minutes on its free plan) at /api/health, to alert the owner and the developer whenever it does not answer 200 — nothing inside the site can check that for itself.",
+      "The email outbox, escalation, viewing reminders, the Friday digest, the daily payouts check, the weekly backup and the assistant's Monday review can run.",
+      "Add a long random CRON_SECRET, and point a scheduler at /api/cron/outbox (every minute), /api/cron/escalate (every 5 minutes), /api/cron/viewings (daily 06:30 UTC), /api/cron/digest (Fridays), /api/cron/payouts (daily 06:00 UTC), /api/cron/learn (Mondays 06:00 UTC) and /api/cron/backup (Sundays 02:00 UTC). Paystack's webhook, /api/payments/paystack/webhook, needs no scheduler: set the URL in the Paystack dashboard. Also point a free uptime monitor (UptimeRobot, every 5 minutes on its free plan) at /api/health, to alert the owner and the developer whenever it does not answer 200 — nothing inside the site can check that for itself.",
     ),
     setting(
       "Email",

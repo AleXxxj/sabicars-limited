@@ -9,6 +9,7 @@ import { assistantConversations, assistantMessages } from "@/db/schema";
 import { devReply } from "@/lib/assistant/dev-reply";
 import { knowledge, momentContext, toAssistantCar } from "@/lib/assistant/knowledge";
 import { buyerMemory, DEVICE_COOKIE } from "@/lib/assistant/memory";
+import { openMessage, sealMessage } from "@/lib/assistant/vault";
 import { comparePath, DirectiveSplitter, type Directive, type Part } from "@/lib/assistant/parts";
 import { reportAssistantFailure } from "@/lib/assistant/health";
 import { PERSONA } from "@/lib/assistant/prompt";
@@ -103,7 +104,7 @@ export async function POST(request: NextRequest) {
         .where(eq(assistantMessages.conversationId, conversationId))
         .orderBy(desc(assistantMessages.createdAt))
         .limit(HISTORY);
-      history = rows.reverse().map((r) => ({ role: r.role === "assistant" ? "assistant" : "user", content: r.content }));
+      history = rows.reverse().map((r) => ({ role: r.role === "assistant" ? "assistant" : "user", content: openMessage(r.content) }));
       // The model expects to be answering the buyer: history always starts with them.
       while (history[0]?.role === "assistant") history.shift();
     }
@@ -216,8 +217,8 @@ export async function POST(request: NextRequest) {
       try {
         if (full.trim()) {
           await db.insert(assistantMessages).values([
-            { conversationId: convId, role: "user", content: message, createdAt: askedAt },
-            { conversationId: convId, role: "assistant", content: full, createdAt: new Date() },
+            { conversationId: convId, role: "user", content: sealMessage(message), createdAt: askedAt },
+            { conversationId: convId, role: "assistant", content: sealMessage(full), createdAt: new Date() },
           ]);
           await db
             .update(assistantConversations)

@@ -6,6 +6,7 @@ import { assistantConversations, assistantMessages, leads, vehicles } from "@/db
 import { escalateStaleLeads, notifyNewLead } from "@/lib/alerts";
 import { normalisePhone } from "@/lib/phone";
 import { describeDirectives } from "./parts";
+import { openMessage } from "./vault";
 import { SUMMARY_PROMPT } from "./prompt";
 
 /** A small, fast model: this is extraction from a transcript, not conversation. */
@@ -60,7 +61,7 @@ export async function summariseConversation(conversationId: string, partner: { i
     .orderBy(asc(assistantMessages.createdAt));
   if (!rows.length) return;
 
-  const transcript = rows.map((r) => `${r.role === "assistant" ? "Assistant" : "Buyer"}: ${describeDirectives(r.content)}`).join("\n");
+  const transcript = rows.map((r) => `${r.role === "assistant" ? "Assistant" : "Buyer"}: ${describeDirectives(openMessage(r.content))}`).join("\n");
 
   let extracted: Extracted | null = null;
   if (key) {
@@ -77,7 +78,7 @@ export async function summariseConversation(conversationId: string, partner: { i
     }
   } else {
     // Without a model (local development) a phone number typed in the chat still becomes a lead.
-    const said = rows.filter((r) => r.role === "user").map((r) => r.content);
+    const said = rows.filter((r) => r.role === "user").map((r) => openMessage(r.content));
     const phone = said.map((t) => PHONE_IN_TEXT.exec(t)?.[0]).find(Boolean) ?? null;
     extracted = {
       intent: "Website chat",

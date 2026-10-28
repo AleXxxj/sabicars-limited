@@ -4,6 +4,7 @@ import { and, asc, desc, eq, gte, inArray, lt } from "drizzle-orm";
 import { db } from "@/db";
 import { assistantConversations, assistantMessages, assistantReviews, type AssistantReport } from "@/db/schema";
 import { describeDirectives } from "@/lib/assistant/parts";
+import { openMessage } from "@/lib/assistant/vault";
 import { publishedAnswers } from "@/lib/repositories/ask";
 import { listedVehicles } from "@/lib/repositories/vehicles";
 import { vehicleTitle } from "@/lib/vehicle";
@@ -112,7 +113,7 @@ export async function reviewConversations(dealerId: string, until = new Date()):
     .orderBy(asc(assistantMessages.createdAt));
   const byConversation = new Map<string, string[]>();
   for (const r of rows) {
-    const line = `${r.role === "assistant" ? "Assistant" : "Buyer"}: ${describeDirectives(r.content)}`;
+    const line = `${r.role === "assistant" ? "Assistant" : "Buyer"}: ${describeDirectives(openMessage(r.content))}`;
     byConversation.set(r.conversationId, [...(byConversation.get(r.conversationId) ?? []), line]);
   }
   const transcripts = convs
