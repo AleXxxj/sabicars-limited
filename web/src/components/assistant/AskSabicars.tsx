@@ -63,11 +63,12 @@ function suggestionsFor(path: string): string[] {
     return ["Which Hummer buses do you have?", "Hummer 2 or Hummer 3 — what's the difference?", "Can a bus pay for itself?"];
   if (path.startsWith("/drive-plan"))
     return ["How does the 40% Drive Plan work?", "What can ₦10m reach on the Drive Plan?", "Who approves the finance?"];
+  // The doubt is invited, not avoided: a wary buyer who sees their own question offered relaxes a little before asking it.
   return [
     "A family SUV under ₦30 million",
-    "Which Hummer buses are in stock?",
+    "How do I know these cars are real?",
     "How does the 40% Drive Plan work?",
-    "Compare two cars for me",
+    "Which Hummer buses are in stock?",
   ];
 }
 
