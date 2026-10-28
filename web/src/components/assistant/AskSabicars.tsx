@@ -22,6 +22,8 @@ interface Msg {
   id: string;
   role: "user" | "assistant";
   parts: Part[];
+  /** The stream ended before the server said it was done: a dropped connection, not a short answer. */
+  cutOff?: boolean;
 }
 
 const CONVERSATION_KEY = "sc_ask_conversation";
@@ -167,6 +169,7 @@ export function AskSabicars() {
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
         let buffer = "";
+        let whole = false;
         for (;;) {
           const { done, value } = await reader.read();
           if (done) break;
@@ -196,11 +199,16 @@ export function AskSabicars() {
             } else if (event.type === "part" && event.part) {
               const part = event.part;
               update((parts) => [...parts, part]);
+            } else if (event.type === "done") {
+              whole = true;
             } else if (event.type === "error") {
+              whole = true;
               setError(event.error ?? "Something went wrong.");
             }
           }
         }
+        // The server marks the end of every reply; a stream that closed without it was cut off on the way.
+        if (!whole) setMsgs((m) => m.map((x) => (x.id === reply ? { ...x, cutOff: true } : x)));
       } catch (e) {
         // An empty reply bubble would look like being ignored: remove it.
         setMsgs((m) => m.filter((x) => x.id !== reply || x.parts.length));
@@ -377,7 +385,7 @@ export function AskSabicars() {
                     {m.parts.map((p, i) =>
                       p.kind === "text" ? (
                         p.text.trim() ? (
-                          <MessageText key={i} text={p.text} />
+                          <MessageText key={i} text={p.text} streaming={busy && m.id === last?.id} />
                         ) : null
                       ) : p.kind === "cars" ? (
                         <CarCards key={i} cars={p.cars} />
@@ -388,6 +396,22 @@ export function AskSabicars() {
                       ) : (
                         <CallbackForm key={i} conversationId={conversationId} path={pathname} />
                       ),
+                    )}
+                    {m.cutOff && !busy && (
+                      <p role="status" className="text-sm text-text-muted">
+                        The reply was cut off on the way — a weak connection, most likely.{" "}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const asked = msgs[msgs.findIndex((x) => x.id === m.id) - 1];
+                            const text = asked?.parts[0]?.kind === "text" ? asked.parts[0].text : "";
+                            if (text) send(text);
+                          }}
+                          className="font-semibold text-green-300 underline-offset-4 hover:underline"
+                        >
+                          Ask again
+                        </button>
+                      </p>
                     )}
                   </div>
                 ),

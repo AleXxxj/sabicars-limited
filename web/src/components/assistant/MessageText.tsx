@@ -8,8 +8,21 @@ const NUMBERED = /^\s*\d+[.)]\s+/;
  * blog's three inline marks. Never HTML — the text is data. Used by the
  * chat window and by the published answers on /ask, so both read alike.
  */
-export function MessageText({ text }: { text: string }) {
-  const blocks = text
+/**
+ * While a reply streams in, a link or a bold mark can be half here — "[2013
+ * Toyota Highl" — and would show as raw brackets until the rest lands. The
+ * unfinished tail is held back; the next chunk completes it.
+ */
+export function settled(text: string): string {
+  const link = text.lastIndexOf("[");
+  if (link !== -1 && !/\]\([^)\s]*\)/.test(text.slice(link))) return text.slice(0, link);
+  const bold = text.lastIndexOf("**");
+  if (bold !== -1 && (text.match(/\*\*/g)?.length ?? 0) % 2 === 1) return text.slice(0, bold);
+  return text;
+}
+
+export function MessageText({ text, streaming = false }: { text: string; streaming?: boolean }) {
+  const blocks = (streaming ? settled(text) : text)
     .trim()
     .split(/\n{2,}/)
     .map((b) => b.split("\n").filter((l) => l.trim()))

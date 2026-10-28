@@ -133,7 +133,8 @@ export async function POST(request: NextRequest) {
           max_tokens: 1000,
           system: [
             { type: "text", text: PERSONA },
-            { type: "text", text: `# What you know — live from the showroom\n\n${knowledgeText}`, cache_control: { type: "ephemeral" } },
+            // An hour, not five minutes: on a quiet afternoon every question was a cold one, re-reading the whole stock before the first word.
+            { type: "text", text: `# What you know — live from the showroom\n\n${knowledgeText}`, cache_control: { type: "ephemeral", ttl: "1h" } },
             { type: "text", text: `# Right now\n${momentContext({ path: path ?? null, vehicle: pageVehicle })}` },
           ],
           messages: [...history, { role: "user", content: message }],
@@ -196,6 +197,8 @@ export async function POST(request: NextRequest) {
           emit(splitter.push(chunk));
         }
         emit(splitter.flush());
+        // The reply is whole. Without this a phone whose connection dropped mid-reply would show the half as the answer.
+        send({ type: "done" });
       } catch (e) {
         console.error("[assistant] reply failed", e);
         failure = e;

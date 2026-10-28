@@ -1,5 +1,7 @@
 import "server-only";
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
+import { TAGS } from "@/lib/cache-tags";
 import type { AskAnswer } from "@/db/schema";
 import { formatNaira } from "@/lib/money";
 import { publishedAnswers } from "@/lib/repositories/ask";
@@ -203,15 +205,32 @@ function answers(list: AskAnswer[]): string {
 }
 
 /** The stable part of what the assistant knows: the business, the stock, the articles and the published answers. */
-export const knowledge = cache(async () => {
-  const [stock, posts, published] = await Promise.all([listedVehicles(), publishedPosts(), publishedAnswers()]);
-  const now = new Date();
-  // Day granularity for "new arrival", so the text (and the prompt cache) stays stable within a day.
-  now.setUTCHours(0, 0, 0, 0);
-  const reports = await reportSummaries(stock.map((v) => v.id), now);
-  const bySlug = new Map(stock.map((v) => [v.slug, v]));
+/**
+ * Built once a minute, not once a message: four queries and the whole stock
+ * written out were nearly two seconds before the model was even asked. The
+ * cache is cleared the moment staff save a car (TAGS.inventory), so a sold
+ * car never lingers; the day-granular "new arrival" keeps the text, and the
+ * provider's prompt cache, stable within a day.
+ */
+const knowledgeFromCache = unstable_cache(
+  async (): Promise<{ text: string; stock: VehicleWithCover[] }> => {
+    const [stock, posts, published] = await Promise.all([listedVehicles(), publishedPosts(), publishedAnswers()]);
+    const now = new Date();
+    now.setUTCHours(0, 0, 0, 0);
+    const reports = await reportSummaries(stock.map((v) => v.id), now);
+    return { text: knowledgeText(stock, posts, published, reports, now), stock };
+  },
+  ["assistant-knowledge"],
+  { revalidate: 60, tags: [TAGS.inventory] },
+);
 
-  const text = `# Sabicars
+export const knowledge = cache(async () => {
+  const { text, stock } = await knowledgeFromCache();
+  return { text, stock, bySlug: new Map(stock.map((v) => [v.slug, v])) };
+});
+
+function knowledgeText(stock: VehicleWithCover[], posts: PostCard[], published: AskAnswer[], reports: Awaited<ReturnType<typeof reportSummaries>>, now: Date): string {
+  return `# Sabicars
 
 ${site.legalName} (CAC RC ${site.rcNumber}) sells cars, SUVs, Toyota Hiace "Hummer" buses and trucks from its showroom in Lagos, and sells vehicles in bulk to companies and government offices.
 
@@ -260,9 +279,7 @@ ${stockSummary(stock)}
 
 ${stock.map((v) => vehicleEntry(v, now, reports.get(v.id))).join("\n\n")}
 `;
-
-  return { text, stock, bySlug };
-});
+}
 
 /** What changes by the minute, kept out of the cached text: the time, whether the showroom is open, where the visitor is. */
 export function momentContext(page: { path: string | null; vehicle: VehicleWithCover | null }): string {
