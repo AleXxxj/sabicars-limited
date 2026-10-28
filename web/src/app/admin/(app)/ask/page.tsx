@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AnswerEditor } from "@/components/admin/AnswerEditor";
+import { WeeklyLesson } from "@/components/admin/WeeklyLesson";
+import { latestReview } from "@/lib/assistant/learn";
 import { requireStaff } from "@/lib/auth";
 import { allAnswers } from "@/lib/repositories/ask";
 
@@ -27,6 +29,8 @@ export default async function AnswersAdmin() {
         </Link>{" "}
         and publish a reply. A published answer can be unpublished but not deleted, so its link never breaks.
       </p>
+
+      <WeeklyLesson review={await latestReview(me.dealerId)} />
 
       <details className="mt-8 border border-border-subtle bg-surface-1 p-5">
         <summary className="cursor-pointer font-semibold text-text-primary">Write a new answer</summary>

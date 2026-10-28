@@ -1078,6 +1078,34 @@ export const assistantMessages = pgTable(
  * conversations, and each becomes a page Google can index — and the assistant
  * reads them back, so it answers the same way.
  */
+/** What the assistant learns each week: a model's reading of the week's chats, for the owner to turn into published answers. */
+export interface AssistantReport {
+  /** What buyers asked most, as a buyer would phrase it, with how many asked. */
+  topQuestions: { question: string; count: number }[];
+  /** Questions the assistant could not answer, each with a draft answer for a manager to check and publish. */
+  unanswered: { question: string; draftAnswer: string; timesAsked: number }[];
+  /** Cars people wanted that were not in stock. */
+  wantedNotInStock: { car: string; count: number }[];
+  /** Replies or site words that lost people, and what to say instead. */
+  confusing: { what: string; instead: string }[];
+  /** Anything else worth the owner's minute. */
+  notes: string[];
+}
+
+export const assistantReviews = pgTable(
+  "assistant_reviews",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    dealerId: uuid("dealer_id").notNull().references(() => dealers.id),
+    periodStart: timestamp("period_start", { withTimezone: true }).notNull(),
+    periodEnd: timestamp("period_end", { withTimezone: true }).notNull(),
+    conversations: integer("conversations").notNull().default(0),
+    report: jsonb("report").$type<AssistantReport>().notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [index("assistant_reviews_recent_idx").on(t.dealerId, t.createdAt)],
+);
+
 export const askAnswers = pgTable(
   "ask_answers",
   {

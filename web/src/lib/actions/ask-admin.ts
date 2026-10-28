@@ -5,6 +5,7 @@ import { and, eq, isNull, ne } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
 import { askAnswers, assistantConversations } from "@/db/schema";
+import { reviewConversations } from "@/lib/assistant/learn";
 import { audit } from "@/lib/audit";
 import { requireStaff, type StaffMember } from "@/lib/auth";
 import { slugPart } from "@/lib/seo/search-terms";
@@ -131,6 +132,19 @@ export async function deleteAnswer(id: string): Promise<Result> {
   await audit(me, "ask_answer", id, "delete");
   refresh();
   return { ok: true };
+}
+
+/** The owner need not wait for Monday: read the last seven days' chats now. */
+export async function reviewNow(): Promise<Result & { reviewed?: number }> {
+  const me = await editor();
+  try {
+    const { reviewed } = await reviewConversations(me.dealerId);
+    revalidatePath("/admin/ask");
+    return { ok: true, reviewed };
+  } catch (e) {
+    console.error("[assistant] review failed", e);
+    return { ok: false, error: "The review could not be written. Try again in a minute." };
+  }
 }
 
 /** A conversation that asked for a person has had one. */

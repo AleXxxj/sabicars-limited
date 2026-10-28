@@ -9,7 +9,7 @@ import { describeDirectives } from "./parts";
 import { SUMMARY_PROMPT } from "./prompt";
 
 /** A small, fast model: this is extraction from a transcript, not conversation. */
-const SUMMARY_MODEL = process.env.ASSISTANT_SUMMARY_MODEL ?? "claude-haiku-4-5-20251001";
+export const SUMMARY_MODEL = process.env.ASSISTANT_SUMMARY_MODEL ?? "claude-haiku-4-5-20251001";
 
 interface Extracted {
   intent?: string | null;
