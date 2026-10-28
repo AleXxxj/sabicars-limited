@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, BellRing, Search, Sparkles } from "lucide-react";
+import { ArrowRight, BadgeCheck, BellRing, Fuel, Gauge, Phone, Search, Settings2, Sparkles, type LucideIcon } from "lucide-react";
 import { notFound } from "next/navigation";
 import { AskButton } from "@/components/assistant/AskButton";
-import { ButtonLink } from "@/components/ui/Button";
+import { ButtonAnchor, ButtonLink } from "@/components/ui/Button";
 import { VehicleCard } from "@/components/VehicleCard";
+import { CallMeBack } from "@/components/vehicle/CallMeBack";
 import { EnquiryForm } from "@/components/vehicle/EnquiryForm";
 import { ReplyPromise } from "@/components/site/ReplyPromise";
 import { DrivePlanApply } from "@/components/vehicle/DrivePlanApply";
@@ -23,7 +24,7 @@ import { shareImageUrl } from "@/lib/media";
 import { breadcrumbJsonLd, dealerJsonLd, jsonLdScript, vehicleJsonLd } from "@/lib/seo/structured-data";
 import { modelFamily, termFor, termHref } from "@/lib/seo/search-terms";
 import { pageAddress, site, siteUrl, whatsappLink } from "@/lib/site";
-import { drivePlanBalance, drivePlanDeposit, priceLabel, specLine, specRows, vehicleTitle } from "@/lib/vehicle";
+import { CONDITION_LABEL, drivePlanBalance, drivePlanDeposit, priceLabel, specLine, specRows, vehicleTitle } from "@/lib/vehicle";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -101,6 +102,15 @@ export default async function VehiclePage({ params }: Props) {
     { name: title, path: `/vehicles/${v.slug}` },
   ];
   const specs = specRows(v);
+  // Condition, fuel, gearbox, mileage: what a buyer reads before anything else, each with its own mark.
+  const facts = (
+    [
+      [BadgeCheck, CONDITION_LABEL[v.condition]],
+      [Fuel, v.fuel ? v.fuel.charAt(0).toUpperCase() + v.fuel.slice(1) : null],
+      [Settings2, v.transmission === "automatic" ? "Automatic" : v.transmission === "manual" ? "Manual" : null],
+      [Gauge, v.mileageKm ? `${v.mileageKm.toLocaleString("en-NG")} km` : null],
+    ] as [LucideIcon, string | null][]
+  ).filter((f): f is [LucideIcon, string] => Boolean(f[1]));
   const deposit = drivePlanDeposit(v);
   const balance = drivePlanBalance(v);
   const terms = drivePlanTerms(v.year);
@@ -122,7 +132,8 @@ export default async function VehiclePage({ params }: Props) {
       />
 
       <div className="mx-auto max-w-7xl px-5 pt-6 md:px-10 md:pt-10">
-        <nav aria-label="Breadcrumb">
+        {/* On a phone the trail would be the first thing on the screen; the car is. */}
+        <nav aria-label="Breadcrumb" className="hidden md:block">
           <ol className="flex flex-wrap items-center gap-x-2 text-sm text-text-muted">
             {trail.map((t, i) => (
               <li key={t.path} className="flex items-center gap-2">
@@ -143,27 +154,38 @@ export default async function VehiclePage({ params }: Props) {
 
         {/* minmax(0, …) on every column: a grid track otherwise grows to its
             widest child, and twelve thumbnails in a row are 1,000px wide. */}
-        <div className="mt-6 grid grid-cols-[minmax(0,1fr)] gap-10 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)] lg:gap-14">
+        {/* On a laptop: the gallery beside a sticky column. On a phone the column dissolves into the grid
+            (max-lg:contents) and its header goes first, so the first screen is the car's name, its four
+            facts and its price — the way a buyer judges a listing before scrolling — with the photos next. */}
+        <div className="mt-2 grid grid-cols-[minmax(0,1fr)] gap-8 md:mt-6 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)] lg:gap-14">
           <Gallery images={photos} title={title} />
 
-          <div className="lg:sticky lg:top-28 lg:self-start">
-            {v.status !== "available" && (
-              <p className="mb-6 rounded-xl border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm font-semibold text-green-200">
-                {sold ? "This vehicle has been sold" : "Reserved — a buyer has placed a deposit"}
-              </p>
-            )}
-            <div className="flex items-center justify-between gap-4">
-              <p className="text-[0.95rem] font-medium text-text-muted">
-                {v.year} · {v.make}
-              </p>
-              {!sold && <SaveButton slug={v.slug} title={title} variant="labelled" />}
-            </div>
-            <h1 className="mt-3 text-display-2">{v.model}</h1>
-            <p className="mt-3 text-text-secondary">{specLine(v)}</p>
-
-            <div className="mt-8 border-y border-white/[0.06] py-6">
-              <p className="text-sm font-medium text-text-muted">Price</p>
-              <p className="figures mt-2 text-[2rem] font-semibold leading-none tracking-tight">{priceLabel(v)}</p>
+          <div className="max-lg:contents lg:sticky lg:top-28 lg:self-start">
+            <div className="max-lg:-order-1">
+              {v.status !== "available" && (
+                <p className="mb-6 rounded-xl border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm font-semibold text-green-200">
+                  {sold ? "This vehicle has been sold" : "Reserved — a buyer has placed a deposit"}
+                </p>
+              )}
+              <div className="flex items-center justify-between gap-4">
+                <p className="text-[0.95rem] font-medium text-text-muted">
+                  {v.year} · {v.make}
+                </p>
+                {!sold && <SaveButton slug={v.slug} title={title} variant="labelled" />}
+              </div>
+              <h1 className="mt-2 text-display-3 lg:text-display-2">{v.model}</h1>
+              {/* The four facts a buyer asks first, read in a glance. */}
+              <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-[0.95rem] text-text-secondary">
+                {facts.map(([Icon, label]) => (
+                  <li key={label} className="inline-flex items-center gap-1.5">
+                    <Icon aria-hidden size={16} className="shrink-0 text-green-300" /> {label}
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-5 lg:mt-6 lg:border-y lg:border-white/[0.06] lg:py-6">
+                <p className="text-sm font-medium text-text-muted">Price</p>
+                <p className="figures mt-1.5 text-[2rem] font-semibold leading-none tracking-tight">{priceLabel(v)}</p>
+              </div>
             </div>
 
             {/* The next step straight after the price, so it is on the first screen of a laptop too. */}
@@ -180,6 +202,9 @@ export default async function VehiclePage({ params }: Props) {
                   <ButtonLink href="#book-viewing" size="lg" variant="secondary">
                     Book a viewing
                   </ButtonLink>
+                  <ButtonAnchor href={`tel:${site.phones[0].e164}`} size="lg" variant="secondary" className="max-lg:hidden">
+                    <Phone aria-hidden size={18} strokeWidth={1.75} /> Call {site.phones[0].display}
+                  </ButtonAnchor>
                 </>
               )}
             </div>
@@ -352,6 +377,12 @@ export default async function VehiclePage({ params }: Props) {
                   You get a reference number, so whoever replies knows exactly which car you mean.
                 </p>
                 <ReplyPromise className="mt-5" />
+                {/* The shortest path to a person: a number, and we call. The form beside it is for anything more. */}
+                {!sold && (
+                  <div className="mt-8">
+                    <CallMeBack vehicleId={v.id} vehicleTitle={title} landingPath={`/vehicles/${v.slug}`} />
+                  </div>
+                )}
                 <p className="figures mt-8 text-sm text-text-muted">
                   Or call{" "}
                   <a href={`tel:${site.phones[0].e164}`} className="text-text-primary">
@@ -418,6 +449,14 @@ export default async function VehiclePage({ params }: Props) {
             <p className="figures truncate font-semibold">{priceLabel(v)}</p>
           </div>
           <div className="flex shrink-0 items-center gap-2">
+            {/* One tap to a person, as a marketplace offers; the enquiry stays the recorded route. */}
+            <a
+              href={`tel:${site.phones[0].e164}`}
+              aria-label={`Call Sabicars on ${site.phones[0].display}`}
+              className="inline-flex size-12 items-center justify-center rounded-full border border-green-500/40 text-green-200"
+            >
+              <Phone aria-hidden size={18} />
+            </a>
             <AskButton
               prompt={`Tell me about the ${title}`}
               label={`Ask Sabicars about the ${title}`}

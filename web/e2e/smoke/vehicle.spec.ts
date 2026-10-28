@@ -70,4 +70,26 @@ test.describe("A car's page", () => {
     await expect(page.getByRole("link", { name: "Enquire about this vehicle" }), "the car page has no Enquire button").toHaveAttribute("href", "#enquire");
     assertNoFaults(faults);
   });
+
+  test("reaches a person in one tap, and calls back from a number alone", async ({ page }) => {
+    const faults = watchForFaults(page);
+    test.skip((await stockCount(page)) === 0, "The site has no vehicles in stock");
+    await openFirstVehicle(page);
+    // The four facts a buyer reads first sit under the name, before the price.
+    await expect(page.getByRole("heading", { level: 1 }), "the car page shows no name").toBeVisible();
+    await expect(page.getByText(/Foreign used|Nigerian used|Brand new/).first(), "the car page does not state the car's condition up top").toBeVisible();
+    // One tap to a phone: a tel: link on the page.
+    await expect(page.locator('a[href^="tel:"]').first(), "the car page has no call link").toBeAttached();
+    // Call me back: one field. Sent the way looksAutomated() recognises a bot, so the server answers with
+    // the decoy and writes nothing — a real number here would ring the showroom.
+    const form = page.locator("form").filter({ has: page.getByRole("button", { name: "Call me back" }) });
+    await expect(form, "the car page has no Call me back form").toBeAttached();
+    await form.locator('input[name="phone"]').fill("0803 000 0000");
+    await form.locator('input[name="website"]').fill("https://example.com");
+    await form.getByRole("button", { name: "Call me back" }).click();
+    const done = page.getByRole("status").filter({ hasText: /We will call/ });
+    await expect(done, "the call-back did not answer").toBeVisible();
+    await expect(done, "the bot was not given the decoy reference — was a real call-back saved?").toContainText("RECEIVED");
+    assertNoFaults(faults);
+  });
 });

@@ -8,6 +8,7 @@ import { DECOY_REFERENCE, looksAutomated, saveLead, saveViewing, SlotTaken, tooM
 import { normalisePhone } from "@/lib/phone";
 import { RATE_LIMITED_MESSAGE, withinLimit } from "@/lib/rate-limit";
 import { helpPhone } from "@/lib/site";
+import { vehicleTitle } from "@/lib/vehicle";
 import { isBookableSlot } from "@/lib/viewings";
 
 export interface EnquiryResult {
@@ -40,6 +41,67 @@ const schema = z.object({
   website: z.string().optional(),
   renderedAt: z.coerce.number().optional(),
 });
+
+const callBackSchema = z.object({
+  vehicleId: z.uuid(),
+  phone: z.string().trim().max(40),
+  landingPath: z.string().max(300).optional(),
+  website: z.string().optional(),
+  renderedAt: z.coerce.number().optional(),
+});
+
+export interface CallBackResult {
+  ok: boolean;
+  reference?: string;
+  error?: string;
+  phone: string;
+}
+
+/**
+ * "Call me back": one field, a phone number. The fastest way to a person on
+ * the page, and faster than a marketplace chat that demands a typed message
+ * or a call-back that needs an account. It is still an enquiry like any
+ * other — saved with a reference, the staff alerted, the response clock
+ * running — so it is never a number lost in someone's phone.
+ */
+export async function requestCallBack(_prev: CallBackResult | null, formData: FormData): Promise<CallBackResult> {
+  const typed = String(formData.get("phone") ?? "");
+  const parsed = callBackSchema.safeParse(Object.fromEntries(formData.entries()));
+  if (!parsed.success) return { ok: false, error: "Please reload the page and try again.", phone: typed };
+  const v = parsed.data;
+  if (looksAutomated(v.website, v.renderedAt)) return { ok: true, reference: DECOY_REFERENCE, phone: typed };
+
+  const phone = normalisePhone(v.phone);
+  if (!phone) return { ok: false, error: "Please enter a phone number we can call, e.g. 0803 123 4567", phone: typed };
+  if (await tooManyFrom(phone)) return { ok: false, error: "We already have several enquiries from this number in the last hour — our team will be in touch.", phone: typed };
+  if (!(await withinLimit("enquiry"))) return { ok: false, error: RATE_LIMITED_MESSAGE, phone: typed };
+
+  const [vehicle] = await db
+    .select({ id: vehicles.id, dealerId: vehicles.dealerId, year: vehicles.year, make: vehicles.make, model: vehicles.model })
+    .from(vehicles)
+    .where(and(eq(vehicles.id, v.vehicleId), inArray(vehicles.status, ["available", "reserved"])))
+    .limit(1);
+  if (!vehicle) return { ok: false, error: "This vehicle is no longer listed. Please reload the page.", phone: typed };
+
+  try {
+    const reference = await saveLead({
+      dealerId: vehicle.dealerId,
+      type: "question",
+      channel: "web_form",
+      vehicleId: vehicle.id,
+      name: "Call me back",
+      phone,
+      email: null,
+      message: `Please call me back about the ${vehicleTitle(vehicle)}.`,
+      preferredContact: "phone",
+      landingPath: v.landingPath ?? null,
+    });
+    return { ok: true, reference, phone: typed };
+  } catch (e) {
+    console.error("[call-back] insert failed", e);
+    return { ok: false, error: `Something went wrong. Please call ${helpPhone} and we will help straight away.`, phone: typed };
+  }
+}
 
 export async function submitEnquiry(_prev: EnquiryResult | null, formData: FormData): Promise<EnquiryResult> {
   const text = (k: string) => String(formData.get(k) ?? "");
