@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import Anthropic from "@anthropic-ai/sdk";
 import { cookies } from "next/headers";
 import { after, NextResponse, type NextRequest } from "next/server";
@@ -8,6 +8,7 @@ import { db } from "@/db";
 import { assistantConversations, assistantMessages } from "@/db/schema";
 import { devReply } from "@/lib/assistant/dev-reply";
 import { knowledge, momentContext, toAssistantCar } from "@/lib/assistant/knowledge";
+import { buyerMemory, DEVICE_COOKIE } from "@/lib/assistant/memory";
 import { comparePath, DirectiveSplitter, type Directive, type Part } from "@/lib/assistant/parts";
 import { reportAssistantFailure } from "@/lib/assistant/health";
 import { PERSONA } from "@/lib/assistant/prompt";
@@ -107,14 +108,19 @@ export async function POST(request: NextRequest) {
       while (history[0]?.role === "assistant") history.shift();
     }
   }
+  // The device's own id, from its cookie — or a new one, set on the way out — so the assistant knows this person next time.
+  const jar = await cookies();
+  const knownDevice = /^[0-9a-f-]{36}$/.test(jar.get(DEVICE_COOKIE)?.value ?? "") ? jar.get(DEVICE_COOKIE)!.value : null;
+  const deviceId = knownDevice ?? randomUUID();
   if (!conversationId) {
     const [created] = await db
       .insert(assistantConversations)
-      .values({ dealerId, landingPath: path?.slice(0, 300) ?? null, vehicleId: pageVehicle?.id ?? null, ipHash: hash })
+      .values({ dealerId, landingPath: path?.slice(0, 300) ?? null, vehicleId: pageVehicle?.id ?? null, ipHash: hash, deviceId })
       .returning({ id: assistantConversations.id });
     conversationId = created.id;
   }
   const convId = conversationId;
+  const memory = knownDevice ? await buyerMemory(dealerId, knownDevice, convId, bySlug).catch(() => null) : null;
   const askedAt = new Date();
 
   // Referral attribution is read now, while the request's cookies are at hand.
@@ -136,6 +142,7 @@ export async function POST(request: NextRequest) {
             // An hour, not five minutes: on a quiet afternoon every question was a cold one, re-reading the whole stock before the first word.
             { type: "text", text: `# What you know — live from the showroom\n\n${knowledgeText}`, cache_control: { type: "ephemeral", ttl: "1h" } },
             { type: "text", text: `# Right now\n${momentContext({ path: path ?? null, vehicle: pageVehicle })}` },
+            ...(memory ? [{ type: "text" as const, text: `# What you remember about this person\n${memory}` }] : []),
           ],
           messages: [...history, { role: "user", content: message }],
         });
@@ -251,5 +258,8 @@ export async function POST(request: NextRequest) {
     }
   });
 
-  return new Response(readable, { headers: { "Content-Type": "application/x-ndjson; charset=utf-8", "Cache-Control": "no-store" } });
+  const headers = new Headers({ "Content-Type": "application/x-ndjson; charset=utf-8", "Cache-Control": "no-store" });
+  // A year on the device, unreadable to scripts: it names the device to us and nothing else.
+  if (!knownDevice) headers.set("Set-Cookie", `${DEVICE_COOKIE}=${deviceId}; Path=/; Max-Age=31536000; HttpOnly; SameSite=Lax${process.env.NODE_ENV === "production" ? "; Secure" : ""}`);
+  return new Response(readable, { headers });
 }

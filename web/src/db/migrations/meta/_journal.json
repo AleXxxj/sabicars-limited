@@ -120,6 +120,13 @@
       "when": 1792696089032,
       "tag": "0016_outbox_batch_key",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1793200000000,
+      "tag": "0017_assistant_memory",
+      "breakpoints": true
     }
   ]
 }

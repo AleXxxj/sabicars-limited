@@ -1038,12 +1038,19 @@ export const assistantConversations = pgTable(
     vehiclesShown: jsonb("vehicles_shown").$type<string[]>().notNull().default([]),
     /** Hashed, never stored raw: enough to rate-limit, not enough to locate anyone. */
     ipHash: text("ip_hash"),
+    /**
+     * A random id in a cookie on the visitor's own device, so the assistant
+     * recognises them when they come back — and only there, where only they
+     * can be. Never a phone number: anyone can type someone else's.
+     */
+    deviceId: text("device_id"),
     createdAt: createdAt(),
     lastMessageAt: timestamp("last_message_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
     index("assistant_conversations_recent_idx").on(t.dealerId, t.lastMessageAt),
     index("assistant_conversations_ip_idx").on(t.ipHash, t.lastMessageAt),
+    index("assistant_conversations_device_idx").on(t.deviceId, t.lastMessageAt).where(sql`${t.deviceId} IS NOT NULL`),
   ],
 );
 

@@ -1,0 +1,2 @@
+ALTER TABLE "assistant_conversations" ADD COLUMN "device_id" text;--> statement-breakpoint
+CREATE INDEX "assistant_conversations_device_idx" ON "assistant_conversations" USING btree ("device_id","last_message_at") WHERE "assistant_conversations"."device_id" IS NOT NULL;
