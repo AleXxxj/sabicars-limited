@@ -64,7 +64,7 @@ async function assistantCheck(): Promise<Check> {
     // the first reply that fails for lack of it alerts the owner and managers.
     const r = await fetch("https://api.anthropic.com/v1/models?limit=1", {
       headers: { "x-api-key": key, "anthropic-version": "2023-06-01" },
-      signal: AbortSignal.timeout(8000),
+      signal: AbortSignal.timeout(5000),
     });
     if (r.ok)
       return { group: "Settings", label, status: "ok", detail: "The key is accepted. Keep credit on the account (Settings → Billing)." };
@@ -362,7 +362,7 @@ async function addressChecks(base: string): Promise<Check[]> {
   await Promise.all(
     destinations.map(async (path) => {
       try {
-        const r = await fetch(new URL(path, base), { redirect: "manual", signal: AbortSignal.timeout(10000) });
+        const r = await fetch(new URL(path, base), { redirect: "manual", signal: AbortSignal.timeout(5000) });
         if (r.status !== 200) dead.push(`${path} (${r.status})`);
       } catch {
         dead.push(`${path} (unreachable)`);

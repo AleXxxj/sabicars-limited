@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { eq } from "drizzle-orm";
@@ -23,7 +24,9 @@ export interface StaffMember {
  * must have an active row in `staff`. Signing up for a Supabase account does
  * not make anyone staff; only an existing owner can grant that.
  */
-export async function requireStaff(): Promise<StaffMember> {
+// Shared within one request: the admin frame and the page it holds both ask, and each ask was a round trip
+// to Supabase. cache() answers the second from the first.
+export const requireStaff = cache(async (): Promise<StaffMember> => {
   // Anything behind this check is per-request by definition. Without this, a
   // build with sign-in unconfigured redirects before reading a cookie, and
   // Next.js freezes the page as a static redirect.
@@ -45,7 +48,7 @@ export async function requireStaff(): Promise<StaffMember> {
   }
 
   return { id: record.id, dealerId: record.dealerId, email: record.email, fullName: record.fullName, role: record.role };
-}
+});
 
 /**
  * Who may do what. Sales handle customers and cars; money and people are for

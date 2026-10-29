@@ -19,8 +19,14 @@ if (!url) {
  * statements, and leaving it on produces intermittent errors under load rather
  * than an obvious failure.
  */
+/**
+ * Not 1: on Vercel one instance now serves many requests at once, and with a
+ * single connection every query from every one of them waited in a line —
+ * the admin, which runs five badge counts and a page's own queries per
+ * view, felt it most. Four is still small; the pooler does the real work.
+ */
 const client = postgres(url, {
-  max: 1,
+  max: 4,
   prepare: false,
   idle_timeout: 20,
   /*

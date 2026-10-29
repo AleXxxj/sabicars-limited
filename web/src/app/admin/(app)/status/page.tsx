@@ -53,6 +53,10 @@ async function staffNames(ids: string[]): Promise<Map<string, string>> {
  * every error the site has seen, and whether the copy of the database is
  * recent.
  */
+// Its checks reach outside the site (the provider, every old address); given a limit of their own,
+// a slow one shows as a warning on the page rather than a timeout of the whole page.
+export const maxDuration = 60;
+
 export default async function StatusPage() {
   const me = await requireStaff();
   if (me.role === "sales") return <p className="py-16 text-center text-text-muted">System status is for the owner and managers.</p>;
