@@ -17,6 +17,9 @@ const BADGE_NOUN: Record<string, string> = { "/admin/status": "open" };
  * The staff workspace. Built for a phone first: most listings will be made
  * standing next to the car in the park, not at a desk.
  */
+// A slow moment reaching Supabase or the pooler should make a slow page, never a 504: a minute, for every admin page.
+export const maxDuration = 60;
+
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const me = await requireStaff();
   const nav = adminNavFor(me.role);
