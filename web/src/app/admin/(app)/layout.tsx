@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Logo } from "@/components/Logo";
 import { NavLink } from "@/components/site/NavLink";
 import { can, requireStaff } from "@/lib/auth";
+import { orFallback } from "@/lib/deadline";
 import { signOut } from "@/lib/actions/auth";
 import { adminNavFor, ROLE_LABEL } from "@/lib/admin-nav";
 import { waitingCount } from "@/lib/repositories/leads";
@@ -23,15 +24,17 @@ export const maxDuration = 60;
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const me = await requireStaff();
   const nav = adminNavFor(me.role);
-  // What is waiting for someone, shown on the section it is waiting in.
+  // What is waiting for someone, shown on the section it is waiting in. A badge is worth a few seconds, never the
+  // page: a count that does not come back in time shows as nothing, and the page opens.
+  const badge = (work: Promise<number>) => orFallback(work, 6000, 0);
   const [leadsWaiting, reviewsWaiting, commentsWaiting, payoutsReady, errorsOpen] = await Promise.all([
-    waitingCount(me.dealerId),
-    me.role === "sales" ? 0 : reviewCounts(me.dealerId).then((c) => c.waiting),
-    me.role === "sales" ? 0 : pendingCommentCount(me.dealerId),
+    badge(waitingCount(me.dealerId)),
+    me.role === "sales" ? 0 : badge(reviewCounts(me.dealerId).then((c) => c.waiting)),
+    me.role === "sales" ? 0 : badge(pendingCommentCount(me.dealerId)),
     // Commissions past their cooling-off, waiting for a manager to pay them.
-    can.payPartners(me) ? payableCount(me.dealerId) : 0,
+    can.payPartners(me) ? badge(payableCount(me.dealerId)) : 0,
     // Errors the site has seen and nobody has resolved yet; the status page is the owner's and managers'.
-    can.seeMoney(me) ? openIncidentCount() : 0,
+    can.seeMoney(me) ? badge(openIncidentCount()) : 0,
   ]);
   const badges: Record<string, number> = {
     "/admin/leads": leadsWaiting,

@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { timedFetch } from "@/lib/deadline";
 
 /**
  * Refreshes the staff session and sends signed-out visitors from /admin to the
@@ -26,6 +27,8 @@ export async function proxy(request: NextRequest) {
 
   let response = NextResponse.next({ request });
   const supabase = createServerClient(url, anonKey, {
+    // A deadline on the call: a sign-in service that hangs must not hold every admin request with it.
+    global: { fetch: timedFetch },
     cookies: {
       getAll: () => request.cookies.getAll(),
       setAll: (toSet) => {

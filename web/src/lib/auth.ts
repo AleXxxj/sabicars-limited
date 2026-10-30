@@ -5,6 +5,7 @@ import { connection } from "next/server";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { staff } from "@/db/schema";
+import { SUPABASE_CALL_MS, withDeadline } from "@/lib/deadline";
 import { createClient } from "./supabase/server";
 import { authConfigured } from "./supabase/config";
 
@@ -36,10 +37,10 @@ export const requireStaff = cache(async (): Promise<StaffMember> => {
   const supabase = await createClient();
   const {
     data: { user },
-  } = await supabase.auth.getUser();
+  } = await withDeadline(supabase.auth.getUser(), SUPABASE_CALL_MS + 2000, "The sign-in service");
   if (!user) redirect("/admin/login");
 
-  const [record] = await db.select().from(staff).where(eq(staff.id, user.id)).limit(1);
+  const [record] = await withDeadline(db.select().from(staff).where(eq(staff.id, user.id)).limit(1), 12_000, "The database");
   if (!record || !record.isActive) {
     // Authenticated but not authorised: end the session rather than leave
     // them half signed in.
