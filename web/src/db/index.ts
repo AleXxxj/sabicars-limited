@@ -28,7 +28,16 @@ if (!url) {
 const client = postgres(url, {
   max: 4,
   prepare: false,
-  idle_timeout: 20,
+  /*
+   * A connection that has gone dead on the way to the pooler hangs a query for
+   * ever: nothing answers, no error, no statement ever reaches Postgres, so no
+   * timeout fires. Seen as admin pages hanging the full 60 seconds while the
+   * database answered in 130 ms. So: TCP keep-alives every 20 seconds, idle
+   * connections dropped after 10, and none kept longer than 5 minutes.
+   */
+  idle_timeout: 10,
+  max_lifetime: 5 * 60,
+  keep_alive: 20,
   /*
    * Fail fast when the database cannot be reached.
    *

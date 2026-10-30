@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Logo } from "@/components/Logo";
 import { NavLink } from "@/components/site/NavLink";
 import { can, requireStaff } from "@/lib/auth";
-import { orFallback } from "@/lib/deadline";
+import { orFallback, timed } from "@/lib/deadline";
 import { signOut } from "@/lib/actions/auth";
 import { adminNavFor, ROLE_LABEL } from "@/lib/admin-nav";
 import { waitingCount } from "@/lib/repositories/leads";
@@ -26,7 +26,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const nav = adminNavFor(me.role);
   // What is waiting for someone, shown on the section it is waiting in. A badge is worth a few seconds, never the
   // page: a count that does not come back in time shows as nothing, and the page opens.
-  const badge = (work: Promise<number>) => orFallback(work, 6000, 0);
+  const badge = (work: Promise<number>) => timed("badge", orFallback(work, 6000, 0));
   const [leadsWaiting, reviewsWaiting, commentsWaiting, payoutsReady, errorsOpen] = await Promise.all([
     badge(waitingCount(me.dealerId)),
     me.role === "sales" ? 0 : badge(reviewCounts(me.dealerId).then((c) => c.waiting)),

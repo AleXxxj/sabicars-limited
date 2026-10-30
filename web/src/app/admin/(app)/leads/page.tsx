@@ -7,6 +7,7 @@ import { LiveRefresh } from "@/components/admin/LiveRefresh";
 import { PhoneAlerts } from "@/components/admin/PhoneAlerts";
 import { escalateStaleLeads } from "@/lib/alerts";
 import { requireStaff } from "@/lib/auth";
+import { orFallback, timed, withDeadline } from "@/lib/deadline";
 import { LEAD_STATUS_LABEL, LEAD_TYPE_LABEL, RESPONSE_TARGET_MINUTES } from "@/lib/lead-labels";
 import { displayPhone } from "@/lib/phone";
 import { inbox, inboxCounts, LEAD_VIEWS, myAlertSettings, responseStats, type InboxLead, type LeadView } from "@/lib/repositories/leads";
@@ -47,12 +48,13 @@ export default async function LeadsInbox({ searchParams }: Props) {
   const sp = await searchParams;
   const q = (sp.q ?? "").trim().slice(0, 80);
   const view: LeadView = sp.view && sp.view in LEAD_VIEWS ? (sp.view as LeadView) : "waiting";
+  // Each with a deadline and a name: a wait that never ends becomes an error that says where, with the error screen's retry.
   const [rows, counts, stats, alerts, today] = await Promise.all([
-    inbox(me.dealerId, me.id, view, q),
-    inboxCounts(me.dealerId, me.id),
-    responseStats(me.dealerId),
-    myAlertSettings(me.id),
-    viewingsOn(me.dealerId),
+    timed("inbox", withDeadline(inbox(me.dealerId, me.id, view, q), 15_000, "The enquiries list")),
+    timed("inbox-counts", withDeadline(inboxCounts(me.dealerId, me.id), 15_000, "The enquiry counts")),
+    timed("response-stats", withDeadline(responseStats(me.dealerId), 15_000, "The reply-time figures")),
+    timed("alert-settings", orFallback(myAlertSettings(me.id), 8_000, { receivesAlerts: false, phones: 0 })),
+    timed("viewings-today", orFallback(viewingsOn(me.dealerId), 8_000, [])),
   ]);
   // Someone is looking: a good moment to check nothing has been left too long.
   after(() => escalateStaleLeads().catch((e) => console.error("[leads] escalation sweep failed", e)));

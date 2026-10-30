@@ -30,3 +30,20 @@ export const SUPABASE_CALL_MS = 8000;
 
 /** fetch with a deadline, for the Supabase client: a call that hangs is abandoned rather than waited on. */
 export const timedFetch: typeof fetch = (input, init) => fetch(input, { ...init, signal: init?.signal ?? AbortSignal.timeout(SUPABASE_CALL_MS) });
+
+/** Slower than this is worth a line in the log, with its name: the only way to see where an admin page spent its time. */
+const SLOW_MS = 1500;
+
+/** The promise's value, and a log line when it took longer than SLOW_MS or failed — Vercel keeps console output, nothing else. */
+export async function timed<T>(label: string, work: Promise<T>): Promise<T> {
+  const started = Date.now();
+  try {
+    const value = await work;
+    const ms = Date.now() - started;
+    if (ms > SLOW_MS) console.warn(`[slow] ${label} took ${ms} ms`);
+    return value;
+  } catch (e) {
+    console.warn(`[slow] ${label} failed after ${Date.now() - started} ms: ${e instanceof Error ? e.message : String(e)}`);
+    throw e;
+  }
+}
