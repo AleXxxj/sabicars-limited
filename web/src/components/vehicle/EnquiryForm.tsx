@@ -153,6 +153,7 @@ export function EnquiryForm({
   taken,
   address,
   offsite = false,
+  frame = "card",
 }: {
   vehicleId: string;
   vehicleTitle: string;
@@ -164,7 +165,11 @@ export function EnquiryForm({
   address: string;
   /** A car held away from the showroom: the place is agreed, not fixed. */
   offsite?: boolean;
+  /** "card" draws its own raised card; "plain" is for inside a sheet that already is one. */
+  frame?: "card" | "plain";
 }) {
+  const chrome = frame === "card" ? "surface-card p-5 md:p-8" : "";
+  const doneChrome = frame === "card" ? "surface-card !border-green-500/30 p-7 md:p-9" : "rounded-2xl border border-green-500/30 bg-green-500/[0.06] p-5 md:p-6";
   const [state, action, pending] = useActionState(submitEnquiry, null);
   const [type, setType] = useState<EnquiryKind>("callback");
   const [slot, setSlot] = useState("");
@@ -224,7 +229,7 @@ export function EnquiryForm({
       <div className="relative">
         {anchors}
         {state.kind === "callback" ? (
-          <div ref={confirmation} role="status" className="surface-card scroll-mt-24 !border-green-500/30 p-7 md:p-9">
+          <div ref={confirmation} role="status" className={`scroll-mt-24 ${doneChrome}`}>
             <p className="kicker">Call me back</p>
             <h3 className="mt-3 text-display-3">We will call {state.phone || "you"} shortly.</h3>
             <p className="mt-4 text-text-secondary">
@@ -233,7 +238,7 @@ export function EnquiryForm({
             </p>
           </div>
         ) : (
-          <div ref={confirmation} role="status" className="surface-card scroll-mt-24 !border-green-500/30 p-7 md:p-9">
+          <div ref={confirmation} role="status" className={`scroll-mt-24 ${doneChrome}`}>
             <p className="kicker">{at ? "Viewing booked" : "Enquiry received"}</p>
             <h3 className="mt-3 text-display-3">Thank you, {state.name}.</h3>
             {at ? (
@@ -291,7 +296,7 @@ export function EnquiryForm({
       {/* Every field stays mounted whichever way is chosen, so what a buyer typed on one way is still there on
           another. The fields a way does not need are hidden and disabled (a disabled control is left out of the
           form data); the server ignores a name on a call-back in any case. */}
-      <form id="enquiry-card" action={action} className="surface-card relative grid gap-6 p-5 md:p-8" noValidate>
+      <form id="enquiry-card" action={action} className={`relative grid gap-6 ${chrome}`} noValidate>
         <input type="hidden" name="vehicleId" value={vehicleId} />
         {/* What is sent comes from state, not from the tab radios: React resets radios after a failed send,
             which would turn a viewing into a plain question while the screen still showed the viewing. */}

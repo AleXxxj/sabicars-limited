@@ -64,8 +64,10 @@ test.describe("A car's page", () => {
     const faults = watchForFaults(page);
     test.skip((await stockCount(page)) === 0, "The site has no vehicles in stock");
     await openFirstVehicle(page);
-    await expect(page.getByRole("heading", { name: /^Interested in the / }), "the car page has no enquiry section").toBeVisible();
-    await expect(page.getByRole("link", { name: "Enquire about this vehicle" }), "the car page has no Enquire button").toHaveAttribute("href", "#enquire");
+    // The enquiry is a sheet over the page, opened by the button under the photos; the page itself goes on to similar cars.
+    await expect(page.getByRole("heading", { name: /^Interested in the / }), "the enquiry sheet should be closed on arrival").toBeHidden();
+    await page.getByRole("link", { name: "Enquire about this vehicle" }).click();
+    await expect(page.getByRole("heading", { name: /^Interested in the / }), "the Enquire button did not open the enquiry sheet").toBeVisible();
     // The three ways sit side by side on the card, none hiding another.
     const card = page.locator("#enquiry-card");
     for (const way of ["Call me back", "Ask a question", "Book a viewing"]) {
@@ -74,7 +76,9 @@ test.describe("A car's page", () => {
     await expect(card.getByRole("button", { name: "Call me back" }), "the card does not open on the call-back").toBeVisible();
     await card.getByText("Ask a question", { exact: true }).click();
     await expect(card.getByRole("button", { name: "Send my question" }), "choosing 'Ask a question' did not show the question form").toBeVisible();
-    // "Book a viewing" under the photos lands on the booking: the day and time picker, not a choice.
+    // "Book a viewing" under the photos opens the sheet on the booking: the day and time picker, not a choice.
+    await page.keyboard.press("Escape");
+    await expect(card, "Escape did not close the sheet").toBeHidden();
     await page.getByRole("link", { name: "Book a viewing" }).first().click();
     await expect(card.getByText("When would you like to come?"), "'Book a viewing' did not open the day and time picker").toBeVisible();
     await expect(card.getByRole("button", { name: "Book the viewing" }), "the booking has no Book the viewing button").toBeVisible();
@@ -91,9 +95,6 @@ test.describe("A car's page", () => {
     // Under the photos, the real buttons are on screen: the bar's "Enquire" would be a second one.
     await page.locator("#primary-actions").scrollIntoViewIfNeeded();
     await expect(bar, "the phone bar stayed over the page's own Enquire button").toHaveAttribute("aria-hidden", "true");
-    // At the enquiry card itself, a shortcut to the enquiry card has no job.
-    await page.locator("#enquiry-card").scrollIntoViewIfNeeded();
-    await expect(bar, "the phone bar stayed over the enquiry card").toHaveAttribute("aria-hidden", "true");
     // Just past the buttons, reading on, it is the way to act without scrolling back. (The top of the page is
     // no test: a car without photos shows its buttons on the first screen, and the bar rightly stays away.)
     await page.evaluate(() => {
@@ -101,6 +102,12 @@ test.describe("A car's page", () => {
       window.scrollTo(0, window.scrollY + buttons.bottom + 120);
     });
     await expect(bar, "the phone bar did not come back once the buttons left the screen").toHaveAttribute("aria-hidden", "false");
+    // With the enquiry sheet open over the page, a shortcut to it has no job.
+    await bar.getByRole("link", { name: "Enquire" }).click();
+    await expect(page.locator("#enquiry-card"), "the bar's Enquire did not open the sheet").toBeVisible();
+    await expect(bar, "the phone bar stayed up behind the open sheet").toHaveAttribute("aria-hidden", "true");
+    await page.keyboard.press("Escape");
+    await expect(bar, "the phone bar did not come back once the sheet closed").toHaveAttribute("aria-hidden", "false");
     assertNoFaults(faults);
   });
 
@@ -120,6 +127,7 @@ test.describe("A car's page", () => {
     await expect(page.locator('a[href^="tel:"]').first(), "the car page has no call link").toBeAttached();
     // Call me back: one field, the way the enquiry card opens on. Sent the way looksAutomated() recognises
     // a bot, so the server answers with the decoy and writes nothing — a real number here would ring the showroom.
+    await page.getByRole("link", { name: "Enquire about this vehicle" }).click();
     const form = page.locator("#enquiry-card").filter({ has: page.getByRole("button", { name: "Call me back" }) });
     await expect(form, "the car page has no Call me back form").toBeAttached();
     await form.locator('input[name="phone"]').fill("0803 000 0000");

@@ -108,7 +108,8 @@ test("a buyer's enquiry on a car is saved under the reference they were shown", 
   await expect(page.getByRole("heading", { level: 1 }), "the seeded car's page did not open").toHaveText(hummer.model);
   await expect(page.getByText("₦24,000,000").first(), "the car page does not show the seeded price").toBeVisible();
 
-  // The card opens on "Call me back"; a question is the second way.
+  // The enquiry is a sheet over the page; it opens on "Call me back", and a question is the second way.
+  await page.getByRole("link", { name: "Enquire about this vehicle" }).click();
   const form = page.locator("#enquiry-card");
   await form.getByText("Ask a question", { exact: true }).click();
   await form.getByLabel("Your name").fill(E2E.buyer.name);

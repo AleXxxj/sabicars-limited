@@ -6,6 +6,7 @@ import { AskButton } from "@/components/assistant/AskButton";
 import { ButtonAnchor } from "@/components/ui/Button";
 import { VehicleCard } from "@/components/VehicleCard";
 import { EnquiryForm } from "@/components/vehicle/EnquiryForm";
+import { EnquirySheet } from "@/components/vehicle/EnquirySheet";
 import { StickyActions } from "@/components/vehicle/StickyActions";
 import { ReplyPromise } from "@/components/site/ReplyPromise";
 import { DrivePlanApply } from "@/components/vehicle/DrivePlanApply";
@@ -367,45 +368,6 @@ export default async function VehiclePage({ params }: Props) {
           </Section>
         )}
 
-        {!sold && (
-          <section id="enquire" className="scroll-mt-24 border-t border-border-subtle bg-surface-1 py-14 md:py-20">
-            <div className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)] gap-12 px-5 md:px-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
-              <div>
-                <p className="kicker">Enquire</p>
-                <h2 className="mt-3 text-display-3">Interested in the {v.model}?</h2>
-                <p className="mt-5 max-w-md text-text-secondary">
-                  Pick how we reach you. Each way gives you a reference number, so whoever replies knows exactly which car you mean.
-                  {offsite && " The Sabicars team arranges the viewing and an inspection on request."}
-                </p>
-                <ReplyPromise className="mt-5" />
-                <p className="figures mt-8 text-sm text-text-muted">
-                  Or call{" "}
-                  <a href={`tel:${site.phones[0].e164}`} className="text-text-primary">
-                    {site.phones[0].display}
-                  </a>
-                </p>
-              </div>
-              <EnquiryForm
-                vehicleId={v.id}
-                vehicleTitle={title}
-                landingPath={`/vehicles/${v.slug}`}
-                whatsappBase={whatsappLink()}
-                taken={taken}
-                offsite={offsite}
-                // An offsite car is never "at the showroom": the viewing's place is agreed with the buyer,
-                // so the confirmation and calendar file say so instead of naming an address.
-                address={
-                  offsite
-                    ? "a place the Sabicars team will confirm with you"
-                    : location
-                      ? [location.addressLine1, location.addressLine2, location.city].filter(Boolean).join(", ")
-                      : `${site.address.line1}, ${site.address.line2}, ${site.address.city}`
-                }
-              />
-            </div>
-          </section>
-        )}
-
         {similar.length > 0 && (
           <section id="similar" className="scroll-mt-24 border-t border-border-subtle py-14 md:py-20">
             <div className="mx-auto max-w-7xl px-5 md:px-10">
@@ -434,8 +396,46 @@ export default async function VehiclePage({ params }: Props) {
         <RecentlyViewed exclude={v.slug} className="mx-auto max-w-7xl border-t border-border-subtle px-5 py-14 md:px-10 md:py-20" />
       </div>
 
+      {/* The enquiry lives in a sheet over the page, opened by the buttons under the photos and the phone bar:
+          after the description comes "Similar vehicles", not a form. */}
+      {!sold && (
+        <EnquirySheet title={`Interested in the ${v.model}?`}>
+          <p className="text-text-secondary">
+            Pick how we reach you. Each way gives you a reference number.
+            {offsite && " The Sabicars team arranges the viewing and an inspection on request."}
+          </p>
+          <ReplyPromise className="mt-4" />
+          <div className="mt-6">
+            <EnquiryForm
+              vehicleId={v.id}
+              vehicleTitle={title}
+              landingPath={`/vehicles/${v.slug}`}
+              whatsappBase={whatsappLink()}
+              taken={taken}
+              offsite={offsite}
+              frame="plain"
+              // An offsite car is never "at the showroom": the viewing's place is agreed with the buyer,
+              // so the confirmation and calendar file say so instead of naming an address.
+              address={
+                offsite
+                  ? "a place the Sabicars team will confirm with you"
+                  : location
+                    ? [location.addressLine1, location.addressLine2, location.city].filter(Boolean).join(", ")
+                    : `${site.address.line1}, ${site.address.line2}, ${site.address.city}`
+              }
+            />
+          </div>
+          <p className="figures mt-6 text-sm text-text-muted">
+            Or call{" "}
+            <a href={`tel:${site.phones[0].e164}`} className="text-text-primary">
+              {site.phones[0].display}
+            </a>
+          </p>
+        </EnquirySheet>
+      )}
+
       {/* Phones: the price and the next step within thumb reach — above the tab bar, never under it — and out of
-          the way while the page's own buttons or the enquiry card are on screen (StickyActions). */}
+          the way while the page's own buttons are on screen or the sheet is open (StickyActions). */}
       {!sold && <StickyActions title={title} price={priceLabel(v)} phone={site.phones[0]} />}
 
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript({ "@context": "https://schema.org", ...dealerJsonLd() }) }} />
