@@ -78,13 +78,41 @@ export function bookableDays(now: Date, taken: Record<string, number> = {}): Slo
   return days;
 }
 
+/** "20261103T110000Z": a moment as calendars write it. */
+const stamp = (d: Date) => d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+const viewingEnd = (at: Date) => new Date(at.getTime() + SLOT_MINUTES * 60_000);
+const calendarSummary = (title: string) => `Viewing: ${title}`;
+const calendarNotes = (reference: string) => `Sabicars viewing, reference ${reference}. Bring your mechanic if you like.`;
+
+/**
+ * Where a phone fetches the viewing's calendar file. A real address, not a
+ * data: link: an iPhone ignores a data: calendar link and its download
+ * attribute, and does nothing when tapped. Served by
+ * app/api/viewings/[reference]/calendar.ics/route.ts.
+ */
+export function calendarFileUrl(reference: string): string {
+  return `/api/viewings/${encodeURIComponent(reference)}/calendar.ics`;
+}
+
+/** An "add to Google Calendar" link, for the many Android phones where that is the calendar. */
+export function googleCalendarUrl(at: Date, title: string, location: string, reference: string): string {
+  const q = new URLSearchParams({
+    action: "TEMPLATE",
+    text: calendarSummary(title),
+    dates: `${stamp(at)}/${stamp(viewingEnd(at))}`,
+    details: calendarNotes(reference),
+    location,
+    ctz: "Africa/Lagos",
+  });
+  return `https://calendar.google.com/calendar/render?${q}`;
+}
+
 /** A calendar file for the buyer's phone: the viewing, at the showroom, an hour long. */
 export function viewingCalendar(at: Date, title: string, location: string, reference: string): string {
-  const stamp = (d: Date) => d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
-  const end = new Date(at.getTime() + SLOT_MINUTES * 60_000);
+  const end = viewingEnd(at);
   // RFC 5545 needs commas, semicolons and backslashes escaped in text.
   const text = (s: string) => s.replace(/\\/g, "\\\\").replace(/[,;]/g, (c) => `\\${c}`).replace(/\n/g, "\\n");
-  return [
+  return foldLines([
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
     "PRODID:-//Sabicars//Viewings//EN",
@@ -93,10 +121,36 @@ export function viewingCalendar(at: Date, title: string, location: string, refer
     `DTSTAMP:${stamp(new Date())}`,
     `DTSTART:${stamp(at)}`,
     `DTEND:${stamp(end)}`,
-    `SUMMARY:${text(`Viewing: ${title}`)}`,
+    `SUMMARY:${text(calendarSummary(title))}`,
     `LOCATION:${text(location)}`,
-    `DESCRIPTION:${text(`Sabicars viewing, reference ${reference}. Bring your mechanic if you like.`)}`,
+    `DESCRIPTION:${text(calendarNotes(reference))}`,
     "END:VEVENT",
     "END:VCALENDAR",
-  ].join("\r\n");
+  ]).join("\r\n");
+}
+
+/**
+ * RFC 5545 line folding: no line longer than 75 octets, a longer one
+ * continued on the next line after a single space. Split between
+ * characters, never inside one, so an accented name or a naira sign
+ * survives. Strict calendars (Outlook, some Android ones) refuse a file
+ * with a long line; a folded one reads everywhere.
+ */
+export function foldLines(lines: string[]): string[] {
+  const octets = (s: string) => new TextEncoder().encode(s).length;
+  return lines.map((line) => {
+    if (octets(line) <= 75) return line;
+    const out: string[] = [];
+    let current = "";
+    for (const ch of line) {
+      if (octets(current + ch) > 75) {
+        out.push(current);
+        current = ` ${ch}`;
+      } else {
+        current += ch;
+      }
+    }
+    out.push(current);
+    return out.join("\r\n");
+  });
 }

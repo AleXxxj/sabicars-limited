@@ -108,12 +108,14 @@ test("a buyer's enquiry on a car is saved under the reference they were shown", 
   await expect(page.getByRole("heading", { level: 1 }), "the seeded car's page did not open").toHaveText(hummer.model);
   await expect(page.getByText("₦24,000,000").first(), "the car page does not show the seeded price").toBeVisible();
 
-  const form = page.locator("form").filter({ has: page.getByRole("button", { name: "Send enquiry" }) });
+  // The card opens on "Call me back"; a question is the second way.
+  const form = page.locator("#enquiry-card");
+  await form.getByText("Ask a question", { exact: true }).click();
   await form.getByLabel("Your name").fill(E2E.buyer.name);
   await form.getByLabel("Phone number").fill(E2E.buyer.typedPhone);
   await form.getByLabel(/^Your question/).fill("Is it still available, and can I bring my mechanic on Saturday?");
   await waitUntilFormLooksHuman(page, form);
-  await form.getByRole("button", { name: "Send enquiry" }).click();
+  await form.getByRole("button", { name: "Send my question" }).click();
 
   const confirmation = page.getByRole("status").filter({ hasText: "Enquiry received" });
   await expect(confirmation, "the enquiry was not confirmed on screen").toBeVisible();

@@ -53,7 +53,7 @@ const LIMITS: Record<Bucket, { max: number; windowSeconds: number }> = {
   account: { max: 10, windowSeconds: 3600 },
   /** Staff sign-in attempts: enough for a mistyped password, not for guessing one. */
   signin: { max: 10, windowSeconds: 900 },
-  /** Reactions and shares on articles: silent when over, so nobody notices, and nobody can inflate them. */
+  /** Reactions and shares on articles, and fetches of a viewing's calendar file: silent when over, so nobody notices, nobody can inflate them, and nobody can walk through references. */
   engage: { max: 60, windowSeconds: 600 },
 };
 

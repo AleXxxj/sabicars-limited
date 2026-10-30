@@ -3,10 +3,10 @@ import Link from "next/link";
 import { ArrowRight, BadgeCheck, BellRing, Fuel, Gauge, Phone, Search, Settings2, Sparkles, type LucideIcon } from "lucide-react";
 import { notFound } from "next/navigation";
 import { AskButton } from "@/components/assistant/AskButton";
-import { ButtonAnchor, ButtonLink } from "@/components/ui/Button";
+import { ButtonAnchor } from "@/components/ui/Button";
 import { VehicleCard } from "@/components/VehicleCard";
-import { CallMeBack } from "@/components/vehicle/CallMeBack";
 import { EnquiryForm } from "@/components/vehicle/EnquiryForm";
+import { StickyActions } from "@/components/vehicle/StickyActions";
 import { ReplyPromise } from "@/components/site/ReplyPromise";
 import { DrivePlanApply } from "@/components/vehicle/DrivePlanApply";
 import { SaveButton } from "@/components/saved/SaveButton";
@@ -188,20 +188,23 @@ export default async function VehiclePage({ params }: Props) {
               </div>
             </div>
 
-            {/* The next step straight after the price, so it is on the first screen of a laptop too. */}
-            <div className="mt-6 flex flex-col gap-3">
+            {/* The next step straight after the price, so it is on the first screen of a laptop too.
+                The id is watched by the phone bar, which steps aside while these are on screen.
+                Plain anchors, not next/link: a second tap on the same hash must scroll again, and Link's
+                same-page navigation does not. */}
+            <div id="primary-actions" className="mt-6 flex flex-col gap-3">
               {sold ? (
-                <ButtonLink href="#similar" size="lg">
+                <ButtonAnchor href="#similar" size="lg" arrow>
                   See similar vehicles
-                </ButtonLink>
+                </ButtonAnchor>
               ) : (
                 <>
-                  <ButtonLink href="#enquire" size="lg">
+                  <ButtonAnchor href="#enquire" size="lg" arrow>
                     Enquire about this vehicle
-                  </ButtonLink>
-                  <ButtonLink href="#book-viewing" size="lg" variant="secondary">
+                  </ButtonAnchor>
+                  <ButtonAnchor href="#book-viewing" size="lg" variant="secondary">
                     Book a viewing
-                  </ButtonLink>
+                  </ButtonAnchor>
                   <ButtonAnchor href={`tel:${site.phones[0].e164}`} size="lg" variant="secondary" className="max-lg:hidden">
                     <Phone aria-hidden size={18} strokeWidth={1.75} /> Call {site.phones[0].display}
                   </ButtonAnchor>
@@ -215,9 +218,9 @@ export default async function VehiclePage({ params }: Props) {
                 {!sold && (
                   <>
                     {" "}
-                    <Link href="#enquire" className="text-green-300 underline-offset-4 hover:underline">
+                    <a href="#ask-question" className="text-green-300 underline-offset-4 hover:underline">
                       Ask to see it
-                    </Link>
+                    </a>
                     .
                   </>
                 )}
@@ -371,18 +374,10 @@ export default async function VehiclePage({ params }: Props) {
                 <p className="kicker">Enquire</p>
                 <h2 className="mt-3 text-display-3">Interested in the {v.model}?</h2>
                 <p className="mt-5 max-w-md text-text-secondary">
-                  {offsite
-                    ? "Ask anything, or ask to see it — the Sabicars team arranges the viewing and an inspection on request."
-                    : "Ask anything, or arrange to see it at the showroom."}{" "}
-                  You get a reference number, so whoever replies knows exactly which car you mean.
+                  Pick how we reach you. Each way gives you a reference number, so whoever replies knows exactly which car you mean.
+                  {offsite && " The Sabicars team arranges the viewing and an inspection on request."}
                 </p>
                 <ReplyPromise className="mt-5" />
-                {/* The shortest path to a person: a number, and we call. The form beside it is for anything more. */}
-                {!sold && (
-                  <div className="mt-8">
-                    <CallMeBack vehicleId={v.id} vehicleTitle={title} landingPath={`/vehicles/${v.slug}`} />
-                  </div>
-                )}
                 <p className="figures mt-8 text-sm text-text-muted">
                   Or call{" "}
                   <a href={`tel:${site.phones[0].e164}`} className="text-text-primary">
@@ -396,6 +391,7 @@ export default async function VehiclePage({ params }: Props) {
                 landingPath={`/vehicles/${v.slug}`}
                 whatsappBase={whatsappLink()}
                 taken={taken}
+                offsite={offsite}
                 // An offsite car is never "at the showroom": the viewing's place is agreed with the buyer,
                 // so the confirmation and calendar file say so instead of naming an address.
                 address={
@@ -438,38 +434,9 @@ export default async function VehiclePage({ params }: Props) {
         <RecentlyViewed exclude={v.slug} className="mx-auto max-w-7xl border-t border-border-subtle px-5 py-14 md:px-10 md:py-20" />
       </div>
 
-      {/* Phones: the price and the next step always within thumb reach — above the tab bar, never under it. */}
-      {!sold && (
-        <div
-          data-ask-dock
-          className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 flex items-center justify-between gap-3 border-t border-border-default bg-surface-0/95 px-4 py-2.5 backdrop-blur-md lg:hidden"
-        >
-          <div className="min-w-0">
-            <p className="truncate text-xs text-text-muted">{title}</p>
-            <p className="figures truncate font-semibold">{priceLabel(v)}</p>
-          </div>
-          <div className="flex shrink-0 items-center gap-2">
-            {/* One tap to a person, as a marketplace offers; the enquiry stays the recorded route. */}
-            <a
-              href={`tel:${site.phones[0].e164}`}
-              aria-label={`Call Sabicars on ${site.phones[0].display}`}
-              className="inline-flex size-12 items-center justify-center rounded-full border border-green-500/40 text-green-200"
-            >
-              <Phone aria-hidden size={18} />
-            </a>
-            <AskButton
-              prompt={`Tell me about the ${title}`}
-              label={`Ask Sabicars about the ${title}`}
-              className="inline-flex min-h-12 items-center gap-1.5 rounded-full border border-green-500/40 px-4 text-sm font-semibold text-green-200"
-            >
-              <Sparkles aria-hidden size={16} /> Ask
-            </AskButton>
-            <ButtonLink href="#enquire" className="shrink-0">
-              Enquire
-            </ButtonLink>
-          </div>
-        </div>
-      )}
+      {/* Phones: the price and the next step within thumb reach — above the tab bar, never under it — and out of
+          the way while the page's own buttons or the enquiry card are on screen (StickyActions). */}
+      {!sold && <StickyActions title={title} price={priceLabel(v)} phone={site.phones[0]} />}
 
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript({ "@context": "https://schema.org", ...dealerJsonLd() }) }} />
     </article>

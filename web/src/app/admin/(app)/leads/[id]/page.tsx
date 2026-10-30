@@ -8,7 +8,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { assistantConversations } from "@/db/schema";
 import { can, requireStaff } from "@/lib/auth";
-import { LEAD_STATUS_LABEL, LEAD_TYPE_LABEL, RESPONSE_TARGET_MINUTES } from "@/lib/lead-labels";
+import { CALLBACK_NAME, LEAD_STATUS_LABEL, LEAD_TYPE_LABEL, RESPONSE_TARGET_MINUTES } from "@/lib/lead-labels";
 import { commissionForVehicle } from "@/lib/ledger";
 import { formatNaira } from "@/lib/money";
 import { displayPhone } from "@/lib/phone";
@@ -83,14 +83,16 @@ export default async function LeadPage({ params }: Props) {
       ? await db.select({ id: assistantConversations.id }).from(assistantConversations).where(eq(assistantConversations.leadId, lead.id)).limit(1)
       : [];
 
-  const buyerFirst = lead.name.trim().split(/\s+/)[0];
+  // A call-back lead has no name, only a number: greet without one rather than "Hello Call".
+  const buyerFirst = lead.name === CALLBACK_NAME ? "" : lead.name.trim().split(/\s+/)[0];
+  const greeting = buyerFirst ? `Hello ${buyerFirst},` : "Hello,";
   const myFirst = (me.fullName ?? me.email).split(/[\s@]/)[0];
-  const whatsappText = `Hello ${buyerFirst}, this is ${myFirst} from Sabicars, about ${subject(d)} (${d.reference}).`;
+  const whatsappText = `${greeting} this is ${myFirst} from Sabicars, about ${subject(d)} (${d.reference}).`;
   const legacy = lead.channel === "legacy_import";
   const late = d.responseMinutes !== null && d.responseMinutes >= RESPONSE_TARGET_MINUTES;
 
   const reviewLink = lead.reviewToken ? `${siteUrl()}/review/${lead.reviewToken}` : null;
-  const reviewAsk = `Hello ${buyerFirst}, thank you for buying ${d.vehicle ? `the ${d.vehicle.title}` : "your vehicle"} from Sabicars. Would you tell others how it went? It takes a minute: ${reviewLink}`;
+  const reviewAsk = `${greeting} thank you for buying ${d.vehicle ? `the ${d.vehicle.title}` : "your vehicle"} from Sabicars. Would you tell others how it went? It takes a minute: ${reviewLink}`;
 
   const attribution = [
     lead.landingPath && `Sent from ${lead.landingPath}`,

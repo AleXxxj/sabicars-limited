@@ -110,13 +110,12 @@ export async function saveLead(values: NewLead): Promise<string> {
 
 /** The chosen viewing slot filled up between the buyer opening the page and sending the form. */
 export class SlotTaken extends Error {}
-
 /**
  * Saves a viewing booking for its slot, refusing one already at capacity.
  * The slot is locked for the length of the transaction, so two buyers taking
  * its last place at the same moment cannot both succeed.
  */
-export async function saveViewing(values: NewLead & { viewingAt: Date }): Promise<string> {
+export async function saveViewing(values: NewLead & { viewingAt: Date }): Promise<{ id: string; reference: string }> {
   const partnerId = values.partnerId ?? (await referringPartnerId(values.dealerId, values.phone));
   const id = await db.transaction(async (tx) => {
     await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${`viewing:${values.dealerId}:${values.viewingAt.toISOString()}`}))`);
@@ -132,7 +131,7 @@ export async function saveViewing(values: NewLead & { viewingAt: Date }): Promis
     return row.id;
   });
   alertStaff(id);
-  return referenceFor(id);
+  return { id, reference: referenceFor(id) };
 }
 
 /** How many viewings each upcoming slot already holds, by slot start (ISO). A lost lead frees its place. */

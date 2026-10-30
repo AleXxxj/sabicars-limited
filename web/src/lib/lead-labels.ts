@@ -39,3 +39,6 @@ export const ALERTING_TYPES: Lead["type"][] = ["question", "viewing", "reservati
 
 /** How long a new lead may wait, during opening hours, before managers are told. */
 export const RESPONSE_TARGET_MINUTES = 15;
+
+/** The name a "Call me back" enquiry is saved under: the buyer gave a number and nothing else. Screens that greet by name must not say "Hello Call". */
+export const CALLBACK_NAME = "Call me back";

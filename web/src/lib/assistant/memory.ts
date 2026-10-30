@@ -2,7 +2,7 @@ import "server-only";
 import { and, desc, eq, inArray, isNotNull, ne } from "drizzle-orm";
 import { db } from "@/db";
 import { assistantConversations, leads } from "@/db/schema";
-import { LEAD_STATUS_LABEL } from "@/lib/lead-labels";
+import { CALLBACK_NAME, LEAD_STATUS_LABEL } from "@/lib/lead-labels";
 import { referenceFor } from "@/lib/reference";
 import type { VehicleWithCover } from "@/lib/repositories/vehicles";
 import { vehicleTitle } from "@/lib/vehicle";
@@ -63,7 +63,7 @@ export async function buyerMemory(dealerId: string, deviceId: string | null, cur
   const theirLeads = leadIds.length
     ? await db.select({ id: leads.id, name: leads.name, status: leads.status, type: leads.type }).from(leads).where(inArray(leads.id, leadIds))
     : [];
-  const name = theirLeads.find((l) => l.name && l.name !== "Call me back")?.name ?? null;
+  const name = theirLeads.find((l) => l.name && l.name !== CALLBACK_NAME)?.name ?? null;
   const now = new Date();
 
   const lines = recent.map((p) => {

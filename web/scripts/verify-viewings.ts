@@ -7,7 +7,7 @@
  * Run: npm run test:viewings
  */
 
-import { BOOKING_DAYS, bookableDays, isBookableSlot, SLOT_CAPACITY, slotLabel, viewingCalendar } from "../src/lib/viewings";
+import { BOOKING_DAYS, bookableDays, calendarFileUrl, foldLines, googleCalendarUrl, isBookableSlot, SLOT_CAPACITY, slotLabel, viewingCalendar } from "../src/lib/viewings";
 
 let passed = 0;
 let failed = 0;
@@ -66,6 +66,17 @@ eq("the calendar event starts at 9:00 UTC (10:00 Lagos)", /DTSTART:20261024T0900
 eq("and lasts an hour", /DTEND:20261024T100000Z/.test(ics), true);
 eq("commas in the address are escaped", /LOCATION:Amazing Grace Shopping Complex\\, Km 16\\, Igando\\, Lagos/.test(ics), true);
 eq("lines end with CRLF, as calendars require", ics.includes("\r\nEND:VEVENT\r\n"), true);
+eq("no line is longer than 75 octets (long ones are folded)", ics.split("\r\n").every((l) => new TextEncoder().encode(l).length <= 75), true);
+eq("a folded line continues after a single space", /\r\n [^\r\n]/.test(ics), true);
+const unfolded = ics.replace(/\r\n /g, "");
+eq("unfolding gives the address back whole", /LOCATION:Amazing Grace Shopping Complex\\, Km 16\\, Igando\\, Lagos\r\n/.test(unfolded), true);
+eq("a naira sign is never split across a fold", foldLines([`SUMMARY:${"₦".repeat(40)}`]).join("").replace(/\r\n /g, "").includes("₦".repeat(40)), true);
+eq("the calendar file has a real address (an iPhone ignores data: links)", calendarFileUrl("SC-4E7A2D"), "/api/viewings/SC-4E7A2D/calendar.ics");
+const gcal = new URL(googleCalendarUrl(lagos("2026-10-24T10:00"), "2013 Toyota Hiace Hummer 1", "Amazing Grace Shopping Complex, Km 16, Igando, Lagos", "SC-4E7A2D"));
+eq("the Google Calendar link opens the event template", gcal.searchParams.get("action"), "TEMPLATE");
+eq("with the same hour, in UTC", gcal.searchParams.get("dates"), "20261024T090000Z/20261024T100000Z");
+eq("the same name", gcal.searchParams.get("text"), "Viewing: 2013 Toyota Hiace Hummer 1");
+eq("and the reference in the notes", gcal.searchParams.get("details")?.includes("SC-4E7A2D"), true);
 
 console.log(`\n${passed} passed, ${failed} failed\n`);
 if (failed) process.exit(1);
