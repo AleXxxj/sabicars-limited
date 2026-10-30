@@ -1,3 +1,4 @@
+import { attachDatabasePool } from "@vercel/functions";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import * as schema from "./schema";
@@ -27,15 +28,22 @@ if (!url) {
  * `prepare: false` stays: it costs little, and it keeps the client correct
  * should the URL ever point at the transaction pooler again.
  */
-/**
- * Not 1: on Vercel one instance now serves many requests at once, and with a
- * single connection every query from every one of them waited in a line —
- * the admin, which runs five badge counts and a page's own queries per
- * view, felt it most. Four is still small; the pooler does the real work.
+/*
+ * Session mode pins one database slot per open connection, and the free
+ * pooler allows fifteen. Vercel pauses an idle server instance with its
+ * connections still open, so paused instances pinned slots until the pooler
+ * refused new clients ("max clients reached in session mode", 2026-10-30).
+ * Two connections per instance, and — below — the instance is kept awake
+ * just long enough after its last query for the idle timer to close them.
  */
+const IDLE_SECONDS = 10;
+let released: ((...args: unknown[]) => void) | null = null;
+
 const client = postgres(url, {
-  max: 4,
+  max: 2,
   prepare: false,
+  // Every query is reported as a "release" to Vercel's pool helper (next block); the driver has no such event of its own.
+  debug: () => released?.(),
   /*
    * A connection that has gone dead on the way to the pooler hangs a query for
    * ever: nothing answers, no error, no statement ever reaches Postgres, so no
@@ -43,7 +51,7 @@ const client = postgres(url, {
    * database answered in 130 ms. So: TCP keep-alives every 20 seconds, idle
    * connections dropped after 10, and none kept longer than 5 minutes.
    */
-  idle_timeout: 10,
+  idle_timeout: IDLE_SECONDS,
   max_lifetime: 5 * 60,
   keep_alive: 20,
   /*
@@ -61,6 +69,22 @@ const client = postgres(url, {
    */
   connect_timeout: 10,
 });
+
+/*
+ * On Vercel, keep the instance alive for a moment after its last query, so
+ * idle connections are closed by the driver rather than left open through a
+ * pause. The helper knows `pg` pools; this adapter speaks its two words —
+ * an idle period, and a "release" event — on the driver's behalf. It does
+ * nothing outside Vercel (no VERCEL_URL), so local runs and CI are untouched.
+ */
+if (process.env.VERCEL_URL) {
+  attachDatabasePool({
+    idleTimeout: (IDLE_SECONDS + 1) * 1000,
+    on: (event: string, listener: (...args: unknown[]) => void) => {
+      if (event === "release") released = listener;
+    },
+  } as unknown as Parameters<typeof attachDatabasePool>[0]);
+}
 
 export const db = drizzle(client, { schema });
 export { schema };
