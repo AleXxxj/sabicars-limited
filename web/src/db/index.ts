@@ -12,12 +12,20 @@ if (!url) {
 /**
  * Serverless functions each open their own connection and are frequently torn
  * down, so a large pool here would exhaust Postgres' connection slots. Point
- * DATABASE_URL at Supabase's transaction pooler (port 6543) and keep the local
- * pool small; the pooler does the real multiplexing.
+ * DATABASE_URL at Supabase's pooler and keep the local pool small.
  *
- * `prepare: false` is required — the transaction pooler cannot support prepared
- * statements, and leaving it on produces intermittent errors under load rather
- * than an obvious failure.
+ * The SESSION pooler (port 5432), not the transaction pooler (6543). Through
+ * the transaction pooler, a connection handed a second query before the first
+ * had answered — what every admin page does, ten queries at once over four
+ * connections — lost one reply, every time, for any query: the page waited
+ * for ever and Vercel killed it at 60 seconds. Measured 2026-10-30 against
+ * the live pooler: 40 simultaneous queries on 5432, none lost; on 6543, one
+ * lost per connection after its second query, whatever the library's
+ * pipelining or type-fetching settings. Session mode holds one backend per
+ * connection, so the pool stays small and idle connections close fast.
+ *
+ * `prepare: false` stays: it costs little, and it keeps the client correct
+ * should the URL ever point at the transaction pooler again.
  */
 /**
  * Not 1: on Vercel one instance now serves many requests at once, and with a
