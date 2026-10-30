@@ -78,12 +78,18 @@ const client = postgres(url, {
  * nothing outside Vercel (no VERCEL_URL), so local runs and CI are untouched.
  */
 if (process.env.VERCEL_URL) {
-  attachDatabasePool({
-    idleTimeout: (IDLE_SECONDS + 1) * 1000,
-    on: (event: string, listener: (...args: unknown[]) => void) => {
-      if (event === "release") released = listener;
-    },
-  } as unknown as Parameters<typeof attachDatabasePool>[0]);
+  try {
+    // The shape the helper recognises is a `pg` pool: an `on` method and `options.idleTimeoutMillis`.
+    attachDatabasePool({
+      options: { idleTimeoutMillis: (IDLE_SECONDS + 1) * 1000 },
+      on: (event: string, listener: (...args: unknown[]) => void) => {
+        if (event === "release") released = listener;
+      },
+    } as unknown as Parameters<typeof attachDatabasePool>[0]);
+  } catch (e) {
+    // Never let the helper take the site down: without it, connections close a little later, that is all.
+    console.warn("[db] Vercel pool helper not attached:", e instanceof Error ? e.message : e);
+  }
 }
 
 export const db = drizzle(client, { schema });
