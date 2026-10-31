@@ -11,6 +11,7 @@ import type { StaffMember } from "@/lib/auth";
 const SECTIONS: { href: string; label: string; roles: StaffMember["role"][] }[] = [
   { href: "/admin/leads", label: "Enquiries", roles: ["owner", "manager", "sales"] },
   { href: "/admin/vehicles", label: "Inventory", roles: ["owner", "manager", "sales"] },
+  { href: "/admin/reservations", label: "Reservations", roles: ["owner", "manager", "sales"] },
   { href: "/admin/requests", label: "Sourcing Desk", roles: ["owner", "manager", "sales"] },
   { href: "/admin/conversations", label: "Conversations", roles: ["owner", "manager", "sales"] },
   { href: "/admin/ask", label: "Answers", roles: ["owner", "manager"] },

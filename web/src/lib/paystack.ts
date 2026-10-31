@@ -179,3 +179,115 @@ export function verifyWebhookSignature(rawBody: string, signature: string | null
   const given = Buffer.from(signature);
   return expected.length === given.length && timingSafeEqual(expected, given);
 }
+
+/* ── Collecting a deposit (reserving a car) ───────────────────────────── */
+
+/** Paystack refuses a single transaction above this (docs: "10,000,000 for all supported currencies"), in kobo. */
+export const PAYSTACK_MAX_MINOR = 10_000_000 * 100;
+
+/**
+ * Starts a payment on Paystack's hosted checkout and returns the page to send
+ * the buyer to. The reference is ours, so the payment finds its row when it
+ * comes back — by the buyer returning, or by the webhook.
+ */
+export async function initializeTransaction(input: {
+  email: string;
+  amountMinor: number;
+  reference: string;
+  callbackUrl: string;
+  channels?: ("card" | "bank_transfer" | "ussd")[];
+  metadata?: Record<string, unknown>;
+}): Promise<{ authorizationUrl: string; accessCode: string; reference: string }> {
+  const data = await call<{ authorization_url: string; access_code: string; reference: string }>(
+    "/transaction/initialize",
+    {
+      method: "POST",
+      body: {
+        email: input.email,
+        amount: input.amountMinor,
+        currency: "NGN",
+        reference: input.reference,
+        callback_url: input.callbackUrl,
+        channels: input.channels ?? ["card", "bank_transfer"],
+        metadata: input.metadata ?? {},
+      },
+    },
+    "The payment could not be started.",
+  );
+  return { authorizationUrl: data.authorization_url, accessCode: data.access_code, reference: data.reference };
+}
+
+export interface PaymentOutcome {
+  /** success · failed · abandoned · ongoing · pending · processing · reversed … */
+  status: string;
+  reference: string;
+  amountMinor: number;
+  currency: string;
+  channel: string | null;
+  feeMinor: number | null;
+  paidAt: Date | null;
+  /** Who paid, as Paystack saw it: the name on a transfer, or the card's last four digits. */
+  paidBy: string | null;
+}
+
+/** The outcome of a payment, from Paystack's record of it, never from the page the buyer came back to. */
+export async function verifyTransaction(reference: string): Promise<PaymentOutcome> {
+  const data = await call<{
+    status: string;
+    reference: string;
+    amount: number;
+    currency: string;
+    channel?: string | null;
+    fees?: number | null;
+    paid_at?: string | null;
+    authorization?: { last4?: string | null; sender_name?: string | null; sender_bank?: string | null; bank?: string | null; channel?: string | null } | null;
+  }>(`/transaction/verify/${encodeURIComponent(reference)}`, {}, "Could not check the payment.");
+  return paymentOutcome(data);
+}
+
+/** The same reading of a payment, whether it came from verify or from a charge.success webhook. */
+export function paymentOutcome(data: {
+  status: string;
+  reference: string;
+  amount: number;
+  currency: string;
+  channel?: string | null;
+  fees?: number | null;
+  paid_at?: string | null;
+  authorization?: { last4?: string | null; sender_name?: string | null; sender_bank?: string | null; bank?: string | null; channel?: string | null } | null;
+}): PaymentOutcome {
+  const a = data.authorization ?? null;
+  // A transfer names its sender and their bank; a card, its last four digits.
+  const bank = a?.sender_bank ?? a?.bank ?? null;
+  const paidBy = a?.sender_name ? `${a.sender_name}${bank ? `, ${bank}` : ""}` : a?.last4 && data.channel !== "bank_transfer" ? `card ending ${a.last4}` : null;
+  return {
+    status: data.status,
+    reference: data.reference,
+    amountMinor: data.amount,
+    currency: data.currency,
+    channel: data.channel ?? null,
+    feeMinor: typeof data.fees === "number" ? data.fees : null,
+    paidAt: data.paid_at ? new Date(data.paid_at) : null,
+    paidBy,
+  };
+}
+
+/** Sends part of a payment back to the buyer. Paystack's fee is not returned; the refund lands in 3–10 working days. */
+export async function refundTransaction(reference: string, amountMinor: number, note: string): Promise<{ status: string }> {
+  const data = await call<{ status: string }>(
+    "/refund",
+    { method: "POST", body: { transaction: reference, amount: amountMinor, currency: "NGN", customer_note: note, merchant_note: note } },
+    "The refund could not be sent.",
+  );
+  return { status: data.status };
+}
+
+/** Refunds Paystack already holds for a payment, so a retry never sends a second one. */
+export async function refundsFor(reference: string): Promise<{ id: number; status: string; amountMinor: number }[]> {
+  const data = await call<{ id: number; status: string; amount: number }[]>(
+    `/refund?transaction=${encodeURIComponent(reference)}&perPage=20`,
+    {},
+    "Could not check earlier refunds.",
+  );
+  return data.map((r) => ({ id: r.id, status: r.status, amountMinor: r.amount }));
+}

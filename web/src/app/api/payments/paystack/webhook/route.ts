@@ -2,7 +2,8 @@ import { after } from "next/server";
 import { applyTransferEvent } from "@/lib/ledger";
 import { notifyCommissionPaid, notifyPayoutFailed } from "@/lib/ledger-notify";
 import { TRANSFER_STATUSES, type TransferStatus } from "@/lib/ledger-rules";
-import { verifyWebhookSignature } from "@/lib/paystack";
+import { paymentOutcome, verifyWebhookSignature } from "@/lib/paystack";
+import { applyRefundEvent, confirmReservation } from "@/lib/reserve";
 
 /**
  * Paystack's webhook: how a transfer's outcome reaches the ledger when the
@@ -67,7 +68,48 @@ export async function POST(request: Request) {
   }
 
   const event = typeof body.event === "string" ? body.event : "";
-  // Charges, refunds, customer events: not ours. Acknowledged so Paystack does not retry them.
+
+  // A deposit paid on a car (lib/reserve.ts): our `scr_` reference finds the reservation; anything else is acknowledged.
+  if (event === "charge.success") {
+    const data = body.data && typeof body.data === "object" ? (body.data as Record<string, unknown>) : {};
+    const reference = typeof data.reference === "string" ? data.reference : "";
+    if (!reference.startsWith("scr_")) return Response.json({ received: true });
+    try {
+      const outcome = await confirmReservation(
+        paymentOutcome({
+          status: typeof data.status === "string" ? data.status : "",
+          reference,
+          amount: typeof data.amount === "number" ? data.amount : 0,
+          currency: typeof data.currency === "string" ? data.currency : "",
+          channel: typeof data.channel === "string" ? data.channel : null,
+          fees: typeof data.fees === "number" ? data.fees : null,
+          paid_at: typeof data.paid_at === "string" ? data.paid_at : null,
+          authorization: data.authorization && typeof data.authorization === "object" ? (data.authorization as { last4?: string | null; sender_name?: string | null; sender_bank?: string | null; bank?: string | null; channel?: string | null }) : null,
+        }),
+      );
+      return Response.json({ received: true, outcome });
+    } catch (e) {
+      console.error("[paystack webhook] reservation failed", reference, e);
+      return Response.json({ error: "Could not record the deposit." }, { status: 500 });
+    }
+  }
+
+  // A refund we sent on a deposit: failed means the money never moved, and the reservation is put back.
+  if (event.startsWith("refund.")) {
+    const data = body.data && typeof body.data === "object" ? (body.data as Record<string, unknown>) : {};
+    const reference = typeof data.transaction_reference === "string" ? data.transaction_reference : "";
+    if (!reference.startsWith("scr_")) return Response.json({ received: true });
+    const status = event.slice("refund.".length) as "processed" | "failed" | "pending" | "processing" | "needs-attention";
+    try {
+      const outcome = await applyRefundEvent(reference, status, typeof data.reason === "string" ? data.reason : null);
+      return Response.json({ received: true, outcome });
+    } catch (e) {
+      console.error("[paystack webhook] refund event failed", reference, e);
+      return Response.json({ error: "Could not record the refund." }, { status: 500 });
+    }
+  }
+
+  // Customer and other events: not ours. Acknowledged so Paystack does not retry them.
   if (!event.startsWith("transfer.")) return Response.json({ received: true });
 
   const data: TransferData = body.data && typeof body.data === "object" ? (body.data as TransferData) : {};

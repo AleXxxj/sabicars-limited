@@ -148,6 +148,13 @@
       "when": 1793310000000,
       "tag": "0020_reservations",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1793320000000,
+      "tag": "0021_reservation_paid",
+      "breakpoints": true
     }
   ]
 }

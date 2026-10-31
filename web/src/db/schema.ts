@@ -781,6 +781,8 @@ export const reservations = pgTable(
     channel: text("channel"),
     /** Paystack's fee on the payment, in kobo, when known. */
     feeMinor: bigint("fee_minor", { mode: "number" }),
+    /** What was actually received, in kobo, when it differs from the deposit asked for (a short or late payment). */
+    paidMinor: bigint("paid_minor", { mode: "number" }),
     paidAt: timestamp("paid_at", { withTimezone: true }),
     holdsUntil: timestamp("holds_until", { withTimezone: true }),
     refundMinor: bigint("refund_minor", { mode: "number" }),
