@@ -61,7 +61,8 @@ export async function summariseConversation(conversationId: string, partner: { i
     .orderBy(asc(assistantMessages.createdAt));
   if (!rows.length) return;
 
-  const transcript = rows.map((r) => `${r.role === "assistant" ? "Assistant" : "Buyer"}: ${describeDirectives(openMessage(r.content))}`).join("\n");
+  const speaker = (role: string) => (role === "assistant" ? "Assistant" : role === "staff" ? "Sabicars team" : "Buyer");
+  const transcript = rows.map((r) => `${speaker(r.role)}: ${describeDirectives(openMessage(r.content))}`).join("\n");
 
   let extracted: Extracted | null = null;
   if (key) {

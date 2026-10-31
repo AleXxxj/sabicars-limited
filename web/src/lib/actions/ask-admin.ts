@@ -6,6 +6,7 @@ import { z } from "zod";
 import { db } from "@/db";
 import { askAnswers, assistantConversations } from "@/db/schema";
 import { reviewConversations } from "@/lib/assistant/learn";
+import { staffReply } from "@/lib/assistant/seller-room";
 import { audit } from "@/lib/audit";
 import { requireStaff, type StaffMember } from "@/lib/auth";
 import { slugPart } from "@/lib/seo/search-terms";
@@ -148,6 +149,20 @@ export async function reviewNow(): Promise<Result & { reviewed?: number }> {
 }
 
 /** A conversation that asked for a person has had one. */
+/** A person's reply in a "Chat with seller" room. Any role: answering a buyer is the job. */
+export async function replyInConversation(id: string, text: string): Promise<Result> {
+  const me = await requireStaff();
+  const message = text.trim().slice(0, 1500);
+  if (!message) return { ok: false, error: "Write something first." };
+  if (!z.uuid().safeParse(id).success) return { ok: false, error: "That chat is not here any more." };
+  const sent = await staffReply(me, id, message);
+  if (sent.ok) {
+    revalidatePath(`/admin/conversations/${id}`);
+    revalidatePath("/admin/conversations", "layout");
+  }
+  return sent;
+}
+
 export async function markConversationHandled(id: string): Promise<Result> {
   const me = await requireStaff();
   await db

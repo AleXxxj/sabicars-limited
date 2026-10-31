@@ -7,8 +7,10 @@ export const ASK_EVENT = "sabicars:ask";
 
 export interface AskRequest {
   prompt?: string;
+  /** Open as "Chat with seller": the team is told, and Sabi answers only if nobody is free. */
+  seller?: boolean;
 }
 
-export function openAssistant(prompt?: string) {
-  window.dispatchEvent(new CustomEvent<AskRequest>(ASK_EVENT, { detail: { prompt } }));
+export function openAssistant(prompt?: string, options: { seller?: boolean } = {}) {
+  window.dispatchEvent(new CustomEvent<AskRequest>(ASK_EVENT, { detail: { prompt, seller: options.seller } }));
 }

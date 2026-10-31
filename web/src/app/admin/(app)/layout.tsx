@@ -5,6 +5,7 @@ import { can, requireStaff } from "@/lib/auth";
 import { orFallback, timed } from "@/lib/deadline";
 import { signOut } from "@/lib/actions/auth";
 import { adminNavFor, ROLE_LABEL } from "@/lib/admin-nav";
+import { waitingChatsCount } from "@/lib/repositories/ask";
 import { waitingCount } from "@/lib/repositories/leads";
 import { reviewCounts } from "@/lib/repositories/reviews";
 import { pendingCommentCount } from "@/lib/repositories/blog";
@@ -27,8 +28,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   // What is waiting for someone, shown on the section it is waiting in. A badge is worth a few seconds, never the
   // page: a count that does not come back in time shows as nothing, and the page opens.
   const badge = (work: Promise<number>) => timed("badge", orFallback(work, 6000, 0));
-  const [leadsWaiting, reviewsWaiting, commentsWaiting, payoutsReady, errorsOpen] = await Promise.all([
+  const [leadsWaiting, chatsWaiting, reviewsWaiting, commentsWaiting, payoutsReady, errorsOpen] = await Promise.all([
     badge(waitingCount(me.dealerId)),
+    // Buyers in a "Chat with seller" room whose message no person has answered yet.
+    badge(waitingChatsCount(me.dealerId)),
     me.role === "sales" ? 0 : badge(reviewCounts(me.dealerId).then((c) => c.waiting)),
     me.role === "sales" ? 0 : badge(pendingCommentCount(me.dealerId)),
     // Commissions past their cooling-off, waiting for a manager to pay them.
@@ -38,6 +41,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   ]);
   const badges: Record<string, number> = {
     "/admin/leads": leadsWaiting,
+    "/admin/conversations": chatsWaiting,
     "/admin/reviews": reviewsWaiting,
     "/admin/blog": commentsWaiting,
     "/admin/payouts": payoutsReady,

@@ -1,4 +1,5 @@
 import { answerInTime, fromScheduler } from "@/lib/cron";
+import { releaseStaleRooms } from "@/lib/assistant/seller-room";
 import { sealBacklog } from "@/lib/assistant/vault";
 import { drainOutbox, pruneOutbox } from "@/lib/email";
 
@@ -22,6 +23,9 @@ export async function GET(request: Request) {
     const pruned = hourly ? await pruneOutbox() : 0;
     // Chat messages written before the chat key existed are sealed, a batch an hour, until none are left.
     const sealed = hourly ? await sealBacklog() : 0;
+    // A seller chat whose buyer left before anyone answered stops waiting after a day.
+    const released = hourly ? await releaseStaleRooms() : 0;
+    if (released) console.log(`[outbox] ${released} stale chat room${released === 1 ? "" : "s"} released`);
     return { ...result, pruned, sealed };
   })();
   return answerInTime("/api/cron/outbox", work, (result) => Response.json({ ok: true, ...result }));

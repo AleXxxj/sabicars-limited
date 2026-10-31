@@ -747,6 +747,67 @@ export const commissions = pgTable(
   ],
 );
 
+export const reservationStatus = pgEnum("reservation_status", ["pending", "held", "expired", "completed", "refunded", "cancelled"]);
+
+/**
+ * A car reserved with a deposit (lib/reservations.ts holds the policy):
+ * ₦500,000 holds it a week, 40% or more a month, a refund costs 18%. One
+ * live row per car — pending or held — so two buyers can never both be
+ * holding it, online or in the showroom. The reference is ours (`scr_…`) and
+ * is also what Paystack is given, so a payment can be matched to its row.
+ */
+export const reservations = pgTable(
+  "reservations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    dealerId: uuid("dealer_id").notNull().references(() => dealers.id),
+    vehicleId: uuid("vehicle_id").notNull().references(() => vehicles.id),
+    /** The enquiry row the reservation created, so it sits in the one inbox. */
+    leadId: uuid("lead_id").references(() => leads.id, { onDelete: "set null" }),
+    buyerName: text("buyer_name").notNull(),
+    buyerPhone: text("buyer_phone").notNull(),
+    buyerEmail: text("buyer_email"),
+    /** The deposit, in kobo. */
+    amountMinor: bigint("amount_minor", { mode: "number" }).notNull(),
+    /** The car's price when the deposit was taken, so the 40% rule is judged against what the buyer saw. */
+    priceMinor: bigint("price_minor", { mode: "number" }).notNull(),
+    holdDays: integer("hold_days").notNull(),
+    status: reservationStatus("status").notNull().default("pending"),
+    /** Ours, and Paystack's: `scr_` plus random letters. */
+    reference: text("reference").notNull(),
+    /** online: paid through Paystack · showroom: a deposit taken by staff and recorded here. */
+    source: text("source").notNull().default("online"),
+    /** card · bank_transfer · ussd · cash · bank (showroom). */
+    channel: text("channel"),
+    /** Paystack's fee on the payment, in kobo, when known. */
+    feeMinor: bigint("fee_minor", { mode: "number" }),
+    paidAt: timestamp("paid_at", { withTimezone: true }),
+    holdsUntil: timestamp("holds_until", { withTimezone: true }),
+    refundMinor: bigint("refund_minor", { mode: "number" }),
+    refundedAt: timestamp("refunded_at", { withTimezone: true }),
+    /** When a hold ended or was cancelled, so the car went back on offer. */
+    releasedAt: timestamp("released_at", { withTimezone: true }),
+    note: text("note"),
+    createdBy: uuid("created_by").references(() => staff.id, { onDelete: "set null" }),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [
+    uniqueIndex("reservations_reference_idx").on(t.reference),
+    /** One buyer holds a car at a time; a finished reservation steps aside for the next. */
+    uniqueIndex("reservations_one_per_vehicle_idx").on(t.vehicleId).where(sql`${t.status} IN ('pending', 'held')`),
+    index("reservations_dealer_status_idx").on(t.dealerId, t.status, t.createdAt),
+    check("reservations_source", sql`${t.source} IN ('online', 'showroom')`),
+    check("reservations_amount_positive", sql`${t.amountMinor} > 0`),
+    check("reservations_amount_within_price", sql`${t.amountMinor} <= ${t.priceMinor}`),
+    check("reservations_hold_days", sql`${t.holdDays} BETWEEN 1 AND 31`),
+    check("reservations_held_has_dates", sql`${t.status} NOT IN ('held', 'completed', 'expired', 'refunded') OR (${t.paidAt} IS NOT NULL AND ${t.holdsUntil} IS NOT NULL)`),
+    check("reservations_refund_has_amount", sql`${t.status} <> 'refunded' OR (${t.refundedAt} IS NOT NULL AND ${t.refundMinor} IS NOT NULL)`),
+  ],
+);
+
+export type Reservation = typeof reservations.$inferSelect;
+
 /**
  * Every attempt to pay a commission, by Paystack transfer or by a bank
  * transfer made outside the platform and recorded here. The reference is
@@ -1044,6 +1105,18 @@ export const assistantConversations = pgTable(
      * can be. Never a phone number: anyone can type someone else's.
      */
     deviceId: text("device_id"),
+    /**
+     * "assistant": the buyer talks to Sabi. "seller": the buyer asked for the
+     * team — people reply from the admin, and Sabi steps in only when nobody is
+     * free within the typical wait (lib/assistant/seller.ts).
+     */
+    mode: text("mode").notNull().default("assistant"),
+    /** A buyer's message in a seller chat is waiting for a person since then; null once someone (or Sabi) answered. */
+    awaitingSince: timestamp("awaiting_since", { withTimezone: true }),
+    /** The last time a member of staff wrote in the chat: a person is "in the room" for a few minutes after. */
+    lastStaffAt: timestamp("last_staff_at", { withTimezone: true }),
+    /** When staff phones were last pinged about this chat, so a quick typist does not ring them every line. */
+    staffAlertedAt: timestamp("staff_alerted_at", { withTimezone: true }),
     createdAt: createdAt(),
     lastMessageAt: timestamp("last_message_at", { withTimezone: true }).notNull().defaultNow(),
   },
@@ -1051,6 +1124,8 @@ export const assistantConversations = pgTable(
     index("assistant_conversations_recent_idx").on(t.dealerId, t.lastMessageAt),
     index("assistant_conversations_ip_idx").on(t.ipHash, t.lastMessageAt),
     index("assistant_conversations_device_idx").on(t.deviceId, t.lastMessageAt).where(sql`${t.deviceId} IS NOT NULL`),
+    index("assistant_conversations_awaiting_idx").on(t.dealerId, t.awaitingSince).where(sql`${t.awaitingSince} IS NOT NULL`),
+    check("assistant_conversations_mode", sql`${t.mode} IN ('assistant', 'seller')`),
   ],
 );
 
@@ -1061,14 +1136,17 @@ export const assistantMessages = pgTable(
     conversationId: uuid("conversation_id")
       .notNull()
       .references(() => assistantConversations.id, { onDelete: "cascade" }),
+    /** user (the buyer), assistant (Sabi), or staff (a person on the team, in a seller chat). */
     role: text("role").notNull(),
     /** As the model wrote it, directives included, so it sees what it showed. */
     content: text("content").notNull(),
+    /** Who on the team wrote a staff message, so the buyer sees a name. */
+    staffId: uuid("staff_id").references(() => staff.id, { onDelete: "set null" }),
     createdAt: createdAt(),
   },
   (t) => [
     index("assistant_messages_conversation_idx").on(t.conversationId, t.createdAt),
-    check("assistant_messages_role", sql`${t.role} IN ('user', 'assistant')`),
+    check("assistant_messages_role", sql`${t.role} IN ('user', 'assistant', 'staff')`),
   ],
 );
 

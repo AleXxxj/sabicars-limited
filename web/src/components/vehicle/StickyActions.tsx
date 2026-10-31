@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Check, Phone, Sparkles } from "lucide-react";
+import { Check, MessageCircle, Phone } from "lucide-react";
 import { AskButton } from "@/components/assistant/AskButton";
 import { ButtonAnchor } from "@/components/ui/Button";
 import { ENQUIRED_EVENT } from "./enquired";
@@ -112,12 +112,13 @@ export function StickyActions({ title, price, phone }: { title: string; price: s
         >
           <Phone aria-hidden size={18} />
         </a>
+        {/* The team, in the chat — Sabi answers if nobody is free — the same room as "Chat with seller" under the photos. */}
         <AskButton
-          prompt={`Tell me about the ${title}`}
-          label={`Ask Sabicars about the ${title}`}
+          seller
+          label={`Chat with the seller about the ${title}`}
           className="inline-flex min-h-12 items-center gap-1.5 rounded-full border border-green-500/40 px-4 text-sm font-semibold text-green-200"
         >
-          <Sparkles aria-hidden size={16} /> Ask
+          <MessageCircle aria-hidden size={16} /> Chat
         </AskButton>
         {/* Plain anchors, not next/link: a second tap on the same hash must scroll again, and Link's same-page navigation does not. */}
         {reference ? (

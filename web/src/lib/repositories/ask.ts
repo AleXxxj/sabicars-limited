@@ -2,7 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { and, asc, count, desc, eq, isNotNull, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { askAnswers, assistantConversations, assistantMessages, leads, vehicles, type AskAnswer } from "@/db/schema";
+import { askAnswers, assistantConversations, assistantMessages, leads, staff, vehicles, type AskAnswer } from "@/db/schema";
 import { openMessage } from "@/lib/assistant/vault";
 import { sabicarsDealerId } from "@/lib/leads";
 
@@ -44,7 +44,7 @@ export async function answerById(id: string): Promise<AskAnswer | null> {
   return row ?? null;
 }
 
-export type ConversationView = "all" | "leads" | "person";
+export type ConversationView = "all" | "waiting" | "leads" | "person";
 
 export interface ConversationRow {
   id: string;
@@ -59,6 +59,10 @@ export interface ConversationRow {
   leadName: string | null;
   vehiclesShown: string[];
   firstQuestion: string | null;
+  /** "seller": the buyer asked for the team; "assistant": a chat with Sabi. */
+  mode: string;
+  /** A buyer's message is waiting for a person since then. */
+  awaitingSince: Date | null;
 }
 
 export async function conversations(view: ConversationView, limit = 60): Promise<ConversationRow[]> {
@@ -66,6 +70,7 @@ export async function conversations(view: ConversationView, limit = 60): Promise
   const where = [eq(assistantConversations.dealerId, dealerId), sql`${assistantConversations.messageCount} > 0`];
   if (view === "leads") where.push(isNotNull(assistantConversations.leadId));
   if (view === "person") where.push(eq(assistantConversations.needsHuman, true));
+  if (view === "waiting") where.push(isNotNull(assistantConversations.awaitingSince));
   const firstQuestion = sql<string | null>`(
     select ${assistantMessages.content} from ${assistantMessages}
     where ${assistantMessages.conversationId} = ${assistantConversations.id} and ${assistantMessages.role} = 'user'
@@ -85,11 +90,14 @@ export async function conversations(view: ConversationView, limit = 60): Promise
       leadName: leads.name,
       vehiclesShown: assistantConversations.vehiclesShown,
       firstQuestion,
+      mode: assistantConversations.mode,
+      awaitingSince: assistantConversations.awaitingSince,
     })
     .from(assistantConversations)
     .leftJoin(leads, eq(leads.id, assistantConversations.leadId))
     .where(and(...where))
-    .orderBy(desc(assistantConversations.lastMessageAt))
+    // A buyer waiting for a person comes first, longest wait at the top; then the rest, newest first.
+    .orderBy(sql`${assistantConversations.awaitingSince} asc nulls last`, desc(assistantConversations.lastMessageAt))
     .limit(limit);
   return rows.map((r) => ({ ...r, firstQuestion: r.firstQuestion ? openMessage(r.firstQuestion) : null }));
 }
@@ -99,12 +107,22 @@ export async function conversationCounts(): Promise<Record<ConversationView, num
   const [row] = await db
     .select({
       all: count(),
+      waiting: sql<number>`count(*) filter (where ${assistantConversations.awaitingSince} is not null)::int`,
       leads: sql<number>`count(*) filter (where ${assistantConversations.leadId} is not null)::int`,
       person: sql<number>`count(*) filter (where ${assistantConversations.needsHuman})::int`,
     })
     .from(assistantConversations)
     .where(and(eq(assistantConversations.dealerId, dealerId), sql`${assistantConversations.messageCount} > 0`));
-  return { all: row.all, leads: row.leads, person: row.person };
+  return { all: row.all, waiting: row.waiting, leads: row.leads, person: row.person };
+}
+
+/** Seller chats where a buyer's message is waiting for a person: the badge on Conversations. */
+export async function waitingChatsCount(dealerId: string): Promise<number> {
+  const [row] = await db
+    .select({ n: count() })
+    .from(assistantConversations)
+    .where(and(eq(assistantConversations.dealerId, dealerId), isNotNull(assistantConversations.awaitingSince)));
+  return row?.n ?? 0;
 }
 
 export async function conversationDetail(id: string) {
@@ -122,7 +140,13 @@ export async function conversationDetail(id: string) {
     .limit(1);
   if (!conversation) return null;
   const messages = await db
-    .select()
+    .select({
+      id: assistantMessages.id,
+      role: assistantMessages.role,
+      content: assistantMessages.content,
+      createdAt: assistantMessages.createdAt,
+      staffName: sql<string | null>`(select nullif(split_part(btrim(${staff.fullName}), ' ', 1), '') from ${staff} where ${staff.id} = ${assistantMessages.staffId})`,
+    })
     .from(assistantMessages)
     .where(eq(assistantMessages.conversationId, id))
     .orderBy(asc(assistantMessages.createdAt));

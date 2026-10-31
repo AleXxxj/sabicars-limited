@@ -29,7 +29,7 @@ test.describe("A car's page", () => {
     const status = page.getByText(/This vehicle has been sold|Reserved — a buyer has placed a deposit/);
     if (price === "Price on request") {
       // No price, no plan: the enquiry form is the way to ask.
-      await expect(page.getByRole("link", { name: "Enquire about this vehicle" }), "a car on request offers no way to enquire").toBeVisible();
+      await expect(page.getByRole("button", { name: "Chat with seller" }), "a car on request offers no way to reach the seller").toBeVisible();
     } else if (await status.count()) {
       await expect(status, "the car's status note is not shown").toBeVisible();
     } else {
@@ -64,10 +64,10 @@ test.describe("A car's page", () => {
     const faults = watchForFaults(page);
     test.skip((await stockCount(page)) === 0, "The site has no vehicles in stock");
     await openFirstVehicle(page);
-    // The enquiry is a sheet over the page, opened by the button under the photos; the page itself goes on to similar cars.
+    // The enquiry is a sheet over the page, opened by the links under the photos; the page itself goes on to similar cars.
     await expect(page.getByRole("heading", { name: /^Interested in the / }), "the enquiry sheet should be closed on arrival").toBeHidden();
-    await page.getByRole("link", { name: "Enquire about this vehicle" }).click();
-    await expect(page.getByRole("heading", { name: /^Interested in the / }), "the Enquire button did not open the enquiry sheet").toBeVisible();
+    await page.getByRole("link", { name: "leave your number and we call you" }).click();
+    await expect(page.getByRole("heading", { name: /^Interested in the / }), "the call-back link did not open the enquiry sheet").toBeVisible();
     // The three ways sit side by side on the card, none hiding another.
     const card = page.locator("#enquiry-card");
     for (const way of ["Call me back", "Ask a question", "Book a viewing"]) {
@@ -111,6 +111,19 @@ test.describe("A car's page", () => {
     assertNoFaults(faults);
   });
 
+  test("'Chat with seller' opens a room with the team, not a question for Sabi", async ({ page }) => {
+    const faults = watchForFaults(page);
+    test.skip((await stockCount(page)) === 0, "The site has no vehicles in stock");
+    await openFirstVehicle(page);
+    await page.getByRole("button", { name: "Chat with seller" }).click();
+    const room = page.getByRole("dialog", { name: "Sabicars team" });
+    await expect(room, "'Chat with seller' did not open the chat as a room with the team").toBeVisible();
+    await expect(room.getByText(/A person replies when free/), "the room does not say a person replies and Sabi only steps in").toBeVisible();
+    await expect(room.getByPlaceholder("Write to the team…"), "the room has no message box").toBeVisible();
+    // Nothing is sent: a message here would ping the team's phones.
+    assertNoFaults(faults);
+  });
+
   test("the calendar file route answers only real viewing references", async ({ request }) => {
     const res = await request.get("/api/viewings/SC-RECEIVED/calendar.ics");
     expect(res.status(), "an unknown reference should be refused with 404").toBe(404);
@@ -127,7 +140,7 @@ test.describe("A car's page", () => {
     await expect(page.locator('a[href^="tel:"]').first(), "the car page has no call link").toBeAttached();
     // Call me back: one field, the way the enquiry card opens on. Sent the way looksAutomated() recognises
     // a bot, so the server answers with the decoy and writes nothing — a real number here would ring the showroom.
-    await page.getByRole("link", { name: "Enquire about this vehicle" }).click();
+    await page.getByRole("link", { name: "leave your number and we call you" }).click();
     const form = page.locator("#enquiry-card").filter({ has: page.getByRole("button", { name: "Call me back" }) });
     await expect(form, "the car page has no Call me back form").toBeAttached();
     await form.locator('input[name="phone"]').fill("0803 000 0000");

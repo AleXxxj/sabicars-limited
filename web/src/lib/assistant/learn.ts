@@ -113,7 +113,7 @@ export async function reviewConversations(dealerId: string, until = new Date()):
     .orderBy(asc(assistantMessages.createdAt));
   const byConversation = new Map<string, string[]>();
   for (const r of rows) {
-    const line = `${r.role === "assistant" ? "Assistant" : "Buyer"}: ${describeDirectives(openMessage(r.content))}`;
+    const line = `${r.role === "assistant" ? "Assistant" : r.role === "staff" ? "Sabicars team" : "Buyer"}: ${describeDirectives(openMessage(r.content))}`;
     byConversation.set(r.conversationId, [...(byConversation.get(r.conversationId) ?? []), line]);
   }
   const transcripts = convs

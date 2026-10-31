@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { LiveRefresh } from "@/components/admin/LiveRefresh";
 import { requireStaff } from "@/lib/auth";
 import { conversationCounts, conversations, type ConversationView } from "@/lib/repositories/ask";
 
@@ -7,7 +8,7 @@ export const metadata: Metadata = { title: "Conversations · Admin", robots: { i
 
 type Props = { searchParams: Promise<{ view?: string }> };
 
-const VIEWS: Record<ConversationView, string> = { all: "All chats", person: "Want a person", leads: "Became enquiries" };
+const VIEWS: Record<ConversationView, string> = { all: "All chats", waiting: "Waiting for a person", person: "Want a call", leads: "Became enquiries" };
 
 const when = (d: Date) =>
   new Date(d).toLocaleString("en-NG", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit", timeZone: "Africa/Lagos" });
@@ -47,15 +48,19 @@ export default async function ConversationsAdmin({ searchParams }: Props) {
             }`}
           >
             {VIEWS[v]}{" "}
-            <span className={`figures text-xs ${v === "person" && counts.person ? "text-accent-text" : "text-text-muted"}`}>
+            <span className={`figures text-xs ${(v === "person" && counts.person) || (v === "waiting" && counts.waiting) ? "text-accent-text" : "text-text-muted"}`}>
               {counts[v]}
             </span>
           </Link>
         ))}
       </nav>
 
+      {/* A buyer may be waiting for a person: the list keeps itself current while it is open. */}
+      <LiveRefresh everyMs={counts.waiting ? 10_000 : 60_000} />
       {rows.length === 0 ? (
-        <p className="py-16 text-center text-text-muted">No conversations yet. They appear here as buyers use Ask Sabicars.</p>
+        <p className="py-16 text-center text-text-muted">
+          {view === "waiting" ? "Nobody is waiting for a person right now." : "No conversations yet. They appear here as buyers use Ask Sabicars."}
+        </p>
       ) : (
         <ul className="mt-6 grid gap-3">
           {rows.map((c) => (
@@ -66,11 +71,15 @@ export default async function ConversationsAdmin({ searchParams }: Props) {
               >
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-text-muted">
                   <span>{when(c.lastMessageAt)}</span>
-                  <span>
-                    · {c.messageCount / 2} {c.messageCount === 2 ? "question" : "questions"}
-                  </span>
+                  <span>· {c.mode === "seller" ? `${c.messageCount} messages` : `${c.messageCount / 2} ${c.messageCount === 2 ? "question" : "questions"}`}</span>
                   {c.vehiclesShown.length > 0 && <span>· {c.vehiclesShown.length} cars shown</span>}
                   {c.landingPath && <span>· from {c.landingPath}</span>}
+                  {c.awaitingSince && (
+                    <span className="rounded-full bg-orange-500/15 px-2 py-0.5 font-semibold text-orange-200">Waiting for a person since {when(c.awaitingSince)}</span>
+                  )}
+                  {c.mode === "seller" && !c.awaitingSince && (
+                    <span className="rounded-full bg-white/[0.06] px-2 py-0.5 font-semibold text-text-secondary">Chat with seller</span>
+                  )}
                   {c.needsHuman && (
                     <span className="rounded-full bg-green-500/15 px-2 py-0.5 font-semibold text-green-200">Wants a person</span>
                   )}

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, BadgeCheck, BellRing, Fuel, Gauge, Phone, Search, Settings2, Sparkles, type LucideIcon } from "lucide-react";
+import { ArrowRight, BadgeCheck, BellRing, Fuel, Gauge, MessageCircle, Phone, Search, Settings2, Sparkles, type LucideIcon } from "lucide-react";
 import { notFound } from "next/navigation";
 import { AskButton } from "@/components/assistant/AskButton";
 import { ButtonAnchor } from "@/components/ui/Button";
@@ -200,15 +200,27 @@ export default async function VehiclePage({ params }: Props) {
                 </ButtonAnchor>
               ) : (
                 <>
-                  <ButtonAnchor href="#enquire" size="lg" arrow>
-                    Enquire about this vehicle
-                  </ButtonAnchor>
+                  {/* A person, in the chat, with Sabi answering if nobody is free: the quickest honest way to a seller. */}
+                  <AskButton
+                    seller
+                    className="group inline-flex min-h-14 items-center justify-center gap-2.5 rounded-full bg-[linear-gradient(180deg,var(--orange-400)_0%,var(--orange-500)_100%)] px-8 font-sans text-base font-semibold text-[#090E0A] shadow-[inset_0_1px_0_rgb(255_255_255/0.35),0_12px_32px_-12px_rgb(247_128_30/0.55)] transition-[filter,box-shadow,transform] active:scale-[0.98] hover:brightness-[1.06]"
+                  >
+                    <MessageCircle aria-hidden size={18} strokeWidth={1.75} /> Chat with seller
+                  </AskButton>
                   <ButtonAnchor href="#book-viewing" size="lg" variant="secondary">
                     Book a viewing
                   </ButtonAnchor>
                   <ButtonAnchor href={`tel:${site.phones[0].e164}`} size="lg" variant="secondary" className="max-lg:hidden">
                     <Phone aria-hidden size={18} strokeWidth={1.75} /> Call {site.phones[0].display}
                   </ButtonAnchor>
+                  {/* The other ways in — a call-back from a number alone, a written question — live in the enquiry sheet. */}
+                  <p className="text-center text-sm text-text-muted">
+                    Or{" "}
+                    <a href="#call-me-back" className="font-semibold text-green-300 underline-offset-4 hover:underline">
+                      leave your number and we call you
+                    </a>
+                    .
+                  </p>
                 </>
               )}
             </div>
