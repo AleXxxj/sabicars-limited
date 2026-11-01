@@ -460,7 +460,7 @@ export default async function VehiclePage({ params }: Props) {
 
       {/* Phones: the price and the next step within thumb reach — above the tab bar, never under it — and out of
           the way while the page's own buttons are on screen or the sheet is open (StickyActions). */}
-      {!sold && <StickyActions title={title} price={priceLabel(v)} phone={site.phones[0]} />}
+      {!sold && <StickyActions title={title} phone={site.phones[0]} />}
 
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript({ "@context": "https://schema.org", ...dealerJsonLd() }) }} />
     </article>
