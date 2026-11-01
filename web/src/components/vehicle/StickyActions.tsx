@@ -7,42 +7,45 @@ import { ButtonAnchor } from "@/components/ui/Button";
 import { ENQUIRED_EVENT } from "./enquired";
 import { SHEET_EVENT } from "./EnquirySheet";
 
-/** Why the bar is out of sight: it would cut into the page's own row of buttons, or the page has reached other cars. */
+/** Why the bar is out of sight: the page's own buttons are in view, or the page has reached other cars. */
 type Away = "row" | "similar" | null;
 
+/** Up to this far down the page counts as "on arrival": the bar is up whatever lies under it. */
+const TOP_PX = 8;
+
 /**
- * The band of the viewport the bar covers. From the bar itself when it is in the document: the window's height
- * less its offset from the bottom (the tab bar and the home indicator) and its own height — transforms do not
- * change offsetHeight, so this holds while the bar is slid away. On the first render of a client-side
- * navigation the bar is not in the document yet, so its place is read off the tab bar instead: the bar's
- * bottom edge sits on the tab bar's content, just under its 1px border, and its height is its classes
- * (py-2.5, min-h-12, a 1px border: 4.25rem + 1px).
+ * The bar's top edge in the viewport. From the bar itself when it is in the document: the window's height less
+ * its offset from the bottom (the tab bar and the home indicator) and its own height — transforms do not change
+ * offsetHeight, so this holds while the bar is slid away. On the first render of a client-side navigation the
+ * bar is not in the document yet, so its place is read off the tab bar instead: the bar's bottom edge sits on
+ * the tab bar's content, just under its 1px border, and its height is its classes (py-2.5, min-h-12, a 1px
+ * border: 4.25rem + 1px).
  */
-function barBand(bar: HTMLElement | null, tab: HTMLElement) {
-  if (bar) {
-    const bottom = window.innerHeight - parseFloat(getComputedStyle(bar).bottom);
-    return { top: bottom - bar.offsetHeight, bottom };
-  }
+function barTop(bar: HTMLElement | null, tab: HTMLElement) {
+  if (bar) return window.innerHeight - parseFloat(getComputedStyle(bar).bottom) - bar.offsetHeight;
   const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
-  const bottom = tab.getBoundingClientRect().top + 1;
-  return { top: bottom - (4.25 * rem + 1), bottom };
+  return tab.getBoundingClientRect().top + 1 - (4.25 * rem + 1);
 }
 
 /**
- * What stands in the bar's way right now. The row under the photo (Reserve, Book a viewing, Chat with seller,
- * and the call-back line) counts only while the bar would lie over any of it — the bar never cuts the row;
- * above the bar or under the tab bar, the row is left alone and the bar is up. "Similar vehicles" counts from
- * the moment its top edge comes into view, and from there on the page is about other cars, so the bar stays
- * away. Nothing on a laptop, where there is no tab bar.
+ * What stands in the bar's way right now. On arrival, nothing: the bar is up, and the three buttons under the
+ * photo sit beneath it if that is where they fall. Once the buyer has scrolled, the buttons count while any of
+ * them is in view above the bar and below the sticky header — the bar never doubles them — and the bar is back
+ * as soon as they have gone over the top, call-back line or not. "Similar vehicles" counts from the moment its
+ * top edge comes into view, and from there on the page is about other cars, so the bar stays away. Nothing on a
+ * laptop, where there is no tab bar.
  */
 function read(): Away {
   const tab = document.querySelector<HTMLElement>('nav[aria-label="Quick"]');
   if (!tab || !tab.offsetHeight) return null;
-  const band = barBand(document.querySelector<HTMLElement>("[data-ask-dock]"), tab);
-  const row = document.getElementById("primary-actions")?.getBoundingClientRect();
-  if (row && row.bottom > band.top && row.top < band.bottom) return "row";
+  const top = barTop(document.querySelector<HTMLElement>("[data-ask-dock]"), tab);
+  if (window.scrollY > TOP_PX) {
+    const header = document.querySelector("header")?.getBoundingClientRect().bottom ?? 0;
+    const buttons = document.querySelector("#primary-actions [data-buttons]")?.getBoundingClientRect();
+    if (buttons && buttons.top < top && buttons.bottom > header) return "row";
+  }
   const similar = document.getElementById("similar")?.getBoundingClientRect();
-  if (similar && similar.top < band.top) return "similar";
+  if (similar && similar.top < top) return "similar";
   return null;
 }
 
@@ -71,25 +74,26 @@ const yes = () => true;
 const no = () => false;
 
 /*
- * The same reading, run by the browser as the page is parsed, before React is on the page: where the row would
- * lie under the bar on the first screen, the bar must not paint over it for even a frame. It marks <html>, and
- * a rule in globals.css keeps the bar away until this component is ready and reads for itself. On a client-side
- * navigation React does not run inline scripts, and the first render reads the page instead. The tab bar is not
- * parsed yet at this point, so the bar's own box gives its place.
+ * The same reading, run by the browser as the page is parsed, before React is on the page. A fresh arrival is at
+ * the top, where the bar is up; this matters when the browser brings the page back scrolled (a restored scroll
+ * position, the back button) with the buttons in view, where the bar must not paint over them for even a frame.
+ * It marks <html>, and a rule in globals.css keeps the bar away until this component is ready and reads for
+ * itself. On a client-side navigation React does not run inline scripts, and the first render reads the page
+ * instead. The tab bar is not parsed yet at this point, so the bar's own box gives its place.
  */
 const FIRST_PAINT =
-  '(function(){var r=document.getElementById("primary-actions"),b=document.querySelector("[data-ask-dock]");if(!r||!b)return;' +
-  'var s=getComputedStyle(b);if(s.display==="none")return;var e=innerHeight-parseFloat(s.bottom),t=e-b.offsetHeight,x=r.getBoundingClientRect();' +
-  'if(x.bottom>t&&x.top<e)document.documentElement.setAttribute("data-car-row","on-screen")})();';
+  `(function(){if(scrollY<=${TOP_PX})return;var r=document.querySelector("#primary-actions [data-buttons]"),b=document.querySelector("[data-ask-dock]"),h=document.querySelector("header");if(!r||!b)return;` +
+  'var s=getComputedStyle(b);if(s.display==="none")return;var t=innerHeight-parseFloat(s.bottom)-b.offsetHeight,x=r.getBoundingClientRect(),y=h?h.getBoundingClientRect().bottom:0;' +
+  'if(x.top<t&&x.bottom>y)document.documentElement.setAttribute("data-car-row","on-screen")})();';
 
 /**
  * The phone bar on a car's page: Call, a chat with the team, and a written question (the enquiry sheet,
- * opened on "Ask a question"). Nothing else: no name, no price, the page has those. It is in sight on arrival
- * and never cuts into the page's own row of buttons: it slides away while it would lie over any of the row and
- * comes back as soon as the row is clear of it, above or below. It goes for good once "Similar vehicles" comes
- * into view, and steps aside while the enquiry sheet is open. Solid, not glass: an orange button scrolling
- * under a see-through bar lit the whole bar orange, which read as a broken page. Once an enquiry is saved,
- * "Enquire" becomes the reference.
+ * opened on "Ask a question"). Nothing else: no name, no price, the page has those. It is up on arrival; once
+ * the buyer has scrolled it slides away while the three buttons under the photo are in view above it, so the
+ * two never double up, and it is back as soon as those buttons have gone. It goes for good once "Similar
+ * vehicles" comes into view, and steps aside while the enquiry sheet is open. Solid, not glass: an orange
+ * button scrolling under a see-through bar lit the whole bar orange, which read as a broken page. Once an
+ * enquiry is saved, "Enquire" becomes the reference.
  *
  * Phones only (lg:hidden); on a laptop the buttons sit in the sticky column.
  * The data-ask-dock mark keeps the floating Ask launcher away on this page.

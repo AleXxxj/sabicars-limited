@@ -140,7 +140,8 @@ export default async function VehiclePage({ params }: Props) {
       </ButtonAnchor>
     ) : (
       <>
-        <div className={`grid gap-2 ${canReserve ? "grid-cols-3" : "grid-cols-2"}`}>
+        {/* data-buttons: the phone bar (StickyActions) watches this grid, not the call-back line under it. */}
+        <div data-buttons className={`grid gap-2 ${canReserve ? "grid-cols-3" : "grid-cols-2"}`}>
           {/* The buyer who is ready: a deposit holds the car (lib/reservations.ts). */}
           {canReserve && (
             <ButtonLink href={`/reserve/${v.slug}`} arrow={false} className="min-h-14 !px-2 text-center !text-sm !whitespace-normal leading-tight">
@@ -251,8 +252,8 @@ export default async function VehiclePage({ params }: Props) {
             </div>
 
             {/* The next step: in the sticky column on a laptop, and on a phone straight under the car's photo
-                (the gallery's `between` slot). The phone bar (StickyActions) never cuts into this row: it slides
-                away while it would lie over any of the row and is up whenever the row is clear of it.
+                (the gallery's `between` slot). The phone bar (StickyActions) is up on arrival, slides away once the
+                buyer has scrolled and the three buttons are in view above it, and is back as soon as they have gone.
                 Rendered by `actions` below; the phone copy carries the id the bar watches. */}
             <div className="mt-6 flex flex-col gap-3 max-lg:hidden">{actions(false)}</div>
 

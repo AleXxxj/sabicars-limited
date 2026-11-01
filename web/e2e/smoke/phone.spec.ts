@@ -37,30 +37,32 @@ test.describe("On a phone", () => {
     assertNoFaults(faults);
   });
 
-  test("a car's phone bar never cuts into its row of buttons, and is up whenever it is clear of it", async ({ page }) => {
+  test("a car's phone bar is up on arrival, steps aside for the three buttons once scrolled, and is back once they have gone", async ({ page }) => {
     const faults = watchForFaults(page);
     test.skip((await stockCount(page)) === 0, "The site has no vehicles in stock");
     await openFirstVehicle(page);
-    // Scroll positions around the row (clear below the bar, under the bar, clear above it, scrolled past) and
-    // around "Similar vehicles", from the top of the page to its end.
+    // Scroll positions: the top, the buttons under the bar, cut by its top edge, clear above it, half behind the
+    // header, gone with the call-back line still showing, and around "Similar vehicles", to the end of the page.
     const stops = await page.evaluate(() => {
       const y = window.scrollY;
       const b = document.querySelector<HTMLElement>("[data-ask-dock]")!;
-      const barBottom = window.innerHeight - parseFloat(getComputedStyle(b).bottom);
-      const barTop = barBottom - b.offsetHeight;
-      const row = document.querySelector("#primary-actions")!.getBoundingClientRect();
+      const barTop = window.innerHeight - parseFloat(getComputedStyle(b).bottom) - b.offsetHeight;
+      const header = document.querySelector("header")!.getBoundingClientRect().bottom;
+      const buttons = document.querySelector("#primary-actions [data-buttons]")!.getBoundingClientRect();
+      const line = document.querySelector("#primary-actions p")!.getBoundingClientRect();
       const similar = document.querySelector("#similar")?.getBoundingClientRect();
       const list = [
         0,
-        y + row.top - window.innerHeight + 20,
-        y + row.top - barBottom + 10,
-        y + row.bottom - barTop - 20,
-        y + row.bottom - barTop + 10,
-        y + row.top - 150,
-        y + row.top,
-        y + row.bottom - 10,
-        y + row.bottom + 10,
-        y + row.bottom + 400,
+        y + buttons.top - window.innerHeight + 20,
+        y + buttons.top - barTop - 10,
+        y + buttons.top - barTop + 10,
+        y + buttons.bottom - barTop + 10,
+        y + buttons.top - 150,
+        y + buttons.top - header - 1,
+        y + buttons.bottom - header - 10,
+        y + buttons.bottom - header + 2,
+        y + line.bottom - header - 4,
+        y + line.bottom + 400,
       ];
       if (similar) list.push(y + similar.top - window.innerHeight + 20, y + similar.top - 120, y + similar.top, y + similar.top + 300);
       list.push(document.documentElement.scrollHeight);
@@ -70,19 +72,22 @@ test.describe("On a phone", () => {
     const state = () =>
       page.evaluate(() => {
         const b = document.querySelector<HTMLElement>("[data-ask-dock]")!;
-        const barBottom = window.innerHeight - parseFloat(getComputedStyle(b).bottom);
-        const barTop = barBottom - b.offsetHeight;
-        const row = document.querySelector("#primary-actions")!.getBoundingClientRect();
+        const barTop = window.innerHeight - parseFloat(getComputedStyle(b).bottom) - b.offsetHeight;
+        const header = document.querySelector("header")!.getBoundingClientRect().bottom;
+        const buttons = document.querySelector("#primary-actions [data-buttons]")!.getBoundingClientRect();
         const similar = document.querySelector("#similar")?.getBoundingClientRect();
-        const underBar = row.bottom > barTop && row.top < barBottom;
+        const scrolled = window.scrollY > 8;
+        const buttonsInView = buttons.top < barTop && buttons.bottom > header;
         const pastSimilar = Boolean(similar && similar.top < barTop);
         const up = b.getAttribute("aria-hidden") === "false";
-        return { y: window.scrollY, underBar, pastSimilar, up, ok: up === !(underBar || pastSimilar) };
+        return { y: window.scrollY, scrolled, buttonsInView, pastSimilar, up, ok: up === !((scrolled && buttonsInView) || pastSimilar) };
       });
     for (const stop of stops) {
       await page.evaluate((v) => window.scrollTo(0, v), stop);
       await expect
-        .poll(async () => JSON.stringify(await state()), { message: `at scroll ${stop} the bar is up over the row or at Similar vehicles, or down though nothing is in its way` })
+        .poll(async () => JSON.stringify(await state()), {
+          message: `at scroll ${stop} the bar is up with the three buttons in view (scrolled) or at Similar vehicles, or down though nothing is in its way`,
+        })
         .toContain('"ok":true');
     }
     assertNoFaults(faults);

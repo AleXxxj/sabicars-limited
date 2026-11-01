@@ -176,10 +176,10 @@
 }
 
 /*
- * A car page's phone bar, before React is on the page: the bar never cuts into the page's own row of buttons,
- * and on some phones that row lies where the bar sits on the first screen. The inline script in
- * StickyActions.tsx marks <html> as the page is parsed; this keeps the bar away until the component is ready
- * and reads the page for itself. Outside the layers so it wins over the bar's own utility classes.
+ * A car page's phone bar, before React is on the page: when the browser brings the page back scrolled with the
+ * page's own buttons in view, the bar must not paint over them. The inline script in StickyActions.tsx marks
+ * <html> as the page is parsed; this keeps the bar away until the component is ready and reads the page for
+ * itself. Outside the layers so it wins over the bar's own utility classes.
  */
 html[data-car-row="on-screen"] [data-ask-dock]:not([data-ready]) {
   transform: translateY(120%);
