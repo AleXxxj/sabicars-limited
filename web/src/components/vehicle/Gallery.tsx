@@ -35,7 +35,16 @@ function Arrow({ dir, onClick, label }: { dir: "prev" | "next"; onClick: () => v
  * The full-screen view is a native <dialog>, so Escape, focus trapping and the
  * back gesture behave as the platform expects without custom code.
  */
-export function Gallery({ images, title }: { images: GalleryImage[]; title: string }) {
+export function Gallery({
+  images,
+  title,
+  between,
+}: {
+  images: GalleryImage[];
+  title: string;
+  /** Shown between the photo and its thumbnails on a phone: the page's actions, straight under the car. */
+  between?: React.ReactNode;
+}) {
   const photos = images.length ? images : [{ url: VEHICLE_PLACEHOLDER, alt: `${title} — photos coming soon` }];
   const [i, setI] = useState(0);
   const dialog = useRef<HTMLDialogElement>(null);
@@ -93,6 +102,8 @@ export function Gallery({ images, title }: { images: GalleryImage[]; title: stri
           )}
         </div>
       </div>
+
+      {between && <div className="mt-4 lg:hidden">{between}</div>}
 
       {many && (
         <div className="mt-3 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">

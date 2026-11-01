@@ -85,26 +85,27 @@ test.describe("A car's page", () => {
     assertNoFaults(faults);
   });
 
-  test("the phone bar steps aside while the page's own buttons or the enquiry card are on screen", async ({ page, isMobile }) => {
+  test("the phone bar is there on arrival and steps aside only while the enquiry sheet is open", async ({ page, isMobile }) => {
     test.skip(!isMobile, "The phone bar only exists on phones");
     const faults = watchForFaults(page);
     test.skip((await stockCount(page)) === 0, "The site has no vehicles in stock");
     await openFirstVehicle(page);
     const bar = page.locator("[data-ask-dock]");
-    await expect(bar, "the car page has no phone bar").toBeAttached();
-    // Under the photos, the real buttons are on screen: the bar's "Enquire" would be a second one.
-    await page.locator("#primary-actions").scrollIntoViewIfNeeded();
-    await expect(bar, "the phone bar stayed over the page's own Enquire button").toHaveAttribute("aria-hidden", "true");
-    // Just past the buttons, reading on, it is the way to act without scrolling back. (The top of the page is
-    // no test: a car without photos shows its buttons on the first screen, and the bar rightly stays away.)
-    await page.evaluate(() => {
-      const buttons = document.getElementById("primary-actions")!.getBoundingClientRect();
-      window.scrollTo(0, window.scrollY + buttons.bottom + 120);
-    });
-    await expect(bar, "the phone bar did not come back once the buttons left the screen").toHaveAttribute("aria-hidden", "false");
-    // With the enquiry sheet open over the page, a shortcut to it has no job.
+    // First screen: Call, Chat, Enquire, and nothing else in the bar.
+    await expect(bar, "the phone bar is not in sight on arrival").toHaveAttribute("aria-hidden", "false");
+    await expect(bar.getByRole("link", { name: /^Call Sabicars/ }), "the bar has no Call").toBeVisible();
+    await expect(bar.getByRole("button", { name: /^Chat with the seller/ }), "the bar has no Chat").toBeVisible();
+    await expect(bar.getByRole("link", { name: "Enquire" }), "the bar has no Enquire").toBeVisible();
+    await expect(bar, "the bar carries a price, which belongs to the page").not.toContainText("₦");
+    // The page's own row sits under the photo, on a phone: reserve, see it, talk to a person.
+    const row = page.locator("#primary-actions");
+    await expect(row.getByRole("link", { name: "Book a viewing" }), "the row under the photo has no Book a viewing").toBeAttached();
+    await expect(row.getByRole("button", { name: "Chat with seller" }), "the row under the photo has no Chat with seller").toBeAttached();
+    // Enquire opens the sheet on "Ask a question"; the bar steps aside behind it and returns when it closes.
     await bar.getByRole("link", { name: "Enquire" }).click();
-    await expect(page.locator("#enquiry-card"), "the bar's Enquire did not open the sheet").toBeVisible();
+    const card = page.locator("#enquiry-card");
+    await expect(card, "the bar's Enquire did not open the sheet").toBeVisible();
+    await expect(card.getByRole("button", { name: "Send my question" }), "the sheet did not open on Ask a question").toBeVisible();
     await expect(bar, "the phone bar stayed up behind the open sheet").toHaveAttribute("aria-hidden", "true");
     await page.keyboard.press("Escape");
     await expect(bar, "the phone bar did not come back once the sheet closed").toHaveAttribute("aria-hidden", "false");

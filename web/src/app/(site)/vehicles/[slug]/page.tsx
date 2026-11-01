@@ -127,6 +127,57 @@ export default async function VehiclePage({ params }: Props) {
   const offsiteNotice = "This car is not at our showroom. Ask us, and we will arrange for you to see it and for our team to inspect it. It does not have the Sabicars Verified seal.";
   const [similar, live, taken] = await Promise.all([similarVehicles(v), liveReportFor(v.id), sold ? Promise.resolve({}) : bookedSlots(v.dealerId)]);
 
+  /**
+   * The ways to act, in one row: reserve, see it, talk to a person — then the call-back line. The names take two
+   * lines on a phone and the buttons stay the same height. Orange is the one that commits money; it moves to the
+   * chat when the car cannot be reserved online. Plain anchors, not next/link: a second tap on the same hash must
+   * open the sheet again, and Link's same-page navigation does not. The laptop copy adds the showroom's number.
+   */
+  const actions = (phone: boolean) =>
+    sold ? (
+      <ButtonAnchor href="#similar" size="lg" arrow>
+        See similar vehicles
+      </ButtonAnchor>
+    ) : (
+      <>
+        <div className={`grid gap-2 ${canReserve ? "grid-cols-3" : "grid-cols-2"}`}>
+          {/* The buyer who is ready: a deposit holds the car (lib/reservations.ts). */}
+          {canReserve && (
+            <ButtonLink href={`/reserve/${v.slug}`} arrow={false} className="min-h-14 !px-2 text-center !text-sm !whitespace-normal leading-tight">
+              Reserve this car
+            </ButtonLink>
+          )}
+          <ButtonAnchor href="#book-viewing" variant="secondary" className="min-h-14 !px-2 text-center !text-sm !whitespace-normal leading-tight">
+            Book a viewing
+          </ButtonAnchor>
+          {/* A person, in the chat, with Sabi answering if nobody is free: the quickest honest way to a seller. */}
+          <AskButton
+            seller
+            className={
+              canReserve
+                ? "inline-flex min-h-14 items-center justify-center rounded-full border border-white/20 bg-white/[0.04] px-2 text-center font-sans text-sm font-semibold leading-tight text-text-primary backdrop-blur-md transition-[border-color,background] hover:border-white/45 hover:bg-white/[0.08] active:scale-[0.98]"
+                : "inline-flex min-h-14 items-center justify-center rounded-full bg-[linear-gradient(180deg,var(--orange-400)_0%,var(--orange-500)_100%)] px-2 text-center font-sans text-sm font-semibold leading-tight text-[#090E0A] shadow-[inset_0_1px_0_rgb(255_255_255/0.35),0_12px_32px_-12px_rgb(247_128_30/0.55)] transition-[filter,box-shadow,transform] active:scale-[0.98] hover:brightness-[1.06]"
+            }
+          >
+            Chat with seller
+          </AskButton>
+        </div>
+        {!phone && (
+          <ButtonAnchor href={`tel:${site.phones[0].e164}`} size="lg" variant="secondary">
+            <Phone aria-hidden size={18} strokeWidth={1.75} /> Call {site.phones[0].display}
+          </ButtonAnchor>
+        )}
+        {/* The other ways in — a call-back from a number alone, a written question — live in the enquiry sheet. */}
+        <p className="text-center text-sm text-text-muted">
+          Or{" "}
+          <a href="#call-me-back" className="font-semibold text-green-300 underline-offset-4 hover:underline">
+            leave your number and we call you
+          </a>
+          .
+        </p>
+      </>
+    );
+
   return (
     <article className="pb-20 lg:pb-0">
       <script
@@ -161,7 +212,15 @@ export default async function VehiclePage({ params }: Props) {
             (max-lg:contents) and its header goes first, so the first screen is the car's name, its four
             facts and its price — the way a buyer judges a listing before scrolling — with the photos next. */}
         <div className="mt-2 grid grid-cols-[minmax(0,1fr)] gap-8 md:mt-6 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)] lg:gap-14">
-          <Gallery images={photos} title={title} />
+          <Gallery
+            images={photos}
+            title={title}
+            between={
+              <div id="primary-actions" className="flex flex-col gap-3">
+                {actions(true)}
+              </div>
+            }
+          />
 
           <div className="max-lg:contents lg:sticky lg:top-28 lg:self-start">
             <div className="max-lg:-order-1">
@@ -191,58 +250,10 @@ export default async function VehiclePage({ params }: Props) {
               </div>
             </div>
 
-            {/* The next step straight after the price: on a laptop in the sticky column, and on a phone before the
-                photos (max-lg:-order-1), so the price and the way to act share the first screen. On a phone the
-                photos then sit where Safari's glass toolbar shows the page through on arrival, rather than an
-                orange button. The id is watched by the phone bar, which steps aside while these are on screen.
-                Plain anchors, not next/link: a second tap on the same hash must scroll again, and Link's
-                same-page navigation does not. */}
-            <div id="primary-actions" className="mt-6 flex flex-col gap-3 max-lg:-order-1 max-lg:mt-0">
-              {sold ? (
-                <ButtonAnchor href="#similar" size="lg" arrow>
-                  See similar vehicles
-                </ButtonAnchor>
-              ) : (
-                <>
-                  {/* One row, three ways: reserve, see it, talk to a person. The names take two lines on a phone and
-                      the buttons stay the same height. Orange is the one that commits money; it moves to the chat
-                      when the car cannot be reserved online. */}
-                  <div className={`grid gap-2 ${canReserve ? "grid-cols-3" : "grid-cols-2"}`}>
-                    {/* The buyer who is ready: a deposit holds the car (lib/reservations.ts). */}
-                    {canReserve && (
-                      <ButtonLink href={`/reserve/${v.slug}`} arrow={false} className="min-h-14 !px-2 text-center !text-sm !whitespace-normal leading-tight">
-                        Reserve this car
-                      </ButtonLink>
-                    )}
-                    <ButtonAnchor href="#book-viewing" variant="secondary" className="min-h-14 !px-2 text-center !text-sm !whitespace-normal leading-tight">
-                      Book a viewing
-                    </ButtonAnchor>
-                    {/* A person, in the chat, with Sabi answering if nobody is free: the quickest honest way to a seller. */}
-                    <AskButton
-                      seller
-                      className={
-                        canReserve
-                          ? "inline-flex min-h-14 items-center justify-center rounded-full border border-white/20 bg-white/[0.04] px-2 text-center font-sans text-sm font-semibold leading-tight text-text-primary backdrop-blur-md transition-[border-color,background] hover:border-white/45 hover:bg-white/[0.08] active:scale-[0.98]"
-                          : "inline-flex min-h-14 items-center justify-center rounded-full bg-[linear-gradient(180deg,var(--orange-400)_0%,var(--orange-500)_100%)] px-2 text-center font-sans text-sm font-semibold leading-tight text-[#090E0A] shadow-[inset_0_1px_0_rgb(255_255_255/0.35),0_12px_32px_-12px_rgb(247_128_30/0.55)] transition-[filter,box-shadow,transform] active:scale-[0.98] hover:brightness-[1.06]"
-                      }
-                    >
-                      Chat with seller
-                    </AskButton>
-                  </div>
-                  <ButtonAnchor href={`tel:${site.phones[0].e164}`} size="lg" variant="secondary" className="max-lg:hidden">
-                    <Phone aria-hidden size={18} strokeWidth={1.75} /> Call {site.phones[0].display}
-                  </ButtonAnchor>
-                  {/* The other ways in — a call-back from a number alone, a written question — live in the enquiry sheet. */}
-                  <p className="text-center text-sm text-text-muted">
-                    Or{" "}
-                    <a href="#call-me-back" className="font-semibold text-green-300 underline-offset-4 hover:underline">
-                      leave your number and we call you
-                    </a>
-                    .
-                  </p>
-                </>
-              )}
-            </div>
+            {/* The next step: in the sticky column on a laptop, and on a phone straight under the car's photo
+                (the gallery's `between` slot), so the first screen is the car and the phone bar at the bottom
+                is the first way to act. Rendered by `actions` below; the phone copy carries the id. */}
+            <div className="mt-6 flex flex-col gap-3 max-lg:hidden">{actions(false)}</div>
 
             {offsite && (
               <p className="mt-4 text-sm leading-relaxed text-text-muted">
