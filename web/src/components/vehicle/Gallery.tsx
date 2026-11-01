@@ -69,62 +69,37 @@ export function Gallery({
 
   return (
     <div onKeyDown={keys} aria-roledescription="carousel" aria-label={`Photos of the ${title}`} className="min-w-0">
-      {/* The photo keeps its frame (4:3 on a phone, 16:11 on a laptop) and fills it. On a phone the frame around
-          it stands at least --photo-min-h tall — the car's page sets that so the first screen ends at the phone
-          bar, with the row under the photo out of sight until the buyer scrolls. Where the frame is taller than
-          the photo, the photo sits in the middle of a blurred copy of itself: the extra height is the car's own
-          colours, not a band of Night, and the photo is cropped no more than it always was. */}
-      <div
-        className="relative flex flex-col justify-center overflow-hidden rounded-2xl border border-white/[0.07] bg-surface-2 max-lg:min-h-[var(--photo-min-h,0px)]"
-        {...swipe}
-      >
-        {/* The same file the photo preloads (same src and sizes), so no second download; eager because on a tall
-            frame this is the largest image painted, and a lazy LCP image is what Lighthouse flags. */}
+      <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-white/[0.07] bg-surface-2 lg:aspect-[16/11]" {...swipe}>
         <VehicleImage
-          key={`backdrop-${photos[i].url}`}
+          key={photos[i].url}
           src={photos[i].url}
-          alt=""
-          aria-hidden
+          alt={photos[i].alt}
           fill
-          loading="eager"
+          priority={i === 0}
           sizes="(min-width: 1024px) 60vw, 100vw"
-          className="scale-125 object-cover opacity-50 blur-2xl lg:hidden"
+          className="object-cover"
         />
-        {/* The arrows, the count and "Full screen" sit on the photo itself, not on the frame: when the frame
-            stands taller than the photo its bottom edge may lie under the phone bar (a two-line name or facts
-            list pushes it there), and anything anchored to it would be cut off. */}
-        <div className="relative aspect-[4/3] w-full lg:aspect-[16/11]">
-          <VehicleImage
-            key={photos[i].url}
-            src={photos[i].url}
-            alt={photos[i].alt}
-            fill
-            priority={i === 0}
-            sizes="(min-width: 1024px) 60vw, 100vw"
-            className="object-cover"
-          />
-          {many && (
-            <>
-              <Arrow dir="prev" onClick={() => go(i - 1)} label="Previous photo" />
-              <Arrow dir="next" onClick={() => go(i + 1)} label="Next photo" />
-            </>
-          )}
-          <div className="absolute bottom-3 left-3 right-3 z-10 flex items-center justify-between">
-            <span aria-live="polite" className="glass figures rounded-full px-3 py-1.5 text-xs font-medium text-white">
-              <span className="figures">
-                {i + 1} / {photos.length}
-              </span>
+        {many && (
+          <>
+            <Arrow dir="prev" onClick={() => go(i - 1)} label="Previous photo" />
+            <Arrow dir="next" onClick={() => go(i + 1)} label="Next photo" />
+          </>
+        )}
+        <div className="absolute bottom-3 left-3 right-3 z-10 flex items-center justify-between">
+          <span aria-live="polite" className="glass figures rounded-full px-3 py-1.5 text-xs font-medium text-white">
+            <span className="figures">
+              {i + 1} / {photos.length}
             </span>
-            {images.length > 0 && (
-              <button
-                type="button"
-                onClick={() => dialog.current?.showModal()}
-                className="glass rounded-full px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-[#090E0A]/80"
-              >
-                Full screen
-              </button>
-            )}
-          </div>
+          </span>
+          {images.length > 0 && (
+            <button
+              type="button"
+              onClick={() => dialog.current?.showModal()}
+              className="glass rounded-full px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-[#090E0A]/80"
+            >
+              Full screen
+            </button>
+          )}
         </div>
       </div>
 

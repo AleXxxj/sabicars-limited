@@ -36,7 +36,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     // not change colour with the visitor's phone settings; the light variant
     // read as a plain document and made car-park photography look cheap
     // (design pass, 2026-09-26). The light tokens remain for the /style page.
-    <html lang="en-NG" data-theme="dark" className={archivo.variable}>
+    // suppressHydrationWarning: a car page's inline script marks this element (data-car-row) before React
+    // hydrates, the way theme scripts do, so the phone bar is right from the first paint; React must not
+    // report that mark as a mismatch. It reaches this element only, not its children.
+    <html lang="en-NG" data-theme="dark" className={archivo.variable} suppressHydrationWarning>
       <body>{children}</body>
     </html>
   );

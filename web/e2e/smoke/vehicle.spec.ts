@@ -85,22 +85,41 @@ test.describe("A car's page", () => {
     assertNoFaults(faults);
   });
 
-  test("the phone bar is there on arrival and steps aside only while the enquiry sheet is open", async ({ page, isMobile }) => {
+  test("the phone bar stands in for the row, goes at Similar vehicles, and steps aside for the sheet", async ({ page, isMobile }) => {
     test.skip(!isMobile, "The phone bar only exists on phones");
     const faults = watchForFaults(page);
     test.skip((await stockCount(page)) === 0, "The site has no vehicles in stock");
     await openFirstVehicle(page);
     const bar = page.locator("[data-ask-dock]");
-    // First screen: Call, Chat, Enquire, and nothing else in the bar.
-    await expect(bar, "the phone bar is not in sight on arrival").toHaveAttribute("aria-hidden", "false");
-    await expect(bar.getByRole("link", { name: /^Call Sabicars/ }), "the bar has no Call").toBeVisible();
-    await expect(bar.getByRole("button", { name: /^Chat with the seller/ }), "the bar has no Chat").toBeVisible();
-    await expect(bar.getByRole("link", { name: "Enquire" }), "the bar has no Enquire").toBeVisible();
+    // Call, Chat, Enquire, and nothing else in the bar. The bar may be slid away (aria-hidden) on arrival, so
+    // the roles are looked up hidden or not.
+    await expect(bar.getByRole("link", { name: /^Call Sabicars/, includeHidden: true }), "the bar has no Call").toBeAttached();
+    await expect(bar.getByRole("button", { name: /^Chat with the seller/, includeHidden: true }), "the bar has no Chat").toBeAttached();
+    await expect(bar.getByRole("link", { name: "Enquire", includeHidden: true }), "the bar has no Enquire").toBeAttached();
     await expect(bar, "the bar carries a price, which belongs to the page").not.toContainText("₦");
     // The page's own row sits under the photo, on a phone: reserve, see it, talk to a person.
     const row = page.locator("#primary-actions");
     await expect(row.getByRole("link", { name: "Book a viewing" }), "the row under the photo has no Book a viewing").toBeAttached();
     await expect(row.getByRole("button", { name: "Chat with seller" }), "the row under the photo has no Chat with seller").toBeAttached();
+    // The bar and the row never show together. On arrival the bar is up only if the row is below the fold; with
+    // the row scrolled off the top, the bar is up; once "Similar vehicles" comes into view, the bar has gone.
+    const rowOnScreen = () =>
+      page.evaluate(() => {
+        const r = document.querySelector("#primary-actions")!.getBoundingClientRect();
+        const b = document.querySelector<HTMLElement>("[data-ask-dock]")!;
+        const top = window.innerHeight - parseFloat(getComputedStyle(b).bottom) - b.offsetHeight;
+        return r.bottom > 0 && r.top < top;
+      });
+    await expect(bar, "on arrival the bar should be up exactly when the row is off screen").toHaveAttribute("aria-hidden", String(await rowOnScreen()));
+    await page.evaluate(() => window.scrollBy(0, document.querySelector("#primary-actions")!.getBoundingClientRect().bottom + 8));
+    await expect(bar, "the bar did not come up once the row had scrolled past").toHaveAttribute("aria-hidden", "false");
+    if (await page.locator("#similar").count()) {
+      await page.evaluate(() => document.querySelector("#similar")!.scrollIntoView());
+      await expect(bar, "the bar is still up at Similar vehicles").toHaveAttribute("aria-hidden", "true");
+      await page.evaluate(() => window.scrollTo(0, 0));
+      await page.evaluate(() => window.scrollBy(0, document.querySelector("#primary-actions")!.getBoundingClientRect().bottom + 8));
+      await expect(bar, "the bar did not come back above Similar vehicles").toHaveAttribute("aria-hidden", "false");
+    }
     // Enquire opens the sheet on "Ask a question"; the bar steps aside behind it and returns when it closes.
     await bar.getByRole("link", { name: "Enquire" }).click();
     const card = page.locator("#enquiry-card");

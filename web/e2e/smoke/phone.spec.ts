@@ -29,31 +29,46 @@ test.describe("On a phone", () => {
     test.skip((await stockCount(page)) === 0, "The site has no vehicles in stock");
     await openFirstVehicle(page);
     expect(await overflowPx(page), "the car page is wider than the phone's screen").toBeLessThanOrEqual(1);
-    await expect(page.getByRole("link", { name: "Enquire", exact: true }), "the phone's bottom dock has no Enquire button").toBeVisible();
+    // The bar may be slid away on arrival (its row of buttons on screen), so look for Enquire hidden or not.
+    await expect(page.locator("[data-ask-dock]").getByRole("link", { name: "Enquire", exact: true, includeHidden: true }), "the phone's bottom dock has no Enquire button").toBeAttached();
     // The row of three under the photo must not widen the page either.
     await page.locator("#primary-actions").scrollIntoViewIfNeeded();
     expect(await overflowPx(page), "the car page is wider than the phone's screen once scrolled").toBeLessThanOrEqual(1);
     assertNoFaults(faults);
   });
 
-  test("a car's first screen ends at the phone bar, with the row under the photo out of sight", async ({ page }) => {
+  test("a car's phone bar and its row of buttons are never on screen together", async ({ page }) => {
     const faults = watchForFaults(page);
     test.skip((await stockCount(page)) === 0, "The site has no vehicles in stock");
     await openFirstVehicle(page);
-    await page.waitForLoadState("networkidle").catch(() => {});
-    // On arrival: name, facts, price, the photo, then the bar — the row under the photo starts beneath the bar,
-    // never half under it, which read as a broken page. The photo's box grows to make that so (--photo-min-h).
-    expect(await page.evaluate(() => window.scrollY), "the car page did not open at the top").toBe(0);
-    const row = await page.locator("#primary-actions").boundingBox();
-    const bar = await page.locator("[data-ask-dock]").boundingBox();
-    expect(row, "the car page has no row of buttons under the photo").not.toBeNull();
-    expect(bar, "the car page has no phone bar").not.toBeNull();
-    expect(row!.y, "the row under the photo peeks out above the phone bar on arrival").toBeGreaterThanOrEqual(bar!.y);
-    // The photo's own count ("1 / 8") sits on the photo, so it stays clear of the bar even when the frame around
-    // the photo runs under it (a two-line name or facts list pushes the frame's bottom edge that far).
-    const count = await page.getByText(/^1 \/ \d+$/).first().boundingBox();
-    expect(count, "the gallery does not count its photos").not.toBeNull();
-    expect(count!.y + count!.height, "the photo count is cut off by the phone bar on arrival").toBeLessThanOrEqual(bar!.y);
+    // Scroll positions around the row and around "Similar vehicles", from the top of the page to its end.
+    const stops = await page.evaluate(() => {
+      const y = window.scrollY;
+      const row = document.querySelector("#primary-actions")!.getBoundingClientRect();
+      const similar = document.querySelector("#similar")?.getBoundingClientRect();
+      const list = [0, y + row.top - window.innerHeight + 20, y + row.top - 150, y + row.top, y + row.bottom - 10, y + row.bottom + 10, y + row.bottom + 400];
+      if (similar) list.push(y + similar.top - window.innerHeight + 20, y + similar.top - 120, y + similar.top, y + similar.top + 300);
+      list.push(document.documentElement.scrollHeight);
+      return list.map((v) => Math.max(0, Math.round(v)));
+    });
+    // What the bar should be doing where the page stands now, and what it is doing.
+    const state = () =>
+      page.evaluate(() => {
+        const b = document.querySelector<HTMLElement>("[data-ask-dock]")!;
+        const top = window.innerHeight - parseFloat(getComputedStyle(b).bottom) - b.offsetHeight;
+        const row = document.querySelector("#primary-actions")!.getBoundingClientRect();
+        const similar = document.querySelector("#similar")?.getBoundingClientRect();
+        const rowOnScreen = row.bottom > 0 && row.top < top;
+        const pastSimilar = Boolean(similar && similar.top < top);
+        const up = b.getAttribute("aria-hidden") === "false";
+        return { y: window.scrollY, rowOnScreen, pastSimilar, up, ok: up === !(rowOnScreen || pastSimilar) };
+      });
+    for (const stop of stops) {
+      await page.evaluate((v) => window.scrollTo(0, v), stop);
+      await expect
+        .poll(async () => JSON.stringify(await state()), { message: `at scroll ${stop} the bar is up while the row is on screen or Similar vehicles is in view, or down though nothing is in its way` })
+        .toContain('"ok":true');
+    }
     assertNoFaults(faults);
   });
 });

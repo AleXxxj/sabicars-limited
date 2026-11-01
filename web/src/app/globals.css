@@ -174,3 +174,15 @@
     scroll-behavior: auto !important;
   }
 }
+
+/*
+ * A car page's phone bar, before React is on the page: the bar never shows at the same time as the page's
+ * own row of buttons, and on a tall phone that row is already on the first screen. The inline script in
+ * StickyActions.tsx marks <html> as the page is parsed; this keeps the bar away until the component is ready
+ * and reads the page for itself. Outside the layers so it wins over the bar's own utility classes.
+ */
+html[data-car-row="on-screen"] [data-ask-dock]:not([data-ready]) {
+  transform: translateY(120%);
+  opacity: 0;
+  pointer-events: none;
+}
