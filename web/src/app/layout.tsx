@@ -24,6 +24,10 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   themeColor: "#090E0A",
   colorScheme: "dark",
+  // Safari on iOS 26 floats its toolbar over the page as glass. With this set, the page reaches the screen's
+  // edge and env(safe-area-inset-bottom) reports the toolbar's height, so the tab bar can pad for it and
+  // fill the glass with Night rather than with whatever the page has scrolled under it.
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

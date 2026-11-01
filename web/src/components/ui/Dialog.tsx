@@ -46,7 +46,8 @@ export function Dialog({
           <X aria-hidden size={20} />
         </button>
       </div>
-      <div className="px-6 py-6 md:px-8 md:py-8">{children}</div>
+      {/* On a phone the sheet reaches the screen's edge: its last field stays above Safari's floating toolbar. */}
+      <div className="px-6 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] md:px-8 md:py-8">{children}</div>
     </dialog>
   );
 }

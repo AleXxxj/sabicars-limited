@@ -18,7 +18,9 @@ export function MobileTabBar() {
     <nav
       aria-label="Quick"
       // Solid, not glass: an orange button scrolling under a see-through bar lit the whole bar orange, which read as broken.
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-white/[0.08] bg-surface-0 pb-[env(safe-area-inset-bottom)] lg:hidden"
+      // The ::after sheet hangs below the bar, under Safari's floating glass toolbar on iOS 26, so what shows through
+      // that glass is Night, not the page. Safari also samples this bar's colour to tint the toolbar.
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-white/[0.08] bg-surface-0 pb-[env(safe-area-inset-bottom)] after:absolute after:inset-x-0 after:top-full after:h-40 after:bg-surface-0 after:content-[''] lg:hidden"
     >
       <ul className="mx-auto grid max-w-lg grid-cols-5">
         {TAB_BAR.map((item) => {
