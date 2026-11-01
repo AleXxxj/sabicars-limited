@@ -210,8 +210,18 @@ export default async function VehiclePage({ params }: Props) {
             widest child, and twelve thumbnails in a row are 1,000px wide. */}
         {/* On a laptop: the gallery beside a sticky column. On a phone the column dissolves into the grid
             (max-lg:contents) and its header goes first, so the first screen is the car's name, its four
-            facts and its price — the way a buyer judges a listing before scrolling — with the photos next. */}
-        <div className="mt-2 grid grid-cols-[minmax(0,1fr)] gap-8 md:mt-6 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)] lg:gap-14">
+            facts and its price — the way a buyer judges a listing before scrolling — with the photos next.
+
+            --photo-min-h makes that first screen end at the phone bar: the photo's box stands at least as tall as
+            the small viewport less everything above the photo and the two bars under it, so the row of buttons
+            under the photo starts beneath the bar and comes into view on the first scroll, never half under it.
+            Above the photo, with a one-line name and one line of facts (the least they take; more lines only move
+            the row further down): the header (4rem + 1px), this container's top (1.5rem), the grid's top (0.5rem),
+            the title block (12.5rem) and the gap (2rem). Below: the phone bar (4.25rem + 1px) over the tab bar
+            (4rem + 1px) and the home indicator. Half a rem of slack keeps the row under the bar when a width
+            rounds the name's line a pixel shorter. Changing any of those heights means changing this number;
+            the phone smoke test fails if the row ever peeks out. */}
+        <div className="mt-2 grid grid-cols-[minmax(0,1fr)] gap-8 [--photo-min-h:calc(100svh-29.375rem-env(safe-area-inset-bottom))] md:mt-6 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)] lg:gap-14">
           <Gallery
             images={photos}
             title={title}
