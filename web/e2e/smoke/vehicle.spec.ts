@@ -101,16 +101,16 @@ test.describe("A car's page", () => {
     const row = page.locator("#primary-actions");
     await expect(row.getByRole("link", { name: "Book a viewing" }), "the row under the photo has no Book a viewing").toBeAttached();
     await expect(row.getByRole("button", { name: "Chat with seller" }), "the row under the photo has no Chat with seller").toBeAttached();
-    // The bar and the row never show together. On arrival the bar is up only if the row is below the fold; with
-    // the row scrolled off the top, the bar is up; once "Similar vehicles" comes into view, the bar has gone.
-    const rowOnScreen = () =>
+    // The bar never cuts into the row. On arrival the bar is up unless it would lie over the row; with the row
+    // scrolled off the top, the bar is up; once "Similar vehicles" comes into view, the bar has gone.
+    const rowUnderBar = () =>
       page.evaluate(() => {
         const r = document.querySelector("#primary-actions")!.getBoundingClientRect();
         const b = document.querySelector<HTMLElement>("[data-ask-dock]")!;
-        const top = window.innerHeight - parseFloat(getComputedStyle(b).bottom) - b.offsetHeight;
-        return r.bottom > 0 && r.top < top;
+        const bottom = window.innerHeight - parseFloat(getComputedStyle(b).bottom);
+        return r.bottom > bottom - b.offsetHeight && r.top < bottom;
       });
-    await expect(bar, "on arrival the bar should be up exactly when the row is off screen").toHaveAttribute("aria-hidden", String(await rowOnScreen()));
+    await expect(bar, "on arrival the bar should be up exactly when it is clear of the row").toHaveAttribute("aria-hidden", String(await rowUnderBar()));
     await page.evaluate(() => window.scrollBy(0, document.querySelector("#primary-actions")!.getBoundingClientRect().bottom + 8));
     await expect(bar, "the bar did not come up once the row had scrolled past").toHaveAttribute("aria-hidden", "false");
     if (await page.locator("#similar").count()) {

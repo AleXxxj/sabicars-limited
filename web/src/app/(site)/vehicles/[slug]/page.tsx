@@ -251,8 +251,8 @@ export default async function VehiclePage({ params }: Props) {
             </div>
 
             {/* The next step: in the sticky column on a laptop, and on a phone straight under the car's photo
-                (the gallery's `between` slot). The phone bar (StickyActions) stands in for this row whenever the
-                row is off screen and slides away while the row is in view, so the two never show together.
+                (the gallery's `between` slot). The phone bar (StickyActions) never cuts into this row: it slides
+                away while it would lie over any of the row and is up whenever the row is clear of it.
                 Rendered by `actions` below; the phone copy carries the id the bar watches. */}
             <div className="mt-6 flex flex-col gap-3 max-lg:hidden">{actions(false)}</div>
 
