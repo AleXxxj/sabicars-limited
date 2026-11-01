@@ -14,10 +14,10 @@ import { SHEET_EVENT } from "./EnquirySheet";
  * price, the page has those.
  *
  * It is a shortcut to the page's own buttons, so it keeps out of their way:
- * it does not appear until the buyer has scrolled (on landing, a phone's
- * address bar is tall and see-through, and an orange bar over an orange
- * button showing through the glass read as a broken page), it steps aside
- * while those buttons are on screen, and while the enquiry sheet is open.
+ * it steps aside while those buttons are on screen, and while the enquiry
+ * sheet is open. It is there from the first screen, where the buttons sit
+ * below the fold. Solid, not glass: an orange button scrolling under a
+ * see-through bar lit the whole bar orange, which read as a broken page.
  * Once an enquiry is saved, "Enquire" becomes the reference.
  *
  * Phones only (lg:hidden); on a laptop the buttons sit in the sticky column.
@@ -29,26 +29,14 @@ export function StickyActions({ title, phone }: { title: string; phone: { e164: 
   const bar = useRef<HTMLDivElement>(null);
   // null until the first measurement: the bar is painted invisible until it knows whether it belongs.
   const [buttonsOnScreen, setButtonsOnScreen] = useState<boolean | null>(null);
-  const [scrolled, setScrolled] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [reference, setReference] = useState<string | null>(null);
-  const aside = buttonsOnScreen === null ? null : buttonsOnScreen || sheetOpen || !scrolled;
+  const aside = buttonsOnScreen === null ? null : buttonsOnScreen || sheetOpen;
 
   useEffect(() => {
     const onSheet = (e: Event) => setSheetOpen(Boolean((e as CustomEvent<{ open?: boolean }>).detail?.open));
     window.addEventListener(SHEET_EVENT, onSheet);
     return () => window.removeEventListener(SHEET_EVENT, onSheet);
-  }, []);
-
-  // Not before the buyer has moved: a bar that is there on arrival competes with the page's own first screen.
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
-    const first = setTimeout(onScroll, 0);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      clearTimeout(first);
-      window.removeEventListener("scroll", onScroll);
-    };
   }, []);
 
   useEffect(() => {
@@ -111,7 +99,7 @@ export function StickyActions({ title, phone }: { title: string; phone: { e164: 
       data-ask-dock
       aria-hidden={hidden}
       inert={hidden || undefined}
-      className={`fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 grid grid-cols-3 gap-2 border-t border-border-default bg-surface-0/95 px-4 py-2.5 backdrop-blur-md lg:hidden ${
+      className={`fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 grid grid-cols-3 gap-2 border-t border-border-default bg-surface-0 px-4 py-2.5 lg:hidden ${
         // No transition before the first measurement: the bar appears where it belongs, or not at all, rather than sliding away.
         aside === null ? "opacity-0" : "transition-[transform,opacity] duration-300 ease-[var(--ease-out)] motion-reduce:transition-none"
       } ${aside ? "pointer-events-none translate-y-[120%] opacity-0" : ""}`}
