@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, BadgeCheck, BellRing, Fuel, Gauge, MessageCircle, Phone, Search, Settings2, Sparkles, type LucideIcon } from "lucide-react";
+import { ArrowRight, BadgeCheck, BellRing, Fuel, Gauge, Phone, Search, Settings2, Sparkles, type LucideIcon } from "lucide-react";
 import { notFound } from "next/navigation";
 import { AskButton } from "@/components/assistant/AskButton";
 import { ButtonAnchor, ButtonLink } from "@/components/ui/Button";
@@ -204,26 +204,31 @@ export default async function VehiclePage({ params }: Props) {
                 </ButtonAnchor>
               ) : (
                 <>
-                  {/* The buyer who is ready: a deposit holds the car (lib/reservations.ts). The one orange action on the page. */}
-                  {canReserve && (
-                    <ButtonLink href={`/reserve/${v.slug}`} size="lg">
-                      Reserve this car
-                    </ButtonLink>
-                  )}
-                  {/* A person, in the chat, with Sabi answering if nobody is free: the quickest honest way to a seller. */}
-                  <AskButton
-                    seller
-                    className={
-                      canReserve
-                        ? "group inline-flex min-h-14 items-center justify-center gap-2.5 rounded-full border border-white/20 bg-white/[0.04] px-8 font-sans text-base font-semibold text-text-primary backdrop-blur-md transition-[border-color,background] hover:border-white/45 hover:bg-white/[0.08] active:scale-[0.98]"
-                        : "group inline-flex min-h-14 items-center justify-center gap-2.5 rounded-full bg-[linear-gradient(180deg,var(--orange-400)_0%,var(--orange-500)_100%)] px-8 font-sans text-base font-semibold text-[#090E0A] shadow-[inset_0_1px_0_rgb(255_255_255/0.35),0_12px_32px_-12px_rgb(247_128_30/0.55)] transition-[filter,box-shadow,transform] active:scale-[0.98] hover:brightness-[1.06]"
-                    }
-                  >
-                    <MessageCircle aria-hidden size={18} strokeWidth={1.75} /> Chat with seller
-                  </AskButton>
-                  <ButtonAnchor href="#book-viewing" size="lg" variant="secondary">
-                    Book a viewing
-                  </ButtonAnchor>
+                  {/* One row, three ways: reserve, see it, talk to a person. The names take two lines on a phone and
+                      the buttons stay the same height. Orange is the one that commits money; it moves to the chat
+                      when the car cannot be reserved online. */}
+                  <div className={`grid gap-2 ${canReserve ? "grid-cols-3" : "grid-cols-2"}`}>
+                    {/* The buyer who is ready: a deposit holds the car (lib/reservations.ts). */}
+                    {canReserve && (
+                      <ButtonLink href={`/reserve/${v.slug}`} arrow={false} className="min-h-14 !px-2 text-center !text-sm !whitespace-normal leading-tight">
+                        Reserve this car
+                      </ButtonLink>
+                    )}
+                    <ButtonAnchor href="#book-viewing" variant="secondary" className="min-h-14 !px-2 text-center !text-sm !whitespace-normal leading-tight">
+                      Book a viewing
+                    </ButtonAnchor>
+                    {/* A person, in the chat, with Sabi answering if nobody is free: the quickest honest way to a seller. */}
+                    <AskButton
+                      seller
+                      className={
+                        canReserve
+                          ? "inline-flex min-h-14 items-center justify-center rounded-full border border-white/20 bg-white/[0.04] px-2 text-center font-sans text-sm font-semibold leading-tight text-text-primary backdrop-blur-md transition-[border-color,background] hover:border-white/45 hover:bg-white/[0.08] active:scale-[0.98]"
+                          : "inline-flex min-h-14 items-center justify-center rounded-full bg-[linear-gradient(180deg,var(--orange-400)_0%,var(--orange-500)_100%)] px-2 text-center font-sans text-sm font-semibold leading-tight text-[#090E0A] shadow-[inset_0_1px_0_rgb(255_255_255/0.35),0_12px_32px_-12px_rgb(247_128_30/0.55)] transition-[filter,box-shadow,transform] active:scale-[0.98] hover:brightness-[1.06]"
+                      }
+                    >
+                      Chat with seller
+                    </AskButton>
+                  </div>
                   <ButtonAnchor href={`tel:${site.phones[0].e164}`} size="lg" variant="secondary" className="max-lg:hidden">
                     <Phone aria-hidden size={18} strokeWidth={1.75} /> Call {site.phones[0].display}
                   </ButtonAnchor>
