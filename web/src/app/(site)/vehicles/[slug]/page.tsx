@@ -191,11 +191,13 @@ export default async function VehiclePage({ params }: Props) {
               </div>
             </div>
 
-            {/* The next step straight after the price, so it is on the first screen of a laptop too.
-                The id is watched by the phone bar, which steps aside while these are on screen.
+            {/* The next step straight after the price: on a laptop in the sticky column, and on a phone before the
+                photos (max-lg:-order-1), so the price and the way to act share the first screen. On a phone the
+                photos then sit where Safari's glass toolbar shows the page through on arrival, rather than an
+                orange button. The id is watched by the phone bar, which steps aside while these are on screen.
                 Plain anchors, not next/link: a second tap on the same hash must scroll again, and Link's
                 same-page navigation does not. */}
-            <div id="primary-actions" className="mt-6 flex flex-col gap-3">
+            <div id="primary-actions" className="mt-6 flex flex-col gap-3 max-lg:-order-1 max-lg:mt-0">
               {sold ? (
                 <ButtonAnchor href="#similar" size="lg" arrow>
                   See similar vehicles
