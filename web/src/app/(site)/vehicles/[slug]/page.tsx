@@ -250,8 +250,13 @@ export default async function VehiclePage({ params }: Props) {
             10px, and what stands above the box — on a phone the header (4rem + 1px), this container's top
             (1.5rem) and the grid's top (0.5rem); on a tablet the taller header (4.5rem + 1px), the container's top
             (2.5rem), the breadcrumb (1.25rem) and the grid's top (1.5rem). Changing any of those heights means
-            changing these numbers; the phone smoke test fails if the buttons ever show above the bar on arrival. */}
-        <div className="mt-2 grid grid-cols-[minmax(0,1fr)] gap-8 [--first-screen:calc(100svh-14.25rem-12px-env(safe-area-inset-bottom))] md:mt-6 md:[--first-screen:calc(100svh-18.75rem-env(safe-area-inset-bottom))] lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)] lg:gap-14">
+            changing these numbers; the phone smoke test fails if the buttons ever show above the bar on arrival.
+
+            These sums are the first paint's value. Safari on iOS keeps its toolbar minimised after a navigation
+            from a scrolled list, and then the viewport is taller than the small viewport the sums assume, so the
+            phone bar (StickyActions, just below) measures the box against the real viewport and sets
+            --car-first-screen, which takes over here. */}
+        <div className="mt-2 grid grid-cols-[minmax(0,1fr)] gap-8 [--first-screen:var(--car-first-screen,calc(100svh-14.25rem-12px-env(safe-area-inset-bottom)))] md:mt-6 md:[--first-screen:var(--car-first-screen,calc(100svh-18.75rem-env(safe-area-inset-bottom)))] lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)] lg:gap-14">
           {/* On a phone the title block leads the Gallery's first-screen box; on a laptop the copy below heads the
               sticky column. One hidden at any width, so the page reads the same to a search engine either way. */}
           <Gallery
@@ -394,6 +399,12 @@ export default async function VehiclePage({ params }: Props) {
             </ul>
           </div>
         </div>
+
+        {/* Phones: Call, Chat and Enquire within thumb reach, above the tab bar, out of the way while the page's own
+            buttons are on screen or the sheet is open. Fixed, so its place in the markup is free: it sits right after
+            the gallery so that its first-paint script finds the first-screen box, the buttons and the bar already
+            parsed, and fits the first screen to the viewport before anything is drawn. */}
+        {!sold && <StickyActions title={title} phone={site.phones[0]} />}
       </div>
 
       <div className="mt-14">
@@ -494,10 +505,6 @@ export default async function VehiclePage({ params }: Props) {
           </p>
         </EnquirySheet>
       )}
-
-      {/* Phones: the price and the next step within thumb reach — above the tab bar, never under it — and out of
-          the way while the page's own buttons are on screen or the sheet is open (StickyActions). */}
-      {!sold && <StickyActions title={title} phone={site.phones[0]} />}
 
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript({ "@context": "https://schema.org", ...dealerJsonLd() }) }} />
     </article>

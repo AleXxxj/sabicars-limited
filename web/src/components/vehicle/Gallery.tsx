@@ -79,8 +79,9 @@ export function Gallery({
           square, filling with the car (object-cover) — and only past that opens between the price and the photo.
           The lead keeps the usual 2rem to the photo when there is no room to spare. On a laptop the box dissolves
           (lg:contents) and the lead is not shown: the title block heads the sticky column there. The box is a
-          container so the square cap can be written as its own width (100cqw). */}
-      <div className="max-lg:@container max-lg:flex max-lg:min-h-[var(--first-screen,0px)] max-lg:flex-col lg:contents">
+          container so the square cap can be written as its own width (100cqw). The id is for the phone bar
+          (StickyActions), which measures the box against the real viewport. */}
+      <div id="first-screen" className="max-lg:@container max-lg:flex max-lg:min-h-[var(--first-screen,0px)] max-lg:flex-col lg:contents">
         {lead && <div className="pb-8 lg:hidden">{lead}</div>}
         <div
           aria-roledescription="carousel"
