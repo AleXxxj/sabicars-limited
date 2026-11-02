@@ -10,8 +10,12 @@ import { SHEET_EVENT } from "./EnquirySheet";
 /** Why the bar is out of sight: the page's own buttons are in view, or the page has reached other cars. */
 type Away = "row" | "similar" | null;
 
-/** Up to this far down the page counts as "on arrival": the bar is up whatever lies under it. */
-const TOP_PX = 8;
+/**
+ * Once the bar has slid away it comes back only when what sent it away is this far past the edge again, and
+ * once back it goes only when the edge is crossed outright: a scroll that wobbles on the line never sends it
+ * back and forth.
+ */
+const SETTLE_PX = 24;
 
 /**
  * The bar's top edge in the viewport. From the bar itself when it is in the document: the window's height less
@@ -27,26 +31,32 @@ function barTop(bar: HTMLElement | null, tab: HTMLElement) {
   return tab.getBoundingClientRect().top + 1 - (4.25 * rem + 1);
 }
 
+let last: Away = null;
+
 /**
- * What stands in the bar's way right now. On arrival, nothing: the bar is up, and the three buttons under the
- * photo sit beneath it if that is where they fall. Once the buyer has scrolled, the buttons count while any of
- * them is in view above the bar and below the sticky header — the bar never doubles them — and the bar is back
- * as soon as they have gone over the top, call-back line or not. "Similar vehicles" counts from the moment its
- * top edge comes into view, and from there on the page is about other cars, so the bar stays away. Nothing on a
- * laptop, where there is no tab bar.
+ * What stands in the bar's way right now. The three buttons under the photo count from the moment any of them
+ * would show above the bar until all of them have gone over the sticky header — the bar never doubles them —
+ * so the bar is up on arrival, where the page's first screen keeps the buttons beneath it, slides away as they
+ * come out from under it, and is back the moment they have gone, call-back line or not. "Similar vehicles"
+ * counts from the moment its top edge comes into view, and from there on the page is about other cars, so the
+ * bar stays away. Nothing on a laptop, where there is no tab bar.
  */
 function read(): Away {
   const tab = document.querySelector<HTMLElement>('nav[aria-label="Quick"]');
-  if (!tab || !tab.offsetHeight) return null;
+  if (!tab || !tab.offsetHeight) return (last = null);
   const top = barTop(document.querySelector<HTMLElement>("[data-ask-dock]"), tab);
-  if (window.scrollY > TOP_PX) {
-    const header = document.querySelector("header")?.getBoundingClientRect().bottom ?? 0;
-    const buttons = document.querySelector("#primary-actions [data-buttons]")?.getBoundingClientRect();
-    if (buttons && buttons.top < top && buttons.bottom > header) return "row";
-  }
   const similar = document.getElementById("similar")?.getBoundingClientRect();
-  if (similar && similar.top < top) return "similar";
-  return null;
+  if (similar && similar.top < (last === "similar" ? top + SETTLE_PX : top)) return (last = "similar");
+  const header = document.querySelector("header")?.getBoundingClientRect().bottom ?? 0;
+  const buttons = document.querySelector("#primary-actions [data-buttons]")?.getBoundingClientRect();
+  if (buttons) {
+    const inView =
+      last === "row"
+        ? buttons.top < top + SETTLE_PX && buttons.bottom > header // back only once fully under the bar, or gone
+        : buttons.top < top && buttons.bottom > header + SETTLE_PX; // away the moment one would show above the bar
+    if (inView) return (last = "row");
+  }
+  return (last = null);
 }
 
 /** Scroll and resize, read once per frame. */
@@ -75,25 +85,26 @@ const no = () => false;
 
 /*
  * The same reading, run by the browser as the page is parsed, before React is on the page. A fresh arrival is at
- * the top, where the bar is up; this matters when the browser brings the page back scrolled (a restored scroll
- * position, the back button) with the buttons in view, where the bar must not paint over them for even a frame.
- * It marks <html>, and a rule in globals.css keeps the bar away until this component is ready and reads for
- * itself. On a client-side navigation React does not run inline scripts, and the first render reads the page
- * instead. The tab bar is not parsed yet at this point, so the bar's own box gives its place.
+ * the top, where the first screen keeps the buttons under the bar; this matters when the browser brings the page
+ * back scrolled (a restored scroll position, the back button) with the buttons in view, where the bar must not
+ * paint over them for even a frame. It marks <html>, and a rule in globals.css keeps the bar away until this
+ * component is ready and reads for itself. On a client-side navigation React does not run inline scripts, and
+ * the first render reads the page instead. The tab bar is not parsed yet at this point, so the bar's own box
+ * gives its place.
  */
 const FIRST_PAINT =
-  `(function(){if(scrollY<=${TOP_PX})return;var r=document.querySelector("#primary-actions [data-buttons]"),b=document.querySelector("[data-ask-dock]"),h=document.querySelector("header");if(!r||!b)return;` +
+  '(function(){var r=document.querySelector("#primary-actions [data-buttons]"),b=document.querySelector("[data-ask-dock]"),h=document.querySelector("header");if(!r||!b)return;' +
   'var s=getComputedStyle(b);if(s.display==="none")return;var t=innerHeight-parseFloat(s.bottom)-b.offsetHeight,x=r.getBoundingClientRect(),y=h?h.getBoundingClientRect().bottom:0;' +
   'if(x.top<t&&x.bottom>y)document.documentElement.setAttribute("data-car-row","on-screen")})();';
 
 /**
  * The phone bar on a car's page: Call, a chat with the team, and a written question (the enquiry sheet,
- * opened on "Ask a question"). Nothing else: no name, no price, the page has those. It is up on arrival; once
- * the buyer has scrolled it slides away while the three buttons under the photo are in view above it, so the
- * two never double up, and it is back as soon as those buttons have gone. It goes for good once "Similar
- * vehicles" comes into view, and steps aside while the enquiry sheet is open. Solid, not glass: an orange
- * button scrolling under a see-through bar lit the whole bar orange, which read as a broken page. Once an
- * enquiry is saved, "Enquire" becomes the reference.
+ * opened on "Ask a question"). Nothing else: no name, no price, the page has those. It is up on arrival, with
+ * the three buttons under the photo beneath it; it slides down behind the tab bar as those buttons come out
+ * from under it, so the two never double up, and slides back the moment they have gone. It goes for good once
+ * "Similar vehicles" comes into view, and steps aside while the enquiry sheet is open. Solid, not glass: an
+ * orange button scrolling under a see-through bar lit the whole bar orange, which read as a broken page. Once
+ * an enquiry is saved, "Enquire" becomes the reference.
  *
  * Phones only (lg:hidden); on a laptop the buttons sit in the sticky column.
  * The data-ask-dock mark keeps the floating Ask launcher away on this page.
@@ -130,14 +141,16 @@ export function StickyActions({ title, phone }: { title: string; phone: { e164: 
   const quiet = "inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-green-500/40 text-sm font-semibold text-green-200";
   return (
     <>
+      {/* Away = slid down by its own height plus its offset from the bottom: out of the viewport, behind the tab bar
+          on the way. Transform only, on the compositor, with a long ease-out: a drawer closing, not a fade. */}
       <div
         ref={bar}
         data-ask-dock
         data-ready={ready || undefined}
         aria-hidden={hidden}
         inert={hidden || undefined}
-        className={`fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 grid grid-cols-3 gap-2 border-t border-border-default bg-surface-0 px-4 py-2.5 transition-[transform,opacity] duration-300 ease-[var(--ease-out)] motion-reduce:transition-none lg:hidden ${
-          hidden ? "pointer-events-none translate-y-[120%] opacity-0" : ""
+        className={`fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 grid grid-cols-3 gap-2 border-t border-border-default bg-surface-0 px-4 py-2.5 transition-transform duration-[360ms] ease-[cubic-bezier(0.32,0.72,0,1)] will-change-transform motion-reduce:transition-none lg:hidden ${
+          hidden ? "pointer-events-none translate-y-[calc(100%+4rem+env(safe-area-inset-bottom)+2px)]" : ""
         }`}
       >
         {/* One tap to a person, as a marketplace offers; the enquiry stays the recorded route. */}

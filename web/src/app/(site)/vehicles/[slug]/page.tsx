@@ -179,6 +179,36 @@ export default async function VehiclePage({ params }: Props) {
       </>
     );
 
+  /** The car's name, the four facts and the price: the first thing on the screen at any width. */
+  const titleBlock = (
+    <>
+      {v.status !== "available" && (
+        <p className="mb-6 rounded-xl border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm font-semibold text-green-200">
+          {sold ? "This vehicle has been sold" : "Reserved — a buyer has placed a deposit"}
+        </p>
+      )}
+      <div className="flex items-center justify-between gap-4">
+        <p className="text-[0.95rem] font-medium text-text-muted">
+          {v.year} · {v.make}
+        </p>
+        {!sold && <SaveButton slug={v.slug} title={title} variant="labelled" />}
+      </div>
+      <h1 className="mt-2 text-display-3 lg:text-display-2">{v.model}</h1>
+      {/* The four facts a buyer asks first, read in a glance. */}
+      <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-[0.95rem] text-text-secondary">
+        {facts.map(([Icon, label]) => (
+          <li key={label} className="inline-flex items-center gap-1.5">
+            <Icon aria-hidden size={16} className="shrink-0 text-green-300" /> {label}
+          </li>
+        ))}
+      </ul>
+      <div className="mt-5 lg:mt-6 lg:border-y lg:border-white/[0.06] lg:py-6">
+        <p className="text-sm font-medium text-text-muted">Price</p>
+        <p className="figures mt-1.5 text-[2rem] font-semibold leading-none tracking-tight">{priceLabel(v)}</p>
+      </div>
+    </>
+  );
+
   return (
     <article className="pb-20 lg:pb-0">
       <script
@@ -212,10 +242,22 @@ export default async function VehiclePage({ params }: Props) {
         {/* On a laptop: the gallery beside a sticky column. On a phone the column dissolves into the grid
             (max-lg:contents) and its header goes first, so the first screen is the car's name, its four
             facts and its price — the way a buyer judges a listing before scrolling — with the photos next. */}
-        <div className="mt-2 grid grid-cols-[minmax(0,1fr)] gap-8 md:mt-6 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)] lg:gap-14">
+        {/* --first-screen (phones and tablets): the height of the first screen's box — name, facts, price and the
+            photo — from its top edge down to 10px above the phone bar, so the photo's bottom edge meets the bar and
+            the row of buttons under the photo starts beneath it on every screen. The Gallery anchors the photo to
+            the box's bottom; on a tall screen the room left over opens between the price and the photo. The sum:
+            the small viewport, less the home indicator, the tab bar (4rem + 1px), the bar (4.25rem + 1px), the
+            10px, and what stands above the box — on a phone the header (4rem + 1px), this container's top
+            (1.5rem) and the grid's top (0.5rem); on a tablet the taller header (4.5rem + 1px), the container's top
+            (2.5rem), the breadcrumb (1.25rem) and the grid's top (1.5rem). Changing any of those heights means
+            changing these numbers; the phone smoke test fails if the buttons ever show above the bar on arrival. */}
+        <div className="mt-2 grid grid-cols-[minmax(0,1fr)] gap-8 [--first-screen:calc(100svh-14.25rem-12px-env(safe-area-inset-bottom))] md:mt-6 md:[--first-screen:calc(100svh-18.75rem-env(safe-area-inset-bottom))] lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)] lg:gap-14">
+          {/* On a phone the title block leads the Gallery's first-screen box; on a laptop the copy below heads the
+              sticky column. One hidden at any width, so the page reads the same to a search engine either way. */}
           <Gallery
             images={photos}
             title={title}
+            lead={<div className="lg:hidden">{titleBlock}</div>}
             between={
               <div id="primary-actions" className="flex flex-col gap-3">
                 {actions(true)}
@@ -224,32 +266,7 @@ export default async function VehiclePage({ params }: Props) {
           />
 
           <div className="max-lg:contents lg:sticky lg:top-28 lg:self-start">
-            <div className="max-lg:-order-1">
-              {v.status !== "available" && (
-                <p className="mb-6 rounded-xl border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm font-semibold text-green-200">
-                  {sold ? "This vehicle has been sold" : "Reserved — a buyer has placed a deposit"}
-                </p>
-              )}
-              <div className="flex items-center justify-between gap-4">
-                <p className="text-[0.95rem] font-medium text-text-muted">
-                  {v.year} · {v.make}
-                </p>
-                {!sold && <SaveButton slug={v.slug} title={title} variant="labelled" />}
-              </div>
-              <h1 className="mt-2 text-display-3 lg:text-display-2">{v.model}</h1>
-              {/* The four facts a buyer asks first, read in a glance. */}
-              <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-[0.95rem] text-text-secondary">
-                {facts.map(([Icon, label]) => (
-                  <li key={label} className="inline-flex items-center gap-1.5">
-                    <Icon aria-hidden size={16} className="shrink-0 text-green-300" /> {label}
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-5 lg:mt-6 lg:border-y lg:border-white/[0.06] lg:py-6">
-                <p className="text-sm font-medium text-text-muted">Price</p>
-                <p className="figures mt-1.5 text-[2rem] font-semibold leading-none tracking-tight">{priceLabel(v)}</p>
-              </div>
-            </div>
+            <div className="max-lg:hidden">{titleBlock}</div>
 
             {/* The next step: in the sticky column on a laptop, and on a phone straight under the car's photo
                 (the gallery's `between` slot). The phone bar (StickyActions) is up on arrival, slides away once the

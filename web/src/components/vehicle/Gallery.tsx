@@ -38,10 +38,13 @@ function Arrow({ dir, onClick, label }: { dir: "prev" | "next"; onClick: () => v
 export function Gallery({
   images,
   title,
+  lead,
   between,
 }: {
   images: GalleryImage[];
   title: string;
+  /** Leads the first screen on a phone, above the photo: the car's name, facts and price. */
+  lead?: React.ReactNode;
   /** Shown between the photo and its thumbnails on a phone: the page's actions, straight under the car. */
   between?: React.ReactNode;
 }) {
@@ -68,38 +71,54 @@ export function Gallery({
   };
 
   return (
-    <div onKeyDown={keys} aria-roledescription="carousel" aria-label={`Photos of the ${title}`} className="min-w-0">
-      <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-white/[0.07] bg-surface-2 lg:aspect-[16/11]" {...swipe}>
-        <VehicleImage
-          key={photos[i].url}
-          src={photos[i].url}
-          alt={photos[i].alt}
-          fill
-          priority={i === 0}
-          sizes="(min-width: 1024px) 60vw, 100vw"
-          className="object-cover"
-        />
-        {many && (
-          <>
-            <Arrow dir="prev" onClick={() => go(i - 1)} label="Previous photo" />
-            <Arrow dir="next" onClick={() => go(i + 1)} label="Next photo" />
-          </>
-        )}
-        <div className="absolute bottom-3 left-3 right-3 z-10 flex items-center justify-between">
-          <span aria-live="polite" className="glass figures rounded-full px-3 py-1.5 text-xs font-medium text-white">
-            <span className="figures">
-              {i + 1} / {photos.length}
-            </span>
-          </span>
-          {images.length > 0 && (
-            <button
-              type="button"
-              onClick={() => dialog.current?.showModal()}
-              className="glass rounded-full px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-[#090E0A]/80"
-            >
-              Full screen
-            </button>
+    <div onKeyDown={keys} className="min-w-0">
+      {/* The first screen on a phone, as one box: the lead (name, facts, price) at the top and the photo anchored
+          to the bottom, the box standing --first-screen tall (set by the car's page: the screen down to just above
+          the phone bar). So the photo's bottom edge meets the bar and the row under the photo starts beneath it
+          on every screen. Room to spare on a taller screen goes to the photo first — it grows from 4:3 up to a
+          square, filling with the car (object-cover) — and only past that opens between the price and the photo.
+          The lead keeps the usual 2rem to the photo when there is no room to spare. On a laptop the box dissolves
+          (lg:contents) and the lead is not shown: the title block heads the sticky column there. The box is a
+          container so the square cap can be written as its own width (100cqw). */}
+      <div className="max-lg:@container max-lg:flex max-lg:min-h-[var(--first-screen,0px)] max-lg:flex-col lg:contents">
+        {lead && <div className="pb-8 lg:hidden">{lead}</div>}
+        <div
+          aria-roledescription="carousel"
+          aria-label={`Photos of the ${title}`}
+          className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-white/[0.07] bg-surface-2 max-lg:mt-auto max-lg:max-h-[100cqw] max-lg:flex-[1_0_auto] lg:aspect-[16/11]"
+          {...swipe}
+        >
+          <VehicleImage
+            key={photos[i].url}
+            src={photos[i].url}
+            alt={photos[i].alt}
+            fill
+            priority={i === 0}
+            sizes="(min-width: 1024px) 60vw, 100vw"
+            className="object-cover"
+          />
+          {many && (
+            <>
+              <Arrow dir="prev" onClick={() => go(i - 1)} label="Previous photo" />
+              <Arrow dir="next" onClick={() => go(i + 1)} label="Next photo" />
+            </>
           )}
+          <div className="absolute bottom-3 left-3 right-3 z-10 flex items-center justify-between">
+            <span aria-live="polite" className="glass figures rounded-full px-3 py-1.5 text-xs font-medium text-white">
+              <span className="figures">
+                {i + 1} / {photos.length}
+              </span>
+            </span>
+            {images.length > 0 && (
+              <button
+                type="button"
+                onClick={() => dialog.current?.showModal()}
+                className="glass rounded-full px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-[#090E0A]/80"
+              >
+                Full screen
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

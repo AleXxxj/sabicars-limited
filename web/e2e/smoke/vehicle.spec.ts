@@ -16,8 +16,9 @@ test.describe("A car's page", () => {
     // The card named it "2016 Toyota Hiace, ₦…"; the page's heading is the model.
     const model = (await heading.innerText()).trim();
     expect(title, `the card said "${title}" but the page is about "${model}"`).toContain(model);
-    await expect(page.getByText("Price", { exact: true }).first(), "the car page has no Price label").toBeVisible();
-    await expect(page.locator("p").filter({ hasText: /^(₦[\d,]+|Price on request)$/ }).first(), "the car page shows no price").toBeVisible();
+    // The title block is in the page twice (a phone copy and a laptop copy, one hidden at any width): the visible one counts.
+    await expect(page.getByText("Price", { exact: true }).filter({ visible: true }).first(), "the car page has no Price label").toBeVisible();
+    await expect(page.locator("p").filter({ hasText: /^(₦[\d,]+|Price on request)$/ }).filter({ visible: true }).first(), "the car page shows no price").toBeVisible();
     assertNoFaults(faults);
   });
 
@@ -25,7 +26,7 @@ test.describe("A car's page", () => {
     const faults = watchForFaults(page);
     test.skip((await stockCount(page)) === 0, "The site has no vehicles in stock");
     await openFirstVehicle(page);
-    const price = (await page.locator("p").filter({ hasText: /^(₦[\d,]+|Price on request)$/ }).first().innerText()).trim();
+    const price = (await page.locator("p").filter({ hasText: /^(₦[\d,]+|Price on request)$/ }).filter({ visible: true }).first().innerText()).trim();
     const status = page.getByText(/This vehicle has been sold|Reserved — a buyer has placed a deposit/);
     if (price === "Price on request") {
       // No price, no plan: the enquiry form is the way to ask.
@@ -101,15 +102,15 @@ test.describe("A car's page", () => {
     const row = page.locator("#primary-actions");
     await expect(row.getByRole("link", { name: "Book a viewing" }), "the row under the photo has no Book a viewing").toBeAttached();
     await expect(row.getByRole("button", { name: "Chat with seller" }), "the row under the photo has no Chat with seller").toBeAttached();
-    // On arrival the bar is up, whatever lies under it. Once scrolled with the three buttons in view above the bar,
-    // it steps aside; it is back as soon as the buttons have gone over the top, call-back line or not; once
-    // "Similar vehicles" comes into view, it has gone.
+    // On arrival the bar is up, with the three buttons beneath it. As the buttons come out from under it, it steps
+    // aside; it is back as soon as the buttons have gone over the top, call-back line or not; once "Similar
+    // vehicles" comes into view, it has gone.
     await expect(bar, "the phone bar is not up on arrival").toHaveAttribute("aria-hidden", "false");
     await page.evaluate(() => window.scrollBy(0, document.querySelector("#primary-actions [data-buttons]")!.getBoundingClientRect().top - 200));
     await expect(bar, "the bar stayed up with the three buttons in view").toHaveAttribute("aria-hidden", "true");
     await page.evaluate(() => {
       const header = document.querySelector("header")!.getBoundingClientRect().bottom;
-      window.scrollBy(0, document.querySelector("#primary-actions [data-buttons]")!.getBoundingClientRect().bottom - header + 2);
+      window.scrollBy(0, document.querySelector("#primary-actions [data-buttons]")!.getBoundingClientRect().bottom - header + 4);
     });
     await expect(page.locator("#primary-actions p"), "the call-back line should still be in view here").toBeInViewport();
     await expect(bar, "the bar did not come back once the buttons had gone").toHaveAttribute("aria-hidden", "false");
@@ -155,7 +156,7 @@ test.describe("A car's page", () => {
     await openFirstVehicle(page);
     // The four facts a buyer reads first sit under the name, before the price.
     await expect(page.getByRole("heading", { level: 1 }), "the car page shows no name").toBeVisible();
-    await expect(page.getByText(/Foreign used|Nigerian used|Brand new/).first(), "the car page does not state the car's condition up top").toBeVisible();
+    await expect(page.getByText(/Foreign used|Nigerian used|Brand new/).filter({ visible: true }).first(), "the car page does not state the car's condition up top").toBeVisible();
     // One tap to a phone: a tel: link on the page.
     await expect(page.locator('a[href^="tel:"]').first(), "the car page has no call link").toBeAttached();
     // Call me back: one field, the way the enquiry card opens on. Sent the way looksAutomated() recognises

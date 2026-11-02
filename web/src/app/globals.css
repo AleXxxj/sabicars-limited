@@ -182,7 +182,6 @@
  * itself. Outside the layers so it wins over the bar's own utility classes.
  */
 html[data-car-row="on-screen"] [data-ask-dock]:not([data-ready]) {
-  transform: translateY(120%);
-  opacity: 0;
+  transform: translateY(calc(100% + 4rem + env(safe-area-inset-bottom) + 2px));
   pointer-events: none;
 }
