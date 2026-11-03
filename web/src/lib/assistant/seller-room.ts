@@ -1,17 +1,18 @@
 import "server-only";
-import { and, asc, eq, gt, isNotNull, isNull, lt, or, sql } from "drizzle-orm";
+import { and, asc, eq, isNotNull, isNull, lt, or, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { assistantConversations, assistantMessages, staff, vehicles } from "@/db/schema";
 import { pushToStaff } from "@/lib/alerts";
-import { CHAT_ALERT_EVERY_MINUTES, shouldAlertStaff } from "@/lib/assistant/seller";
+import { CHAT_ALERT_EVERY_SECONDS, shouldAlertStaff } from "@/lib/assistant/seller";
 import { openMessage, sealMessage } from "@/lib/assistant/vault";
 import type { StaffMember } from "@/lib/auth";
 import { vehicleTitle } from "@/lib/vehicle";
 
 /**
  * The server side of a "Chat with seller" room: who may read it, what the
- * buyer's screen fetches, how staff phones are pinged, and how a person's
- * reply is written in. The rules themselves are in seller.ts.
+ * buyer's screen fetches, what the team's screen fetches, how each side's
+ * typing is heard, how staff phones are pinged, and how a person's reply is
+ * written in. The rules themselves are in seller.ts.
  */
 
 export interface RoomMessage {
@@ -30,6 +31,30 @@ export interface Room {
   mode: string;
   awaitingSince: Date | null;
   lastStaffAt: Date | null;
+  staffTypingAt: Date | null;
+}
+
+/** A line of the chat as the team's screen shows it: every side, in the open. */
+export interface ThreadMessage {
+  id: string;
+  role: "user" | "assistant" | "staff";
+  /** The words, opened; Sabi's still carry its [[directives]], which the screen describes. */
+  text: string;
+  /** The first name of the person on the team who wrote it, on a staff line. */
+  staffName: string | null;
+  /** ISO. */
+  at: string;
+}
+
+/**
+ * Lines written at or after `after`. A screen asks with the time of the newest line it has, to the millisecond
+ * (ISO), while the database keeps microseconds: "strictly after" would hand that newest line back for ever,
+ * and "after the next millisecond" could skip a line written in the same one. So the database's time is read
+ * to the millisecond and compared inclusively, and every screen drops lines it already has by id.
+ */
+function since(after: Date | null) {
+  // As text, cast: a raw fragment hands the driver a Date it cannot send, where a column comparison would convert it.
+  return after ? sql`date_trunc('milliseconds', ${assistantMessages.createdAt}) >= ${after.toISOString()}::timestamptz` : sql`true`;
 }
 
 /** The first name a buyer sees on a staff message; a member with no name on file is "the team", never an email handle. */
@@ -51,6 +76,7 @@ export async function roomFor(conversationId: string, deviceId: string | null): 
       mode: assistantConversations.mode,
       awaitingSince: assistantConversations.awaitingSince,
       lastStaffAt: assistantConversations.lastStaffAt,
+      staffTypingAt: assistantConversations.staffTypingAt,
     })
     .from(assistantConversations)
     .where(and(eq(assistantConversations.id, conversationId), eq(assistantConversations.deviceId, deviceId)))
@@ -71,13 +97,7 @@ export async function roomMessagesSince(conversationId: string, after: Date | nu
     })
     .from(assistantMessages)
     .leftJoin(staff, eq(staff.id, assistantMessages.staffId))
-    .where(
-      and(
-        eq(assistantMessages.conversationId, conversationId),
-        sql`${assistantMessages.role} <> 'user'`,
-        after ? gt(assistantMessages.createdAt, after) : sql`true`,
-      ),
-    )
+    .where(and(eq(assistantMessages.conversationId, conversationId), sql`${assistantMessages.role} <> 'user'`, since(after)))
     .orderBy(asc(assistantMessages.createdAt))
     .limit(50);
   return rows.map((r) => ({
@@ -90,9 +110,77 @@ export async function roomMessagesSince(conversationId: string, after: Date | nu
 }
 
 /**
- * Pings the phones of everyone on the team who takes alerts, at most once
- * every couple of minutes per chat. The claim is one UPDATE, so two messages
- * arriving together ping once.
+ * The buyer's keyboard was heard from (or fell silent): noted on the room, so
+ * the team's screen can show it. Only the device that opened the room counts.
+ */
+export async function setBuyerTyping(conversationId: string, deviceId: string | null, typing: boolean, now = new Date()): Promise<boolean> {
+  if (!deviceId) return false;
+  const rows = await db
+    .update(assistantConversations)
+    .set({ buyerTypingAt: typing ? now : null })
+    .where(and(eq(assistantConversations.id, conversationId), eq(assistantConversations.deviceId, deviceId)))
+    .returning({ id: assistantConversations.id });
+  return rows.length > 0;
+}
+
+/** A person on the team is typing a reply (or stopped): noted on the room, so the buyer's screen can show it. */
+export async function setStaffTyping(conversationId: string, dealerId: string, typing: boolean, now = new Date()): Promise<boolean> {
+  const rows = await db
+    .update(assistantConversations)
+    .set({ staffTypingAt: typing ? now : null })
+    .where(and(eq(assistantConversations.id, conversationId), eq(assistantConversations.dealerId, dealerId)))
+    .returning({ id: assistantConversations.id });
+  return rows.length > 0;
+}
+
+/** The room as the team's screen follows it: whether the buyer waits, a person is in, the buyer is typing. */
+export async function threadState(conversationId: string, dealerId: string) {
+  const [row] = await db
+    .select({
+      id: assistantConversations.id,
+      mode: assistantConversations.mode,
+      awaitingSince: assistantConversations.awaitingSince,
+      lastStaffAt: assistantConversations.lastStaffAt,
+      buyerTypingAt: assistantConversations.buyerTypingAt,
+      staffTypingAt: assistantConversations.staffTypingAt,
+      messageCount: assistantConversations.messageCount,
+      vehiclesShown: assistantConversations.vehiclesShown,
+    })
+    .from(assistantConversations)
+    .where(and(eq(assistantConversations.id, conversationId), eq(assistantConversations.dealerId, dealerId)))
+    .limit(1);
+  return row ?? null;
+}
+
+/** Every line written after `after`, oldest first, for the team's screen. */
+export async function threadMessagesSince(conversationId: string, after: Date | null): Promise<ThreadMessage[]> {
+  const rows = await db
+    .select({
+      id: assistantMessages.id,
+      role: assistantMessages.role,
+      content: assistantMessages.content,
+      createdAt: assistantMessages.createdAt,
+      fullName: staff.fullName,
+      email: staff.email,
+    })
+    .from(assistantMessages)
+    .leftJoin(staff, eq(staff.id, assistantMessages.staffId))
+    .where(and(eq(assistantMessages.conversationId, conversationId), since(after)))
+    .orderBy(asc(assistantMessages.createdAt))
+    .limit(100);
+  return rows.map((r) => ({
+    id: r.id,
+    role: r.role === "staff" ? "staff" : r.role === "user" ? "user" : "assistant",
+    text: openMessage(r.content),
+    staffName: r.role === "staff" ? staffFirstName({ fullName: r.fullName, email: r.email }) : null,
+    at: r.createdAt.toISOString(),
+  }));
+}
+
+/**
+ * Pings the phones of everyone on the team who takes alerts: every line the
+ * buyer sends, merged within a few seconds so a fast typist is one ping. The
+ * claim is one UPDATE, so two messages arriving together ping once.
  */
 export async function alertStaffAboutChat(
   conversation: { id: string; dealerId: string; vehicleId: string | null; staffAlertedAt: Date | null },
@@ -100,7 +188,7 @@ export async function alertStaffAboutChat(
   now = new Date(),
 ): Promise<{ sent: number }> {
   if (!shouldAlertStaff(conversation.staffAlertedAt, now)) return { sent: 0 };
-  const before = new Date(now.getTime() - CHAT_ALERT_EVERY_MINUTES * 60_000);
+  const before = new Date(now.getTime() - CHAT_ALERT_EVERY_SECONDS * 1000);
   const claimed = await db
     .update(assistantConversations)
     .set({ staffAlertedAt: now })
@@ -160,7 +248,8 @@ export async function releaseStaleRooms(now = new Date()): Promise<number> {
 
 /**
  * A person's reply, written into the room: sealed like every message, under
- * their name. The room stops waiting, and Sabi stays quiet while they are in it.
+ * their name. The room stops waiting, their typing sign drops, and Sabi stays
+ * quiet while they are in it.
  */
 export async function staffReply(me: StaffMember, conversationId: string, text: string): Promise<{ ok: true } | { ok: false; error: string }> {
   const [conversation] = await db
@@ -177,6 +266,7 @@ export async function staffReply(me: StaffMember, conversationId: string, text: 
     .set({
       lastStaffAt: now,
       awaitingSince: null,
+      staffTypingAt: null,
       needsHuman: false,
       lastMessageAt: now,
       messageCount: sql`${assistantConversations.messageCount} + 1`,

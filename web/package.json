@@ -35,7 +35,8 @@
     "content:sync": "node --env-file=.env.local scripts/sync-content.mjs",
     "backup:restore": "node --env-file=.env.local --import tsx scripts/restore-backup.mts",
     "test:backup": "node --env-file-if-exists=.env.local --conditions=react-server --import tsx scripts/verify-backup.mts",
-    "test:outbox": "node --env-file-if-exists=.env.local --conditions=react-server --import tsx scripts/verify-outbox.mts"
+    "test:outbox": "node --env-file-if-exists=.env.local --conditions=react-server --import tsx scripts/verify-outbox.mts",
+    "test:chat": "node --env-file-if-exists=.env.local --conditions=react-server --import tsx scripts/verify-chat.mts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.128.0",

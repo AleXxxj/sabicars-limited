@@ -1,21 +1,45 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { ArrowUp } from "lucide-react";
 import { replyInConversation } from "@/lib/actions/ask-admin";
 
+/** How often the buyer's screen is told the person is still typing; under the sign's own life (TYPING_TTL_SECONDS). */
+const TYPING_EVERY_MS = 2_000;
+
 /**
  * The team's side of a "Chat with seller" room: a reply box under the
- * transcript. What is sent appears on the buyer's phone within seconds, under
- * the sender's first name, and Sabi stays quiet while they are in the room.
+ * transcript. What is sent appears on the buyer's phone within a couple of
+ * seconds, under the sender's first name, and Sabi stays quiet while they are
+ * in the room. While a reply is being typed the buyer sees "typing…".
  */
-export function ChatReply({ conversationId, name, waiting }: { conversationId: string; name: string; waiting: boolean }) {
-  const router = useRouter();
+export function ChatReply({ conversationId, name, waiting, onSent }: { conversationId: string; name: string; waiting: boolean; onSent?: () => void }) {
   const [text, setText] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
   const field = useRef<HTMLTextAreaElement>(null);
+  const typingSentAt = useRef(0);
+  const typingOn = useRef(false);
+
+  const signalTyping = (on: boolean) => {
+    const now = Date.now();
+    if (on && now - typingSentAt.current < TYPING_EVERY_MS) return;
+    if (!on && !typingOn.current) return;
+    typingSentAt.current = on ? now : 0;
+    typingOn.current = on;
+    void fetch(`/api/admin/conversations/${conversationId}/typing`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ typing: on }),
+      keepalive: true,
+    }).catch(() => {});
+  };
+
+  // Leaving the chat mid-sentence: the buyer must not see "typing…" for someone who has gone.
+  useEffect(() => () => {
+    if (typingOn.current) signalTyping(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const send = () => {
     const message = text.trim();
@@ -25,7 +49,10 @@ export function ChatReply({ conversationId, name, waiting }: { conversationId: s
       const r = await replyInConversation(conversationId, message);
       if (r.ok) {
         setText("");
-        router.refresh();
+        // The reply itself clears the typing sign on the server.
+        typingOn.current = false;
+        typingSentAt.current = 0;
+        onSent?.();
         field.current?.focus();
       } else {
         setError(r.error ?? "Could not send that.");
@@ -49,7 +76,10 @@ export function ChatReply({ conversationId, name, waiting }: { conversationId: s
         <textarea
           ref={field}
           value={text}
-          onChange={(e) => setText(e.target.value)}
+          onChange={(e) => {
+            setText(e.target.value);
+            signalTyping(e.target.value.trim().length > 0);
+          }}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
               e.preventDefault();

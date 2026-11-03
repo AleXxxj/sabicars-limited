@@ -1119,6 +1119,10 @@ export const assistantConversations = pgTable(
     lastStaffAt: timestamp("last_staff_at", { withTimezone: true }),
     /** When staff phones were last pinged about this chat, so a quick typist does not ring them every line. */
     staffAlertedAt: timestamp("staff_alerted_at", { withTimezone: true }),
+    /** The buyer's keyboard was last heard from then: the team's screen shows "typing" for a few seconds after. */
+    buyerTypingAt: timestamp("buyer_typing_at", { withTimezone: true }),
+    /** A person on the team was last typing a reply then: the buyer's screen shows it for a few seconds after. */
+    staffTypingAt: timestamp("staff_typing_at", { withTimezone: true }),
     createdAt: createdAt(),
     lastMessageAt: timestamp("last_message_at", { withTimezone: true }).notNull().defaultNow(),
   },

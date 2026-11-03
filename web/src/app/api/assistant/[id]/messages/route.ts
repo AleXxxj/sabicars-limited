@@ -1,16 +1,17 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { DEVICE_COOKIE } from "@/lib/assistant/memory";
-import { remainingWaitSeconds, sellerWaitSeconds, staffPresent } from "@/lib/assistant/seller";
+import { isTyping, remainingWaitSeconds, sellerWaitSeconds, staffPresent } from "@/lib/assistant/seller";
 import { roomFor, roomMessagesSince } from "@/lib/assistant/seller-room";
 
 export const dynamic = "force-dynamic";
 
 /**
- * What the buyer's chat window fetches while it waits in a "Chat with seller"
- * room: the team's replies (and Sabi's) since the last it saw, and whether a
- * person is in the room. Only the device that opened the chat may read it —
- * its cookie must match — so a chat id alone opens nothing.
+ * What the buyer's chat window fetches, every couple of seconds, while it is
+ * in a "Chat with seller" room: the team's replies (and Sabi's) since the last
+ * it saw, whether a person is in the room, and whether one is typing. Only the
+ * device that opened the chat may read it — its cookie must match — so a chat
+ * id alone opens nothing.
  */
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -31,6 +32,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       /** Seconds left before Sabi may answer the waiting message; a reloaded window re-arms its timer from this. */
       remainingSeconds: room.awaitingSince ? remainingWaitSeconds(room.awaitingSince, now) : 0,
       staffPresent: staffPresent(room.lastStaffAt, now),
+      staffTyping: isTyping(room.staffTypingAt, now),
       waitSeconds: sellerWaitSeconds(now),
     },
     { headers: { "Cache-Control": "no-store" } },

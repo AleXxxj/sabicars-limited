@@ -19,8 +19,17 @@ import { isOpen } from "@/lib/showroom-hours";
 export const SELLER_WAIT_SECONDS = 75;
 /** A person who wrote within this many minutes is "in the room": Sabi does not answer over them. */
 export const STAFF_PRESENCE_MINUTES = 10;
-/** Staff phones are pinged about a chat at most this often, so a fast typist is one alert, not ten. */
-export const CHAT_ALERT_EVERY_MINUTES = 2;
+/**
+ * Staff phones are pinged about a chat at most this often: every line the buyer sends rings, but a fast typist
+ * sending three lines in ten seconds is one ring, not three. The phone's notification replaces itself (same
+ * tag) and re-alerts, so each ring is the latest line.
+ */
+export const CHAT_ALERT_EVERY_SECONDS = 20;
+/**
+ * "Typing…" shows for this long after the last word was heard from a keyboard. Each side reports its typing
+ * every couple of seconds while it goes on, so the sign stays up through a pause and drops soon after a stop.
+ */
+export const TYPING_TTL_SECONDS = 6;
 /** The buyer's timer and the server's clock will not agree to the second. */
 const GRACE_SECONDS = 5;
 
@@ -36,7 +45,12 @@ export function staffPresent(lastStaffAt: Date | null | undefined, now = new Dat
 
 /** True when staff phones may be pinged again about this chat. */
 export function shouldAlertStaff(staffAlertedAt: Date | null | undefined, now = new Date()): boolean {
-  return !staffAlertedAt || now.getTime() - staffAlertedAt.getTime() >= CHAT_ALERT_EVERY_MINUTES * 60_000;
+  return !staffAlertedAt || now.getTime() - staffAlertedAt.getTime() >= CHAT_ALERT_EVERY_SECONDS * 1000;
+}
+
+/** True while a keyboard last heard from at `typingAt` still counts as typing. */
+export function isTyping(typingAt: Date | null | undefined, now = new Date()): boolean {
+  return Boolean(typingAt && now.getTime() - typingAt.getTime() < TYPING_TTL_SECONDS * 1000);
 }
 
 /**

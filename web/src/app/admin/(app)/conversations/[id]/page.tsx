@@ -2,10 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { ChatReply } from "@/components/admin/ChatReply";
 import { HandledButton } from "@/components/admin/HandledButton";
 import { LiveRefresh } from "@/components/admin/LiveRefresh";
-import { PublishFromChat } from "@/components/admin/PublishFromChat";
+import { LiveThread, type ThreadLine } from "@/components/admin/LiveThread";
 import { can, requireStaff } from "@/lib/auth";
 import { describeDirectives } from "@/lib/assistant/parts";
 import { staffPresent } from "@/lib/assistant/seller";
@@ -34,11 +33,23 @@ export default async function ConversationPage({ params }: Props) {
   // A seller chat is read by whoever answers it — the buyer asked for the team. A chat with Sabi stays with the owner and managers.
   const canRead = seller || can.readTranscripts(me);
   const waiting = Boolean(c.awaitingSince);
+  // The transcript as the live thread takes it over: Sabi's directives described, the rest as written.
+  const lines: ThreadLine[] = canRead
+    ? c.messages.map((m) => ({
+        id: m.id,
+        role: m.role === "staff" ? "staff" : m.role === "user" ? "user" : "assistant",
+        text: m.role === "assistant" ? describeDirectives(m.content, title) : m.content,
+        raw: m.role === "assistant" ? m.content : undefined,
+        staffName: m.staffName,
+        at: new Date(m.createdAt).toISOString(),
+      }))
+    : [];
 
   return (
     <>
-      {/* A seller chat is live: the page follows it every few seconds while it is open. */}
-      {seller && <LiveRefresh everyMs={waiting || staffPresent(c.lastStaffAt) ? 5_000 : 20_000} />}
+      {/* The transcript follows the room by itself every couple of seconds (LiveThread); the page around it — the
+          waiting badge, the summary, the enquiry — catches up on a slower beat. */}
+      {seller && <LiveRefresh everyMs={15_000} />}
       <Link
         href="/admin/conversations"
         className="inline-flex min-h-10 items-center gap-1.5 text-sm text-text-muted hover:text-text-primary"
@@ -64,36 +75,7 @@ export default async function ConversationPage({ params }: Props) {
               The words of a chat are read by the owner and managers. The summary and the buyer&rsquo;s details are on the right, which is what a call needs.
             </p>
           )}
-          {(canRead ? c.messages : []).map((m, i) => {
-            const text = describeDirectives(m.content, title);
-            const prev = c.messages[i - 1];
-            if (m.role === "user")
-              return (
-                <div key={m.id} className="ml-auto max-w-[85%] rounded-2xl rounded-br-md border border-green-500/25 bg-green-500/[0.1] px-4 py-3">
-                  <p className="whitespace-pre-wrap text-text-primary">{m.content}</p>
-                  <p className="mt-1 text-right text-[0.7rem] text-text-muted">{when(m.createdAt)}</p>
-                </div>
-              );
-            if (m.role === "staff")
-              return (
-                <div key={m.id} className="max-w-[92%] rounded-2xl rounded-bl-md border border-orange-400/30 bg-orange-500/[0.06] px-4 py-3">
-                  <p className="text-[0.7rem] font-semibold tracking-wide text-orange-200 uppercase">
-                    {m.staffName ?? "Sabicars team"} · {when(m.createdAt)}
-                  </p>
-                  <p className="mt-1 whitespace-pre-wrap text-text-primary">{m.content}</p>
-                </div>
-              );
-            return (
-              <div key={m.id} className="max-w-[92%] rounded-2xl rounded-bl-md border border-border-subtle bg-surface-1 px-4 py-3">
-                <p className="text-[0.7rem] font-semibold tracking-wide text-green-300 uppercase">Sabi · {when(m.createdAt)}</p>
-                <p className="mt-1 whitespace-pre-wrap text-text-secondary">{text}</p>
-                {canPublish && prev?.role === "user" && (
-                  <PublishFromChat question={prev.content} answer={m.content.replace(/\[\[[^\]]*\]\]/g, "").trim()} conversationId={c.id} />
-                )}
-              </div>
-            );
-          })}
-          {seller && <ChatReply conversationId={c.id} name={staffFirstName(me)} waiting={waiting} />}
+          <LiveThread conversationId={c.id} initial={lines} seller={seller} canRead={canRead} canPublish={canPublish} replyAs={staffFirstName(me)} waiting={waiting} />
         </section>
 
         <aside className="order-1 grid content-start gap-4 lg:order-2">

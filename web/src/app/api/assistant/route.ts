@@ -201,9 +201,10 @@ export async function POST(request: NextRequest) {
     const message = parsed.data.message!;
     const at = new Date();
     await db.insert(assistantMessages).values({ conversationId: convId, role: "user", content: sealMessage(message), createdAt: at });
+    // The line is sent: the buyer is no longer "typing" it.
     await db
       .update(assistantConversations)
-      .set({ awaitingSince: at, lastMessageAt: at, messageCount: sql`${assistantConversations.messageCount} + 1` })
+      .set({ awaitingSince: at, lastMessageAt: at, buyerTypingAt: null, messageCount: sql`${assistantConversations.messageCount} + 1` })
       .where(eq(assistantConversations.id, convId));
     const room = existing!;
     after(async () => {

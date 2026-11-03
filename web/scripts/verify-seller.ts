@@ -7,7 +7,7 @@
  * Run: npm run test:seller
  */
 
-import { CHAT_ALERT_EVERY_MINUTES, sabiMayAnswer, SELLER_WAIT_SECONDS, sellerWaitSeconds, shouldAlertStaff, staffPresent, waitingLine } from "../src/lib/assistant/seller";
+import { CHAT_ALERT_EVERY_SECONDS, isTyping, sabiMayAnswer, SELLER_WAIT_SECONDS, sellerWaitSeconds, shouldAlertStaff, staffPresent, TYPING_TTL_SECONDS, waitingLine } from "../src/lib/assistant/seller";
 
 let passed = 0;
 let failed = 0;
@@ -52,8 +52,11 @@ eq("never present if they never wrote", staffPresent(null, monday11), false);
 
 console.log("\nPinging staff phones");
 eq("the first message pings", shouldAlertStaff(null, monday11), true);
-eq("a second line a minute later does not", shouldAlertStaff(monday11, plus(monday11, 60)), false);
-eq(`after ${CHAT_ALERT_EVERY_MINUTES} minutes it pings again`, shouldAlertStaff(monday11, plus(monday11, CHAT_ALERT_EVERY_MINUTES * 60)), true);
+eq("a second line ten seconds later does not", shouldAlertStaff(monday11, plus(monday11, 10)), false);
+eq(`after ${CHAT_ALERT_EVERY_SECONDS} seconds it pings again`, shouldAlertStaff(monday11, plus(monday11, CHAT_ALERT_EVERY_SECONDS)), true);
+eq("a keyboard heard from three seconds ago is typing", isTyping(monday11, plus(monday11, 3)), true);
+eq(`a keyboard silent for ${TYPING_TTL_SECONDS} seconds is not`, isTyping(monday11, plus(monday11, TYPING_TTL_SECONDS)), false);
+eq("no keyboard heard is not typing", isTyping(null, monday11), false);
 
 console.log(`\n${passed} passed, ${failed} failed\n`);
 if (failed) process.exit(1);

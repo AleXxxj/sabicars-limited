@@ -128,6 +128,10 @@ export function AskSabicars() {
   const [awaiting, setAwaiting] = useState(false);
   const [waitSeconds, setWaitSeconds] = useState(75);
   const [staffHere, setStaffHere] = useState<string | null>(null);
+  const [staffTyping, setStaffTyping] = useState(false);
+  // The last time the room was told we are typing, and whether it thinks we still are.
+  const typingSentAt = useRef(0);
+  const typingOn = useRef(false);
 
   // State for what renders (the callback form files against it); a ref for the request in flight.
   const [conversationId, setConversationId] = useState<string | null>(() => stored<string | null>(CONVERSATION_KEY, null));
@@ -310,6 +314,9 @@ export function AskSabicars() {
             remember(CONVERSATION_KEY, body.conversationId);
           }
           if (body?.at && !seenAt.current) noteSeen(body.at);
+          // The line is sent: the server drops our typing sign with it.
+          typingOn.current = false;
+          typingSentAt.current = 0;
           const wait = typeof body?.waitSeconds === "number" ? body.waitSeconds : 75;
           setWaitSeconds(wait);
           setAwaiting(true);
@@ -349,7 +356,27 @@ export function AskSabicars() {
     [pathname, streamInto, askSabi],
   );
 
-  // The room: while a seller chat is open, fetch the team's replies every few seconds.
+  /**
+   * In a seller room, the team's screen shows "typing…" while we type: told every couple of seconds while the
+   * box has words in it, and once more when it is emptied. Nothing before the room exists (no line sent yet).
+   */
+  const signalTyping = useCallback((on: boolean) => {
+    const id = conversation.current;
+    if (modeRef.current !== "seller" || !id) return;
+    const now = Date.now();
+    if (on && now - typingSentAt.current < 2_000) return;
+    if (!on && !typingOn.current) return;
+    typingSentAt.current = on ? now : 0;
+    typingOn.current = on;
+    void fetch(`/api/assistant/${id}/typing`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ typing: on }),
+      keepalive: true,
+    }).catch(() => {});
+  }, []);
+
+  // The room: while a seller chat is open, fetch the team's replies every couple of seconds.
   useEffect(() => {
     if (!open || mode !== "seller" || !conversationId) return;
     let stopped = false;
@@ -367,7 +394,15 @@ export function AskSabicars() {
           return;
         }
         if (!res.ok) return;
-        const body = (await res.json()) as { messages: RoomMessage[]; awaiting: boolean; remainingSeconds?: number; staffPresent: boolean; waitSeconds: number };
+        const body = (await res.json()) as {
+          messages: RoomMessage[];
+          awaiting: boolean;
+          remainingSeconds?: number;
+          staffPresent: boolean;
+          staffTyping?: boolean;
+          waitSeconds: number;
+        };
+        setStaffTyping(Boolean(body.staffTyping));
         // A reloaded window finds its message still waiting: arm the timer again from what is left of the wait.
         if (body.awaiting && !awaitingRef.current && !busyRef.current) {
           setAwaiting(true);
@@ -405,12 +440,18 @@ export function AskSabicars() {
       }
     };
     void poll();
-    const timer = setInterval(poll, awaiting ? 4_000 : 10_000);
+    const timer = setInterval(poll, 2_000);
     return () => {
       stopped = true;
       clearInterval(timer);
     };
-  }, [open, mode, conversationId, awaiting, askSabi]);
+  }, [open, mode, conversationId, askSabi]);
+
+  // Closing the window mid-sentence: the team must not see "typing…" for someone who has gone.
+  useEffect(() => {
+    if (open) return;
+    if (typingOn.current) signalTyping(false);
+  }, [open, signalTyping]);
 
   useEffect(() => () => {
     if (waitTimer.current) clearTimeout(waitTimer.current);
@@ -430,6 +471,9 @@ export function AskSabicars() {
     setAwaiting(false);
     awaitingRef.current = false;
     setStaffHere(null);
+    setStaffTyping(false);
+    typingOn.current = false;
+    typingSentAt.current = 0;
     setMode(next);
     modeRef.current = next;
     remember(ROOM_PATH_KEY, null);
@@ -671,9 +715,20 @@ export function AskSabicars() {
                 ),
               )}
 
-              {seller && awaiting && !busy && (
+              {seller && awaiting && !busy && !staffTyping && (
                 <p role="status" className="flex items-center gap-2 text-sm text-text-muted">
                   <span aria-hidden className="ask-dot size-2 rounded-full bg-orange-400" /> {waitingLine(waitSeconds)}
+                </p>
+              )}
+
+              {seller && staffTyping && !busy && (
+                <p role="status" className="flex items-center gap-2 text-sm text-text-muted">
+                  <span aria-hidden className="flex gap-1">
+                    {[0, 1, 2].map((i) => (
+                      <span key={i} className="ask-dot size-1.5 rounded-full bg-orange-400" style={{ animationDelay: `${i * 160}ms` }} />
+                    ))}
+                  </span>
+                  {staffHere ?? "Sabicars team"} is typing
                 </p>
               )}
 
@@ -706,6 +761,7 @@ export function AskSabicars() {
                 value={input}
                 onChange={(e) => {
                   setInput(e.target.value);
+                  signalTyping(e.target.value.trim().length > 0);
                   e.target.style.height = "auto";
                   e.target.style.height = `${Math.min(e.target.scrollHeight, 128)}px`;
                 }}
