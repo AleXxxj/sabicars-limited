@@ -3,6 +3,7 @@ import Link from "next/link";
 import { LiveRefresh } from "@/components/admin/LiveRefresh";
 import { requireStaff } from "@/lib/auth";
 import { conversationCounts, conversations, type ConversationView } from "@/lib/repositories/ask";
+import { vehicleTitle } from "@/lib/vehicle";
 
 export const metadata: Metadata = { title: "Conversations · Admin", robots: { index: false, follow: false } };
 
@@ -72,6 +73,11 @@ export default async function ConversationsAdmin({ searchParams }: Props) {
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-text-muted">
                   <span>{when(c.lastMessageAt)}</span>
                   <span>· {c.mode === "seller" ? `${c.messageCount} messages` : `${c.messageCount / 2} ${c.messageCount === 2 ? "question" : "questions"}`}</span>
+                  {c.vehicle && (
+                    <span className="rounded-full bg-green-500/15 px-2 py-0.5 font-semibold text-green-200">
+                      About the {vehicleTitle(c.vehicle)}
+                    </span>
+                  )}
                   {c.vehiclesShown.length > 0 && <span>· {c.vehiclesShown.length} cars shown</span>}
                   {c.landingPath && <span>· from {c.landingPath}</span>}
                   {c.awaitingSince && (

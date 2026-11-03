@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ExternalLink } from "lucide-react";
 import { HandledButton } from "@/components/admin/HandledButton";
 import { LiveRefresh } from "@/components/admin/LiveRefresh";
 import { LiveThread, type ThreadLine } from "@/components/admin/LiveThread";
@@ -12,7 +12,7 @@ import { staffFirstName } from "@/lib/assistant/seller-room";
 import { referenceFor } from "@/lib/reference";
 import { conversationDetail } from "@/lib/repositories/ask";
 import { vehiclesWithPages } from "@/lib/repositories/vehicles";
-import { vehicleTitle } from "@/lib/vehicle";
+import { priceLabel, vehicleTitle } from "@/lib/vehicle";
 
 export const metadata: Metadata = { title: "Conversation · Admin", robots: { index: false, follow: false } };
 
@@ -67,6 +67,26 @@ export default async function ConversationPage({ params }: Props) {
           <span className="rounded-full bg-green-500/15 px-2.5 py-0.5 text-xs font-semibold text-green-200">A person is in the room</span>
         )}
       </p>
+
+      {/* The car the buyer is asking about, first: a reply that names the wrong car loses the sale. The page the
+          buyer is looking at, and the car in the inventory, one tap each. */}
+      {c.vehicle && (
+        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl border border-green-500/30 bg-green-500/[0.07] px-4 py-3 text-sm">
+          <p className="min-w-0">
+            <span className="text-text-muted">About the </span>
+            <span className="font-semibold text-text-primary">{vehicleTitle(c.vehicle)}</span>
+            <span className="figures text-text-secondary"> · {priceLabel(c.vehicle)}</span>
+          </p>
+          <span className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <a href={`/vehicles/${c.vehicle.slug}`} target="_blank" rel="noopener" className="inline-flex min-h-8 items-center gap-1 font-semibold text-green-300 hover:text-green-200">
+              See the car as the buyer sees it <ExternalLink aria-hidden size={14} />
+            </a>
+            <Link href={`/admin/vehicles/${c.vehicle.id}`} className="inline-flex min-h-8 items-center font-semibold text-text-secondary hover:text-text-primary">
+              Open it in the inventory
+            </Link>
+          </span>
+        </div>
+      )}
 
       <div className="mt-6 grid gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <section className="order-2 grid gap-4 lg:order-1">

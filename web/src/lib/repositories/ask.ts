@@ -63,7 +63,28 @@ export interface ConversationRow {
   mode: string;
   /** A buyer's message is waiting for a person since then. */
   awaitingSince: Date | null;
+  /** The car whose page the chat started on: what the buyer is asking about, for the team to open. */
+  vehicle: ChatVehicle | null;
 }
+
+export interface ChatVehicle {
+  id: string;
+  slug: string;
+  year: number;
+  make: string;
+  model: string;
+  priceMinor: number | null;
+}
+
+/** The car a chat is about, as the admin names and links it; the whole object is null when the chat did not start on a car's page. */
+const chatVehicle = {
+  id: vehicles.id,
+  slug: vehicles.slug,
+  year: vehicles.year,
+  make: vehicles.make,
+  model: vehicles.model,
+  priceMinor: vehicles.priceMinor,
+};
 
 export async function conversations(view: ConversationView, limit = 60): Promise<ConversationRow[]> {
   const dealerId = await sabicarsDealerId();
@@ -92,9 +113,11 @@ export async function conversations(view: ConversationView, limit = 60): Promise
       firstQuestion,
       mode: assistantConversations.mode,
       awaitingSince: assistantConversations.awaitingSince,
+      vehicle: chatVehicle,
     })
     .from(assistantConversations)
     .leftJoin(leads, eq(leads.id, assistantConversations.leadId))
+    .leftJoin(vehicles, eq(vehicles.id, assistantConversations.vehicleId))
     .where(and(...where))
     // A buyer waiting for a person comes first, longest wait at the top; then the rest, newest first.
     .orderBy(sql`${assistantConversations.awaitingSince} asc nulls last`, desc(assistantConversations.lastMessageAt))
@@ -132,6 +155,7 @@ export async function conversationDetail(id: string) {
       c: assistantConversations,
       leadName: leads.name,
       vehicleSlug: vehicles.slug,
+      vehicle: chatVehicle,
     })
     .from(assistantConversations)
     .leftJoin(leads, eq(leads.id, assistantConversations.leadId))
@@ -158,6 +182,7 @@ export async function conversationDetail(id: string) {
     ...conversation.c,
     leadName: conversation.leadName,
     vehicleSlug: conversation.vehicleSlug,
+    vehicle: conversation.vehicle,
     messages: messages.map((m) => ({ ...m, content: openMessage(m.content) })),
     published,
   };
