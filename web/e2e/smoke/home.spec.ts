@@ -110,7 +110,7 @@ test.describe("Home", () => {
     assertNoFaults(faults);
   });
 
-  test("Refer & Earn hooks with one real car and what one buyer earns, and leads to the programme", async ({ page }) => {
+  test("Earn shows cars at the park with what one buyer earns on each, and leads to the programme", async ({ page }) => {
     const faults = watchForFaults(page);
     await page.goto("/");
     const section = page.locator("section").filter({ has: page.getByRole("heading", { name: /Earn 1\.5% when they buy/ }) }).last();
@@ -119,9 +119,12 @@ test.describe("Home", () => {
     }
     await expect(section.getByRole("link", { name: "Get your free link" }), "the way in does not lead to registration").toHaveAttribute("href", "/partners#register");
     await expect(section.getByRole("link", { name: "How it works" }), "the rules are not one tap away").toHaveAttribute("href", "/partners");
-    // The example is a real car in stock, so on an empty showroom it is simply not there.
-    const example = section.getByText("You earn", { exact: true });
-    if (await example.count()) await expect(section.locator(".figures").filter({ hasText: /^₦[\d,]+$/ }).first(), "the example shows no amount").toBeVisible();
+    // The examples are real cars in stock, so on an empty showroom they are simply not there.
+    const cards = section.getByRole("listitem").filter({ hasText: "You earn" });
+    if (await cards.count()) {
+      await expect(cards.first().getByRole("link"), "an example does not open its car").toHaveAttribute("href", /^\/vehicles\/[a-z0-9-]+$/);
+      await expect(cards.first().locator(".figures").filter({ hasText: /^₦[\d,]+$/ }), "an example shows no amount").toBeVisible();
+    }
     assertNoFaults(faults);
   });
 

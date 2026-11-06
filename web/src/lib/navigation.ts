@@ -12,7 +12,8 @@ export const CARS_NAV = { href: "/vehicles", label: "Cars for sale", short: "Car
 export const MAIN_NAV = [
   { href: "/drive-plan", label: "40% Drive Plan", short: "Drive Plan", hint: "40% down on a car from 2010 or newer, the rest monthly if approved" },
   { href: "/find", label: "Request a car", hint: "Not in stock? We can look for it" },
-  { href: "/partners", label: "Refer & Earn", hint: "Send a buyer. Earn 1.5% when they buy" },
+  // "Earn", not "Refer & Earn": sending a buyer is the first way to earn, and more will join it here (the owner, 2026-11-06).
+  { href: "/partners", label: "Earn", hint: "Send a buyer. Earn 1.5% when they buy" },
 ] as const;
 
 /**

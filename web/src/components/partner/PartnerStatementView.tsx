@@ -68,7 +68,7 @@ export async function PartnerStatementView({ statement }: { statement: PartnerSt
 
   return (
     <>
-      <PageIntro eyebrow="Refer & Earn" title={`Hello, ${firstName}.`}>
+      <PageIntro eyebrow="Earn" title={`Hello, ${firstName}.`}>
         <p>
           Your partner code is <span className="figures text-text-primary">{partner.code}</span>. This page is yours alone: your buyers,
           what you have earned, and the account you are paid into.

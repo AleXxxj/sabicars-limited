@@ -6,33 +6,67 @@ import { commissionMinor, PARTNER_RULES } from "@/lib/referral";
 import type { CatalogueItem } from "@/lib/repositories/vehicles";
 
 /**
- * The homepage's hook for Refer & Earn: one real car in stock and what one
- * buyer for it would earn, in a number big enough to stop a scroll. The rules
- * and more examples are on /partners, one tap away, for whoever is curious.
- * The Hummer bus leads when one is in stock: it is what Sabicars is known for.
+ * Up to six cars to show what one buyer earns: the Hummer bus first, then a spread from the dearest down, so big
+ * and small sales both show. Never two at the same price: two ₦24M buses side by side say the same thing twice.
  */
-export function EarningsHook({ vehicles }: { vehicles: CatalogueItem[] }) {
-  const pick = vehicles.find((v) => /hum+er/i.test(v.title) && v.coverUrl) ?? vehicles.filter((v) => v.coverUrl)[Math.floor(vehicles.filter((v) => v.coverUrl).length / 2)];
-  if (!pick) return null;
+function earningPicks(vehicles: CatalogueItem[]): CatalogueItem[] {
+  const withPhotos = vehicles.filter((v) => v.coverUrl);
+  if (!withPhotos.length) return [];
+  const byPrice = [...withPhotos].sort((a, b) => b.priceMinor - a.priceMinor);
+  const spread = [0, 0.2, 0.4, 0.6, 0.8, 1].map((q) => byPrice[Math.round(q * (byPrice.length - 1))]);
+  const picks: CatalogueItem[] = [];
+  const take = (v: CatalogueItem | undefined) => {
+    if (v && picks.length < 6 && !picks.some((p) => p.slug === v.slug || p.priceMinor === v.priceMinor)) picks.push(v);
+  };
+  take(withPhotos.find((v) => /hum+er/i.test(v.title)));
+  spread.forEach(take);
+  byPrice.forEach(take);
+  return picks;
+}
+
+/**
+ * The homepage's hook for earning: cars at the park today and what one buyer
+ * for each earns, in a row to swipe, like the cars, so it is plain that every
+ * car counts, not one. Three cards from a tablet up, six from 1280px (narrower, six do not fit their amounts).
+ * The rules and the full table are on /partners, one tap away.
+ */
+export function EarningsRow({ vehicles }: { vehicles: CatalogueItem[] }) {
+  const picks = earningPicks(vehicles);
+  if (!picks.length) return null;
   return (
-    <Link href={`/vehicles/${pick.slug}`} className="surface-card group block overflow-hidden">
-      <div className="relative aspect-[16/9] overflow-hidden bg-surface-2">
-        <VehicleImage
-          src={pick.coverUrl!}
-          alt=""
-          fill
-          sizes="(min-width: 1024px) 40vw, 100vw"
-          className="object-cover transition-transform duration-[var(--duration-slow)] ease-[var(--ease-out)] group-hover:scale-[1.03]"
-        />
-      </div>
-      <div className="p-6 md:p-8">
-        <p className="text-sm text-text-secondary">
-          Send a buyer for this <span className="text-text-primary">{pick.title}</span> at <span className="figures text-text-primary">{formatNaira(pick.priceMinor)}</span>.
-        </p>
-        <p className="mt-3 text-sm text-text-muted">You earn</p>
-        <p className="figures text-brand mt-1 font-display text-[3rem] leading-none md:text-[3.6rem]">{formatNaira(commissionMinor(pick.priceMinor))}</p>
-      </div>
-    </Link>
+    <div>
+      <p className="text-sm font-medium text-text-muted">What one buyer earns you, on cars at the park today</p>
+      <ul className="-mx-5 mt-4 flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-px-5 px-5 pb-2 [scrollbar-width:none] md:mx-0 md:grid md:snap-none md:grid-cols-3 md:gap-4 md:overflow-visible md:px-0 md:pb-0 xl:grid-cols-6 md:[&>li:nth-child(n+4)]:hidden xl:[&>li:nth-child(n+4)]:block [&::-webkit-scrollbar]:hidden">
+        {picks.map((v) => (
+          <li key={v.slug} className="w-[64%] shrink-0 snap-start sm:w-[42%] md:w-auto">
+            <Link href={`/vehicles/${v.slug}`} className="surface-card group flex h-full flex-col overflow-hidden">
+              <div className="relative aspect-[4/3] overflow-hidden bg-surface-2">
+                <VehicleImage
+                  src={v.coverUrl!}
+                  alt=""
+                  fill
+                  sizes="(min-width: 1280px) 15vw, (min-width: 768px) 30vw, 64vw"
+                  className="object-cover transition-transform duration-[var(--duration-slow)] ease-[var(--ease-out)] group-hover:scale-[1.04]"
+                />
+              </div>
+              <div className="flex flex-1 flex-col p-4">
+                <p className="truncate text-sm text-text-primary group-hover:text-accent-text">{v.title}</p>
+                <p className="figures text-xs text-text-muted">Sells at {formatNaira(v.priceMinor)}</p>
+                <p className="mt-auto pt-3 text-xs text-text-muted">You earn</p>
+                {/* Sized to fit the card: ₦360,000 large, ₦10,500,000 (a ₦700M car) a step smaller, never cut off. */}
+                <p
+                  className={`figures text-brand mt-1 flex min-h-[1.8rem] items-end whitespace-nowrap font-display leading-none ${
+                    formatNaira(commissionMinor(v.priceMinor)).length > 9 ? "text-[1.35rem]" : "text-[1.8rem]"
+                  }`}
+                >
+                  {formatNaira(commissionMinor(v.priceMinor))}
+                </p>
+              </div>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 

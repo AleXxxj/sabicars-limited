@@ -10,7 +10,7 @@ import { DrivePlanFinder } from "@/components/home/DrivePlanFinder";
 import { HeroShowcase, type HeroSlide } from "@/components/home/HeroShowcase";
 import { TodayAtThePark } from "@/components/home/TodayAtThePark";
 import { TodayVideo } from "@/components/home/TodayVideo";
-import { EarningsHook, PartnerPromises } from "@/components/referral/Referral";
+import { EarningsRow, PartnerPromises } from "@/components/referral/Referral";
 import { HomeSearch } from "@/components/home/HomeSearch";
 import { PostCard } from "@/components/blog/PostCard";
 import { MapPin } from "lucide-react";
@@ -348,14 +348,16 @@ export default async function Home() {
       </section>
       <ReviewsSection reviews={reviews} summary={reviewStats} head={false} />
 
-      {/* Can I earn from this? One real car and what one buyer earns, the three promises, and the way in. The rules in full and
-          more examples are on /partners: one thing at a time (the owner's review, 2026-11-06). */}
+      {/* Can I earn from this? The three promises, the way in, and a row of cars at the park with what one buyer earns on each:
+          every car counts, not one. The rules in full are on /partners, one tap away (the owner's review, 2026-11-06). */}
       <section className="border-t border-border-subtle bg-surface-1">
-        <div className="mx-auto grid max-w-7xl gap-10 px-5 py-14 md:px-10 md:py-20 lg:grid-cols-2 lg:items-center lg:gap-20">
-          <ScrollReveal>
-            <SectionHead eyebrow="Refer & Earn" title="Know a buyer? Earn 1.5% when they buy." />
-            <PartnerPromises className="mt-6" />
-            <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-3">
+        <div className="mx-auto max-w-7xl px-5 py-14 md:px-10 md:py-20">
+          <ScrollReveal className="flex flex-wrap items-end justify-between gap-x-10 gap-y-8">
+            <div>
+              <SectionHead eyebrow="Earn" title="Know a buyer? Earn 1.5% when they buy." />
+              <PartnerPromises className="mt-6" />
+            </div>
+            <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
               <ButtonLink href="/partners#register" size="lg">
                 Get your free link
               </ButtonLink>
@@ -364,9 +366,9 @@ export default async function Home() {
               </ButtonLink>
             </div>
           </ScrollReveal>
-          <ScrollReveal delay={120}>
-            <EarningsHook vehicles={catalogue} />
-          </ScrollReveal>
+          <div className="mt-10">
+            <EarningsRow vehicles={catalogue} />
+          </div>
         </div>
       </section>
 

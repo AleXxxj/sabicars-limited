@@ -18,7 +18,7 @@ export default async function PinLinkPage({ params }: Props) {
   if (!partner) {
     return (
       <section className="mx-auto max-w-2xl px-5 py-16 md:px-10 md:py-24">
-        <p className="kicker">Refer &amp; Earn</p>
+        <p className="kicker">Earn</p>
         <h1 className="mt-4 text-display-3">This link has expired.</h1>
         <p className="mt-4 text-text-secondary">A PIN link works once, for one hour. Ask for a new one and use it straight away.</p>
         <ButtonLink href="/partner/forgot" variant="secondary" className="mt-8">
@@ -31,7 +31,7 @@ export default async function PinLinkPage({ params }: Props) {
   const firstName = partner.name.trim().split(/\s+/)[0];
   return (
     <section className="mx-auto max-w-xl px-5 py-14 md:px-10 md:py-24">
-      <p className="kicker">Refer &amp; Earn</p>
+      <p className="kicker">Earn</p>
       <h1 className="mt-4 text-display-2">{partner.pinHash ? `Choose a new PIN, ${firstName}.` : `Hello, ${firstName}. Choose your PIN.`}</h1>
       <p className="mt-4 text-lg text-text-secondary">You log in with your phone number and this PIN, on any phone.</p>
       <div className="mt-8">

@@ -391,10 +391,13 @@ live page it replaces so nothing is lost silently. Built on that basis:
   /hummer-bus and under Buy in bulk) and cut the Drive Plan intro to one question,
   "How much do you have?", with the terms in the finder's small print. The same
   rule, applied to the rest of the page (2026-11-06, from 16 phone screens to
-  about 13): **Refer & Earn** is a hook — the headline, three ticks (free to
-  join, paid when they buy, no recruiting), the button, and one real car in
-  stock with what one buyer earns (`EarningsHook`, the Hummer bus first); the
-  examples table and the four rule cards live on /partners. **Request a car** is
+  about 13): **Earn** (renamed from Refer & Earn in the tab bar, header, footer
+  and page labels, because more ways to earn will join it; the owner,
+  2026-11-06) is a hook — the headline, three ticks (free to join, paid when
+  they buy, no recruiting), the button, and a row to swipe of up to six cars at
+  the park with what one buyer earns on each (`EarningsRow`: the Hummer bus
+  first, then dearest down, never two at one price; six cards from 1280px,
+  three below); the examples table and the four rule cards live on /partners. **Request a car** is
   one box and Continue; the budget and contact are asked on /find. The **buying
   guides** are a swipe row on phones, like the cars. The **Drive Plan** finder
   shows two cars on a phone (four from a tablet up), with "See all" whenever

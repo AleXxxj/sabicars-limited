@@ -11,7 +11,7 @@ import { pageAddress, site } from "@/lib/site";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "Refer & Earn — 1.5% on every buyer you send",
+  title: "Earn with Sabicars — 1.5% on every buyer you send",
   description:
     "Register free as a Sabicars partner, share your personal link, and earn 1.5% of the price when a buyer you sent completes a purchase. Paid on sales only — never for recruiting.",
   ...pageAddress("/partners"),
@@ -37,7 +37,7 @@ export default async function PartnersPage() {
 
   return (
     <>
-      <PageIntro eyebrow="Refer & Earn" title="Send a buyer. Earn 1.5%.">
+      <PageIntro eyebrow="Earn" title="Send a buyer. Earn 1.5%.">
         <p>
           Know someone who wants a car, a bus or many vehicles? Register free and send them your link. When they buy from Sabicars, 1.5% of
           the price is yours.

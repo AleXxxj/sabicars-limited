@@ -41,7 +41,7 @@ export async function GET() {
 - [Toyota Hiace Hummer buses](${base}/hummer-bus)
 - [Compare cars side by side](${base}/compare)
 - [Request a car](${base}/find): ask for a car that is not in stock; the buyer gets a reference number and is told when a match arrives
-- [Refer & Earn](${base}/partners): 1.5% commission on buyers you send
+- [Earn](${base}/partners): 1.5% commission on buyers you send
 - [Buy in bulk (fleet supply)](${base}/fleet): two or more vehicles for a company or government, as one order
 - [Answers to common questions](${base}/ask)
 - [Contact](${base}/contact)

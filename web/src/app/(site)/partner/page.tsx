@@ -26,7 +26,7 @@ export default async function PartnerHome() {
 
   return (
     <section className="mx-auto max-w-xl px-5 py-14 md:px-10 md:py-24">
-      <p className="kicker">Refer &amp; Earn</p>
+      <p className="kicker">Earn</p>
       <h1 className="mt-4 text-display-2">Log in to your partner page.</h1>
       <p className="mt-4 text-lg text-text-secondary">Use your phone number and your 6‑digit PIN.</p>
       <div className="mt-8">
