@@ -385,7 +385,11 @@ live page it replaces so nothing is lost silently. Built on that basis:
   set on Admin → Audience; YouTube, TikTok, Facebook, Instagram or a video file;
   dropped by itself after 14 days) sits in the founder's section under his photo
   and quote. The owner's review (2026-11-06) moved it there and removed "sold this
-  week" from the strip: both broke the flow at the top. `components/home/TodayAtThePark.tsx`,
+  week" from the strip: both broke the flow at the top. The same review removed
+  the "Buying many vehicles?" block from under the Hummer bus ("one thing at a
+  time": the bus is seen before anything else is read; the fleet quote stays on
+  /hummer-bus and under Buy in bulk) and cut the Drive Plan intro to one question,
+  "How much do you have?", with the terms in the finder's small print. `components/home/TodayAtThePark.tsx`,
   `components/home/TodayVideo.tsx`, `repositories/today.ts`, `arrivedThisWeek`/`priceDropsThisWeek`.
 - **/find — the Sourcing Desk.** A standing request for a car not in stock:
   a `sourcing` lead (one inbox, one reference) plus a `vehicle_requests` row

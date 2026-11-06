@@ -105,8 +105,9 @@ async function seededPartner(): Promise<{ id: string; code: string; access_token
 test("a buyer's enquiry on a car is saved under the reference they were shown", async ({ page }) => {
   const faults = watchForFaults(page);
   await page.goto(`/vehicles/${hummer.slug}`);
-  await expect(page.getByRole("heading", { level: 1 }), "the seeded car's page did not open").toHaveText(hummer.model);
-  await expect(page.getByText("₦24,000,000").first(), "the car page does not show the seeded price").toBeVisible();
+  // A car page renders its title block twice (once for phones, once for the desktop's sticky column; only one is shown), so the visible one.
+  await expect(page.getByRole("heading", { level: 1 }).filter({ visible: true }), "the seeded car's page did not open").toHaveText(hummer.model);
+  await expect(page.getByText("₦24,000,000").filter({ visible: true }).first(), "the car page does not show the seeded price").toBeVisible();
 
   // The enquiry is a sheet over the page; it opens on "Call me back", and a question is the second way.
   await page.getByRole("link", { name: "leave your number and we call you" }).click();

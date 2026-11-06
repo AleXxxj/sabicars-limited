@@ -135,20 +135,6 @@ export default async function Home() {
   }
   const hummerDepositFrom = hummers.map((b) => depositMinorFor(b.priceMinor, b.year)).filter((d): d is number => d !== null).sort((a, b) => a - b)[0] ?? null;
 
-  // The way in for buying several vehicles: beside the Hummer bus, or on its own when no Hummer is listed.
-  const bulkBuying = (Heading: "h2" | "h3") => (
-    <>
-      <Heading className="text-[1.35rem] leading-snug text-text-primary">Buying many vehicles?</Heading>
-      <p className="mt-2 leading-relaxed text-text-secondary">
-        Companies and government offices buy buses, SUVs and staff cars from us in one order. One written price for everything, and one
-        team to deal with.
-      </p>
-      <ButtonLink href="/fleet#quote" variant="quiet" className="mt-2">
-        Get one price for many vehicles
-      </ButtonLink>
-    </>
-  );
-
   return (
     <>
       <script
@@ -173,16 +159,8 @@ export default async function Home() {
       {/* The reason to open Sabicars today: what is new this week and whose price dropped. */}
       <TodayAtThePark arrivals={arrivals} drops={drops} />
 
-      {/* The signature vehicle: what Sabicars is known for, first — and the way in for buying several. */}
-      {hummers.length === 0 && (
-        // No Hummer listed with a photo (sold out, or not yet photographed): the way in for buying several still shows.
-        <section className="border-t border-border-subtle">
-          <div className="mx-auto max-w-7xl px-5 py-12 md:px-10 md:py-14">
-            <p className="kicker">Buy in bulk</p>
-            <div className="mt-3">{bulkBuying("h2")}</div>
-          </div>
-        </section>
-      )}
+      {/* The signature vehicle: what Sabicars is known for, first. One thing at a time: the way in for buying several
+          buses lives on the Hummer page and under Buy in bulk, not here, so the bus is seen before anything else is read. */}
       {hummers.length > 0 && (
         <section className="relative isolate overflow-hidden">
           <div aria-hidden className="absolute inset-0 -z-10 bg-[radial-gradient(800px_420px_at_85%_40%,rgb(120_176_48/0.1),transparent_70%)]" />
@@ -205,9 +183,6 @@ export default async function Home() {
               <ButtonLink href="/hummer-bus" size="lg" variant="signature" className="mt-8">
                 See every Hummer bus
               </ButtonLink>
-
-              {/* Companies and government buy buses in numbers: the fleet route lives here, beside the bus. */}
-              <div className="mt-10 border-t border-white/[0.08] pt-6">{bulkBuying("h3")}</div>
             </ScrollReveal>
 
             <ScrollReveal delay={120}>
@@ -248,11 +223,10 @@ export default async function Home() {
           <div className="mx-auto max-w-7xl px-5 py-16 md:px-10 md:py-20">
             <DrivePlanFinder vehicles={catalogue}>
               <ScrollReveal>
-                <SectionHead eyebrow="The 40% Drive Plan" title="How much do you have? See what you can drive home.">
+                <SectionHead eyebrow="The 40% Drive Plan" title="How much do you have?">
                   <p>
-                    Pay 40% now on a car from {DRIVE_PLAN.standardYear} up, or 50% on a {DRIVE_PLAN.minYear} or {DRIVE_PLAN.standardYear - 1} car.
-                    Autochek, our loan partner, lends you the rest if they approve you. You pay it back monthly. Type what you have now and
-                    see the cars you can get.
+                    Pay 40% now on a car from {DRIVE_PLAN.standardYear} up. Autochek lends you the rest if they approve you, and you pay
+                    monthly. Type what you have and see the cars you can drive home.
                   </p>
                 </SectionHead>
                 <ButtonLink href="/drive-plan" variant="quiet" className="mt-4">
