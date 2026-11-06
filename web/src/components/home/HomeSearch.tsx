@@ -89,10 +89,10 @@ export function HomeSearch({
       if (/deposit|down|drive plan|plan/i.test(q)) {
         out.push({ key: "deposit", label: `Cars you can get with ${amount} down`, hint: "On the 40% Drive Plan", href: `/vehicles?maxDeposit=${budget}` });
       } else {
-        out.push({ key: "budget", label: `Cars up to ${amount}`, hint: "Dearest first", href: `/vehicles?maxPrice=${budget}&sort=price_desc` });
+        out.push({ key: "budget", label: `Cars up to ${amount}`, hint: "Highest price first", href: `/vehicles?maxPrice=${budget}&sort=price_desc` });
       }
     }
-    out.push({ key: "ask", label: `Ask Sabicars: “${q}”`, hint: "Answers from every car in stock", ask: q });
+    out.push({ key: "ask", label: `Ask Sabicars: “${q}”`, hint: "Sabi answers from the cars at the park", ask: q });
     return out;
   }, [text, terms, hummers]);
 
@@ -130,7 +130,7 @@ export function HomeSearch({
             enterKeyHint="search"
             maxLength={200}
             value={text}
-            placeholder="Make, model or budget — or ask a question"
+            placeholder="Type a car or your budget, or ask a question"
             role="combobox"
             aria-expanded={showList}
             aria-controls={listId}

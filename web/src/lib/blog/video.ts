@@ -9,6 +9,7 @@ export type VideoSource =
   | { kind: "youtube"; id: string; vertical: boolean; embed: string; poster: string }
   | { kind: "tiktok"; id: string; vertical: true; embed: string; url: string }
   | { kind: "instagram"; code: string; vertical: true; embed: string; url: string }
+  | { kind: "facebook"; vertical: boolean; embed: string; url: string }
   | { kind: "file"; src: string; poster: string | null; vertical: false };
 
 export function videoSource(raw: string): VideoSource | null {
@@ -18,7 +19,7 @@ export function videoSource(raw: string): VideoSource | null {
   } catch {
     return null;
   }
-  const host = url.hostname.replace(/^(www|m)\./, "");
+  const host = url.hostname.replace(/^(www|m|web|mbasic)\./, "");
 
   if (host === "youtu.be" || host === "youtube.com" || host === "youtube-nocookie.com") {
     const shorts = url.pathname.match(/^\/shorts\/([\w-]{6,})/);
@@ -43,6 +44,19 @@ export function videoSource(raw: string): VideoSource | null {
     const code = url.pathname.match(/^\/(?:reel|reels|p|tv)\/([\w-]+)/)?.[1];
     if (!code) return null;
     return { kind: "instagram", code, vertical: true, embed: `https://www.instagram.com/reel/${code}/embed/`, url: raw };
+  }
+  if (host === "facebook.com" || host === "fb.watch" || host === "fb.com") {
+    // A video post, a reel, a watch link or a share link. Facebook's own player embeds any of them
+    // from the full link; a profile or page link is not a video.
+    const reel = /^\/(?:reel|reels)\//.test(url.pathname) || /\/share\/r\//.test(url.pathname);
+    const video = reel || host === "fb.watch" || /\/videos?\//.test(url.pathname) || /^\/watch\/?$/.test(url.pathname) || /\/share\/v\//.test(url.pathname);
+    if (!video) return null;
+    return {
+      kind: "facebook",
+      vertical: reel,
+      embed: `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(raw)}&show_text=false&autoplay=1`,
+      url: raw,
+    };
   }
   if (host === "res.cloudinary.com" && url.pathname.includes("/video/upload/")) {
     // Cloudinary serves a poster frame from the same asset: swap the extension for .jpg.

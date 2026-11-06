@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, HandCoins, Pause, Play, Sparkles, Volume2, VolumeX, Wallet } from "lucide-react";
+import { ArrowRight, HandCoins, Pause, Play, Sparkles, Tag, Volume2, VolumeX } from "lucide-react";
 import { AskButton } from "@/components/assistant/AskButton";
-import { ButtonAnchor, ButtonLink } from "@/components/ui/Button";
+import { ButtonLink } from "@/components/ui/Button";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { VehicleImage } from "@/components/VehicleImage";
 import { REFERRAL_COMMISSION_BPS } from "@/lib/referral";
@@ -162,21 +162,21 @@ export function HeroShowcase({
           </a>
         </p>
         <h1 className="mt-6 max-w-4xl text-display-1 text-[var(--hero-text)]">
-          {allVerified ? "Every car verified." : "Real cars, real prices."}
+          {allVerified ? "Every car checked." : "Real cars, real prices."}
           <br />
-          <em className="text-green-300">Every deal</em> on record.
+          <em className="text-green-300">See it</em> before you pay.
         </h1>
         <p className="mt-5 max-w-xl text-base leading-relaxed text-[var(--hero-text-secondary)] md:mt-6 md:text-lg">
-          Hiace Hummer buses, luxury cars, SUVs and trucks, each one photographed and priced. Pay 40% of the price on a car from 2010 or
-          newer, and a loan through Autochek covers the rest if approved.
+          Hummer buses, SUVs, luxury cars and trucks. Every car has photos and a price. Pay 40% now on a car from 2010 up, and Autochek can
+          lend you the rest if they approve you.
         </p>
         <div className="mt-8 flex flex-wrap gap-3 md:mt-10 md:gap-4">
           <ButtonLink href="/vehicles" size="lg">
             See cars for sale
           </ButtonLink>
-          <ButtonAnchor href="#drive-plan" size="lg" variant="secondary">
-            <Wallet aria-hidden size={18} strokeWidth={1.75} /> What can I afford?
-          </ButtonAnchor>
+          <ButtonLink href="/sell" size="lg" variant="secondary">
+            <Tag aria-hidden size={18} strokeWidth={1.75} /> Sell your car
+          </ButtonLink>
         </div>
         {/* Two more doors on the first screen: for the visitor with neither a car nor a budget in mind yet, the same panel as the
             floating Ask button; and for the one who has no car to buy but knows someone who does — on Jiji a visitor sees at

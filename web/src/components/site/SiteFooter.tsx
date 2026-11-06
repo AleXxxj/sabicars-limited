@@ -42,9 +42,9 @@ export async function SiteFooter() {
         <div className="mx-auto grid max-w-7xl gap-6 px-5 py-12 md:px-10 lg:grid-cols-[1fr_minmax(0,28rem)] lg:items-center lg:gap-16">
           <div>
             <p id="newsletter-title" className="font-display text-[1.9rem] leading-tight text-text-primary md:text-[2.2rem]">
-              The week&rsquo;s new arrivals, every Friday.
+              New cars every Friday, in your inbox.
             </p>
-            <p className="mt-2 text-text-secondary">Photographed, priced and ready to inspect — before they are gone. Nothing else.</p>
+            <p className="mt-2 text-text-secondary">With photos and prices, before they go. Nothing else.</p>
           </div>
           <SubscribeForm source="footer" />
         </div>
@@ -53,8 +53,8 @@ export async function SiteFooter() {
         <div>
           <Logo />
           <p className="mt-6 max-w-xs text-sm leading-relaxed text-text-secondary">
-            Toyota Hiace Hummer buses, luxury cars, SUVs and trucks in Lagos. Buy on the 40% Drive Plan, or buy in bulk for
-            a company or government.
+            Hummer buses, luxury cars, SUVs and trucks in Lagos. Pay 40% now on the Drive Plan, or buy many for a company or
+            government.
           </p>
           <a
             href={site.cacSearchUrl}

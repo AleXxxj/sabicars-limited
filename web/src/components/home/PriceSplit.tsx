@@ -43,7 +43,7 @@ export function PriceSplit({ vehicles }: { vehicles: FinderVehicle[] }) {
       <div>
         <p className="text-sm font-medium text-text-muted">Any price, split</p>
         <label htmlFor={`${id}-car`} className="mt-5 block text-sm text-text-secondary">
-          A vehicle in the showroom
+          A car at the park
         </label>
         <select
           id={`${id}-car`}

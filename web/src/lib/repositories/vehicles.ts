@@ -3,7 +3,7 @@ import { unstable_cache } from "next/cache";
 import { cache } from "react";
 import { and, asc, count, desc, eq, gte, inArray, lte, ne, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
-import { dealers, locations, settings, vehicleMedia, vehicles, type Vehicle, type VehicleMedia } from "@/db/schema";
+import { dealers, locations, notifications, settings, vehicleMedia, vehicles, type Vehicle, type VehicleMedia } from "@/db/schema";
 import { TAGS } from "@/lib/cache-tags";
 import { DRIVE_PLAN, depositMinorFor } from "@/lib/drive-plan";
 import { CAR_BODIES, type InventoryFilters } from "@/lib/inventory-filters";
@@ -324,6 +324,70 @@ const recentlySoldFromCache = unstable_cache(
  */
 export async function recentlySold(limit = 6): Promise<CardVehicle[]> {
   return (await recentlySoldFromCache(limit)).map(reviveCard);
+}
+
+/* ── Today at the park ─────────────────────────────────────────────────── */
+
+const DAY_MS = 86_400_000;
+
+/** A car that came in this week: the card and the day it was listed. */
+export type ArrivalCard = CardVehicle & { listedAt: Date };
+/** A car whose price was cut this week, with the line the platform announced it with ("Now ₦X, down from ₦Y."). */
+export type PriceDropCard = CardVehicle & { line: string; droppedAt: Date };
+/** A car sold this week: the card and the day it sold. The sale price stays private; the card shows the listed price. */
+export type SoldCard = CardVehicle & { soldAt: Date };
+
+/** Cars listed in the last `days` days, newest first. A legacy car with no listing date counts from the day it was created. */
+export async function arrivedThisWeek(days = 7, limit = 8): Promise<ArrivalCard[]> {
+  const since = new Date(Date.now() - days * DAY_MS).toISOString();
+  const listedAt = sql`coalesce(${vehicles.publishedAt}, ${vehicles.createdAt})`;
+  const rows = await db
+    .select()
+    .from(vehicles)
+    .where(and(eq(vehicles.dealerId, await sabicarsId()), inArray(vehicles.status, [...LISTED]), sql`${listedAt} >= ${since}::timestamptz`))
+    .orderBy(desc(listedAt))
+    .limit(limit);
+  return (await withCovers(rows)).map((v) => ({ ...toCard(v), listedAt: v.publishedAt ?? v.createdAt }));
+}
+
+/**
+ * Cars whose price was cut in the last `days` days. The platform posts a notification for every
+ * cut (notifications.ts), so those posts are the record: the newest post per car, for cars still
+ * on sale.
+ */
+export async function priceDropsThisWeek(days = 7, limit = 6): Promise<PriceDropCard[]> {
+  const dealerId = await sabicarsId();
+  const since = new Date(Date.now() - days * DAY_MS).toISOString();
+  const posts = await db
+    .select({ vehicleId: notifications.vehicleId, line: notifications.message, at: notifications.createdAt })
+    .from(notifications)
+    .where(and(eq(notifications.dealerId, dealerId), eq(notifications.kind, "price_drop"), sql`${notifications.createdAt} >= ${since}::timestamptz`))
+    .orderBy(desc(notifications.createdAt))
+    .limit(limit * 4);
+  const latest = new Map<string, { line: string; at: Date }>();
+  for (const p of posts) if (p.vehicleId && !latest.has(p.vehicleId)) latest.set(p.vehicleId, { line: p.line, at: p.at });
+  if (!latest.size) return [];
+  const rows = await db
+    .select()
+    .from(vehicles)
+    .where(and(eq(vehicles.dealerId, dealerId), eq(vehicles.status, "available"), inArray(vehicles.id, [...latest.keys()])));
+  const cards = (await withCovers(rows)).map((v) => {
+    const post = latest.get(v.id)!;
+    return { ...toCard(v), line: post.line, droppedAt: post.at };
+  });
+  return cards.sort((a, b) => b.droppedAt.getTime() - a.droppedAt.getTime()).slice(0, limit);
+}
+
+/** Cars sold in the last `days` days, newest sale first. */
+export async function soldThisWeek(days = 7, limit = 6): Promise<SoldCard[]> {
+  const since = new Date(Date.now() - days * DAY_MS).toISOString();
+  const rows = await db
+    .select()
+    .from(vehicles)
+    .where(and(eq(vehicles.dealerId, await sabicarsId()), eq(vehicles.status, "sold"), sql`${vehicles.soldAt} >= ${since}::timestamptz`))
+    .orderBy(desc(vehicles.soldAt))
+    .limit(limit);
+  return (await withCovers(rows)).map((v) => ({ ...toCard(v), soldAt: v.soldAt ?? v.createdAt }));
 }
 
 /** Vehicles on a visitor's shortlist, in the order they saved them. Sold cars stay, marked sold. */

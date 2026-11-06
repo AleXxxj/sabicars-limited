@@ -20,7 +20,7 @@ test.describe("Home", () => {
     const faults = watchForFaults(page);
     const response = await page.goto("/");
     expect(response?.status(), "the homepage did not answer 200").toBe(200);
-    await expect(page.getByRole("heading", { level: 1 }), "the homepage shows no headline").toContainText(/every deal.*on record/i);
+    await expect(page.getByRole("heading", { level: 1 }), "the homepage shows no headline").toContainText(/see it.*before you pay/i);
     assertNoFaults(faults);
   });
 
@@ -56,12 +56,23 @@ test.describe("Home", () => {
     assertNoFaults(faults);
   });
 
-  test('the hero asks "What can I afford?"', async ({ page }) => {
+  test("the hero offers to sell your car", async ({ page }) => {
     const faults = watchForFaults(page);
     await page.goto("/");
-    const link = page.getByRole("link", { name: /what can i afford/i });
-    await expect(link, 'the hero has no "What can I afford?" link').toBeVisible();
-    await expect(link, "the affordability link does not lead to the Drive Plan finder").toHaveAttribute("href", /#drive-plan$/);
+    const link = page.getByRole("link", { name: /sell your car/i }).first();
+    await expect(link, 'the hero has no "Sell your car" link').toBeVisible();
+    await expect(link, "the sell link does not lead to the Sell your car page").toHaveAttribute("href", /\/sell$/);
+    assertNoFaults(faults);
+  });
+
+  test("Today at the park, when shown, names the day and links every car", async ({ page }) => {
+    const faults = watchForFaults(page);
+    await page.goto("/");
+    const section = page.locator("section").filter({ has: page.getByRole("heading", { level: 2, name: /what is new this week|from the park/i }) }).last();
+    test.skip((await section.count()) === 0, "A quiet week with no video: the section stays away");
+    await expect(section.getByText(/Today at the park · \w+day,? \d{1,2} \w+/), "the section does not name the day").toBeVisible();
+    const cars = section.locator('a[href^="/vehicles/"]');
+    if (await cars.count()) await expect(cars.first(), "a car in the section does not link to its page").toHaveAttribute("href", /^\/vehicles\/[a-z0-9-]+$/);
     assertNoFaults(faults);
   });
 

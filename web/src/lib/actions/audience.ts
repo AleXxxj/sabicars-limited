@@ -5,12 +5,14 @@ import { after } from "next/server";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
-import { vehicleMedia, vehicles } from "@/db/schema";
+import { settings, vehicleMedia, vehicles } from "@/db/schema";
 import { audit } from "@/lib/audit";
 import { requireStaff } from "@/lib/auth";
+import { videoSource } from "@/lib/blog/video";
 import { shareImageUrl } from "@/lib/media";
 import { createBroadcast, deliver } from "@/lib/newsletter";
 import { postNotification } from "@/lib/notifications";
+import { TODAY_VIDEO_KEY } from "@/lib/repositories/today";
 
 export interface AnnounceResult {
   ok: boolean;
@@ -85,4 +87,43 @@ export async function postAnnouncement(_prev: AnnounceResult | null, formData: F
   }
   revalidatePath("/admin/audience");
   return { ok: true, outcome: parts.join(" · ") + "." };
+}
+
+const videoSchema = z.object({
+  url: z.string().trim().max(500, "That link is too long"),
+  line: z.string().trim().max(140, "Keep the line under 140 characters"),
+  clear: z.preprocess((v) => v === "on" || v === "1", z.boolean()),
+});
+
+/**
+ * The day's video from the park, shown on the homepage with one line from
+ * the founder. Setting it again replaces it; clearing it takes it off. The
+ * homepage drops it by itself after two weeks (repositories/today.ts).
+ */
+export async function setTodayVideo(_prev: AnnounceResult | null, formData: FormData): Promise<AnnounceResult> {
+  const me = await requireStaff();
+  if (me.role === "sales") return { ok: false, error: "Only a manager can set the day's video." };
+  const parsed = videoSchema.safeParse(Object.fromEntries(formData.entries()));
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Check the form." };
+  const v = parsed.data;
+
+  if (v.clear || !v.url) {
+    await db.delete(settings).where(and(eq(settings.dealerId, me.dealerId), eq(settings.key, TODAY_VIDEO_KEY)));
+    await audit(me, "setting", TODAY_VIDEO_KEY, "delete");
+    revalidatePath("/");
+    revalidatePath("/admin/audience");
+    return { ok: true, outcome: "Taken off the homepage." };
+  }
+
+  const source = videoSource(v.url);
+  if (!source) return { ok: false, error: "Paste the full link to a video: YouTube, TikTok, Facebook, Instagram, or a video file." };
+  const value = { url: v.url, line: v.line, at: new Date().toISOString() };
+  await db
+    .insert(settings)
+    .values({ dealerId: me.dealerId, key: TODAY_VIDEO_KEY, value })
+    .onConflictDoUpdate({ target: [settings.dealerId, settings.key], set: { value, updatedAt: new Date() } });
+  await audit(me, "setting", TODAY_VIDEO_KEY, "update", { url: v.url, line: v.line });
+  revalidatePath("/");
+  revalidatePath("/admin/audience");
+  return { ok: true, outcome: `On the homepage now as today's video (${source.kind === "file" ? "video file" : source.kind}).` };
 }

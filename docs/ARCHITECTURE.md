@@ -374,6 +374,18 @@ live page it replaces so nothing is lost silently. Built on that basis:
   on its own when no Hummer with a photo is listed). *Since 2026-10-24* (two trainees'
   walk-throughs: words too hard, desktop too crowded, one page under several
   names): 10 calmer blocks, at most one orange button in each, three in all.
+  *Since 2026-11-06* (the owner's brief: give people a reason to open Sabicars
+  every day, and say it in plain words): the headline is "Real cars, real
+  prices. See it before you pay.", the hero's second button is Sell your car,
+  every section is written in short everyday English ("Come to the park", "How
+  much do you have?", "Can't find your car? Tell us."), and a **Today at the
+  park** block sits under the search: cars listed in the last 7 days, price cuts
+  (from the platform's own `price_drop` notifications), cars sold this week (listed
+  price only; the sale price stays private), and the day's video with one line
+  from the founder (`settings.today_video`, set on Admin → Audience; YouTube,
+  TikTok, Facebook, Instagram or a video file; dropped by itself after 14 days).
+  The block hides on a quiet week with no video. `components/home/TodayAtThePark.tsx`,
+  `repositories/today.ts`, `arrivedThisWeek`/`priceDropsThisWeek`/`soldThisWeek`.
 - **/find — the Sourcing Desk.** A standing request for a car not in stock:
   a `sourcing` lead (one inbox, one reference) plus a `vehicle_requests` row
   with the criteria. On submit it replies at once with any in-stock matches.

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Play, Volume2, VolumeX } from "lucide-react";
 import type { VideoSource } from "@/lib/blog/video";
 
-const LABEL = { youtube: "YouTube", tiktok: "TikTok", instagram: "Instagram" } as const;
+const LABEL = { youtube: "YouTube", tiktok: "TikTok", instagram: "Instagram", facebook: "Facebook" } as const;
 
 /**
  * A video inside an article.

@@ -19,9 +19,9 @@ test.describe("The Drive Plan page", () => {
   test("the finder answers a deposit typed in", async ({ page }) => {
     const faults = watchForFaults(page);
     await page.goto("/drive-plan");
-    const input = page.getByLabel("I can put down");
+    const input = page.getByLabel("I have", { exact: true });
     test.skip((await input.count()) === 0, "No car in stock can go on the Drive Plan, so the finder is not shown");
-    const result = page.locator('[aria-live="polite"]').filter({ hasText: /deposit/ }).first();
+    const result = page.locator('[aria-live="polite"]').filter({ hasText: /drive home|at the park|Type what you have/ }).first();
     await expect(result, "the finder shows no answer for the starting amount").toBeVisible();
     const before = (await result.innerText()).trim();
 
@@ -29,7 +29,7 @@ test.describe("The Drive Plan page", () => {
     await expect(input, "the finder did not keep the amount typed").toHaveValue("5,000,000");
     // ₦5,000,000 down reaches ₦12,500,000 at 40%; if nothing in stock is within reach the finder says so instead.
     await expect(result, "the finder's answer did not change for ₦5,000,000").not.toHaveText(before);
-    await expect(result, "the finder neither states the ₦12,500,000 reach nor says nothing is within it").toContainText(/₦12,500,000|Nothing in the showroom at that deposit/);
+    await expect(result, "the finder neither states the ₦12,500,000 reach nor says nothing is within it").toContainText(/₦12,500,000|No car at the park for that amount/);
     assertNoFaults(faults);
   });
 

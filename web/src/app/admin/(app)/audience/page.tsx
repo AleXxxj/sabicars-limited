@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { AnnouncementForm } from "@/components/admin/AnnouncementForm";
+import { TodayVideoForm } from "@/components/admin/TodayVideoForm";
+import { todayVideo } from "@/lib/repositories/today";
 import { requireStaff } from "@/lib/auth";
 import { emailConfigured } from "@/lib/email";
 import { oneSignalConfigured } from "@/lib/notifications";
@@ -43,12 +45,13 @@ const KIND: Record<string, string> = {
  */
 export default async function AudienceAdmin() {
   const me = await requireStaff();
-  const [summary, posts, sends, subs, cars] = await Promise.all([
+  const [summary, posts, sends, subs, cars, video] = await Promise.all([
     audienceSummary(me.dealerId),
     recentNotifications(me.dealerId),
     recentSends(me.dealerId),
     recentSubscribers(me.dealerId),
     announceableVehicles(me.dealerId),
+    todayVideo(),
   ]);
   const pushReady = oneSignalConfigured();
   const emailReady = emailConfigured();
@@ -82,19 +85,35 @@ export default async function AudienceAdmin() {
       </dl>
 
       <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
-        <section aria-label="Post an announcement" className="border border-border-subtle bg-surface-1 p-5 md:p-6">
-          <p className="text-sm font-semibold text-text-primary">Post an announcement</p>
-          <p className="mt-1 text-xs text-text-muted">
-            For offers and news. New arrivals and price drops are posted automatically — no need to post them here.
-          </p>
-          <div className="mt-5">
-            {me.role === "sales" ? (
-              <p className="text-sm text-text-muted">A manager sends announcements.</p>
-            ) : (
-              <AnnouncementForm vehicles={cars} subscribers={summary.active} pushReady={pushReady} emailReady={emailReady} />
-            )}
-          </div>
-        </section>
+        <div className="grid content-start gap-10">
+          <section aria-label="Today's video" className="border border-border-subtle bg-surface-1 p-5 md:p-6">
+            <p className="text-sm font-semibold text-text-primary">Today&rsquo;s video from the park</p>
+            <p className="mt-1 text-xs text-text-muted">
+              Shows on the homepage under &ldquo;Today at the park&rdquo; with one line from Ccristian Dee. It comes off by itself after two weeks.
+            </p>
+            <div className="mt-5">
+              {me.role === "sales" ? (
+                <p className="text-sm text-text-muted">A manager sets the day&rsquo;s video.</p>
+              ) : (
+                <TodayVideoForm current={video ? { url: video.url, line: video.line, label: video.label } : null} />
+              )}
+            </div>
+          </section>
+
+          <section aria-label="Post an announcement" className="border border-border-subtle bg-surface-1 p-5 md:p-6">
+            <p className="text-sm font-semibold text-text-primary">Post an announcement</p>
+            <p className="mt-1 text-xs text-text-muted">
+              For offers and news. New arrivals and price drops are posted automatically — no need to post them here.
+            </p>
+            <div className="mt-5">
+              {me.role === "sales" ? (
+                <p className="text-sm text-text-muted">A manager sends announcements.</p>
+              ) : (
+                <AnnouncementForm vehicles={cars} subscribers={summary.active} pushReady={pushReady} emailReady={emailReady} />
+              )}
+            </div>
+          </section>
+        </div>
 
         <section aria-label="Newsletters">
           <div className="flex items-baseline justify-between gap-4">

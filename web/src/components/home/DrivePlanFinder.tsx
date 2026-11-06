@@ -54,7 +54,7 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
 
         <div className="mt-10 border-t border-white/[0.08] pt-6">
           <label htmlFor={inputId} className="text-sm font-medium text-text-secondary">
-            I can put down
+            I have
           </label>
           <div className="mt-3 flex items-baseline gap-2 border-b border-border-strong pb-2 transition-colors focus-within:border-green-500">
             <span aria-hidden className="font-display text-[2.4rem] leading-none text-text-muted md:text-[3rem]">
@@ -88,8 +88,8 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
             ))}
           </div>
           <p className="mt-4 text-xs leading-relaxed text-text-muted">
-            Cars from {DRIVE_PLAN.standardYear} need 40% down; {DRIVE_PLAN.minYear} and {DRIVE_PLAN.standardYear - 1} cars need 50%. Autochek does not finance
-            older cars. Monthly figures are estimates at Autochek&rsquo;s published ceiling; the lender&rsquo;s offer can be lower.
+            Cars from {DRIVE_PLAN.standardYear} up: 40% down. {DRIVE_PLAN.minYear} and {DRIVE_PLAN.standardYear - 1} cars: 50% down. Autochek does not give loans
+            on older cars. The monthly figures are a guide, at Autochek&rsquo;s top rate. Your own rate can be lower.
           </p>
         </div>
       </div>
@@ -102,18 +102,18 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
             <p className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
               <span className="figures text-brand font-display text-[4.75rem] leading-[0.85] md:text-[6rem]">{within.length}</span>
               <span className="max-w-xs text-lg leading-snug text-text-primary">
-                {within.length === 1 ? "vehicle" : "vehicles"} your deposit can drive home
+                {within.length === 1 ? "car" : "cars"} you can drive home with this
               </span>
             </p>
             <p className="mt-4 text-sm leading-relaxed text-text-secondary">
-              On a car from {DRIVE_PLAN.standardYear} or newer, that is enough for a price of up to{" "}
+              On a car from {DRIVE_PLAN.standardYear} up, this is 40% of a price up to{" "}
               <span className="figures text-text-primary">{formatNaira(reachNaira * 100)}</span>.{" "}
               {inFull > 0 ? (
                 <>
-                  <span className="figures">{inFull}</span> of them you could pay for in full.
+                  <span className="figures">{inFull}</span> of them you can pay for in full.
                 </>
               ) : (
-                "The most expensive cars you can get with this deposit:"
+                "The most expensive cars you can get with this:"
               )}
             </p>
 
@@ -140,7 +140,7 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
                       </p>
                       {monthly !== null && (
                         <p className="figures truncate text-xs text-text-muted">
-                          est. {formatNaira(monthly)} a month for {DEFAULT_ESTIMATE_MONTHS} months
+                          about {formatNaira(monthly)} a month for {DEFAULT_ESTIMATE_MONTHS} months
                         </p>
                       )}
                     </Link>
@@ -157,18 +157,18 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
                 </Link>
               )}
               <Link href="/find" className="inline-flex min-h-11 items-center text-sm text-text-secondary hover:text-text-primary">
-                Not what you want? Request a car →
+                Not what you want? Tell us the car →
               </Link>
             </div>
           </>
         ) : (
           <div className="flex h-full flex-col justify-center py-6">
             <p className="font-display text-[2rem] leading-tight text-text-primary">
-              {naira ? "Nothing in the showroom at that deposit today." : "Enter what you can put down."}
+              {naira ? "No car at the park for that amount today." : "Type what you have."}
             </p>
             {cheapest && (
               <p className="mt-4 text-text-secondary">
-                The lowest deposit in the showroom right now is{" "}
+                The smallest amount that gets a car today is{" "}
                 <button type="button" onClick={() => setText(grouped(Math.ceil(cheapest.depositMinor / 100)))} className="figures text-accent-text underline-offset-4 hover:underline">
                   {formatNaira(cheapest.depositMinor)}
                 </button>
@@ -176,7 +176,7 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
               </p>
             )}
             <Link href="/find" className="group mt-8 inline-flex min-h-11 items-center gap-2 font-semibold text-green-300 hover:text-green-200">
-              Or request the car you want <ArrowRight aria-hidden size={17} className="transition-transform group-hover:translate-x-1" />
+              Or tell us the car you want <ArrowRight aria-hidden size={17} className="transition-transform group-hover:translate-x-1" />
             </Link>
           </div>
         )}

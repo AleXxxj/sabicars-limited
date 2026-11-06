@@ -8,6 +8,7 @@ import { VehicleCard } from "@/components/VehicleCard";
 import { VehicleImage } from "@/components/VehicleImage";
 import { DrivePlanFinder } from "@/components/home/DrivePlanFinder";
 import { HeroShowcase, type HeroSlide } from "@/components/home/HeroShowcase";
+import { TodayAtThePark } from "@/components/home/TodayAtThePark";
 import { EarningsExamples, PartnerRules } from "@/components/referral/Referral";
 import { HomeSearch } from "@/components/home/HomeSearch";
 import { PostCard } from "@/components/blog/PostCard";
@@ -15,6 +16,7 @@ import { MapPin } from "lucide-react";
 import { Button, ButtonAnchor, ButtonLink } from "@/components/ui/Button";
 import { fieldClass } from "@/components/forms/field";
 import {
+  arrivedThisWeek,
   categoryTiles,
   drivePlanCatalogue,
   everyListedCarVerified,
@@ -23,9 +25,12 @@ import {
   heroVideoUrl,
   hummerBuses,
   inventoryStats,
+  priceDropsThisWeek,
   searchTerms,
+  soldThisWeek,
 } from "@/lib/repositories/vehicles";
 import { mostRequested } from "@/lib/repositories/sourcing";
+import { todayVideo } from "@/lib/repositories/today";
 import { publishedReviews, reviewSummary } from "@/lib/repositories/reviews";
 import { ReviewRating, ReviewsSection } from "@/components/reviews/ReviewsSection";
 import { WriteReview } from "@/components/reviews/WriteReview";
@@ -72,21 +77,26 @@ function SectionHead({ eyebrow, title, children }: { eyebrow: string; title: str
  * built to capture the audience, not just display the lot.
  */
 export default async function Home() {
-  const [hero, featuredStock, stats, tiles, videoUrl, catalogue, demand, buses, reviews, reviewStats, posts, allVerified, terms] = await Promise.all([
-    heroVehicles(8),
-    featuredVehicles(6),
-    inventoryStats(),
-    categoryTiles(),
-    heroVideoUrl(),
-    drivePlanCatalogue(),
-    mostRequested(),
-    hummerBuses(),
-    publishedReviews(),
-    reviewSummary(),
-    latestPosts(3),
-    everyListedCarVerified(),
-    searchTerms(),
-  ]);
+  const [hero, featuredStock, stats, tiles, videoUrl, catalogue, demand, buses, reviews, reviewStats, posts, allVerified, terms, arrivals, drops, sold, video] =
+    await Promise.all([
+      heroVehicles(8),
+      featuredVehicles(6),
+      inventoryStats(),
+      categoryTiles(),
+      heroVideoUrl(),
+      drivePlanCatalogue(),
+      mostRequested(),
+      hummerBuses(),
+      publishedReviews(),
+      reviewSummary(),
+      latestPosts(3),
+      everyListedCarVerified(),
+      searchTerms(),
+      arrivedThisWeek(),
+      priceDropsThisWeek(),
+      soldThisWeek(),
+      todayVideo(),
+    ]);
   // Hummer buses, newest first, those with a photograph.
   const hummers = buses.filter((b) => /hum+er/i.test(b.model) && b.cover);
   const hummerFrom = hummers.map((b) => b.priceMinor).filter((p): p is number => Boolean(p)).sort((a, b) => a - b)[0] ?? null;
@@ -129,13 +139,13 @@ export default async function Home() {
   // The way in for buying several vehicles: beside the Hummer bus, or on its own when no Hummer is listed.
   const bulkBuying = (Heading: "h2" | "h3") => (
     <>
-      <Heading className="text-[1.35rem] leading-snug text-text-primary">Buying several vehicles at once?</Heading>
+      <Heading className="text-[1.35rem] leading-snug text-text-primary">Buying many vehicles?</Heading>
       <p className="mt-2 leading-relaxed text-text-secondary">
-        Companies and government offices buy buses, SUVs and staff cars from us as one order. You get one written quote for the whole
-        order, and one team.
+        Companies and government offices buy buses, SUVs and staff cars from us in one order. One written price for everything, and one
+        team to deal with.
       </p>
       <ButtonLink href="/fleet#quote" variant="quiet" className="mt-2">
-        Get a price for several vehicles
+        Get one price for many vehicles
       </ButtonLink>
     </>
   );
@@ -161,6 +171,9 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* The reason to open Sabicars today: what is new, what dropped, what sold, and the day's video from the park. */}
+      <TodayAtThePark arrivals={arrivals} drops={drops} sold={sold} video={video} />
+
       {/* The signature vehicle: what Sabicars is known for, first — and the way in for buying several. */}
       {hummers.length === 0 && (
         // No Hummer listed with a photo (sold out, or not yet photographed): the way in for buying several still shows.
@@ -178,8 +191,8 @@ export default async function Home() {
             <ScrollReveal>
               <SectionHead eyebrow="Hummer buses" title="The home of the Hummer bus.">
                 <p>
-                  Sabicars is known for the Toyota Hiace high-roof bus, for staff, schools, churches, hotels and routes. Come and inspect one,
-                  buy one or several, or buy on the 40% Drive Plan.
+                  We are known for the Toyota Hiace Hummer bus: for staff, schools, churches, hotels and transport. Come and see one. Buy one or
+                  many, or pay 40% now on the Drive Plan.
                 </p>
               </SectionHead>
               <p className="figures mt-6 text-text-primary">
@@ -236,11 +249,11 @@ export default async function Home() {
           <div className="mx-auto max-w-7xl px-5 py-16 md:px-10 md:py-20">
             <DrivePlanFinder vehicles={catalogue}>
               <ScrollReveal>
-                <SectionHead eyebrow="The 40% Drive Plan" title="What can your deposit drive home?">
+                <SectionHead eyebrow="The 40% Drive Plan" title="How much do you have? See what you can drive home.">
                   <p>
-                    Pay 40% of the price on a car from {DRIVE_PLAN.standardYear} or newer, or 50% on a {DRIVE_PLAN.minYear} or{" "}
-                    {DRIVE_PLAN.standardYear - 1} car. A loan through Autochek, our finance partner, covers the rest if its lender approves you.
-                    You repay it monthly. Type how much you can pay now to see which cars in stock you can get with it.
+                    Pay 40% now on a car from {DRIVE_PLAN.standardYear} up, or 50% on a {DRIVE_PLAN.minYear} or {DRIVE_PLAN.standardYear - 1} car.
+                    Autochek, our loan partner, lends you the rest if they approve you. You pay it back monthly. Type what you have now and
+                    see the cars you can get.
                   </p>
                 </SectionHead>
                 <ButtonLink href="/drive-plan" variant="quiet" className="mt-4">
@@ -257,7 +270,7 @@ export default async function Home() {
         <section className="border-t border-border-subtle">
           <div className="mx-auto max-w-7xl px-5 py-16 md:px-10 md:py-20">
             <ScrollReveal className="flex flex-wrap items-end justify-between gap-6">
-              <SectionHead eyebrow="Cars for sale" title="Start with what you need." />
+              <SectionHead eyebrow="Cars for sale" title="What are you looking for?" />
               <ButtonLink href="/vehicles" variant="quiet">
                 See all {stats.inStock} cars for sale
               </ButtonLink>
@@ -293,15 +306,15 @@ export default async function Home() {
       <section className="border-t border-border-subtle bg-surface-1">
         <div className="mx-auto grid max-w-7xl gap-12 px-5 py-16 md:px-10 md:py-20 lg:grid-cols-2 lg:items-center lg:gap-20">
           <ScrollReveal>
-            <SectionHead eyebrow="Request a car" title="Not in our showroom? Request it.">
+            <SectionHead eyebrow="Request a car" title="Can't find your car? Tell us.">
               <p>
-                Tell us the car and your budget. You get a reference number, and your request goes on the list of cars we look for. When a
-                matching car arrives, we tell you.
+                Tell us the car and your budget. You get a reference number, and we add your request to the list of cars we look for. When
+                the car comes in, we tell you.
               </p>
             </SectionHead>
             {demand.length > 0 && (
               <div className="mt-10">
-                <p className="text-sm font-medium text-text-muted">Most requested right now</p>
+                <p className="text-sm font-medium text-text-muted">What people are asking for now</p>
                 <ul className="mt-4 flex flex-wrap gap-2">
                   {demand.map((d) => (
                     <li key={d.want} className="rounded-full border border-border-default bg-surface-1 px-3.5 py-1.5 text-sm text-text-secondary">
@@ -320,7 +333,7 @@ export default async function Home() {
                 <input name="want" required maxLength={120} placeholder="e.g. Toyota Highlander, 2018 or newer" className={fieldClass} />
               </label>
               <label className="grid gap-2">
-                <span className="text-sm font-medium text-text-secondary">Budget for the vehicle</span>
+                <span className="text-sm font-medium text-text-secondary">Your budget</span>
                 <select name="budget" defaultValue="" className={fieldClass}>
                   <option value="">Not sure yet</option>
                   {BUDGET_OPTIONS.map((b) => (
@@ -334,7 +347,7 @@ export default async function Home() {
                 <Button type="submit" size="lg" arrow>
                   Continue
                 </Button>
-                <span className="text-sm text-text-muted">Next: where to reach you.</span>
+                <span className="text-sm text-text-muted">Next: how to reach you.</span>
               </div>
             </Form>
           </ScrollReveal>
@@ -351,7 +364,7 @@ export default async function Home() {
             </div>
           </ScrollReveal>
           <ScrollReveal delay={120}>
-            <p className="kicker">Who you are buying from</p>
+            <p className="kicker">The man behind Sabicars</p>
             <blockquote className="mt-6">
               <p className="font-display text-[1.9rem] leading-[1.25] text-text-primary md:text-[2.4rem]">
                 “Every vehicle that leaves our showroom carries my name on it … That’s not a slogan, it’s how I built this.”
@@ -380,8 +393,8 @@ export default async function Home() {
             <ScrollReveal>
               <SectionHead eyebrow="Refer & Earn" title="Know a buyer? Earn 1.5% when they buy.">
                 <p>
-                  Register free and get your own link. When someone you sent buys from Sabicars, 1.5% of the price is yours. They are linked to
-                  your code for {ATTRIBUTION_DAYS} days from their first enquiry, so nobody else can claim them.
+                  Register free and get your own link. When someone you send buys from Sabicars, 1.5% of the price is yours. They stay on your
+                  code for {ATTRIBUTION_DAYS} days from the day they first ask us, so nobody else can claim them.
                 </p>
               </SectionHead>
               <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3">
@@ -429,12 +442,12 @@ export default async function Home() {
       <section className="border-t border-border-subtle">
         <div className="mx-auto grid max-w-7xl gap-10 px-5 py-20 md:px-10 md:py-24 lg:grid-cols-2 lg:items-end">
           <ScrollReveal>
-            <SectionHead eyebrow="Visit" title="See it before you pay.">
-              <p>Walk in and inspect the cars at our showroom before you pay.</p>
+            <SectionHead eyebrow="Visit" title="Come to the park.">
+              <p>Come and see the cars yourself before you pay. We are at the park every day.</p>
             </SectionHead>
           </ScrollReveal>
           <ScrollReveal delay={120}>
-            <p className="text-sm font-medium text-text-muted">Showroom</p>
+            <p className="text-sm font-medium text-text-muted">Our park</p>
             <Address className="mt-3 text-text-secondary" />
             <ButtonAnchor href={site.mapsUrl} target="_blank" rel="noopener noreferrer" variant="secondary" className="mt-5">
               <MapPin aria-hidden size={17} /> Get directions
