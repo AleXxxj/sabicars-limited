@@ -44,6 +44,7 @@ export function SiteHeader() {
           {/* Log in, or Account on a phone a partner has logged in on: one of the two shows, chosen before the first paint. */}
           <Link
             href="/partner"
+            prefetch={false}
             data-signed="out"
             className="glass inline-flex h-10 items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 text-[0.9rem] font-semibold text-text-primary transition-colors hover:text-green-300 min-[420px]:pl-3 sm:h-11 sm:pl-3.5 sm:pr-4"
           >

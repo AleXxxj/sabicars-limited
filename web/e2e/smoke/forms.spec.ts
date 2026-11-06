@@ -1,4 +1,3 @@
-import { randomUUID } from "node:crypto";
 import { expect, test } from "@playwright/test";
 import { assertNoFaults, watchForFaults } from "../helpers";
 
@@ -42,6 +41,8 @@ test.describe("Forms, without writing", () => {
     const form = page.locator("form").filter({ has: page.getByRole("button", { name: "Register as a partner" }) });
     await form.getByLabel("Your name").fill("Smoke Test");
     await form.getByLabel("Phone number").fill("0803 000 0000");
+    await form.getByLabel("Choose a 6-digit PIN").fill("482913");
+    await form.getByLabel("Type the PIN again").fill("482913");
     await form.getByLabel("Where will you find buyers?").selectOption({ index: 1 });
     await form.getByRole("checkbox").check();
     // The trap: people never see this field; a bot fills it in. Submitting at once, within three seconds of
@@ -55,7 +56,7 @@ test.describe("Forms, without writing", () => {
     assertNoFaults(faults);
   });
 
-  test("Log in is in the header, and the log-in page answers a bot like anyone else, sending nothing", async ({ page }) => {
+  test("Log in is in the header, and the log-in page answers a bot like a wrong PIN, looking nothing up", async ({ page }) => {
     const faults = watchForFaults(page);
     await page.goto("/");
     const header = page.getByRole("banner");
@@ -64,26 +65,34 @@ test.describe("Forms, without writing", () => {
 
     await page.goto("/partner");
     await expect(page.getByRole("heading", { level: 1 }), "the log-in page shows no headline").toContainText("Log in to your partner page.");
-    const form = page.locator("form").filter({ has: page.getByLabel("Your phone number") });
-    // The trap, as above: the hidden field filled in, sent at once. The answer is the one everybody gets; nothing is looked up.
+    const form = page.locator("form").filter({ has: page.getByRole("button", { name: "Log in" }) });
+    await expect(form.getByRole("link", { name: "Forgot your PIN?" }), "the log-in offers no way back from a forgotten PIN").toHaveAttribute("href", "/partner/forgot");
+    // The trap, as above: the hidden field filled in, sent at once. The answer is a wrong guess's; nothing is looked up.
     await form.locator('input[name="website"]').fill("https://example.com");
     await form.getByLabel("Your phone number").fill("0803 000 0000");
-    await form.getByRole("button", { name: "Send my link" }).click();
-    await expect(page.getByText("Check your email."), "the log-in page did not answer").toBeVisible();
+    await form.getByLabel("Your 6-digit PIN").fill("482913");
+    await form.getByRole("button", { name: "Log in" }).click();
+    // Next.js keeps an empty alert of its own on every page (the route announcer): the one with the answer.
+    await expect(page.getByRole("alert").filter({ hasText: "Wrong phone number or PIN." }), "the log-in page did not answer").toBeVisible();
     assertNoFaults(faults);
   });
 
-  test("a phone a partner has logged in on shows Account, straight to their page, instead of Log in", async ({ page }) => {
+  test("a phone marked logged in shows Account, and the log-in page clears a mark nobody is behind", async ({ page }) => {
     const faults = watchForFaults(page);
-    // As the partner page leaves it (lib/partner-device.ts); the token is made up, so nothing real is opened.
-    const token = randomUUID();
-    await page.addInitScript((t) => localStorage.setItem("sc_partner_page", JSON.stringify({ token: t, firstName: "Test" })), token);
+    const base = test.info().project.use.baseURL ?? "http://localhost:3000";
+    // The readable flag the server sets beside a real session (lib/partner-session.ts). No session behind it here.
+    await page.context().addCookies([{ name: "sc_signed_in", value: "1", url: base }]);
     await page.goto("/");
     const header = page.getByRole("banner");
     const account = header.getByRole("link", { name: "Account", exact: true });
     await expect(account, "a logged-in phone does not show Account").toBeVisible();
-    await expect(account, "Account does not open the remembered partner page").toHaveAttribute("href", `/partner/${token}`);
+    await expect(account, "Account does not lead to the partner page").toHaveAttribute("href", "/partner");
     await expect(header.getByRole("link", { name: "Log in", exact: true }), "a logged-in phone still shows Log in").toHaveCount(0);
+
+    // The server finds no session: the log-in shows, and the stale mark goes, so the header says Log in again.
+    await page.goto("/partner");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Log in to your partner page.");
+    await expect(header.getByRole("link", { name: "Log in", exact: true }), "a stale mark kept Account in the header").toBeVisible();
     assertNoFaults(faults);
   });
 

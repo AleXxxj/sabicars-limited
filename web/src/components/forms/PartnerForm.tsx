@@ -2,8 +2,9 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { registerPartner } from "@/lib/actions/partners";
+import { markSignedIn } from "@/lib/partner-flag";
 import { PARTNER_REACH } from "@/lib/referral";
-import { Button, ButtonAnchor } from "@/components/ui/Button";
+import { Button, ButtonAnchor, ButtonLink } from "@/components/ui/Button";
 import { FieldError, fieldClass, Label, PrivacyLink, SpamGuard } from "./shared";
 
 /** Copies a piece of text and says so for a moment. If the clipboard is blocked, the text is on screen to copy by hand. */
@@ -46,32 +47,19 @@ export function ReferralShare({ link }: { link: string }) {
   );
 }
 
-/** The partner's private page link — earnings, and the bank account they are paid into — with the warning that it is theirs alone. */
-export function PrivatePageLink({ link }: { link: string }) {
-  return (
-    <>
-      <p className="text-sm font-medium text-text-secondary">Your private page</p>
-      <p className="mt-2 break-all text-text-primary">{link}</p>
-      <div className="mt-5 flex flex-wrap gap-3">
-        <ButtonAnchor href={link} variant="secondary">
-          Open your page
-        </ButtonAnchor>
-        <CopyButton text={link} />
-      </div>
-      <p className="mt-4 text-sm leading-relaxed text-text-secondary">
-        Keep this link to yourself: it shows your earnings and is where you register the bank account you are paid into.
-      </p>
-    </>
-  );
-}
-
-/** What a partner sees once registered: their code, their link, their private page, and the two ways they will use the link. */
-function Welcome({ name, code, link, pageLink, returning }: { name?: string; code: string; link: string; pageLink?: string; returning?: boolean }) {
+/**
+ * What a partner sees once registered: their code, their link, and the way to
+ * their page. A new partner is already logged in on this phone. A number that
+ * was already registered logs nobody in: the way in is Log in, with the PIN.
+ */
+function Welcome({ name, code, link, returning, loggedIn }: { name?: string; code: string; link: string; returning?: boolean; loggedIn?: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     ref.current?.scrollIntoView({ behavior: still ? "auto" : "smooth", block: "center" });
-  }, []);
+    // Logged in by the registration itself: the header shows Account at once, without a reload.
+    if (loggedIn) markSignedIn();
+  }, [loggedIn]);
 
   return (
     <div ref={ref} role="status" className="surface-card scroll-mt-24 !border-green-500/30 p-7 md:p-9">
@@ -84,22 +72,22 @@ function Welcome({ name, code, link, pageLink, returning }: { name?: string; cod
         <ReferralShare link={link} />
       </div>
 
-      {returning && !pageLink && (
-        <p className="mt-4 text-sm text-text-secondary">
-          Your private page link is not shown here, because this number could be typed by anyone. It has been sent again to the email on your
-          registration; if you gave none, ask Sabicars and the team will send it to your WhatsApp.
+      <div className="mt-8 border-t border-border-subtle pt-6">
+        <p className="text-sm font-medium text-text-secondary">Your partner page</p>
+        <p className="mt-2 text-sm leading-relaxed text-text-secondary">
+          {returning
+            ? "Log in with your phone number and your PIN to see your buyers and your earnings."
+            : "Your buyers, your earnings, and the bank account you are paid into. You are logged in on this phone. On another phone, log in with your number and PIN."}
         </p>
-      )}
-      {pageLink && (
-        <div className="mt-8 border-t border-border-subtle pt-6">
-          <PrivatePageLink link={pageLink} />
-        </div>
-      )}
+        <ButtonLink href="/partner" variant="secondary" className="mt-5">
+          {returning ? "Log in" : "Open your page"}
+        </ButtonLink>
+      </div>
 
       <p className="mt-8 text-sm leading-relaxed text-text-muted">
         Anyone who opens your link and then enquires is recorded against your code. Buyers who visit the showroom can simply give
-        your code. When a sale you brought is final, your commission goes into a bank account in your own name, registered on your
-        private page — Sabicars confirms your identity and account before your first payout.
+        your code. When a sale you brought is final, your commission goes into a bank account in your own name, which you add on
+        your page. Sabicars confirms your identity and account before your first payout.
       </p>
     </div>
   );
@@ -111,7 +99,7 @@ export function PartnerForm() {
   const err = state?.fieldErrors ?? {};
 
   if (state?.ok && state.code && state.link) {
-    return <Welcome name={state.name} code={state.code} link={state.link} pageLink={state.pageLink} returning={state.returning} />;
+    return <Welcome name={state.name} code={state.code} link={state.link} returning={state.returning} loggedIn={state.loggedIn} />;
   }
 
   return (
@@ -135,9 +123,23 @@ export function PartnerForm() {
           <FieldError message={err.phone} />
         </label>
       </div>
+      <div className="grid gap-6 sm:grid-cols-2">
+        <label className="grid gap-2">
+          <Label>Choose a 6-digit PIN</Label>
+          <input name="pin" type="password" inputMode="numeric" pattern="[0-9]*" maxLength={6} autoComplete="new-password" required placeholder="••••••" className={`figures tracking-[0.4em] ${fieldClass}`} />
+          <FieldError message={err.pin} />
+        </label>
+        <label className="grid gap-2">
+          <Label>Type the PIN again</Label>
+          <input name="pinAgain" type="password" inputMode="numeric" pattern="[0-9]*" maxLength={6} autoComplete="new-password" required placeholder="••••••" className={`figures tracking-[0.4em] ${fieldClass}`} />
+          <FieldError message={err.pinAgain} />
+        </label>
+      </div>
+      <p className="-mt-3 text-sm text-text-muted">You log in with your phone number and this PIN. Don&rsquo;t share it with anyone.</p>
       <label className="grid gap-2">
         <Label>Email (optional)</Label>
         <input name="email" type="email" autoComplete="email" defaultValue={v.email} className={fieldClass} />
+        <span className="text-sm text-text-muted">Only used to send you a link if you forget your PIN.</span>
         <FieldError message={err.email} />
       </label>
       <label className="grid gap-2">

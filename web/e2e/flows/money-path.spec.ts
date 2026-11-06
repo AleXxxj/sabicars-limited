@@ -5,6 +5,7 @@ import {
   db,
   lagosLongDate,
   lagosToday,
+  logInAsPartner,
   signInAsStaff,
   signOutStaff,
   staffCredentials,
@@ -19,8 +20,10 @@ import {
  *
  *   1. A buyer enquires about the seeded 2013 Hiace Hummer, and the enquiry
  *      is on record with the reference they were shown.
- *   2. A partner registers, opens the private page from their welcome card,
- *      and registers the bank account they are paid into.
+ *   2. A partner registers with a 6-digit PIN, is logged in at once, opens
+ *      their page and registers the bank account they are paid into. On
+ *      another phone they log in with their number and PIN; a wrong PIN is
+ *      refused, the old private link leads to the log-in, and log out ends it.
  *   3. Staff (when E2E_STAFF_EMAIL and E2E_STAFF_PASSWORD are set) sell the
  *      car, attribute the sale to the partner's code, confirm the bank
  *      account, record the bank transfer once the cooling-off has passed,
@@ -144,12 +147,14 @@ test("a buyer's enquiry on a car is saved under the reference they were shown", 
 test.describe("Refer & Earn, from registration to payment", () => {
   test.describe.configure({ mode: "serial" });
 
-  test("a partner registers, opens their private page and registers their bank account", async ({ page }) => {
+  test("a partner registers with a PIN, is logged in at once, and registers their bank account", async ({ page }) => {
     const faults = watchForFaults(page);
     await page.goto("/partners");
     const form = page.locator("form").filter({ has: page.getByRole("button", { name: "Register as a partner" }) });
     await form.getByLabel("Your name").fill(E2E.partner.name);
     await form.getByLabel("Phone number").fill(E2E.partner.typedPhone);
+    await form.getByLabel("Choose a 6-digit PIN").fill(E2E.partner.pin);
+    await form.getByLabel("Type the PIN again").fill(E2E.partner.pin);
     await form.getByLabel("Where will you find buyers?").selectOption({ label: "Friends and family" });
     await form.getByRole("checkbox").check();
     await waitUntilFormLooksHuman(page, form);
@@ -161,21 +166,27 @@ test.describe("Refer & Earn, from registration to payment", () => {
     const code = card.match(/\/r\/([A-Z0-9]{6})\b/)?.[1] ?? "";
     expect(code, "the welcome card shows no six-character partner code").toMatch(/^[A-Z0-9]{6}$/);
     expect(code, "the server took the registration for a bot and saved nothing").not.toBe("RECEIV");
-    const token = card.match(/\/partner\/([0-9a-f-]{36})\b/i)?.[1] ?? "";
-    expect(token, "the welcome card shows no private page link").toMatch(/^[0-9a-f-]{36}$/i);
-    await expect(welcome.getByRole("link", { name: "Open your page" }), "the welcome card's button does not open the private page").toHaveAttribute("href", new RegExp(`/partner/${token}$`));
+    expect(card, "the welcome card must not show a private link any more").not.toMatch(/\/partner\/[0-9a-f-]{36}/i);
+    await expect(welcome, "the new partner is not told they are logged in").toContainText("You are logged in on this phone.");
+    // Logged in by the registration itself: the header says Account straight away.
+    await expect(page.getByRole("banner").getByRole("link", { name: "Account", exact: true }), "the header does not show Account after registering").toBeVisible();
 
-    const [partner] = await sql`select id, code, access_token, status, reach, email from partners where phone = ${E2E.partner.phone}`;
+    const [partner] = await sql`select id, code, status, reach, pin_hash, pin_set_at from partners where phone = ${E2E.partner.phone}`;
     expect(partner, "no partner row was saved for the phone number").toBeTruthy();
     expect(partner.code, "the code on screen is not the code on record").toBe(code);
-    expect(partner.access_token, "the private link on screen is not the token on record").toBe(token);
     expect(partner.status).toBe("active");
     expect(partner.reach).toBe("Friends and family");
+    expect(String(partner.pin_hash), "the PIN is not stored as a salted hash").toMatch(/^scrypt\$/);
+    expect(String(partner.pin_hash), "the PIN itself must never be stored").not.toContain(E2E.partner.pin);
+    expect(partner.pin_set_at, "the PIN has no date").not.toBeNull();
+    const [{ n: sessions }] = await sql`select count(*)::int as n from partner_sessions where partner_id = ${partner.id}`;
+    expect(sessions, "registering did not log the partner in").toBe(1);
 
-    // Their private page, opened by its path so the test does not depend on the public address the site thinks it has.
-    await page.goto(`/partner/${token}`);
-    await expect(page.getByRole("heading", { level: 1 }), "the private page does not greet the partner").toHaveText("Hello, E2E.");
-    await expect(page.getByText(new RegExp(`Your partner code is ${code}`)), "the private page does not show the partner's code").toBeVisible();
+    // Their page, from the welcome card's button: /partner, with the session the registration started.
+    await welcome.getByRole("link", { name: "Open your page" }).click();
+    await page.waitForURL(/\/partner$/);
+    await expect(page.getByRole("heading", { level: 1 }), "the partner's page does not greet them").toHaveText("Hello, E2E.");
+    await expect(page.getByText(new RegExp(`Your partner code is ${code}`)), "the partner's page does not show their code").toBeVisible();
     await expect(page.getByText(/^No sales yet\./), "a new partner's page should show no sales yet").toBeVisible();
 
     // The bank form's controls by name (components/partner/BankAccountForm.tsx): a <select> inside its
@@ -196,6 +207,42 @@ test.describe("Refer & Earn, from registration to payment", () => {
     expect(account.account_number).toBe(E2E.bank.accountNumber);
     expect(account.account_verified_at, "an account nobody has checked must not be verified").toBeNull();
     expect(account.paystack_recipient_code).toBeNull();
+    assertNoFaults(faults);
+  });
+
+  test("on another phone the partner logs in with number and PIN, a wrong PIN is refused, and log out ends it", async ({ page }) => {
+    const faults = watchForFaults(page);
+    const partner = await seededPartner();
+    const sessionsNow = async () => (await sql`select count(*)::int as n from partner_sessions where partner_id = ${partner.id}`)[0].n as number;
+    const before = await sessionsNow();
+
+    // The old private link leads to the log-in now: the PIN is the key.
+    await page.goto(`/partner/${partner.access_token}`);
+    await page.waitForURL(/\/partner$/);
+    await expect(page.getByRole("heading", { level: 1 }), "the old private link opened something other than the log-in").toHaveText("Log in to your partner page.");
+
+    const form = page.locator("form").filter({ has: page.getByRole("button", { name: "Log in" }) });
+    await form.getByLabel("Your phone number").fill(E2E.partner.typedPhone);
+    await form.getByLabel("Your 6-digit PIN").fill("135792");
+    await waitUntilFormLooksHuman(page, form);
+    await form.getByRole("button", { name: "Log in" }).click();
+    await expect(page.getByRole("alert").filter({ hasText: "Wrong phone number or PIN." }), "a wrong PIN was not refused").toBeVisible();
+    const [counted] = await sql`select pin_failed_count from partners where id = ${partner.id}`;
+    expect(counted.pin_failed_count, "the wrong PIN was not counted").toBe(1);
+
+    await logInAsPartner(page, E2E.partner.typedPhone, E2E.partner.pin);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Hello, E2E.");
+    await expect(page.getByRole("banner").getByRole("link", { name: "Account", exact: true }), "the header does not show Account once logged in").toBeVisible();
+    const [reset] = await sql`select pin_failed_count from partners where id = ${partner.id}`;
+    expect(reset.pin_failed_count, "a right PIN must clear the wrong tries").toBe(0);
+    expect(await sessionsNow(), "logging in did not start a session").toBe(before + 1);
+
+    await page.getByRole("button", { name: "Log out" }).click();
+    await page.waitForURL((url) => url.pathname === "/");
+    await expect(page.getByRole("banner").getByRole("link", { name: "Log in", exact: true }), "the header still shows Account after log out").toBeVisible();
+    expect(await sessionsNow(), "log out did not end the session on the server").toBe(before);
+    await page.goto("/partner");
+    await expect(page.getByRole("heading", { level: 1 }), "the page still opened after log out").toHaveText("Log in to your partner page.");
     assertNoFaults(faults);
   });
 
@@ -297,8 +344,8 @@ test.describe("Refer & Earn, from registration to payment", () => {
     expect(settled.status, "the commission was not marked paid").toBe("paid");
     expect(settled.paid_at).not.toBeNull();
 
-    // What the partner sees.
-    await page.goto(`/partner/${partner.access_token}`);
+    // What the partner sees, logged in with their number and PIN.
+    await logInAsPartner(page, E2E.partner.typedPhone, E2E.partner.pin);
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Hello, E2E.");
     await expect(page.getByRole("cell", { name: new RegExp(`^Paid ${lagosLongDate()}$`) }), "the partner's page does not show the commission as paid today").toBeVisible();
     await expect(page.getByText(`Bank ref. ${E2E.bankReference}`), "the partner's page does not show the bank's reference").toBeVisible();
@@ -334,7 +381,7 @@ test.describe("Refer & Earn, from registration to payment", () => {
     expect(lead.partner_id, "the enquiry is not linked to the partner whose link the buyer opened").toBe(partner.id);
 
     // And the partner sees it on their page, without the buyer's details.
-    await page.goto(`/partner/${partner.access_token}`);
+    await logInAsPartner(page, E2E.partner.typedPhone, E2E.partner.pin);
     const buyers = page.locator("section").filter({ has: page.getByText("Your buyers", { exact: true }) });
     await expect(buyers.getByRole("listitem").filter({ hasText: "Sent an enquiry" }).first(), "the partner's page does not list the buyer's enquiry").toContainText("Open");
     await expect(buyers, "the partner's page must not show the buyer's phone number").not.toContainText(E2E.buyer.typedPhone);

@@ -651,11 +651,25 @@ export const partners = pgTable(
     status: partnerStatus("status").notNull().default("active"),
 
     /**
-     * The partner's private key to their own page (/partner/TOKEN): earnings,
-     * enquiries and the bank account they are paid into. Partners have no
-     * login; this link is theirs alone, like a buyer's review link.
+     * The partner's private set-up link (/partner/TOKEN). Since 2026-11-06 a
+     * partner logs in with their phone number and a 6-digit PIN; this link
+     * only lets a partner who has no PIN yet choose one (partners who joined
+     * before PINs, or after a manager reset theirs, which also replaces it).
+     * Once a PIN is set, the link opens nothing but the log-in.
      */
     accessToken: uuid("access_token").notNull().defaultRandom(),
+
+    /**
+     * The log-in PIN, as an scrypt hash with its own salt (lib/partner-pin.ts),
+     * never the PIN. Five wrong tries in a row lock it for a while.
+     */
+    pinHash: text("pin_hash"),
+    pinSetAt: timestamp("pin_set_at", { withTimezone: true }),
+    pinFailedCount: integer("pin_failed_count").notNull().default(0),
+    pinLockedUntil: timestamp("pin_locked_until", { withTimezone: true }),
+    /** A "set" or "forgot PIN" link sent by email: sha256 of its one-time token, and when it stops working. */
+    pinResetHash: text("pin_reset_hash"),
+    pinResetExpiresAt: timestamp("pin_reset_expires_at", { withTimezone: true }),
 
     /**
      * The one bank account a partner is paid into, which must be in their own
@@ -692,6 +706,35 @@ export const partners = pgTable(
       sql`(${t.accountNumber} IS NULL AND ${t.bankCode} IS NULL AND ${t.accountVerifiedAt} IS NULL AND ${t.paystackRecipientCode} IS NULL) OR (${t.accountNumber} IS NOT NULL AND ${t.bankCode} IS NOT NULL AND ${t.bankName} IS NOT NULL)`,
     ),
     check("partners_recipient_needs_verification", sql`${t.paystackRecipientCode} IS NULL OR ${t.accountVerifiedAt} IS NOT NULL`),
+    /** Only ever a hash in the known format: a PIN typed in plain can never be stored. */
+    check("partners_pin_format", sql`${t.pinHash} IS NULL OR ${t.pinHash} LIKE 'scrypt$%'`),
+    check("partners_pin_set_together", sql`(${t.pinHash} IS NULL) = (${t.pinSetAt} IS NULL)`),
+    check("partners_pin_failures", sql`${t.pinFailedCount} >= 0`),
+    check("partners_pin_reset_together", sql`(${t.pinResetHash} IS NULL) = (${t.pinResetExpiresAt} IS NULL)`),
+    uniqueIndex("partners_pin_reset_idx").on(t.pinResetHash).where(sql`${t.pinResetHash} IS NOT NULL`),
+  ],
+);
+
+/**
+ * A partner logged in on one phone or browser. The cookie holds a random
+ * token; this row holds only its sha256, so a copy of the database logs
+ * nobody in. Log out deletes the row; a PIN change deletes all of them.
+ */
+export const partnerSessions = pgTable(
+  "partner_sessions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    partnerId: uuid("partner_id")
+      .notNull()
+      .references(() => partners.id, { onDelete: "cascade" }),
+    tokenHash: text("token_hash").notNull(),
+    createdAt: createdAt(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  },
+  (t) => [
+    uniqueIndex("partner_sessions_token_idx").on(t.tokenHash),
+    index("partner_sessions_partner_idx").on(t.partnerId),
+    check("partner_sessions_expiry", sql`${t.expiresAt} > ${t.createdAt}`),
   ],
 );
 

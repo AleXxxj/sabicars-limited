@@ -365,6 +365,14 @@ await rejects(db, "refuses an 11-digit account number (a NUBAN has ten)", `UPDAT
 await rejects(db, "refuses an account number without its bank", `UPDATE partners SET account_number = '0123456789' WHERE id = ${P}`, "partners_account_complete");
 await rejects(db, "refuses a Paystack recipient on an account nobody has verified", `UPDATE partners SET bank_code = '058', bank_name = 'Guaranty Trust Bank', account_number = '0123456789', paystack_recipient_code = 'RCP_test' WHERE id = ${P}`, "partners_recipient_needs_verification");
 await allows(db, "records a verified account with its Paystack recipient", `UPDATE partners SET bank_code = '058', bank_name = 'Guaranty Trust Bank', account_number = '0123456789', account_name = 'ADA OKAFOR', account_verified_at = now(), account_verified_by = ${S}, paystack_recipient_code = 'RCP_test' WHERE id = ${P}`);
+await rejects(db, "refuses a PIN stored in plain", `UPDATE partners SET pin_hash = '482913', pin_set_at = now() WHERE id = ${P}`, "partners_pin_format");
+await rejects(db, "refuses a PIN without the day it was chosen", `UPDATE partners SET pin_hash = 'scrypt$32768$8$1$c2FsdA$a2V5' WHERE id = ${P}`, "partners_pin_set_together");
+await allows(db, "stores a PIN as a salted hash with the day it was chosen", `UPDATE partners SET pin_hash = 'scrypt$32768$8$1$c2FsdA$a2V5', pin_set_at = now() WHERE id = ${P}`);
+await rejects(db, "refuses a negative count of wrong PINs", `UPDATE partners SET pin_failed_count = -1 WHERE id = ${P}`, "partners_pin_failures");
+await rejects(db, "refuses a PIN link with no end", `UPDATE partners SET pin_reset_hash = 'abc' WHERE id = ${P}`, "partners_pin_reset_together");
+await allows(db, "logs a partner in on a phone", `INSERT INTO partner_sessions (partner_id, token_hash, expires_at) VALUES (${P}, 'h1', now() + interval '180 days')`);
+await rejects(db, "refuses a second session under the same secret", `INSERT INTO partner_sessions (partner_id, token_hash, expires_at) VALUES (${P}, 'h1', now() + interval '1 day')`, "partner_sessions_token_idx");
+await rejects(db, "refuses a session that ends before it starts", `INSERT INTO partner_sessions (partner_id, token_hash, expires_at) VALUES (${P}, 'h2', now() - interval '1 day')`, "partner_sessions_expiry");
 
 // ── Throttles and the email outbox ─────────────────────────────────────────
 // The throttle must count one address in one window on one row, or two server

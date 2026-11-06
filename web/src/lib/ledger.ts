@@ -155,7 +155,19 @@ export interface ReferredEnquiry {
 }
 
 export interface PartnerStatement {
-  partner: { id: string; name: string; code: string; phone: string; email: string | null; status: Partner["status"]; createdAt: Date };
+  partner: {
+    id: string;
+    name: string;
+    code: string;
+    phone: string;
+    email: string | null;
+    status: Partner["status"];
+    createdAt: Date;
+    /** When they chose their log-in PIN; null while they have none (lib/partner-pin.ts). */
+    pinSetAt: Date | null;
+    /** Locked after too many wrong PINs, until then. */
+    pinLockedUntil: Date | null;
+  };
   bank: BankAccountView | null;
   enquiries: { total: number; won: number };
   /** The latest enquiries through the partner's link, newest first. */
@@ -199,7 +211,17 @@ async function statementFor(p: Partner, now: Date): Promise<PartnerStatement> {
       .limit(10),
   ]);
   return {
-    partner: { id: p.id, name: p.name, code: p.code, phone: p.phone, email: p.email, status: p.status, createdAt: p.createdAt },
+    partner: {
+      id: p.id,
+      name: p.name,
+      code: p.code,
+      phone: p.phone,
+      email: p.email,
+      status: p.status,
+      createdAt: p.createdAt,
+      pinSetAt: p.pinSetAt,
+      pinLockedUntil: p.pinLockedUntil,
+    },
     bank,
     enquiries: { total: enq?.total ?? 0, won: enq?.won ?? 0 },
     recentEnquiries: recent.map((r) => ({

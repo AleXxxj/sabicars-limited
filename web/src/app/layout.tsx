@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { archivo } from "@/lib/fonts";
-import { PARTNER_DEVICE_SCRIPT } from "@/lib/partner-device";
+import { PARTNER_FLAG_SCRIPT } from "@/lib/partner-flag";
 import { site, siteUrl } from "@/lib/site";
 import "./globals.css";
 
@@ -44,8 +44,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     // does the same with data-partner, so the header shows Account or Log in from the first paint.
     <html lang="en-NG" data-theme="dark" className={archivo.variable} suppressHydrationWarning>
       <body>
-        <Script id="partner-device" strategy="beforeInteractive">
-          {PARTNER_DEVICE_SCRIPT}
+        <Script id="partner-flag" strategy="beforeInteractive">
+          {PARTNER_FLAG_SCRIPT}
         </Script>
         {children}
       </body>

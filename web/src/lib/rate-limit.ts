@@ -36,7 +36,7 @@ import { site } from "@/lib/site";
  * the connection, so each local client is its own key.
  */
 
-export type Bucket = "enquiry" | "partner" | "subscribe" | "review" | "comment" | "account" | "signin" | "engage";
+export type Bucket = "enquiry" | "partner" | "subscribe" | "review" | "comment" | "account" | "signin" | "partnerlogin" | "engage";
 
 const LIMITS: Record<Bucket, { max: number; windowSeconds: number }> = {
   /** Contact, car enquiries, viewings, fleet, sourcing, sell, Drive Plan, call-backs, alerts. */
@@ -53,6 +53,11 @@ const LIMITS: Record<Bucket, { max: number; windowSeconds: number }> = {
   account: { max: 10, windowSeconds: 3600 },
   /** Staff sign-in attempts: enough for a mistyped password, not for guessing one. */
   signin: { max: 10, windowSeconds: 900 },
+  /**
+   * Partner log-ins, PIN links and choosing a PIN. Generous per connection, because many partners share
+   * one mobile network address; the real guard on a PIN is its own lock after five wrong tries.
+   */
+  partnerlogin: { max: 30, windowSeconds: 600 },
   /** Reactions and shares on articles, and fetches of a viewing's calendar file: silent when over, so nobody notices, nobody can inflate them, and nobody can walk through references. */
   engage: { max: 60, windowSeconds: 600 },
 };

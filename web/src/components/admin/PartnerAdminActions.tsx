@@ -3,7 +3,7 @@
 import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { FieldError } from "@/components/forms/shared";
-import { confirmBankAccountAction, setPartnerStatusAction, voidCommissionAction, type ActionResult } from "@/lib/actions/partners-admin";
+import { confirmBankAccountAction, resetPartnerPinAction, setPartnerStatusAction, voidCommissionAction, type ActionResult } from "@/lib/actions/partners-admin";
 
 const control =
   "min-h-11 w-full border border-border-default bg-surface-0 px-3 text-sm text-text-primary outline-none placeholder:text-text-muted focus:border-green-500";
@@ -73,6 +73,37 @@ export function PartnerStatusControl({ partnerId, status, partnerName }: { partn
         </button>
         <button type="button" onClick={() => setAsking(false)} disabled={pending} className={textButton}>
           Keep as is
+        </button>
+      </div>
+      <FieldError message={state?.error} />
+    </form>
+  );
+}
+
+/** Clears a forgotten PIN: the partner chooses a new one from a fresh set-up link, which the page then shows to send. */
+export function ResetPin({ partnerId, partnerName }: { partnerId: string; partnerName: string }) {
+  const [asking, setAsking] = useState(false);
+  const [state, action, pending] = useActionState<ActionResult | null, FormData>(async () => resetPartnerPinAction(partnerId), null);
+
+  if (state?.ok) return <p className="text-sm text-success">PIN cleared. Send them the new link below.</p>;
+  if (!asking)
+    return (
+      <button type="button" onClick={() => setAsking(true)} className={quietButton}>
+        Reset their PIN
+      </button>
+    );
+  return (
+    <form action={action} className="grid gap-3">
+      <p className="text-sm text-text-secondary">
+        Only when <span className="text-text-primary">{partnerName}</span> has asked you, from their own phone number. They are logged out
+        everywhere, and you send them a new link to choose a PIN.
+      </p>
+      <div className="flex flex-wrap items-center gap-3">
+        <button type="submit" disabled={pending} className={quietButton}>
+          {pending ? "Resetting…" : "Yes, reset it"}
+        </button>
+        <button type="button" onClick={() => setAsking(false)} disabled={pending} className={textButton}>
+          Keep it
         </button>
       </div>
       <FieldError message={state?.error} />

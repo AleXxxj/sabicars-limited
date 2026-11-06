@@ -126,6 +126,20 @@ export async function stockCount(page: Page): Promise<number> {
   return Number((await sentence.textContent())?.match(/(\d+) vehicles? in stock/)?.[1] ?? 0);
 }
 
+/**
+ * Logs the page in as the test partner, the way a partner does on a new phone: /partner, their phone number and
+ * PIN. Waits for their page.
+ */
+export async function logInAsPartner(page: Page, phone: string, pin: string): Promise<void> {
+  await page.goto("/partner");
+  const form = page.locator("form").filter({ has: page.getByRole("button", { name: "Log in" }) });
+  await form.getByLabel("Your phone number").fill(phone);
+  await form.getByLabel("Your 6-digit PIN").fill(pin);
+  await waitUntilFormLooksHuman(page, form);
+  await form.getByRole("button", { name: "Log in" }).click();
+  await expect(page.getByRole("heading", { level: 1 }), "the partner could not log in with their phone number and PIN").toHaveText(/^Hello, /);
+}
+
 /** Opens the first car in the inventory the way a buyer would, by its card, and returns what the card called it. */
 export async function openFirstVehicle(page: Page): Promise<{ title: string; slug: string }> {
   if (!page.url().endsWith("/vehicles")) await page.goto("/vehicles");

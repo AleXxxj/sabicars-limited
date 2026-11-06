@@ -2,10 +2,15 @@
 
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
+import { and, eq, sql } from "drizzle-orm";
 import { z } from "zod";
+import { db } from "@/db";
+import { partners } from "@/db/schema";
+import { audit } from "@/lib/audit";
 import { can, requireStaff } from "@/lib/auth";
 import { confirmBankAccount, setPartnerStatus, voidCommission } from "@/lib/ledger";
 import { notifyAccountSaved } from "@/lib/ledger-notify";
+import { endAllPartnerSessions } from "@/lib/partner-session";
 
 /**
  * What a manager does to a partner from the admin: confirms the bank account
@@ -82,5 +87,37 @@ export async function voidCommissionAction(commissionId: string, reason: string)
   const r = await voidCommission(me, parsed.data.commissionId, parsed.data.reason);
   if (!r.ok) return r;
   refresh();
+  return { ok: true };
+}
+
+/**
+ * A partner forgot their PIN and has no email to reset it: a manager clears
+ * the PIN, logs them out everywhere, and gives them a new set-up link (the
+ * old one is replaced, so a copy of it left in an old message opens nothing).
+ * The admin page then shows the new link to send on WhatsApp.
+ */
+export async function resetPartnerPinAction(partnerId: string): Promise<ActionResult> {
+  const me = await requireStaff();
+  if (!can.payPartners(me)) return { ok: false, error: NOT_ALLOWED };
+  const parsed = z.uuid().safeParse(partnerId);
+  if (!parsed.success) return { ok: false, error: "Partner not found." };
+  const [row] = await db
+    .update(partners)
+    .set({
+      pinHash: null,
+      pinSetAt: null,
+      pinFailedCount: 0,
+      pinLockedUntil: null,
+      pinResetHash: null,
+      pinResetExpiresAt: null,
+      accessToken: sql`gen_random_uuid()`,
+      updatedAt: new Date(),
+    })
+    .where(and(eq(partners.id, parsed.data), eq(partners.dealerId, me.dealerId)))
+    .returning({ id: partners.id });
+  if (!row) return { ok: false, error: "Partner not found." };
+  await endAllPartnerSessions(row.id);
+  await audit(me, "partner", row.id, "reset_pin");
+  refresh(row.id);
   return { ok: true };
 }

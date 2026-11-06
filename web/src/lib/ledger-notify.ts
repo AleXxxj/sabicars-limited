@@ -1,4 +1,5 @@
 import "server-only";
+import { createHash } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { commissions, partners, payouts, vehicles } from "@/db/schema";
@@ -24,7 +25,8 @@ import { vehicleTitle } from "@/lib/vehicle";
 
 const lagosDate = (d: Date) => d.toLocaleDateString("en-NG", { day: "numeric", month: "long", year: "numeric", timeZone: "Africa/Lagos" });
 
-const partnerPageUrl = (accessToken: string) => `${siteUrl()}/partner/${accessToken}`;
+/** Where a partner's page is: behind their log-in (phone number and PIN), so a link in an email is safe to forward. */
+const partnerPageUrl = () => `${siteUrl()}/partner`;
 
 /** A line of an email: plain text, or text with its own HTML where it carries a link. */
 type Line = string | { text: string; html: string };
@@ -124,16 +126,15 @@ async function payoutWithContext(payoutId: string) {
   return row ? { ...row, title: vehicleTitle({ year: row.year, make: row.make, model: row.model }) } : null;
 }
 
-/** A new partner: their code, their referral link and their private page link, by email when they gave one. */
+/** A new partner: their code, their referral link, and how to log in to their page, by email when they gave one. */
 export async function notifyPartnerWelcome(partnerId: string): Promise<void> {
   try {
     if (!emailConfigured()) return;
     const [p] = await db.select().from(partners).where(eq(partners.id, partnerId)).limit(1);
     if (!p?.email) return;
     const share = referralLink(siteUrl(), p.code);
-    const page = partnerPageUrl(p.accessToken);
-    // Registering with a phone already on record answers with the existing code, and welcomes again.
-    // One welcome per partner per Lagos day, so a stranger re-submitting someone's phone cannot flood their inbox.
+    const page = partnerPageUrl();
+    // One welcome per partner per Lagos day: a retried registration never sends two.
     const key = `welcome:${p.id}:${lagosDay()}`;
     const mail: PartnerMail = {
       to: p.email,
@@ -145,10 +146,10 @@ export async function notifyPartnerWelcome(partnerId: string): Promise<void> {
         linkIn("Share your link with anyone looking for a car: ", share, share, ""),
         "You earn 1.5% of what a car sells for when a buyer you sent completes a purchase, paid once the sale is final, after a wait of a day or two, into a bank account in your own name.",
         "Joining is free, and you never earn from signing up other partners: only from buyers you bring.",
-        linkIn("Your partner page shows every enquiry and commission, and is where you register the account you are paid into. It is private to you, so keep the link to yourself: ", page, page, ""),
+        "Your partner page shows your buyers, your earnings and your payments, and is where you add the bank account you are paid into. Log in on any phone with your phone number and the PIN you chose.",
       ],
       cta: { label: "Open your partner page", url: page },
-      foot: ["Anyone asking you to pay to join, or to pay for a better code, is not Sabicars."],
+      foot: ["Sabicars will never ask you for your PIN, or ask you to pay to join. Anyone who does is not Sabicars."],
     };
     await send("partner welcome", mail, key);
   } catch (e) {
@@ -157,35 +158,34 @@ export async function notifyPartnerWelcome(partnerId: string): Promise<void> {
 }
 
 /**
- * A partner asked to log in (/partner): their page link, to the email on record, and nowhere else.
- * At most one every ten minutes per partner, so a stranger typing someone's number cannot flood their inbox.
+ * A one-time link to choose a PIN (a partner who joined before PINs) or reset a forgotten one, to the email on
+ * record and nowhere else. lib/partner-pin-links.ts makes at most one every ten minutes per partner.
  */
-export async function notifyPartnerLogIn(partnerId: string): Promise<void> {
+export async function notifyPinLink(partnerId: string, link: string, kind: "set" | "reset"): Promise<void> {
   try {
     if (!emailConfigured()) return;
     const [p] = await db.select().from(partners).where(eq(partners.id, partnerId)).limit(1);
     if (!p?.email || p.status !== "active") return;
-    const page = partnerPageUrl(p.accessToken);
-    const slot = Math.floor(Date.now() / 600_000);
     await send(
-      "partner log-in link",
+      kind === "set" ? "partner PIN set-up link" : "partner PIN reset link",
       {
         to: p.email,
-        subject: "Your Sabicars partner page",
+        subject: kind === "set" ? "Choose your Sabicars partner PIN" : "Reset your Sabicars partner PIN",
         eyebrow: "Refer & Earn",
         firstName: firstNameOf(p.name),
-        headline: "Here is your partner page",
+        headline: kind === "set" ? "Choose your PIN" : "Reset your PIN",
         lines: [
-          "You asked to log in. Tap the button to open your page: your buyers, your earnings and your payments.",
-          "Keep this email. The button always opens your page.",
+          "Tap the button and choose a 6-digit PIN. You log in with your phone number and this PIN.",
+          "The link works once, for one hour.",
         ],
-        cta: { label: "Open my partner page", url: page },
-        foot: ["Did not ask for this? You can ignore it. Nobody can open your page without this link.", "Sabicars will never ask you to pay anything."],
+        cta: { label: kind === "set" ? "Choose my PIN" : "Reset my PIN", url: link },
+        foot: ["Did not ask for this? You can ignore it. Your PIN stays the same.", "Sabicars will never ask you for your PIN."],
       },
-      `login:${p.id}:${slot}`,
+      // The link itself is the key: the same link is never mailed twice.
+      `pinlink:${p.id}:${createHash("sha256").update(link).digest("hex").slice(0, 16)}`,
     );
   } catch (e) {
-    console.error("[ledger-notify] log-in link failed", e);
+    console.error("[ledger-notify] PIN link failed", e);
   }
 }
 
@@ -197,7 +197,7 @@ export async function notifyCommissionRecorded(commissionId: string): Promise<vo
     if (!row || !row.p.email || row.c.status !== "pending") return;
     const { c, p, title } = row;
     const to = row.p.email;
-    const page = partnerPageUrl(p.accessToken);
+    const page = partnerPageUrl();
     const rate = `${c.rateBps / 100}%`;
     const mail: PartnerMail = {
       to,
@@ -231,7 +231,7 @@ export async function notifyCommissionPaid(payoutId: string): Promise<void> {
     if (!row || !row.p.email || row.o.status !== "paid") return;
     const { o, p, title } = row;
     const to = row.p.email;
-    const page = partnerPageUrl(p.accessToken);
+    const page = partnerPageUrl();
     const account = o.accountNumber ? `${o.bankName ?? "bank"} account ${maskAccount(o.accountNumber)}` : (o.bankName ?? "bank account");
     const reference = o.method === "bank_transfer" && o.bankReference ? `Bank reference ${o.bankReference}` : `Reference ${o.reference}`;
     const mail: PartnerMail = {
@@ -269,7 +269,7 @@ export async function notifyAccountSaved(partnerId: string): Promise<void> {
       action: "Open the partner",
     });
     if (!emailConfigured() || !p.email) return;
-    const page = partnerPageUrl(p.accessToken);
+    const page = partnerPageUrl();
     await send("account saved", {
       to: p.email,
       subject: p.accountVerifiedAt ? "Your bank account is registered and verified" : "Your bank account is registered",

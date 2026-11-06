@@ -4,7 +4,7 @@ import { useActionState, useState } from "react";
 import { BadgeCheck, Clock } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { FieldError, fieldClass, Label } from "@/components/forms/shared";
-import { saveBankAccountByToken, type BankAccountFormResult } from "@/lib/actions/partner-account";
+import { saveMyBankAccount, type BankAccountFormResult } from "@/lib/actions/partner-account";
 
 /** The registered account as the page shows it: the number itself never leaves the server. */
 export interface CurrentAccount {
@@ -23,17 +23,15 @@ export interface CurrentAccount {
  * one — a change starts the verification again, which is the point.
  */
 export function BankAccountForm({
-  token,
   partnerName,
   banks,
   current,
 }: {
-  token: string;
   partnerName: string;
   banks: { code: string; name: string }[];
   current: CurrentAccount | null;
 }) {
-  const [state, action, pending] = useActionState(saveBankAccountByToken, null);
+  const [state, action, pending] = useActionState(saveMyBankAccount, null);
   // Whether the form is open follows the latest result — open until an account is saved, closed after — unless the
   // partner has pressed "Change account" or "Cancel" since that result arrived.
   const [override, setOverride] = useState<{ after: BankAccountFormResult | null; open: boolean } | null>(null);
@@ -86,7 +84,6 @@ export function BankAccountForm({
 
       {showForm && (
         <form action={action} className="grid gap-6" noValidate>
-          <input type="hidden" name="token" value={token} />
           {state && !state.ok && state.error && (
             <p role="alert" className="border-l-2 border-danger bg-surface-2 px-4 py-3 text-sm text-danger">
               {state.error}

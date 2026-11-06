@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { ConfirmAccount, CopyLink, PartnerStatusControl, VoidCommission } from "@/components/admin/PartnerAdminActions";
+import { ConfirmAccount, CopyLink, PartnerStatusControl, ResetPin, VoidCommission } from "@/components/admin/PartnerAdminActions";
 import { can, requireStaff } from "@/lib/auth";
 import { partnerAccessToken, partnerStatement, type CommissionRow } from "@/lib/ledger";
 import { COMMISSION_STATUS_LABEL, PAYOUT_STATUS_LABEL } from "@/lib/ledger-rules";
@@ -48,7 +48,7 @@ export default async function PartnerPage({ params }: Props) {
   const link = referralLink(siteUrl(), p.code);
   const privateLink = token ? `${siteUrl()}/partner/${token}` : null;
   const firstName = p.name.trim().split(/\s+/)[0];
-  const shareText = `Hello ${firstName}, here is your private Sabicars partner page: ${privateLink}. It shows your earnings and is where you add the bank account you are paid into. Keep it to yourself.`;
+  const shareText = `Hello ${firstName}, here is your link to choose your Sabicars partner PIN: ${privateLink} . After that you log in with your phone number and your PIN.`;
   const whatsapp = privateLink ? `https://wa.me/${p.phone.replace("+", "")}?text=${encodeURIComponent(shareText)}` : null;
   const owedMinor = s.totals.pendingMinor + s.totals.payableMinor;
 
@@ -105,12 +105,23 @@ export default async function PartnerPage({ params }: Props) {
             <p className="figures mt-2 break-all text-sm text-text-primary">{link}</p>
             <p className="mt-1 text-xs text-text-muted">A buyer who opens it is recorded against {p.code} from their first enquiry.</p>
 
-            <p className="eyebrow mt-6 !text-text-muted">Share their private page</p>
-            {privateLink ? (
+            <p className="eyebrow mt-6 !text-text-muted">Their log-in</p>
+            {p.pinSetAt ? (
               <>
                 <p className="mt-2 text-sm text-text-secondary">
-                  Their earnings, and where they add the bank account they are paid into. It is theirs alone: send it only to{" "}
-                  <span className="text-text-primary">{displayPhone(p.phone)}</span>, and never post it anywhere.
+                  They log in with their phone number and the PIN they chose on {new Date(p.pinSetAt).toLocaleDateString("en-NG", { day: "numeric", month: "long", year: "numeric", timeZone: "Africa/Lagos" })}.
+                  {p.pinLockedUntil && new Date(p.pinLockedUntil) > new Date() && " It is locked for now after too many wrong PINs."} Forgot it? With an email on record they
+                  reset it themselves from the log-in page; without one, reset it here.
+                </p>
+                <div className="mt-4">
+                  <ResetPin partnerId={p.id} partnerName={p.name} />
+                </div>
+              </>
+            ) : privateLink ? (
+              <>
+                <p className="mt-2 text-sm text-text-secondary">
+                  No PIN yet. Send this link to <span className="text-text-primary">{displayPhone(p.phone)}</span> only, so they choose one.
+                  It stops working once they have.
                 </p>
                 <p className="figures mt-3 break-all text-sm text-text-primary">{privateLink}</p>
                 <div className="mt-4 flex flex-wrap items-center gap-3">
@@ -128,7 +139,7 @@ export default async function PartnerPage({ params }: Props) {
                 </div>
               </>
             ) : (
-              <p className="mt-2 text-sm text-text-muted">No private link on record for this partner.</p>
+              <p className="mt-2 text-sm text-text-muted">No set-up link on record for this partner.</p>
             )}
           </section>
 

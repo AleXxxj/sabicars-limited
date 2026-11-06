@@ -18,8 +18,8 @@ export const E2E = {
   /** A buyer who enquires about a car. Typed as a Lagos number; stored in E.164. */
   buyer: { name: "E2E Buyer", typedPhone: "0803 000 0001", phone: "+2348030000001" },
 
-  /** A Refer & Earn partner. */
-  partner: { name: "E2E Partner", typedPhone: "0803 000 0002", phone: "+2348030000002" },
+  /** A Refer & Earn partner, and the 6-digit PIN they choose (one the rules accept: lib/partner-pin.ts). */
+  partner: { name: "E2E Partner", typedPhone: "0803 000 0002", phone: "+2348030000002", pin: "482913" },
 
   /** The bank account the partner registers: Guaranty Trust Bank, Paystack code 058. */
   bank: { name: "Guaranty Trust Bank", code: "058", accountNumber: "0123456789", masked: "••••••6789" },
