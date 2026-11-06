@@ -1,12 +1,17 @@
+import Link from "next/link";
 import { ReferralShare } from "@/components/forms/PartnerForm";
 import { BankAccountForm, type CurrentAccount } from "@/components/partner/BankAccountForm";
 import { LogOutButton, SignedInMark } from "@/components/partner/PartnerLogIn";
 import { PageIntro } from "@/components/site/PageIntro";
+import { ButtonLink } from "@/components/ui/Button";
+import { VehicleImage } from "@/components/VehicleImage";
 import { banksForForm } from "@/lib/banks";
 import type { CommissionRow, PartnerStatement, PayoutRow, ReferredEnquiry } from "@/lib/ledger";
 import { COOLING_OFF_HOURS, PAYOUT_STATUS_LABEL } from "@/lib/ledger-rules";
 import { formatNaira } from "@/lib/money";
 import { referralLink } from "@/lib/partners";
+import { commissionMinor } from "@/lib/referral";
+import { shareCatalogue } from "@/lib/repositories/vehicles";
 import { site, siteUrl, whatsappLink } from "@/lib/site";
 
 const longDate = (d: Date) => new Date(d).toLocaleDateString("en-NG", { day: "numeric", month: "long", year: "numeric", timeZone: "Africa/Lagos" });
@@ -53,7 +58,9 @@ export async function PartnerStatementView({ statement }: { statement: PartnerSt
   const firstName = partner.name.split(" ")[0];
   const suspended = partner.status !== "active";
   const link = referralLink(siteUrl(), partner.code);
-  const banks = suspended ? [] : await banksForForm();
+  const [banks, cars] = suspended ? [[], []] : await Promise.all([banksForForm(), shareCatalogue()]);
+  // The row shows the newest cars that have photos: a car with none yet makes a poor first look.
+  const newest = cars.filter((c) => c.photos.length).slice(0, 8);
   const current: CurrentAccount | null = bank
     ? { bankName: bank.bankName, bankCode: bank.bankCode, accountMasked: bank.accountMasked, accountName: bank.accountName, verified: Boolean(bank.verifiedAt) }
     : null;
@@ -84,6 +91,42 @@ export async function PartnerStatementView({ statement }: { statement: PartnerSt
             </a>{" "}
             to talk about it.
           </p>
+        )}
+
+        {/* The newest cars first: what a partner opens this page to do most days. The sheet for each is on /partner/cars. */}
+        {newest.length > 0 && (
+          <section>
+            <p className="kicker">Cars to share</p>
+            <p className="mt-3 text-text-secondary">Tap a car to send it on WhatsApp or save its photos. Your code goes with it.</p>
+            <ul className="-mx-5 mt-5 flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-px-5 px-5 pb-2 [scrollbar-width:none] md:mx-0 md:grid md:snap-none md:grid-cols-4 md:gap-4 md:overflow-visible md:px-0 md:pb-0 md:[&>li:nth-child(n+5)]:hidden [&::-webkit-scrollbar]:hidden">
+              {newest.map((c) => (
+                <li key={c.slug} className="w-[44%] shrink-0 snap-start sm:w-[30%] md:w-auto">
+                  <Link href={`/partner/cars?car=${c.slug}`} className="surface-card group flex h-full flex-col overflow-hidden">
+                    <div className="relative aspect-[4/3] overflow-hidden bg-surface-2">
+                      <VehicleImage
+                        src={c.photos[0]}
+                        alt=""
+                        fill
+                        sizes="(min-width: 768px) 210px, 44vw"
+                        className="object-cover transition-transform duration-[var(--duration-slow)] ease-[var(--ease-out)] group-hover:scale-[1.04]"
+                      />
+                    </div>
+                    <div className="flex flex-1 flex-col p-3">
+                      <p className="truncate text-sm text-text-primary group-hover:text-accent-text">{c.title}</p>
+                      {c.priceMinor ? (
+                        <p className="mt-auto pt-2 text-xs text-text-muted">
+                          You earn <span className="figures text-brand block font-display text-[1.25rem] leading-tight">{formatNaira(commissionMinor(c.priceMinor))}</span>
+                        </p>
+                      ) : null}
+                    </div>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <ButtonLink href="/partner/cars" variant="secondary" className="mt-5 w-full sm:w-auto">
+              See all {cars.length} {cars.length === 1 ? "car" : "cars"}
+            </ButtonLink>
+          </section>
         )}
 
         <section className="surface-card p-6 md:p-8">

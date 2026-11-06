@@ -108,8 +108,8 @@ export default async function PartnersPage() {
               One minute, no fee. Your code and link appear as soon as you register.
             </p>
             <p className="mt-4 text-text-secondary">
-              When you register, you get a private link to your own page. It shows what you have earned, and it is where you add the bank
-              account we pay into.
+              You also get your own partner page. Log in with your phone number and PIN to see every car to share, with photos you can
+              post or save, what you have earned, and the bank account we pay into.
             </p>
           </ScrollReveal>
           <PartnerForm />

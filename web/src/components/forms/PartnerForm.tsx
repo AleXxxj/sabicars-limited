@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { registerPartner } from "@/lib/actions/partners";
+import { DRIVE_PLAN } from "@/lib/drive-plan";
 import { markSignedIn } from "@/lib/partner-flag";
 import { PARTNER_REACH } from "@/lib/referral";
 import { Button, ButtonAnchor, ButtonLink } from "@/components/ui/Button";
@@ -32,7 +33,8 @@ export function CopyButton({ text, label = "Copy link", className }: { text: str
 
 /** A partner's referral link, with the two ways they will use it: copied, or sent on WhatsApp with a ready message. */
 export function ReferralShare({ link }: { link: string }) {
-  const share = `Looking for a car? Sabicars has luxury cars, Hiace buses, SUVs and trucks in Lagos, with the 40% Drive Plan through Autochek. See what's in stock: ${link}`;
+  // The Drive Plan only with its two conditions: the car's year, and Autochek's yes (lib/drive-plan.ts).
+  const share = `Looking for a car? Sabicars in Lagos has Hummer buses, SUVs, saloon cars and trucks, all with photos and prices. On a car from ${DRIVE_PLAN.standardYear} you can pay 40% now, and Autochek lends you the rest if they approve you. See the cars: ${link}`;
   return (
     <>
       <p className="text-sm font-medium text-text-secondary">Your link</p>

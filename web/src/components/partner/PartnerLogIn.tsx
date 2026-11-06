@@ -62,7 +62,7 @@ function Alert({ message }: { message?: string }) {
  * Log in: phone number and PIN. The server says nobody is logged in here, so
  * a "logged in" flag left on this phone is cleared, and the header shows Log in.
  */
-export function PartnerLogInForm({ helpPhone }: { helpPhone: string }) {
+export function PartnerLogInForm({ helpPhone, next }: { helpPhone: string; next?: "/partner/cars" }) {
   const [state, action, pending] = useActionState(logInPartner, null);
   useEffect(() => clearStaleSignedIn(), []);
 
@@ -83,6 +83,7 @@ export function PartnerLogInForm({ helpPhone }: { helpPhone: string }) {
   return (
     <form action={action} className="surface-card relative grid gap-5 p-6 md:p-8">
       <SpamGuard />
+      {next && <input type="hidden" name="next" value={next} />}
       <Alert message={state?.error} />
       <PhoneInput defaultValue={state?.phone} error={state?.fieldErrors?.phone} />
       <PinInput name="pin" label="Your 6-digit PIN" autoComplete="current-password" error={state?.fieldErrors?.pin} />

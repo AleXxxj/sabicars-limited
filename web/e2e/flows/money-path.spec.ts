@@ -24,6 +24,9 @@ import {
  *      their page and registers the bank account they are paid into. On
  *      another phone they log in with their number and PIN; a wrong PIN is
  *      refused, the old private link leads to the log-in, and log out ends it.
+ *      They share a car from "Cars to share": the WhatsApp words carry their
+ *      own link to it, with the Drive Plan line only where the car's year
+ *      allows, and a buyer who opens the link lands on the car, linked to them.
  *   3. Staff (when E2E_STAFF_EMAIL and E2E_STAFF_PASSWORD are set) sell the
  *      car, attribute the sale to the partner's code, confirm the bank
  *      account, record the bank transfer once the cooling-off has passed,
@@ -243,6 +246,66 @@ test.describe("Refer & Earn, from registration to payment", () => {
     expect(await sessionsNow(), "log out did not end the session on the server").toBe(before);
     await page.goto("/partner");
     await expect(page.getByRole("heading", { level: 1 }), "the page still opened after log out").toHaveText("Log in to your partner page.");
+    assertNoFaults(faults);
+  });
+
+  // Before the sale below: a sold car leaves the cars to share.
+  test("a partner shares a car: the WhatsApp words carry their link to it, and the buyer who opens it lands on the car, linked to them", async ({ page, browser }) => {
+    const faults = watchForFaults(page);
+    const partner = await seededPartner();
+
+    // Logged out, the page asks for the log-in, and the log-in comes back to it, not to /partner.
+    await page.goto("/partner/cars");
+    await expect(page.getByRole("heading", { level: 1 }), "the cars to share opened without a log-in").toHaveText("Log in to see the cars to share.");
+    const form = page.locator("form").filter({ has: page.getByRole("button", { name: "Log in" }) });
+    await form.getByLabel("Your phone number").fill(E2E.partner.typedPhone);
+    await form.getByLabel("Your 6-digit PIN").fill(E2E.partner.pin);
+    await waitUntilFormLooksHuman(page, form);
+    await form.getByRole("button", { name: "Log in" }).click();
+    await page.waitForURL(/\/partner\/cars$/);
+    await expect(page.getByRole("heading", { level: 1 }), "the log-in did not come back to the cars to share").toHaveText("Cars to share");
+
+    /** Opens a car's share sheet and returns the WhatsApp message it would send. */
+    const wordsFor = async (title: string) => {
+      // Exact names: a database with real stock may also hold a "2013 Toyota Hiace Hummer 1".
+      await page.getByRole("button", { name: `Share the ${title}`, exact: true }).click();
+      const sheet = page.getByRole("dialog", { name: title, exact: true });
+      await expect(sheet, `the share sheet for the ${title} did not open`).toBeVisible();
+      const href = (await sheet.getByRole("link", { name: "Send on WhatsApp" }).getAttribute("href")) ?? "";
+      const words = new URL(href).searchParams.get("text") ?? "";
+      await expect(sheet.locator("p.whitespace-pre-line"), "the words on screen are not the words WhatsApp is sent").toHaveText(words);
+      await sheet.getByRole("button", { name: "Close" }).click();
+      await expect(sheet).toBeHidden();
+      return words;
+    };
+
+    // The Drive Plan line only where the car's year allows it: 40% from 2010, 50% for 2008–2009, none older.
+    const hummerWords = await wordsFor(hummerTitle);
+    expect(hummerWords.split("\n")[0], "the message does not start with the car").toBe(hummerTitle);
+    expect(hummerWords, "the message does not give the price").toContain("₦24,000,000 at Sabicars, Lagos.");
+    expect(hummerWords, "a 2013 car must say 40% with the approval condition").toContain("Pay 40% now. Autochek lends you the rest if they approve you");
+    const link = hummerWords.split("\n").at(-1) ?? "";
+    expect(link, "the message does not end with the partner's own link to this car").toMatch(new RegExp(`/r/${partner.code}/${hummer.slug}$`));
+    const camry = E2E.vehicles.camry;
+    expect(await wordsFor(`${camry.year} ${camry.make} ${camry.model}`), "a 2009 car must say 50%").toContain("Pay 50% now.");
+    const hiace = E2E.vehicles.hiace;
+    expect(await wordsFor(`${hiace.year} ${hiace.make} ${hiace.model}`), "a 2006 car cannot go on the Drive Plan").not.toContain("Pay ");
+
+    // The buyer, on their own phone: the link opens the car, says who sent them, and keeps the partner's code.
+    const use = test.info().project.use;
+    const buyer = await browser.newContext({ baseURL: use.baseURL, extraHTTPHeaders: use.extraHTTPHeaders });
+    try {
+      const buyerPage = await buyer.newPage();
+      const buyerFaults = watchForFaults(buyerPage);
+      await buyerPage.goto(new URL(link).pathname);
+      await buyerPage.waitForURL(new RegExp(`/vehicles/${hummer.slug}$`));
+      await expect(buyerPage.getByRole("status").filter({ hasText: "sent you here." }), "the buyer is not told who sent them").toContainText("E2E sent you here.");
+      const kept = (await buyer.cookies()).find((c) => c.name === "sc_partner");
+      expect(kept?.value, "the car link did not keep the partner's code for the buyer's enquiry").toBe(partner.code);
+      assertNoFaults(buyerFaults);
+    } finally {
+      await buyer.close();
+    }
     assertNoFaults(faults);
   });
 

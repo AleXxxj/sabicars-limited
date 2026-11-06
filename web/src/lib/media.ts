@@ -66,5 +66,18 @@ export function shareImageUrl(url: string): string {
   return url.replace("/upload/", "/upload/e_improve,c_fill,g_auto,w_1200,h_630,f_jpg,q_auto/");
 }
 
+/**
+ * The copy a partner posts or saves (/partner/cars): the same lift as every
+ * photo on the site, 1280px on the long side, JPEG. Big enough for a WhatsApp
+ * status or an Instagram post (both shrink anything larger), small enough that
+ * getting a car's photos ready costs a partner's data bundle little. The
+ * browser adds the Sabicars strip with the partner's code before it shares or
+ * saves it; Cloudinary answers with an open CORS header, so it may.
+ */
+export function sharePhotoSource(src: string): string {
+  if (!src.includes("res.cloudinary.com") || !src.includes("/upload/")) return src;
+  return src.replace("/upload/", "/upload/e_improve,c_limit,w_1280,h_1280,q_auto:good,f_jpg/");
+}
+
 /** Shown when a vehicle has no photos yet. An honest empty state, never a stock car. */
 export const VEHICLE_PLACEHOLDER = "/vehicle-placeholder.svg";

@@ -463,6 +463,54 @@ export async function sitemapVehicles(): Promise<{ slug: string; updatedAt: Date
   return [...bySlug.values()];
 }
 
+/** A car a partner can share: what the "Cars to share" page shows, and every photo, in order. */
+export interface ShareCar {
+  slug: string;
+  title: string;
+  year: number;
+  priceMinor: number | null;
+  /** For the filter chips, the way the homepage tiles group stock. */
+  group: "suvs" | "cars" | "buses" | "trucks" | "other";
+  /** The stored photo addresses, cover first. */
+  photos: string[];
+}
+
+/**
+ * Every car on sale, newest first, with all its photos: what a Refer & Earn
+ * partner shares (/partner/cars). Reserved cars are left out, so nobody is
+ * sent after a car that is already held for someone else.
+ */
+export async function shareCatalogue(): Promise<ShareCar[]> {
+  const listedAt = sql`coalesce(${vehicles.publishedAt}, ${vehicles.createdAt})`;
+  const rows = await db
+    .select({
+      slug: vehicles.slug,
+      year: vehicles.year,
+      make: vehicles.make,
+      model: vehicles.model,
+      priceMinor: vehicles.priceMinor,
+      body: vehicles.body,
+      url: vehicleMedia.url,
+    })
+    .from(vehicles)
+    .leftJoin(vehicleMedia, and(eq(vehicleMedia.vehicleId, vehicles.id), eq(vehicleMedia.kind, "photo")))
+    .where(and(eq(vehicles.dealerId, await sabicarsId()), eq(vehicles.status, "available")))
+    .orderBy(desc(listedAt), vehicles.slug, vehicleMedia.position);
+  const bySlug = new Map<string, ShareCar>();
+  for (const r of rows) {
+    let car = bySlug.get(r.slug);
+    if (!car) {
+      const body = r.body as string | null;
+      const group: ShareCar["group"] =
+        body === "suv" ? "suvs" : body === "bus" ? "buses" : body === "truck" ? "trucks" : body && (CAR_BODIES as readonly string[]).includes(body) ? "cars" : "other";
+      car = { slug: r.slug, title: vehicleTitle(r), year: r.year, priceMinor: r.priceMinor, group, photos: [] };
+      bySlug.set(r.slug, car);
+    }
+    if (r.url) car.photos.push(r.url);
+  }
+  return [...bySlug.values()];
+}
+
 /** What the Drive Plan button needs about a vehicle a buyer can still buy. */
 export async function vehicleForDrivePlan(id: string): Promise<{ id: string; dealerId: string; slug: string; title: string; autochekUrl: string | null } | null> {
   const [v] = await db

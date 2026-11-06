@@ -172,7 +172,11 @@ const logInSchema = z.object({
   pin: z.string().max(12).default(""),
   website: z.string().optional(),
   renderedAt: z.coerce.number().optional(),
+  next: z.string().max(40).optional(),
 });
+
+/** Where a partner may land after logging in: their page, or the cars they share. Nothing else, so the field cannot send anyone elsewhere. */
+const AFTER_LOG_IN = new Set(["/partner", "/partner/cars"]);
 
 export async function logInPartner(_prev: LogInResult | null, formData: FormData): Promise<LogInResult> {
   const parsed = logInSchema.safeParse(Object.fromEntries(formData.entries()));
@@ -218,7 +222,7 @@ export async function logInPartner(_prev: LogInResult | null, formData: FormData
 
   await db.update(partners).set({ pinFailedCount: 0, pinLockedUntil: null }).where(eq(partners.id, p.id));
   await startPartnerSession(p.id);
-  redirect("/partner");
+  redirect(v.next && AFTER_LOG_IN.has(v.next) ? v.next : "/partner");
 }
 
 /* ── Forgot the PIN ────────────────────────────────────────────────────── */
