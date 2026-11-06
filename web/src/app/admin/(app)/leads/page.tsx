@@ -193,6 +193,9 @@ export default async function LeadsInbox({ searchParams }: Props) {
                     <span className="font-semibold text-text-primary group-hover:text-accent-text">{l.name}</span>
                     <span className="text-xs text-text-secondary">{LEAD_TYPE_LABEL[l.type]}</span>
                     <span className="figures text-xs text-text-muted">{l.reference}</span>
+                    {l.partnerCode && (
+                      <span className="figures rounded-full bg-green-500/15 px-2 py-0.5 text-xs font-semibold text-green-200">Partner {l.partnerCode}</span>
+                    )}
                   </p>
                   {l.viewingAt && <p className="mt-1 text-sm font-semibold text-green-300">Viewing {slotLabel(l.viewingAt)}</p>}
                   {l.about && <p className="mt-1 truncate text-sm text-text-secondary">{l.about}</p>}

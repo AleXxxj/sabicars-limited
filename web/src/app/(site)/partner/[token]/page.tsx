@@ -5,7 +5,7 @@ import { RememberPartner } from "@/components/partner/PartnerLogIn";
 import { PageIntro } from "@/components/site/PageIntro";
 import { ButtonLink } from "@/components/ui/Button";
 import { banksForForm } from "@/lib/banks";
-import { partnerByToken, type CommissionRow, type PayoutRow } from "@/lib/ledger";
+import { partnerByToken, type CommissionRow, type PayoutRow, type ReferredEnquiry } from "@/lib/ledger";
 import { COOLING_OFF_HOURS, PAYOUT_STATUS_LABEL } from "@/lib/ledger-rules";
 import { formatNaira } from "@/lib/money";
 import { referralLink } from "@/lib/partners";
@@ -29,6 +29,16 @@ const coolingOff = COOLING_DAYS === 1 ? "one day" : COOLING_DAYS === 2 ? "two da
 const METHOD_LABEL: Record<string, string> = { paystack: "Paystack transfer", bank_transfer: "Bank transfer" };
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+
+/** When a buyer's enquiry landed, to the minute: "6 November, 3:40 pm". */
+const whenLanded = (d: Date) =>
+  new Date(d).toLocaleString("en-NG", { day: "numeric", month: "long", hour: "numeric", minute: "2-digit", timeZone: "Africa/Lagos" });
+
+const STAGE: Record<ReferredEnquiry["stage"], { label: string; className: string }> = {
+  open: { label: "Open", className: "bg-white/[0.06] text-text-secondary" },
+  bought: { label: "Bought", className: "bg-green-500/15 text-green-200" },
+  closed: { label: "Did not buy", className: "bg-white/[0.04] text-text-muted" },
+};
 
 /** Where a commission stands, in the partner's terms: when it is paid, that it was, or why it will not be. */
 function commissionStatus(c: CommissionRow): string {
@@ -69,7 +79,7 @@ export default async function PartnerPage({ params }: Props) {
     );
   }
 
-  const { partner, bank, enquiries, commissions, payouts, totals } = statement;
+  const { partner, bank, enquiries, recentEnquiries, commissions, payouts, totals } = statement;
   const firstName = partner.name.split(" ")[0];
   const suspended = partner.status !== "active";
   const link = referralLink(siteUrl(), partner.code);
@@ -124,9 +134,36 @@ export default async function PartnerPage({ params }: Props) {
               </div>
             ))}
           </dl>
-          <p className="mt-5 text-sm text-text-secondary">
-            <span className="figures text-text-primary">{plural(enquiries.total, "enquiry", "enquiries")}</span> through your link so far ·{" "}
-            <span className="figures text-text-primary">{enquiries.won}</span> bought.
+        </section>
+
+        {/* Proof the link works: each buyer's enquiry, the minute it lands. The car and the day, never the buyer's details. */}
+        <section>
+          <p className="kicker">Your buyers</p>
+          {recentEnquiries.length ? (
+            <>
+              <p className="mt-5 text-sm text-text-secondary">
+                <span className="figures text-text-primary">{plural(enquiries.total, "enquiry", "enquiries")}</span> through your link so far ·{" "}
+                <span className="figures text-text-primary">{enquiries.won}</span> bought.
+              </p>
+              <ul className="mt-4 divide-y divide-border-subtle rounded-2xl border border-border-default bg-surface-1">
+                {recentEnquiries.map((e, i) => (
+                  <li key={i} className="flex items-center justify-between gap-4 px-5 py-4">
+                    <div className="min-w-0">
+                      <p className="truncate text-text-primary">{e.vehicle ? `Asked about the ${e.vehicle}` : "Sent an enquiry"}</p>
+                      <p className="figures mt-1 text-xs text-text-muted">{whenLanded(e.at)}</p>
+                    </div>
+                    <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${STAGE[e.stage].className}`}>{STAGE[e.stage].label}</span>
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : (
+            <p className="mt-6 border border-dashed border-border-default px-6 py-10 text-center text-sm text-text-muted">
+              No buyers yet. When someone opens your link and asks about a car, it shows here the same minute.
+            </p>
+          )}
+          <p className="mt-4 text-xs leading-relaxed text-text-muted">
+            Enquiries you send yourself, with your own number, are not counted. If you buy a car yourself, you get 1.5% off the price instead.
           </p>
         </section>
 

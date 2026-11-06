@@ -84,6 +84,8 @@ export interface InboxLead extends Pick<
   assignee: string | null;
   /** Showroom minutes since it arrived — only for leads still waiting. */
   waitingMinutes: number | null;
+  /** The Refer & Earn partner whose link brought the buyer: staff see it in the list, since a sale may owe a commission. */
+  partnerCode: string | null;
 }
 
 const assignee = aliasedTable(staff, "assignee");
@@ -95,16 +97,18 @@ export async function inbox(dealerId: string, me: string, view: LeadView, q = ""
       lead: leads,
       vehicle: { year: vehicles.year, make: vehicles.make, model: vehicles.model, slug: vehicles.slug },
       assignee: { fullName: assignee.fullName, email: assignee.email },
+      partnerCode: partners.code,
     })
     .from(leads)
     .leftJoin(vehicles, eq(vehicles.id, leads.vehicleId))
     .leftJoin(assignee, eq(assignee.id, leads.assignedTo))
+    .leftJoin(partners, eq(partners.id, leads.partnerId))
     .where(and(eq(leads.dealerId, dealerId), q ? searchWhere(q) : viewWhere(view, me)))
     .orderBy(waitingFirst && !q ? asc(leads.createdAt) : desc(leads.createdAt))
     .limit(200);
 
   const now = new Date();
-  return rows.map(({ lead, vehicle, assignee }) => ({
+  return rows.map(({ lead, vehicle, assignee, partnerCode }) => ({
     id: lead.id,
     type: lead.type,
     status: lead.status,
@@ -122,6 +126,7 @@ export async function inbox(dealerId: string, me: string, view: LeadView, q = ""
     assignee: assignee?.fullName ?? assignee?.email ?? null,
     waitingMinutes:
       lead.status === "new" && lead.type !== "watch" && lead.channel !== "legacy_import" ? responseMinutes(lead.createdAt, now) : null,
+    partnerCode: partnerCode ?? null,
   }));
 }
 

@@ -1,5 +1,6 @@
 import { AskSabicars } from "@/components/assistant/AskSabicars";
 import { Analytics } from "@/components/site/Analytics";
+import { ReferralWelcome } from "@/components/referral/ReferralWelcome";
 import { EngagementPrompt } from "@/components/site/EngagementPrompt";
 import { MobileTabBar } from "@/components/site/MobileTabBar";
 import { SiteFooter } from "@/components/site/SiteFooter";
@@ -19,6 +20,8 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
         <SiteFooter />
       </div>
       <MobileTabBar />
+      {/* A buyer who came through a partner's link is told who sent them, once. */}
+      <ReferralWelcome />
       <EngagementPrompt />
       <AskSabicars />
       <Analytics />

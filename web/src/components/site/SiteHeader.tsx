@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { UserRound } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import { AccountLink } from "@/components/partner/AccountLink";
 import { SavedLink } from "@/components/saved/SaveButton";
 import { ButtonLink } from "@/components/ui/Button";
 import { CARS_NAV, MAIN_NAV } from "@/lib/navigation";
@@ -16,7 +17,8 @@ import { NotificationBell } from "./NotificationBell";
  * live in the bottom tab bar and More.
  *
  * Log in is on every page, so a Refer & Earn partner can always get back to
- * their own page (/partner). The call button that sat here on phones was
+ * their own page (/partner); once they have opened it on a phone, that phone
+ * shows Account instead, straight to the page. The call button that sat here on phones was
  * taken off at the owner's call (2026-11-06): calling lives on each car's
  * page, on Contact and in the footer, where a buyer is ready to call.
  */
@@ -39,13 +41,16 @@ export function SiteHeader() {
           <NotificationBell />
           {/* On narrow phones the shortlist lives in More, so the header never overflows. */}
           <SavedLink className="!size-10 max-[479px]:!hidden sm:!size-11" />
+          {/* Log in, or Account on a phone a partner has logged in on: one of the two shows, chosen before the first paint. */}
           <Link
             href="/partner"
+            data-signed="out"
             className="glass inline-flex h-10 items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 text-[0.9rem] font-semibold text-text-primary transition-colors hover:text-green-300 min-[420px]:pl-3 sm:h-11 sm:pl-3.5 sm:pr-4"
           >
             <UserRound aria-hidden size={17} strokeWidth={1.9} className="hidden shrink-0 min-[420px]:block" />
             Log in
           </Link>
+          <AccountLink />
           <ButtonLink href={CARS_NAV.href} className="!hidden !min-h-11 !px-5 !text-[0.9rem] lg:!inline-flex">
             {CARS_NAV.label}
           </ButtonLink>

@@ -36,11 +36,26 @@ export function isPartnerCode(value: string | undefined | null): value is string
 export async function activePartnerByCode(dealerId: string, code: string) {
   if (!isPartnerCode(code)) return null;
   const [row] = await db
-    .select({ id: partners.id, phone: partners.phone })
+    .select({ id: partners.id, phone: partners.phone, name: partners.name })
     .from(partners)
     .where(and(eq(partners.dealerId, dealerId), eq(partners.code, code), eq(partners.status, "active")))
     .limit(1);
   return row ?? null;
+}
+
+/**
+ * Who sent this visitor, for the visitor to see: the partner's first name, readable by the page
+ * (the code itself stays in the httpOnly PARTNER_COOKIE). Set by /r/CODE alongside it, for as long.
+ */
+export const REFERRER_NAME_COOKIE = "sc_ref";
+/** Set on arrival through a partner's link, for the page to welcome the visitor once, then cleared. */
+export const REFERRER_WELCOME_COOKIE = "sc_ref_new";
+
+/** A partner's first name as a visitor reads it: one word of letters and digits ("Ada", "Tunde2"), never empty. */
+export function firstNameForVisitor(name: string): string {
+  const first = name.trim().split(/\s+/)[0] ?? "";
+  const clean = first.replace(/[^\p{L}\p{N}'-]/gu, "").slice(0, 24);
+  return clean ? clean[0].toUpperCase() + clean.slice(1) : "A partner";
 }
 
 export function referralLink(base: string, code: string): string {

@@ -307,4 +307,38 @@ test.describe("Refer & Earn, from registration to payment", () => {
     await expect(paidFigure.first(), "the partner's earnings do not show ₦360,000").toBeVisible();
     assertNoFaults(faults);
   });
+
+  // Last in the group, and through the contact form, so the sale above is never touched by it.
+  test("a buyer who opens a partner's link is told who sent them, and their enquiry lands under that partner", async ({ page }) => {
+    const faults = watchForFaults(page);
+    const partner = await seededPartner();
+
+    // The link the partner shares, pointing at a page of the site.
+    await page.goto(`/r/${partner.code}?to=/contact`);
+    await page.waitForURL(/\/contact$/);
+    const welcome = page.getByRole("status").filter({ hasText: "sent you here." });
+    await expect(welcome, "the buyer is not told who sent them").toContainText("E2E sent you here.");
+    await expect(welcome, "the welcome does not say the price stays the same").toContainText("Your price stays the same.");
+
+    const form = page.locator("form").filter({ has: page.getByRole("button", { name: "Send message" }) });
+    await form.getByLabel("Your name").fill(E2E.buyer.name);
+    await form.getByLabel("Phone number").fill(E2E.buyer.typedPhone);
+    await form.getByLabel("Your message").fill("Sent through a partner's link: do you have a 2015 Hiace?");
+    await waitUntilFormLooksHuman(page, form);
+    await form.getByRole("button", { name: "Send message" }).click();
+    await expect(page.getByRole("status").filter({ hasText: "Thank you, E2E." }), "the enquiry was not confirmed").toBeVisible();
+
+    // On record under the partner whose link brought the buyer.
+    const [lead] = await sql`select partner_id, message from leads where phone = ${E2E.buyer.phone} order by created_at desc limit 1`;
+    expect(lead?.message, "the enquiry was not saved").toContain("Sent through a partner's link");
+    expect(lead.partner_id, "the enquiry is not linked to the partner whose link the buyer opened").toBe(partner.id);
+
+    // And the partner sees it on their page, without the buyer's details.
+    await page.goto(`/partner/${partner.access_token}`);
+    const buyers = page.locator("section").filter({ has: page.getByText("Your buyers", { exact: true }) });
+    await expect(buyers.getByRole("listitem").filter({ hasText: "Sent an enquiry" }).first(), "the partner's page does not list the buyer's enquiry").toContainText("Open");
+    await expect(buyers, "the partner's page must not show the buyer's phone number").not.toContainText(E2E.buyer.typedPhone);
+    await expect(buyers, "the partner's page must not show the buyer's name").not.toContainText(E2E.buyer.name);
+    assertNoFaults(faults);
+  });
 });

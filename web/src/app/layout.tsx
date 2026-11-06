@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { archivo } from "@/lib/fonts";
+import { PARTNER_DEVICE_SCRIPT } from "@/lib/partner-device";
 import { site, siteUrl } from "@/lib/site";
 import "./globals.css";
 
@@ -38,9 +40,15 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     // (design pass, 2026-09-26). The light tokens remain for the /style page.
     // suppressHydrationWarning: a car page's inline script marks this element (data-car-row) before React
     // hydrates, the way theme scripts do, so the phone bar is right from the first paint; React must not
-    // report that mark as a mismatch. It reaches this element only, not its children.
+    // report that mark as a mismatch. It reaches this element only, not its children. The script below
+    // does the same with data-partner, so the header shows Account or Log in from the first paint.
     <html lang="en-NG" data-theme="dark" className={archivo.variable} suppressHydrationWarning>
-      <body>{children}</body>
+      <body>
+        <Script id="partner-device" strategy="beforeInteractive">
+          {PARTNER_DEVICE_SCRIPT}
+        </Script>
+        {children}
+      </body>
     </html>
   );
 }

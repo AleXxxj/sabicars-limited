@@ -142,10 +142,24 @@ async function bankAccountView(p: Partner): Promise<BankAccountView | null> {
   };
 }
 
+/**
+ * One enquiry a partner's link brought, as the partner may see it: the car, the
+ * day, and how it stands. Never the buyer's name or number: the privacy notice
+ * does not cover sharing those with partners.
+ */
+export interface ReferredEnquiry {
+  at: Date;
+  /** The car asked about, e.g. "2018 Toyota Highlander"; null for a general enquiry. */
+  vehicle: string | null;
+  stage: "open" | "bought" | "closed";
+}
+
 export interface PartnerStatement {
   partner: { id: string; name: string; code: string; phone: string; email: string | null; status: Partner["status"]; createdAt: Date };
   bank: BankAccountView | null;
   enquiries: { total: number; won: number };
+  /** The latest enquiries through the partner's link, newest first. */
+  recentEnquiries: ReferredEnquiry[];
   commissions: CommissionRow[];
   payouts: PayoutRow[];
   totals: Totals;
@@ -168,7 +182,7 @@ export async function partnerStatement(dealerId: string, partnerId: string, now 
 }
 
 async function statementFor(p: Partner, now: Date): Promise<PartnerStatement> {
-  const [rows, bank, [enq], payoutRows] = await Promise.all([
+  const [rows, bank, [enq], payoutRows, recent] = await Promise.all([
     commissionRows(and(eq(commissions.partnerId, p.id)), now),
     bankAccountView(p),
     db
@@ -176,11 +190,23 @@ async function statementFor(p: Partner, now: Date): Promise<PartnerStatement> {
       .from(leads)
       .where(eq(leads.partnerId, p.id)),
     payoutRowsWhere(and(eq(payouts.partnerId, p.id))),
+    db
+      .select({ at: leads.createdAt, status: leads.status, year: vehicles.year, make: vehicles.make, model: vehicles.model })
+      .from(leads)
+      .leftJoin(vehicles, eq(vehicles.id, leads.vehicleId))
+      .where(eq(leads.partnerId, p.id))
+      .orderBy(desc(leads.createdAt))
+      .limit(10),
   ]);
   return {
     partner: { id: p.id, name: p.name, code: p.code, phone: p.phone, email: p.email, status: p.status, createdAt: p.createdAt },
     bank,
     enquiries: { total: enq?.total ?? 0, won: enq?.won ?? 0 },
+    recentEnquiries: recent.map((r) => ({
+      at: r.at,
+      vehicle: r.make && r.model && r.year ? vehicleTitle({ year: r.year, make: r.make, model: r.model }) : null,
+      stage: r.status === "won" ? "bought" : r.status === "lost" ? "closed" : "open",
+    })),
     commissions: rows,
     payouts: payoutRows,
     totals: totalsOf(rows),

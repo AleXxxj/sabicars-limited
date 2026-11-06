@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { expect, test } from "@playwright/test";
 import { assertNoFaults, watchForFaults } from "../helpers";
 
@@ -69,6 +70,20 @@ test.describe("Forms, without writing", () => {
     await form.getByLabel("Your phone number").fill("0803 000 0000");
     await form.getByRole("button", { name: "Send my link" }).click();
     await expect(page.getByText("Check your email."), "the log-in page did not answer").toBeVisible();
+    assertNoFaults(faults);
+  });
+
+  test("a phone a partner has logged in on shows Account, straight to their page, instead of Log in", async ({ page }) => {
+    const faults = watchForFaults(page);
+    // As the partner page leaves it (lib/partner-device.ts); the token is made up, so nothing real is opened.
+    const token = randomUUID();
+    await page.addInitScript((t) => localStorage.setItem("sc_partner_page", JSON.stringify({ token: t, firstName: "Test" })), token);
+    await page.goto("/");
+    const header = page.getByRole("banner");
+    const account = header.getByRole("link", { name: "Account", exact: true });
+    await expect(account, "a logged-in phone does not show Account").toBeVisible();
+    await expect(account, "Account does not open the remembered partner page").toHaveAttribute("href", `/partner/${token}`);
+    await expect(header.getByRole("link", { name: "Log in", exact: true }), "a logged-in phone still shows Log in").toHaveCount(0);
     assertNoFaults(faults);
   });
 

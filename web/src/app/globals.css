@@ -185,3 +185,14 @@ html[data-car-row="on-screen"] [data-ask-dock]:not([data-ready]) {
   transform: translateY(calc(100% + 4rem + env(safe-area-inset-bottom) + 2px));
   pointer-events: none;
 }
+
+/*
+ * The header's Log in and Account: both are in every page, and which one shows is decided before the first
+ * paint, by a script in app/layout.tsx that marks <html data-partner> when this phone has a partner page
+ * remembered (lib/partner-device.ts). No flash of the wrong one. Outside the layers so it wins over the links'
+ * own display utilities.
+ */
+html[data-partner] [data-signed="out"],
+html:not([data-partner]) [data-signed="in"] {
+  display: none;
+}

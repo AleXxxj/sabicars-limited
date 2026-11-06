@@ -4,10 +4,18 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useSyncExternalStore } from "react";
 import { MailCheck } from "lucide-react";
-import { Button, ButtonLink } from "@/components/ui/Button";
+import { Button, ButtonAnchor } from "@/components/ui/Button";
 import { FieldError, fieldClass, Label, SpamGuard } from "@/components/forms/shared";
 import { sendPartnerLink } from "@/lib/actions/partners";
-import { forgetPartner, parseRemembered, rememberedRaw, rememberPartner, subscribeRemembered } from "@/lib/partner-device";
+import {
+  forgetPartner,
+  parseRemembered,
+  partnerPageHref,
+  rememberedRaw,
+  rememberPartner,
+  subscribeRemembered,
+  type RememberedPartner,
+} from "@/lib/partner-device";
 
 /**
  * Log in for Refer & Earn partners. A phone that opened its partner page
@@ -19,20 +27,7 @@ export function PartnerLogIn({ helpPhone, whatsappHref }: { helpPhone: string; w
   const remembered = parseRemembered(raw);
   const [state, action, pending] = useActionState(sendPartnerLink, null);
 
-  if (remembered) {
-    return (
-      <div className="surface-card p-6 md:p-8">
-        <p className="text-sm text-text-muted">On this phone</p>
-        <p className="mt-2 font-display text-[1.9rem] leading-tight text-text-primary">Welcome back, {remembered.firstName}.</p>
-        <ButtonLink href={`/partner/${remembered.token}`} size="lg" arrow className="mt-6 w-full sm:w-auto">
-          Open my partner page
-        </ButtonLink>
-        <button type="button" onClick={forgetPartner} className="mt-5 block min-h-11 text-sm text-text-secondary underline underline-offset-4 hover:text-text-primary">
-          Not you? Log in with another number
-        </button>
-      </div>
-    );
-  }
+  if (remembered) return <OpeningYourPage remembered={remembered} />;
 
   if (state?.sent) {
     return (
@@ -91,6 +86,27 @@ export function PartnerLogIn({ helpPhone, whatsappHref }: { helpPhone: string; w
       </p>
     </form>
     </>
+  );
+}
+
+/**
+ * A phone already logged in goes straight to its page, with a full page load
+ * (the address carries the page's private key: lib/partner-device.ts). The
+ * button is there for the moment it takes, or if the jump is blocked.
+ */
+function OpeningYourPage({ remembered }: { remembered: RememberedPartner }) {
+  const href = partnerPageHref(remembered.token);
+  useEffect(() => {
+    window.location.replace(new URL(href, window.location.origin).href);
+  }, [href]);
+  return (
+    <div className="surface-card p-6 md:p-8">
+      <p className="font-display text-[1.9rem] leading-tight text-text-primary">Welcome back, {remembered.firstName}.</p>
+      <p className="mt-2 text-text-secondary">Opening your page…</p>
+      <ButtonAnchor href={href} size="lg" arrow className="mt-6 w-full sm:w-auto">
+        Open my partner page
+      </ButtonAnchor>
+    </div>
   );
 }
 
