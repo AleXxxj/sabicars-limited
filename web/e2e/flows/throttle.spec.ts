@@ -86,6 +86,9 @@ async function filledForm(page: Page, n: number): Promise<Locator> {
   await expect(form, "the partner registration form did not open").toBeVisible();
   await form.getByLabel("Your name").fill(nameFor(n));
   await form.getByLabel("Phone number").fill(typedPhoneFor(n));
+  // Every registration chooses a PIN (lib/partner-pin.ts); this one the rules accept for every phone in the suite.
+  await form.getByLabel("Choose a 6-digit PIN").fill(E2E.partner.pin);
+  await form.getByLabel("Type the PIN again").fill(E2E.partner.pin);
   await form.getByLabel("Where will you find buyers?").selectOption({ label: "Friends and family" });
   await form.getByRole("checkbox").check();
   return form;
