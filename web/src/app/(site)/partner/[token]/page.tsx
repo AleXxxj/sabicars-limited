@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ReferralShare } from "@/components/forms/PartnerForm";
 import { BankAccountForm, type CurrentAccount } from "@/components/partner/BankAccountForm";
+import { RememberPartner } from "@/components/partner/PartnerLogIn";
 import { PageIntro } from "@/components/site/PageIntro";
 import { ButtonLink } from "@/components/ui/Button";
 import { banksForForm } from "@/lib/banks";
@@ -58,11 +59,11 @@ export default async function PartnerPage({ params }: Props) {
         <p className="kicker">Refer &amp; Earn</p>
         <h1 className="mt-4 text-display-3">This link is not valid.</h1>
         <p className="mt-4 text-text-secondary">
-          It may have been copied incompletely. Register again with the same phone number and your page link is shown again, or ask the
+          It may have been copied incompletely. Log in with your phone number and we send your page link to your email, or ask the
           Sabicars team for it.
         </p>
-        <ButtonLink href="/partners#register" variant="secondary" className="mt-8">
-          Go to Refer &amp; Earn
+        <ButtonLink href="/partner" variant="secondary" className="mt-8">
+          Log in
         </ButtonLink>
       </section>
     );
@@ -255,6 +256,10 @@ export default async function PartnerPage({ params }: Props) {
             </a>
             .
           </p>
+          {/* This phone now opens this page from Log in; on a shared phone, the partner can undo that. */}
+          <div className="mt-6">
+            <RememberPartner token={token} firstName={firstName} />
+          </div>
         </section>
       </div>
     </>

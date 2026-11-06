@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { PartnerForm } from "@/components/forms/PartnerForm";
 import { EarningsExamples, PartnerRules } from "@/components/referral/Referral";
@@ -40,6 +41,12 @@ export default async function PartnersPage() {
         <p>
           Know someone who wants a car, a bus or many vehicles? Register free and send them your link. When they buy from Sabicars, 1.5% of
           the price is yours.
+        </p>
+        <p className="mt-4 text-base">
+          Already a partner?{" "}
+          <Link href="/partner" className="font-semibold text-green-300 hover:text-green-200">
+            Log in to your page
+          </Link>
         </p>
       </PageIntro>
 

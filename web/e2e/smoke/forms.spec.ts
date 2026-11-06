@@ -54,6 +54,24 @@ test.describe("Forms, without writing", () => {
     assertNoFaults(faults);
   });
 
+  test("Log in is in the header, and the log-in page answers a bot like anyone else, sending nothing", async ({ page }) => {
+    const faults = watchForFaults(page);
+    await page.goto("/");
+    const header = page.getByRole("banner");
+    await expect(header.getByRole("link", { name: "Log in", exact: true }), "the header has no Log in").toHaveAttribute("href", "/partner");
+    await expect(header.locator('a[href^="tel:"]'), "the header still carries a call button").toHaveCount(0);
+
+    await page.goto("/partner");
+    await expect(page.getByRole("heading", { level: 1 }), "the log-in page shows no headline").toContainText("Log in to your partner page.");
+    const form = page.locator("form").filter({ has: page.getByLabel("Your phone number") });
+    // The trap, as above: the hidden field filled in, sent at once. The answer is the one everybody gets; nothing is looked up.
+    await form.locator('input[name="website"]').fill("https://example.com");
+    await form.getByLabel("Your phone number").fill("0803 000 0000");
+    await form.getByRole("button", { name: "Send my link" }).click();
+    await expect(page.getByText("Check your email."), "the log-in page did not answer").toBeVisible();
+    assertNoFaults(faults);
+  });
+
   test("the contact form refuses an empty message", async ({ page }) => {
     const faults = watchForFaults(page);
     const response = await page.goto("/contact");

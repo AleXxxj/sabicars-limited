@@ -7,7 +7,7 @@ import { z } from "zod";
 import { db } from "@/db";
 import { partners } from "@/db/schema";
 import { looksAutomated, sabicarsDealerId } from "@/lib/leads";
-import { notifyPartnerWelcome } from "@/lib/ledger-notify";
+import { notifyPartnerLogIn, notifyPartnerWelcome } from "@/lib/ledger-notify";
 import { codeFor, referralLink } from "@/lib/partners";
 import { normalisePhone } from "@/lib/phone";
 import { RATE_LIMITED_MESSAGE, withinLimit } from "@/lib/rate-limit";
@@ -59,6 +59,53 @@ function welcome(partnerId: string) {
       console.error("[partners] welcome failed", e);
     }
   });
+}
+
+export interface LogInResult {
+  /** The request was taken. The answer is the same whether or not the number is registered, so nobody can test numbers here. */
+  sent?: boolean;
+  error?: string;
+  fieldError?: string;
+  phone?: string;
+}
+
+const logInSchema = z.object({ phone: z.string().trim().max(40), website: z.string().optional(), renderedAt: z.coerce.number().optional() });
+
+/**
+ * A partner logging in: they type the phone number they registered with, and
+ * their page link goes to the email on record (ledger-notify.ts). The link is
+ * never shown on screen to whoever typed a number, and the answer never says
+ * whether the number is registered.
+ */
+export async function sendPartnerLink(_prev: LogInResult | null, formData: FormData): Promise<LogInResult> {
+  const parsed = logInSchema.safeParse(Object.fromEntries(formData.entries()));
+  if (!parsed.success) return { fieldError: "Please enter your phone number, e.g. 0803 123 4567" };
+  const v = parsed.data;
+  // A bot is told what everyone is told, and nothing is looked up or sent.
+  if (looksAutomated(v.website, v.renderedAt)) return { sent: true };
+  const phone = normalisePhone(v.phone);
+  if (!phone) return { fieldError: "Please enter your phone number, e.g. 0803 123 4567", phone: v.phone };
+  if (!(await withinLimit("partner"))) return { error: RATE_LIMITED_MESSAGE, phone: v.phone };
+  try {
+    const [found] = await db
+      .select({ id: partners.id })
+      .from(partners)
+      .where(and(eq(partners.dealerId, await sabicarsDealerId()), eq(partners.phone, phone), eq(partners.status, "active")))
+      .limit(1);
+    if (found) {
+      after(async () => {
+        try {
+          await notifyPartnerLogIn(found.id);
+        } catch (e) {
+          console.error("[partners] log-in link failed", e);
+        }
+      });
+    }
+    return { sent: true };
+  } catch (e) {
+    console.error("[partners] log-in failed", e);
+    return { error: `Something went wrong. Please try again, or call ${helpPhone}.`, phone: v.phone };
+  }
 }
 
 export async function registerPartner(_prev: PartnerFormResult | null, formData: FormData): Promise<PartnerFormResult> {

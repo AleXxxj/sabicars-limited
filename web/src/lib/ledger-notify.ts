@@ -156,6 +156,39 @@ export async function notifyPartnerWelcome(partnerId: string): Promise<void> {
   }
 }
 
+/**
+ * A partner asked to log in (/partner): their page link, to the email on record, and nowhere else.
+ * At most one every ten minutes per partner, so a stranger typing someone's number cannot flood their inbox.
+ */
+export async function notifyPartnerLogIn(partnerId: string): Promise<void> {
+  try {
+    if (!emailConfigured()) return;
+    const [p] = await db.select().from(partners).where(eq(partners.id, partnerId)).limit(1);
+    if (!p?.email || p.status !== "active") return;
+    const page = partnerPageUrl(p.accessToken);
+    const slot = Math.floor(Date.now() / 600_000);
+    await send(
+      "partner log-in link",
+      {
+        to: p.email,
+        subject: "Your Sabicars partner page",
+        eyebrow: "Refer & Earn",
+        firstName: firstNameOf(p.name),
+        headline: "Here is your partner page",
+        lines: [
+          "You asked to log in. Tap the button to open your page: your buyers, your earnings and your payments.",
+          "Keep this email. The button always opens your page.",
+        ],
+        cta: { label: "Open my partner page", url: page },
+        foot: ["Did not ask for this? You can ignore it. Nobody can open your page without this link.", "Sabicars will never ask you to pay anything."],
+      },
+      `login:${p.id}:${slot}`,
+    );
+  } catch (e) {
+    console.error("[ledger-notify] log-in link failed", e);
+  }
+}
+
 /** The partner: "a sale you brought in is on record; it is paid after the cooling-off". */
 export async function notifyCommissionRecorded(commissionId: string): Promise<void> {
   try {

@@ -17,7 +17,8 @@ test.describe("A partner's private page", () => {
       const response = await page.goto(`/partner/${token}`);
       expect(response?.status(), `the private page answered ${response?.status()} to ${what} instead of a page`).toBe(200);
       await expect(page.getByRole("heading", { level: 1 }), `the private page does not say the link is not valid for ${what}`).toHaveText("This link is not valid.");
-      await expect(page.getByRole("link", { name: "Go to Refer & Earn" }), "the invalid-link page offers no way back to the programme").toBeVisible();
+      // The way back is Log in (the page's own button, not the header's): the partner types their number and the link is emailed.
+      await expect(page.getByRole("main").getByRole("link", { name: "Log in", exact: true }), "the invalid-link page offers no way to log in").toHaveAttribute("href", "/partner");
       await expect(page.getByText("Your bank account"), `${what} showed a partner's bank account section`).toHaveCount(0);
       assertNoFaults(faults);
     });
