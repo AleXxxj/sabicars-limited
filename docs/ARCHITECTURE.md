@@ -379,13 +379,14 @@ live page it replaces so nothing is lost silently. Built on that basis:
   prices. See it before you pay.", the hero's second button is Sell your car,
   every section is written in short everyday English ("Come to the park", "How
   much do you have?", "Can't find your car? Tell us."), and a **Today at the
-  park** block sits under the search: cars listed in the last 7 days, price cuts
-  (from the platform's own `price_drop` notifications), cars sold this week (listed
-  price only; the sale price stays private), and the day's video with one line
-  from the founder (`settings.today_video`, set on Admin → Audience; YouTube,
-  TikTok, Facebook, Instagram or a video file; dropped by itself after 14 days).
-  The block hides on a quiet week with no video. `components/home/TodayAtThePark.tsx`,
-  `repositories/today.ts`, `arrivedThisWeek`/`priceDropsThisWeek`/`soldThisWeek`.
+  park** strip sits under the search: cars listed in the last 7 days and price
+  cuts (from the platform's own `price_drop` notifications); it hides on a quiet
+  week. The **day's video** with one line from the founder (`settings.today_video`,
+  set on Admin → Audience; YouTube, TikTok, Facebook, Instagram or a video file;
+  dropped by itself after 14 days) sits in the founder's section under his photo
+  and quote. The owner's review (2026-11-06) moved it there and removed "sold this
+  week" from the strip: both broke the flow at the top. `components/home/TodayAtThePark.tsx`,
+  `components/home/TodayVideo.tsx`, `repositories/today.ts`, `arrivedThisWeek`/`priceDropsThisWeek`.
 - **/find — the Sourcing Desk.** A standing request for a car not in stock:
   a `sourcing` lead (one inbox, one reference) plus a `vehicle_requests` row
   with the criteria. On submit it replies at once with any in-stock matches.

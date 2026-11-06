@@ -89,7 +89,7 @@ export default async function AudienceAdmin() {
           <section aria-label="Today's video" className="border border-border-subtle bg-surface-1 p-5 md:p-6">
             <p className="text-sm font-semibold text-text-primary">Today&rsquo;s video from the park</p>
             <p className="mt-1 text-xs text-text-muted">
-              Shows on the homepage under &ldquo;Today at the park&rdquo; with one line from Ccristian Dee. It comes off by itself after two weeks.
+              Shows on the homepage in Ccristian Dee&rsquo;s section, under his photo, with one line from him. It comes off by itself after two weeks.
             </p>
             <div className="mt-5">
               {me.role === "sales" ? (

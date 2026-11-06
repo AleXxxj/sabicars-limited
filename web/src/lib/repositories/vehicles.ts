@@ -334,8 +334,6 @@ const DAY_MS = 86_400_000;
 export type ArrivalCard = CardVehicle & { listedAt: Date };
 /** A car whose price was cut this week, with the line the platform announced it with ("Now ₦X, down from ₦Y."). */
 export type PriceDropCard = CardVehicle & { line: string; droppedAt: Date };
-/** A car sold this week: the card and the day it sold. The sale price stays private; the card shows the listed price. */
-export type SoldCard = CardVehicle & { soldAt: Date };
 
 /** Cars listed in the last `days` days, newest first. A legacy car with no listing date counts from the day it was created. */
 export async function arrivedThisWeek(days = 7, limit = 8): Promise<ArrivalCard[]> {
@@ -376,18 +374,6 @@ export async function priceDropsThisWeek(days = 7, limit = 6): Promise<PriceDrop
     return { ...toCard(v), line: post.line, droppedAt: post.at };
   });
   return cards.sort((a, b) => b.droppedAt.getTime() - a.droppedAt.getTime()).slice(0, limit);
-}
-
-/** Cars sold in the last `days` days, newest sale first. */
-export async function soldThisWeek(days = 7, limit = 6): Promise<SoldCard[]> {
-  const since = new Date(Date.now() - days * DAY_MS).toISOString();
-  const rows = await db
-    .select()
-    .from(vehicles)
-    .where(and(eq(vehicles.dealerId, await sabicarsId()), eq(vehicles.status, "sold"), sql`${vehicles.soldAt} >= ${since}::timestamptz`))
-    .orderBy(desc(vehicles.soldAt))
-    .limit(limit);
-  return (await withCovers(rows)).map((v) => ({ ...toCard(v), soldAt: v.soldAt ?? v.createdAt }));
 }
 
 /** Vehicles on a visitor's shortlist, in the order they saved them. Sold cars stay, marked sold. */

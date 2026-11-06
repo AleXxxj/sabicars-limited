@@ -9,6 +9,7 @@ import { VehicleImage } from "@/components/VehicleImage";
 import { DrivePlanFinder } from "@/components/home/DrivePlanFinder";
 import { HeroShowcase, type HeroSlide } from "@/components/home/HeroShowcase";
 import { TodayAtThePark } from "@/components/home/TodayAtThePark";
+import { TodayVideo } from "@/components/home/TodayVideo";
 import { EarningsExamples, PartnerRules } from "@/components/referral/Referral";
 import { HomeSearch } from "@/components/home/HomeSearch";
 import { PostCard } from "@/components/blog/PostCard";
@@ -27,7 +28,6 @@ import {
   inventoryStats,
   priceDropsThisWeek,
   searchTerms,
-  soldThisWeek,
 } from "@/lib/repositories/vehicles";
 import { mostRequested } from "@/lib/repositories/sourcing";
 import { todayVideo } from "@/lib/repositories/today";
@@ -77,7 +77,7 @@ function SectionHead({ eyebrow, title, children }: { eyebrow: string; title: str
  * built to capture the audience, not just display the lot.
  */
 export default async function Home() {
-  const [hero, featuredStock, stats, tiles, videoUrl, catalogue, demand, buses, reviews, reviewStats, posts, allVerified, terms, arrivals, drops, sold, video] =
+  const [hero, featuredStock, stats, tiles, videoUrl, catalogue, demand, buses, reviews, reviewStats, posts, allVerified, terms, arrivals, drops, video] =
     await Promise.all([
       heroVehicles(8),
       featuredVehicles(6),
@@ -94,7 +94,6 @@ export default async function Home() {
       searchTerms(),
       arrivedThisWeek(),
       priceDropsThisWeek(),
-      soldThisWeek(),
       todayVideo(),
     ]);
   // Hummer buses, newest first, those with a photograph.
@@ -171,8 +170,8 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* The reason to open Sabicars today: what is new, what dropped, what sold, and the day's video from the park. */}
-      <TodayAtThePark arrivals={arrivals} drops={drops} sold={sold} video={video} />
+      {/* The reason to open Sabicars today: what is new this week and whose price dropped. */}
+      <TodayAtThePark arrivals={arrivals} drops={drops} />
 
       {/* The signature vehicle: what Sabicars is known for, first — and the way in for buying several. */}
       {hummers.length === 0 && (
@@ -383,6 +382,14 @@ export default async function Home() {
             </div>
           </ScrollReveal>
         </div>
+        {/* The day's video from the park, with his line for the day: his face, his words, then today's words. */}
+        {video && (
+          <div className="mx-auto max-w-7xl px-5 pt-14 md:px-10 md:pt-16">
+            <ScrollReveal>
+              <TodayVideo video={video} />
+            </ScrollReveal>
+          </div>
+        )}
       </section>
       <ReviewsSection reviews={reviews} summary={reviewStats} head={false} />
 
