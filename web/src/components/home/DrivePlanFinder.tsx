@@ -117,7 +117,8 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
               )}
             </p>
 
-            <ul className="mt-6 grid grid-cols-2 gap-3 md:gap-4">
+            {/* Two cars on a phone (one row), four from a tablet up: "See all" has the rest. */}
+            <ul className="mt-6 grid grid-cols-2 gap-3 md:gap-4 max-md:[&>li:nth-child(n+3)]:hidden">
               {picks.map((v) => {
                 const monthly = monthlyAtCeilingMinor(v.priceMinor - v.depositMinor, DEFAULT_ESTIMATE_MONTHS);
                 return (
@@ -151,8 +152,12 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
 
             <div className="mt-6 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-t border-border-subtle pt-5">
               {/* The inventory filters on the same rule — each car's own deposit — so "see all" shows exactly these cars. */}
-              {within.length > picks.length && (
-                <Link href={`/vehicles?maxDeposit=${naira}&sort=price_desc`} className="group inline-flex min-h-11 items-center gap-2 font-semibold text-green-300 hover:text-green-200">
+              {/* A phone shows two cars, a wider screen up to four: "See all" whenever some are not on screen. */}
+              {within.length > 2 && (
+                <Link
+                  href={`/vehicles?maxDeposit=${naira}&sort=price_desc`}
+                  className={`group inline-flex min-h-11 items-center gap-2 font-semibold text-green-300 hover:text-green-200 ${within.length > picks.length ? "" : "md:hidden"}`}
+                >
                   See all {within.length} <ArrowRight aria-hidden size={17} className="transition-transform group-hover:translate-x-1" />
                 </Link>
               )}

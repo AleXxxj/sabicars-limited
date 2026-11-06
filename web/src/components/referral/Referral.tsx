@@ -1,8 +1,54 @@
 import Link from "next/link";
-import { BadgeCheck, Ban, FileCheck2, Gift, type LucideIcon } from "lucide-react";
+import { BadgeCheck, Ban, Check, FileCheck2, Gift, type LucideIcon } from "lucide-react";
+import { VehicleImage } from "@/components/VehicleImage";
 import { formatNaira } from "@/lib/money";
 import { commissionMinor, PARTNER_RULES } from "@/lib/referral";
 import type { CatalogueItem } from "@/lib/repositories/vehicles";
+
+/**
+ * The homepage's hook for Refer & Earn: one real car in stock and what one
+ * buyer for it would earn, in a number big enough to stop a scroll. The rules
+ * and more examples are on /partners, one tap away, for whoever is curious.
+ * The Hummer bus leads when one is in stock: it is what Sabicars is known for.
+ */
+export function EarningsHook({ vehicles }: { vehicles: CatalogueItem[] }) {
+  const pick = vehicles.find((v) => /hum+er/i.test(v.title) && v.coverUrl) ?? vehicles.filter((v) => v.coverUrl)[Math.floor(vehicles.filter((v) => v.coverUrl).length / 2)];
+  if (!pick) return null;
+  return (
+    <Link href={`/vehicles/${pick.slug}`} className="surface-card group block overflow-hidden">
+      <div className="relative aspect-[16/9] overflow-hidden bg-surface-2">
+        <VehicleImage
+          src={pick.coverUrl!}
+          alt=""
+          fill
+          sizes="(min-width: 1024px) 40vw, 100vw"
+          className="object-cover transition-transform duration-[var(--duration-slow)] ease-[var(--ease-out)] group-hover:scale-[1.03]"
+        />
+      </div>
+      <div className="p-6 md:p-8">
+        <p className="text-sm text-text-secondary">
+          Send a buyer for this <span className="text-text-primary">{pick.title}</span> at <span className="figures text-text-primary">{formatNaira(pick.priceMinor)}</span>.
+        </p>
+        <p className="mt-3 text-sm text-text-muted">You earn</p>
+        <p className="figures text-brand mt-1 font-display text-[3rem] leading-none md:text-[3.6rem]">{formatNaira(commissionMinor(pick.priceMinor))}</p>
+      </div>
+    </Link>
+  );
+}
+
+/** The three promises, in a line each, for the homepage: what makes this a commission and never a scheme. The rules in full are on /partners. */
+export function PartnerPromises({ className = "" }: { className?: string }) {
+  return (
+    <ul className={`flex flex-wrap gap-x-5 gap-y-2 text-[0.95rem] text-text-secondary ${className}`}>
+      {["Free to join", "Paid when they buy", "No recruiting"].map((p) => (
+        <li key={p} className="inline-flex items-center gap-1.5">
+          <Check aria-hidden size={16} strokeWidth={2.4} className="shrink-0 text-green-300" />
+          {p}
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 /**
  * What 1.5% means in naira, shown on real vehicles in stock today — a low,

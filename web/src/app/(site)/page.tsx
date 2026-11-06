@@ -10,7 +10,7 @@ import { DrivePlanFinder } from "@/components/home/DrivePlanFinder";
 import { HeroShowcase, type HeroSlide } from "@/components/home/HeroShowcase";
 import { TodayAtThePark } from "@/components/home/TodayAtThePark";
 import { TodayVideo } from "@/components/home/TodayVideo";
-import { EarningsExamples, PartnerRules } from "@/components/referral/Referral";
+import { EarningsHook, PartnerPromises } from "@/components/referral/Referral";
 import { HomeSearch } from "@/components/home/HomeSearch";
 import { PostCard } from "@/components/blog/PostCard";
 import { MapPin } from "lucide-react";
@@ -38,9 +38,7 @@ import { latestPosts } from "@/lib/repositories/blog";
 import { formatNaira } from "@/lib/money";
 import { dealerJsonLd, jsonLdScript } from "@/lib/seo/structured-data";
 import { pageAddress, site, siteUrl } from "@/lib/site";
-import { BUDGET_OPTIONS } from "@/lib/sourcing";
 import { DRIVE_PLAN, depositMinorFor } from "@/lib/drive-plan";
-import { ATTRIBUTION_DAYS } from "@/lib/referral";
 import { priceLabel, vehicleTitle } from "@/lib/vehicle";
 
 /**
@@ -275,18 +273,15 @@ export default async function Home() {
         </section>
       )}
 
-      {/* What if it isn't here? The request is kept, not lost. */}
+      {/* What if it isn't here? One box: the car. The budget and how to reach them are asked on /find, the next step. */}
       <section className="border-t border-border-subtle bg-surface-1">
-        <div className="mx-auto grid max-w-7xl gap-12 px-5 py-16 md:px-10 md:py-20 lg:grid-cols-2 lg:items-center lg:gap-20">
+        <div className="mx-auto grid max-w-7xl gap-10 px-5 py-14 md:px-10 md:py-20 lg:grid-cols-2 lg:items-center lg:gap-20">
           <ScrollReveal>
             <SectionHead eyebrow="Request a car" title="Can't find your car? Tell us.">
-              <p>
-                Tell us the car and your budget. You get a reference number, and we add your request to the list of cars we look for. When
-                the car comes in, we tell you.
-              </p>
+              <p>Tell us the car. When it comes in, we tell you.</p>
             </SectionHead>
             {demand.length > 0 && (
-              <div className="mt-10">
+              <div className="mt-8">
                 <p className="text-sm font-medium text-text-muted">What people are asking for now</p>
                 <ul className="mt-4 flex flex-wrap gap-2">
                   {demand.map((d) => (
@@ -300,28 +295,14 @@ export default async function Home() {
           </ScrollReveal>
 
           <ScrollReveal delay={120}>
-            <Form action="/find" className="surface-card grid gap-6 p-6 md:p-10">
+            <Form action="/find" className="surface-card grid gap-4 p-5 md:p-8">
               <label className="grid gap-2">
-                <span className="text-sm font-medium text-text-secondary">What are you looking for?</span>
+                <span className="text-sm font-medium text-text-secondary">What car do you want?</span>
                 <input name="want" required maxLength={120} placeholder="e.g. Toyota Highlander, 2018 or newer" className={fieldClass} />
               </label>
-              <label className="grid gap-2">
-                <span className="text-sm font-medium text-text-secondary">Your budget</span>
-                <select name="budget" defaultValue="" className={fieldClass}>
-                  <option value="">Not sure yet</option>
-                  {BUDGET_OPTIONS.map((b) => (
-                    <option key={b.value} value={b.value}>
-                      {b.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-                <Button type="submit" size="lg" arrow>
-                  Continue
-                </Button>
-                <span className="text-sm text-text-muted">Next: how to reach you.</span>
-              </div>
+              <Button type="submit" size="lg" arrow className="w-full sm:w-auto">
+                Continue
+              </Button>
             </Form>
           </ScrollReveal>
         </div>
@@ -367,34 +348,25 @@ export default async function Home() {
       </section>
       <ReviewsSection reviews={reviews} summary={reviewStats} head={false} />
 
-      {/* Can I earn from this? A commission on sales, on plain terms. */}
+      {/* Can I earn from this? One real car and what one buyer earns, the three promises, and the way in. The rules in full and
+          more examples are on /partners: one thing at a time (the owner's review, 2026-11-06). */}
       <section className="border-t border-border-subtle bg-surface-1">
-        <div className="mx-auto max-w-7xl px-5 py-16 md:px-10 md:py-20">
-          <div className="grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-20">
-            <ScrollReveal>
-              <SectionHead eyebrow="Refer & Earn" title="Know a buyer? Earn 1.5% when they buy.">
-                <p>
-                  Register free and get your own link. When someone you send buys from Sabicars, 1.5% of the price is yours. They stay on your
-                  code for {ATTRIBUTION_DAYS} days from the day they first ask us, so nobody else can claim them.
-                </p>
-              </SectionHead>
-              <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3">
-                <ButtonLink href="/partners#register" size="lg">
-                  Get your free link
-                </ButtonLink>
-                <ButtonLink href="/partners" variant="quiet">
-                  How it works
-                </ButtonLink>
-              </div>
-            </ScrollReveal>
-            <ScrollReveal delay={120}>
-              <EarningsExamples vehicles={catalogue} />
-            </ScrollReveal>
-          </div>
-          {/* The rules in full, the same cards /partners shows: what keeps this a commission on sales, never a scheme. */}
-          <div className="mt-14 md:mt-16">
-            <PartnerRules />
-          </div>
+        <div className="mx-auto grid max-w-7xl gap-10 px-5 py-14 md:px-10 md:py-20 lg:grid-cols-2 lg:items-center lg:gap-20">
+          <ScrollReveal>
+            <SectionHead eyebrow="Refer & Earn" title="Know a buyer? Earn 1.5% when they buy." />
+            <PartnerPromises className="mt-6" />
+            <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-3">
+              <ButtonLink href="/partners#register" size="lg">
+                Get your free link
+              </ButtonLink>
+              <ButtonLink href="/partners" variant="quiet">
+                How it works
+              </ButtonLink>
+            </div>
+          </ScrollReveal>
+          <ScrollReveal delay={120}>
+            <EarningsHook vehicles={catalogue} />
+          </ScrollReveal>
         </div>
       </section>
 
@@ -408,9 +380,10 @@ export default async function Home() {
                 All buying guides
               </ButtonLink>
             </ScrollReveal>
-            <div className="mt-10 grid gap-6 md:mt-12 md:grid-cols-2 lg:grid-cols-3">
+            {/* On a phone, a row to swipe, like the cars: one guide at a time instead of three stacked. On a desktop, a grid. */}
+            <div className="-mx-5 mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-5 px-5 pb-2 [scrollbar-width:none] md:mx-0 md:mt-12 md:grid md:snap-none md:grid-cols-2 md:gap-6 md:overflow-visible md:px-0 md:pb-0 lg:grid-cols-3 [&::-webkit-scrollbar]:hidden">
               {posts.map((p, i) => (
-                <ScrollReveal key={p.slug} delay={i * 90}>
+                <ScrollReveal key={p.slug} delay={i * 90} className="w-[84%] shrink-0 snap-start sm:w-[60%] md:w-auto">
                   <PostCard post={p} />
                 </ScrollReveal>
               ))}

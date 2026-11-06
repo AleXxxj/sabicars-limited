@@ -1,6 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
 import { CARS_NAV, MAIN_NAV, MORE_ITEMS, TAB_BAR } from "@/lib/navigation";
-import { PARTNER_RULES } from "@/lib/referral";
 import { assertNoFaults, watchForFaults } from "../helpers";
 
 /**
@@ -111,13 +110,18 @@ test.describe("Home", () => {
     assertNoFaults(faults);
   });
 
-  test("Refer & Earn sets out the partner rules in full", async ({ page }) => {
+  test("Refer & Earn hooks with one real car and what one buyer earns, and leads to the programme", async ({ page }) => {
     const faults = watchForFaults(page);
     await page.goto("/");
     const section = page.locator("section").filter({ has: page.getByRole("heading", { name: /Earn 1\.5% when they buy/ }) }).last();
-    for (const [rule] of PARTNER_RULES) {
-      await expect(section.getByText(rule, { exact: true }), `the partner rule "${rule}" is missing from the homepage`).toBeVisible();
+    for (const promise of ["Free to join", "Paid when they buy", "No recruiting"]) {
+      await expect(section.getByText(promise, { exact: true }), `the promise "${promise}" is missing`).toBeVisible();
     }
+    await expect(section.getByRole("link", { name: "Get your free link" }), "the way in does not lead to registration").toHaveAttribute("href", "/partners#register");
+    await expect(section.getByRole("link", { name: "How it works" }), "the rules are not one tap away").toHaveAttribute("href", "/partners");
+    // The example is a real car in stock, so on an empty showroom it is simply not there.
+    const example = section.getByText("You earn", { exact: true });
+    if (await example.count()) await expect(section.locator(".figures").filter({ hasText: /^₦[\d,]+$/ }).first(), "the example shows no amount").toBeVisible();
     assertNoFaults(faults);
   });
 

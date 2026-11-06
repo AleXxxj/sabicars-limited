@@ -389,7 +389,16 @@ live page it replaces so nothing is lost silently. Built on that basis:
   the "Buying many vehicles?" block from under the Hummer bus ("one thing at a
   time": the bus is seen before anything else is read; the fleet quote stays on
   /hummer-bus and under Buy in bulk) and cut the Drive Plan intro to one question,
-  "How much do you have?", with the terms in the finder's small print. `components/home/TodayAtThePark.tsx`,
+  "How much do you have?", with the terms in the finder's small print. The same
+  rule, applied to the rest of the page (2026-11-06, from 16 phone screens to
+  about 13): **Refer & Earn** is a hook — the headline, three ticks (free to
+  join, paid when they buy, no recruiting), the button, and one real car in
+  stock with what one buyer earns (`EarningsHook`, the Hummer bus first); the
+  examples table and the four rule cards live on /partners. **Request a car** is
+  one box and Continue; the budget and contact are asked on /find. The **buying
+  guides** are a swipe row on phones, like the cars. The **Drive Plan** finder
+  shows two cars on a phone (four from a tablet up), with "See all" whenever
+  some are off screen. `components/home/TodayAtThePark.tsx`,
   `components/home/TodayVideo.tsx`, `repositories/today.ts`, `arrivedThisWeek`/`priceDropsThisWeek`.
 - **/find — the Sourcing Desk.** A standing request for a car not in stock:
   a `sourcing` lead (one inbox, one reference) plus a `vehicle_requests` row

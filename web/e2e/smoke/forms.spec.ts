@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { PARTNER_RULES } from "@/lib/referral";
 import { assertNoFaults, watchForFaults } from "../helpers";
 
 /**
@@ -20,6 +21,10 @@ test.describe("Forms, without writing", () => {
     expect(response?.status(), "the partner programme page did not answer 200").toBe(200);
     await expect(page.getByRole("heading", { level: 1 }), "the partner page shows no headline").toContainText("Send a buyer. Earn 1.5%.");
     await expect(page.getByRole("heading", { name: "A commission on sales. Nothing else." }), "the partner page no longer states the rules").toBeVisible();
+    // The rules in full live here (the homepage keeps a hook and the three promises): what makes this a commission, never a scheme.
+    for (const [rule] of PARTNER_RULES) {
+      await expect(page.getByText(rule, { exact: true }).first(), `the partner rule "${rule}" is missing from the programme page`).toBeVisible();
+    }
     await expect(page.getByRole("button", { name: "Register as a partner" }), "the partner page has no registration button").toBeVisible();
     assertNoFaults(faults);
   });
