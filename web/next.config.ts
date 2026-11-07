@@ -1,12 +1,15 @@
 import type { NextConfig } from "next";
 import { legacyRedirects } from "./src/lib/legacy/urls";
+import { PHOTO_CLOUD } from "./src/lib/media";
 
 const nextConfig: NextConfig = {
   images: {
     // Every vehicle photo lives on Cloudinary. next/image asks for one size
     // per screen, which on Nigerian mobile networks is the difference between
-    // a page that loads and one that is abandoned.
-    remotePatterns: [{ protocol: "https", hostname: "res.cloudinary.com" }],
+    // a page that loads and one that is abandoned. Only Sabicars' own
+    // Cloudinary account: with the hostname alone, anyone could have Vercel
+    // resize any Cloudinary customer's pictures, each one billed to us.
+    remotePatterns: [{ protocol: "https", hostname: "res.cloudinary.com", pathname: `/${PHOTO_CLOUD}/image/upload/**` }],
     // A short list of sizes, on purpose. Every distinct size of every photo is
     // one resize billed (by Cloudinary today, by Vercel once
     // NEXT_PUBLIC_IMAGE_DELIVERY=vercel — see lib/media.ts), so the default

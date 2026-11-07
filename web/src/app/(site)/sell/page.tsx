@@ -11,16 +11,16 @@ import { pageAddress, whatsappLink } from "@/lib/site";
 import { priceLabel, vehicleTitle } from "@/lib/vehicle";
 
 export const metadata: Metadata = {
-  title: "Sell or trade in your car in Lagos",
+  title: "Sell or swap your car in Lagos",
   description:
-    "Selling a car in Lagos? Tell Sabicars about it: sell it to us, trade it in for one of our cars, or have us sell it for you. Recorded with a reference, and we never charge to look at your car.",
+    "Selling a car in Lagos? Tell Sabicars about it: sell it to us, swap it for one of our cars and pay the balance (counter balance), or have us sell it for you. Recorded with a reference, and we never charge to look at your car.",
   ...pageAddress("/sell"),
 };
 
 const STEPS = [
   ["Tell us about the car", "The make, model and year, its condition and papers, and a price if you have one in mind."],
   ["Send a few photos", "On WhatsApp, with your reference: the outside, the dashboard with the engine running, and the papers."],
-  ["We come back to you", "With what we can do: buy it, take it as part-payment for one of ours, or sell it for you. Nothing is final until we have seen the car."],
+  ["We come back to you", "With what we can do: buy it, swap it for one of ours, or sell it for you. Nothing is final until we have seen the car."],
 ];
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
@@ -57,8 +57,8 @@ export default async function SellPage({ searchParams }: Props) {
     <>
       <PageIntro eyebrow="Sell your car" title="Selling a car? Start with Sabicars.">
         <p>
-          Sell it to us, trade it in for one of our cars, or let us sell it for you. Tell us about it here and you get a reference
-          number.
+          Sell it to us, swap it for one of our cars and pay the balance (counter balance), or let us sell it for you. Tell us about
+          it here and you get a reference number.
         </p>
       </PageIntro>
 

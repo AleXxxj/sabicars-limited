@@ -28,6 +28,23 @@ export function deliveredByVercel(): boolean {
 }
 
 /**
+ * Sabicars' own Cloudinary account: every photo on the site is stored under
+ * it (all 486 photo addresses checked on 7 November 2026). next.config lets
+ * Vercel resize photos from this account only, so nobody can use the site to
+ * resize other people's pictures on Sabicars' bill.
+ */
+export const PHOTO_CLOUD = "dbmtqpex2";
+
+/**
+ * Whether Vercel may resize this photo. A Cloudinary photo from any other
+ * account (a blog cover pasted from elsewhere, say) stays with Cloudinary's
+ * own resizing, so it still shows instead of failing the lock above.
+ */
+export function isOwnPhoto(src: string): boolean {
+  return src.startsWith(`https://res.cloudinary.com/${PHOTO_CLOUD}/image/upload/`);
+}
+
+/**
  * The one copy Vercel resizes from. e_improve corrects exposure and colour
  * per photo: most stock is shot on a phone in an open car park under a white
  * Lagos sky, and it lifts a dull, flat frame without the over-saturated look

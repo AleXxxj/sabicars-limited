@@ -47,7 +47,7 @@ export function SellForm({
   );
 
   if (state?.ok) {
-    const wa = `${whatsappBase}?text=${encodeURIComponent(`Hello Sabicars, here are photos of the car I want to ${intent === "trade_in" ? "trade in" : "sell"} (reference ${state.reference}).`)}`;
+    const wa = `${whatsappBase}?text=${encodeURIComponent(`Hello Sabicars, here are photos of the car I want to ${intent === "trade_in" ? "swap" : "sell"} (reference ${state.reference}).`)}`;
     return (
       <div
         role="status"

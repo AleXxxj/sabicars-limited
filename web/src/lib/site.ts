@@ -13,10 +13,16 @@
 import type { Metadata } from "next";
 
 const DOMAIN = "sabicars.com";
-const PREMISES = "Amazing Grace Shopping Complex";
+/**
+ * The building is Amazing Grace Shopping Complex, but the owner's word
+ * (7 November 2026) is to print only "Amazing Grace": "Shopping Complex" or
+ * "Plaza" makes the dealer's office read like a shop. The map search below
+ * keeps the full name, which nobody reads, so Google finds the right place.
+ */
+const PREMISES = "Amazing Grace";
 const AREA = "Igando";
 const INSTAGRAM = "sabicarsltd";
-const MAP_QUERY = "Sabicars+Autos+Amazing+Grace+Shopping+Complex+Alhaji+Ede+Bus+Stop+Km+16+Igando+Lagos+100267";
+const MAP_QUERY = "Sabicars+Autos+Amazing+Grace+Shopping+Complex+Alhaji+Ede+Bus+Stop+Km+13+Igando+Lagos+100267";
 
 export const site = {
   name: "Sabicars",
@@ -27,18 +33,21 @@ export const site = {
   domain: DOMAIN,
 
   /**
-   * As the legacy contact page gives it (its "verified location" block, with
-   * the postcode). The newsletter template said Km 13 and the About page
-   * "Amazing Grace Plaza"; Km 16 and "Shopping Complex" are used pending the
-   * owner's confirmation.
+   * The legacy pages disagreed (the contact page said Km 16, the newsletter
+   * template Km 13, the About page "Amazing Grace Plaza"). The owner confirmed
+   * Km 13 on 7 November 2026.
+   *
+   * Two copies live in the database and do not follow this file: the
+   * "Sabicars showroom" row in `locations` (car pages' "See it in person",
+   * viewing reminders) and the showroom answer on /ask. Change them too.
    */
   address: {
-    line1: `${PREMISES}, Km 16`,
+    line1: `${PREMISES}, Km 13`,
     line2: `Alhaji Ede Bus Stop, Lasu Road, ${AREA}`,
     city: "Lagos",
     /** The state, for search engines' address format and the locations table. */
     region: "Lagos",
-    /** The building and the district on their own, for a short mention ("… at Amazing Grace Shopping Complex, Igando"). */
+    /** The building and the district on their own, for a short mention ("… at Amazing Grace, Igando"). */
     premises: PREMISES,
     area: AREA,
     postcode: "100267",

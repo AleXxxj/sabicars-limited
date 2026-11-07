@@ -2,7 +2,7 @@
 
 export const SELL_INTENTS = {
   sell: "Sell it to Sabicars",
-  trade_in: "Trade it in towards one of your cars",
+  trade_in: "Swap it for one of your cars and pay the balance",
   consign: "Have Sabicars sell it for me",
 } as const;
 

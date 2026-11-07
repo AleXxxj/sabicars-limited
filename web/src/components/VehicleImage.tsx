@@ -1,7 +1,7 @@
 "use client";
 
 import Image, { type ImageProps } from "next/image";
-import { cloudinaryLoader, deliveredByVercel, masterSource } from "@/lib/media";
+import { cloudinaryLoader, deliveredByVercel, isOwnPhoto, masterSource } from "@/lib/media";
 
 /**
  * next/image for vehicle photos, resized by Cloudinary or by Vercel
@@ -14,6 +14,6 @@ import { cloudinaryLoader, deliveredByVercel, masterSource } from "@/lib/media";
 export function VehicleImage({ alt, src, ...props }: Omit<ImageProps, "loader">) {
   const isCloudinary = typeof src === "string" && src.includes("res.cloudinary.com");
   if (!isCloudinary) return <Image alt={alt} src={src} {...props} />;
-  if (deliveredByVercel()) return <Image alt={alt} src={masterSource(src as string)} {...props} />;
+  if (deliveredByVercel() && isOwnPhoto(src as string)) return <Image alt={alt} src={masterSource(src as string)} {...props} />;
   return <Image alt={alt} src={src} {...props} loader={cloudinaryLoader} />;
 }

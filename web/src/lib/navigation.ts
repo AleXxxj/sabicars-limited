@@ -24,7 +24,7 @@ export const MORE_NAV = [
   {
     group: "Buying and selling",
     items: [
-      { href: "/sell", label: "Sell your car", hint: "Sell it to us, trade it in, or we sell it for you" },
+      { href: "/sell", label: "Sell your car", hint: "Sell it to us, swap it, or we sell it for you" },
       { href: "/fleet", label: "Buy in bulk", hint: "2 or more vehicles for a company or government" },
       { href: "/compare", label: "Compare cars", hint: "Two or three cars side by side" },
       { href: "/saved", label: "My saved cars", hint: "Tap the heart on a car to keep it here" },
