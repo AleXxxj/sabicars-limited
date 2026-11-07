@@ -119,6 +119,9 @@ export async function SiteFooter() {
             <a href={site.social.instagram} className={link} target="_blank" rel="noopener noreferrer">
               Instagram
             </a>
+            <a href={site.social.tiktok} className={link} target="_blank" rel="noopener noreferrer">
+              TikTok
+            </a>
           </li>
         </Column>
       </div>

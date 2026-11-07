@@ -21,7 +21,9 @@ const DOMAIN = "sabicars.com";
  */
 const PREMISES = "Amazing Grace";
 const AREA = "Igando";
-const INSTAGRAM = "sabicarsltd";
+/** The usernames as the owner gave them on 8 November 2026 (Instagram was renamed from sabicarsltd). */
+const INSTAGRAM = "toyotabusesnigeria";
+const TIKTOK = "sabi.cars";
 const MAP_QUERY = "Sabicars+Autos+Amazing+Grace+Shopping+Complex+Alhaji+Ede+Bus+Stop+Km+13+Igando+Lagos+100267";
 
 export const site = {
@@ -90,6 +92,8 @@ export const site = {
   social: {
     instagram: `https://instagram.com/${INSTAGRAM}`,
     instagramHandle: INSTAGRAM,
+    tiktok: `https://www.tiktok.com/@${TIKTOK}`,
+    tiktokHandle: TIKTOK,
   },
 } as const;
 

@@ -40,7 +40,7 @@ export function dealerJsonLd() {
     },
     openingHours: site.hours.map((h) => h.schema),
     hasMap: site.mapsUrl,
-    sameAs: [site.social.instagram],
+    sameAs: [site.social.instagram, site.social.tiktok],
     logo: `${siteUrl()}/brand/icon-512.png`,
     image: `${siteUrl()}/opengraph-image.png`,
     priceRange: "₦₦₦",

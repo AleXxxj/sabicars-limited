@@ -91,6 +91,9 @@ export default function ContactPage() {
             <a href={site.social.instagram} target="_blank" rel="noopener noreferrer" className="mt-3 block hover:text-text-primary">
               Instagram @{site.social.instagramHandle}
             </a>
+            <a href={site.social.tiktok} target="_blank" rel="noopener noreferrer" className="mt-3 block hover:text-text-primary">
+              TikTok @{site.social.tiktokHandle}
+            </a>
           </Channel>
         </div>
       </section>
