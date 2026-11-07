@@ -11,16 +11,30 @@ import { drivePlanTerms } from "@/lib/drive-plan";
  * server and the tests read them the same way.
  */
 export function shareCaption(car: { title: string; year: number; price: string | null }, link: string): string {
-  const terms = drivePlanTerms(car.year);
   return [
     car.title,
     car.price ? `${car.price} at Sabicars, Lagos.` : "At Sabicars, Lagos. Ask for the price.",
-    car.price && terms.eligible ? `Pay ${terms.depositPercent}% now. Autochek lends you the rest if they approve you, and you pay monthly.` : null,
+    car.price ? drivePlanLine(car.year) : null,
     "See all the photos, then come and see it before you pay:",
     link,
   ]
     .filter(Boolean)
     .join("\n");
+}
+
+/** The Drive Plan in one line, for a car whose year allows it (40% from 2010, 50% for 2008–2009), always with Autochek's condition; null otherwise. */
+export function drivePlanLine(year: number): string | null {
+  const terms = drivePlanTerms(year);
+  return terms.eligible ? `Pay ${terms.depositPercent}% now. Autochek lends you the rest if they approve you, and you pay monthly.` : null;
+}
+
+/**
+ * The caption under a status picture. Short, because the app lays it over the
+ * bottom of the picture, and the picture already says the car, the price and
+ * the code: what it adds is the link.
+ */
+export function statusWords(link: string): string {
+  return `See all the photos here: ${link}`;
 }
 
 /** A partner's link to one car: the short form the /r/[code]/[slug] route answers. */

@@ -7,7 +7,7 @@ import { formatNaira } from "@/lib/money";
 import { currentPartner } from "@/lib/partner-session";
 import { commissionMinor } from "@/lib/referral";
 import { shareCatalogue } from "@/lib/repositories/vehicles";
-import { carShareLink, shareCaption } from "@/lib/share-caption";
+import { carShareLink, drivePlanLine, shareCaption, statusWords } from "@/lib/share-caption";
 import { helpPhone, siteUrl } from "@/lib/site";
 
 /** Personal: every link on it carries the partner's code. Never cached, never indexed. */
@@ -63,6 +63,8 @@ export default async function CarsToShare({ searchParams }: { searchParams: Prom
       photos: c.photos,
       link,
       caption: shareCaption({ title: c.title, year: c.year, price }, link),
+      drivePlan: price ? drivePlanLine(c.year) : null,
+      statusWords: statusWords(link),
     };
   });
   const { car } = await searchParams;

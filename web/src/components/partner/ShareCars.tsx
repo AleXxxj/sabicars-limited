@@ -6,7 +6,7 @@ import { VehicleImage } from "@/components/VehicleImage";
 import { CopyButton } from "@/components/forms/PartnerForm";
 import { Button, ButtonAnchor } from "@/components/ui/Button";
 import { Dialog } from "@/components/ui/Dialog";
-import { brandPhoto, canSharePhotos, isApplePhone } from "@/lib/brand-photo";
+import { brandPhoto, canSharePhotos, isApplePhone, statusPoster } from "@/lib/brand-photo";
 import { sharePhotoSource, VEHICLE_PLACEHOLDER } from "@/lib/media";
 
 export type ShareGroup = "suvs" | "cars" | "buses" | "trucks" | "other";
@@ -26,6 +26,10 @@ export interface ShareCarView {
   link: string;
   /** The ready message: the car, the price, the link. */
   caption: string;
+  /** The Drive Plan line the status picture carries, where the car's year allows it. */
+  drivePlan: string | null;
+  /** The short caption under the status picture: the link. */
+  statusWords: string;
 }
 
 const GROUPS: { key: ShareGroup | "all"; label: string }[] = [
@@ -184,13 +188,57 @@ function usePreparedPhotos(car: ShareCarView, code: string, host: string) {
   return { items, retry };
 }
 
+type Made = { file: File; url: string };
+
+/**
+ * The status picture (lib/brand-photo.ts statusPoster), made as soon as the
+ * sheet opens, from the car's cover photo, alongside the photos.
+ */
+function useStatusPoster(car: ShareCarView, code: string, host: string) {
+  const [poster, setPoster] = useState<Made | "failed" | null>(null);
+  const [attempt, setAttempt] = useState(0);
+  useEffect(() => {
+    if (!car.photos.length) return;
+    const abort = new AbortController();
+    let url: string | null = null;
+    statusPoster(sharePhotoSource(car.photos[0]), { code, host, title: car.title, price: car.price, drivePlan: car.drivePlan, signal: abort.signal })
+      .then((blob) => {
+        if (abort.signal.aborted) return;
+        url = URL.createObjectURL(blob);
+        setPoster({ file: new File([blob], `sabicars-${car.slug}-status.jpg`, { type: "image/jpeg" }), url });
+      })
+      .catch(() => {
+        if (!abort.signal.aborted) setPoster("failed");
+      });
+    return () => {
+      abort.abort();
+      if (url) URL.revokeObjectURL(url);
+    };
+  }, [car, code, host, attempt]);
+  const retry = () => {
+    setPoster(null);
+    setAttempt((a) => a + 1);
+  };
+  return { poster, retry };
+}
+
+/** Copies words, saying whether the phone allowed it. Started inside the tap, like the share list. */
+function copyWords(words: string): Promise<boolean> {
+  return navigator.clipboard?.writeText(words).then(
+    () => true,
+    () => false,
+  ) ?? Promise.resolve(false);
+}
+
 function ShareSheet({ car, code, host }: { car: ShareCarView; code: string; host: string }) {
   const { items, retry } = usePreparedPhotos(car, code, host);
+  const { poster, retry: retryPoster } = useStatusPoster(car, code, host);
   const [left, setLeft] = useState<Set<number>>(new Set());
-  const [note, setNote] = useState<string | null>(null);
+  const [note, setNote] = useState<{ at: "status" | "photos"; text: string } | null>(null);
   // Which phone this is never changes while the page is open: read once in the browser, "not an iPhone" on the server.
   const apple = useSyncExternalStore(noSubscription, isApplePhone, () => false);
   const saving = useRef(false);
+  const copied = useRef<string | null>(null);
 
   const ready = items.filter((p) => p && p !== "failed").length;
   const failed = items.filter((p) => p === "failed").length;
@@ -199,6 +247,8 @@ function ShareSheet({ car, code, host }: { car: ShareCarView; code: string; host
   const n = chosen.length;
   const shareable = done && canSharePhotos(chosen);
   const photos = `${n} ${n === 1 ? "photo" : "photos"}`;
+  const posterFile = poster && poster !== "failed" ? poster.file : null;
+  const posterShareable = posterFile ? canSharePhotos([posterFile]) : false;
 
   const toggle = (i: number) =>
     setLeft((prev) => {
@@ -208,30 +258,44 @@ function ShareSheet({ car, code, host }: { car: ShareCarView; code: string; host
       return s;
     });
 
-  /** The phone's own share list: WhatsApp status, Instagram, Facebook, with the words as the caption where the app takes one. */
-  const post = async () => {
+  /**
+   * The phone's own share list (WhatsApp, its status, Instagram, Facebook)
+   * with these pictures. The words are copied in the same tap, to paste as the
+   * caption. On an iPhone only the pictures go: WhatsApp there drops pictures
+   * that come with words. On Android the words go too, as the caption.
+   */
+  const sharePictures = async (at: "status" | "photos", files: File[], words: string) => {
     setNote(null);
+    // Both start inside the tap, with nothing awaited first: a phone allows its clipboard and its share list only in direct answer to one.
+    const copying = copied.current === words ? Promise.resolve(true) : copyWords(words);
     try {
-      await navigator.share({ files: chosen, text: car.caption });
+      await navigator.share(apple ? { files } : { files, text: words });
     } catch (e) {
-      if ((e as Error).name !== "AbortError") setNote("Your phone did not open its share list. Save the photos, then post them from your gallery.");
+      if (await copying) copied.current = words;
+      const name = (e as Error).name;
+      // Some phones allow one of the two per tap: the words are copied now, so the next tap only opens the list.
+      if (name === "NotAllowedError") setNote({ at, text: "Tap the button once more to open your share list." });
+      else if (name !== "AbortError") setNote({ at, text: "Your phone did not open its share list. Save, then post from your gallery." });
+      return;
     }
+    if (await copying) copied.current = words;
+    else setNote({ at, text: "Your phone did not let the words be copied. Tap Copy words below, then paste them as the caption." });
   };
 
-  const save = async () => {
-    if (saving.current) return;
+  const save = async (at: "status" | "photos", files: File[]) => {
+    if (saving.current || !files.length) return;
     setNote(null);
-    // On an iPhone a download lands in Files, not Photos. The share list's "Save Images" puts them in Photos.
-    if (apple && shareable) {
+    // On an iPhone a download lands in Files, not Photos. The share list's "Save Image" puts it in Photos.
+    if (apple && canSharePhotos(files)) {
       try {
-        await navigator.share({ files: chosen });
+        await navigator.share({ files });
       } catch (e) {
-        if ((e as Error).name !== "AbortError") setNote("Your phone did not open its share list. Press and hold a photo above, then tap Save to Photos.");
+        if ((e as Error).name !== "AbortError") setNote({ at, text: "Your phone did not open its share list. Press and hold the picture, then tap Save to Photos." });
       }
       return;
     }
     saving.current = true;
-    for (const [k, file] of chosen.entries()) {
+    for (const [k, file] of files.entries()) {
       const a = document.createElement("a");
       a.href = URL.createObjectURL(file);
       a.download = file.name;
@@ -241,11 +305,18 @@ function ShareSheet({ car, code, host }: { car: ShareCarView; code: string; host
       const href = a.href;
       setTimeout(() => URL.revokeObjectURL(href), 10_000);
       // A short pause between files: browsers drop downloads fired in the same instant.
-      if (k < chosen.length - 1) await new Promise((r) => setTimeout(r, 350));
+      if (k < files.length - 1) await new Promise((r) => setTimeout(r, 350));
     }
     saving.current = false;
-    setNote(n > 1 ? `Saved ${photos} to Downloads. If your phone asks to allow many downloads, tap Allow.` : "Saved to Downloads.");
+    setNote({ at, text: files.length > 1 ? `Saved ${files.length} photos to Downloads. If your phone asks to allow many downloads, tap Allow.` : "Saved to Downloads." });
   };
+
+  const noteAt = (at: "status" | "photos") =>
+    note?.at === at ? (
+      <p role="status" className="mt-3 text-sm text-text-secondary">
+        {note.text}
+      </p>
+    ) : null;
 
   return (
     <div>
@@ -261,7 +332,56 @@ function ShareSheet({ car, code, host }: { car: ShareCarView; code: string; host
       <ButtonAnchor href={`https://wa.me/?text=${encodeURIComponent(car.caption)}`} target="_blank" rel="noopener noreferrer" size="lg" className="mt-5 w-full">
         Send on WhatsApp
       </ButtonAnchor>
-      <p className="mt-2 text-xs leading-relaxed text-text-muted">WhatsApp shows the car&rsquo;s photo. When your buyer taps it, the car opens, and your code goes with them.</p>
+      <p className="mt-2 text-xs leading-relaxed text-text-muted">
+        For a chat or a group. WhatsApp shows the car&rsquo;s photo: your buyer taps it, and the car opens with your code.
+      </p>
+
+      {car.photos.length > 0 && (
+        <div className="mt-7 border-t border-white/[0.06] pt-6">
+          <p className="text-sm font-medium text-text-secondary">For your status</p>
+          <div className="mt-3 flex items-start gap-4">
+            <div className="w-[30%] max-w-[8.5rem] shrink-0">
+              {poster && poster !== "failed" ? (
+                // A picture this browser just made: there is nothing for next/image to resize.
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={poster.url} alt="The picture for your status" className="block aspect-[9/16] w-full rounded-xl border border-white/10 object-cover" />
+              ) : (
+                <div
+                  className={`flex aspect-[9/16] w-full items-center justify-center rounded-xl bg-surface-2 px-2 text-center text-xs text-text-muted ${poster ? "" : "animate-pulse"}`}
+                >
+                  {poster === "failed" ? "Did not load" : ""}
+                </div>
+              )}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm leading-relaxed text-text-primary">One picture that fills the whole status: the car, the price and your code.</p>
+              <p className="mt-2 text-xs leading-relaxed text-text-muted">
+                {posterShareable
+                  ? "Choose WhatsApp, then My status. Your words and link are copied when you tap: paste them as the caption."
+                  : "Save it, then post it on your status from your gallery, with the words below as the caption."}
+              </p>
+              {poster === "failed" && (
+                <button type="button" onClick={retryPoster} className="mt-2 min-h-11 text-sm font-semibold text-green-300 hover:text-green-200">
+                  Try again
+                </button>
+              )}
+            </div>
+          </div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            {posterShareable && posterFile && (
+              <Button type="button" variant="secondary" onClick={() => sharePictures("status", [posterFile], car.statusWords)}>
+                <Share2 aria-hidden size={18} />
+                Post on your status
+              </Button>
+            )}
+            <Button type="button" variant="secondary" onClick={() => posterFile && save("status", [posterFile])} disabled={!posterFile}>
+              <Download aria-hidden size={18} />
+              {posterFile ? "Save the picture" : poster === "failed" ? "Picture not ready" : "Making the picture…"}
+            </Button>
+          </div>
+          {noteAt("status")}
+        </div>
+      )}
 
       {items.length === 0 ? (
         <p className="mt-7 border-t border-white/[0.06] pt-6 text-sm text-text-muted">No photos of this car yet. Send the link: the car page shows them the day they are added.</p>
@@ -311,22 +431,18 @@ function ShareSheet({ car, code, host }: { car: ShareCarView; code: string; host
 
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             {shareable && (
-              <Button type="button" variant="secondary" onClick={post} disabled={!n}>
+              <Button type="button" variant="secondary" onClick={() => sharePictures("photos", chosen, car.caption)} disabled={!n}>
                 <Share2 aria-hidden size={18} />
                 Post {photos}
               </Button>
             )}
-            <Button type="button" variant="secondary" onClick={save} disabled={!done || !n}>
+            <Button type="button" variant="secondary" onClick={() => save("photos", chosen)} disabled={!done || !n}>
               <Download aria-hidden size={18} />
               {done ? `Save ${photos}` : "Getting photos ready…"}
             </Button>
           </div>
           {apple && shareable && <p className="mt-2 text-xs leading-relaxed text-text-muted">To keep them on your iPhone, tap Save, then Save Images.</p>}
-          {note && (
-            <p role="status" className="mt-3 text-sm text-text-secondary">
-              {note}
-            </p>
-          )}
+          {noteAt("photos")}
         </div>
       )}
 
