@@ -19,8 +19,14 @@ Days before 8 November 2026 were reconstructed on 8 November from the saved Clau
 - "Can we edit or add or remove the vehicle images on the hero from the admin?" and "the old admin has a section to add a video link to the hero… were you aware?" Then: "go add video box to the admin."
 - "Load the live site and tell me your view about the new hero video I added" (Toyota USA's 2024 Land Cruiser advert).
 - "Hope you are documenting every prompt, every decision…" Then: "go do it all, and maybe we create a tool."
+- "Now I want to also add Sabicars app on Play Store." After the plan: "go, install the tooling and build the package."
 
 **Decisions and why:**
+- The Play Store app is a Trusted Web Activity (Google's Bubblewrap): an Android shell that opens sabicars.com full screen with Chrome's engine. No second codebase; the website is the app. Package name `com.sabicars.app`, Android 7.0 or newer (Google's browser-helper library needs it), both orientations, notifications allowed for later.
+- It opens `sabicars.com`, not the vercel address, so it is published after switch day; a second APK pointed at `sabicars.vercel.app` was built for testing on a phone now.
+- The upload signing key lives outside the repo on Alex's Mac (`~/sabicars-android/keys`), password in a file to be moved to a password manager; only its public fingerprint is in git, in the site's verification file.
+- The Play Console account should be an organisation account in Sabicars Limited's name (D-U-N-S number needed; weeks in Nigeria), not a personal one (public home address, 20-tester test for 14 days).
+- No iPhone version now: US$99 a year and Apple tends to reject plain website wrappers.
 - The address is printed as "Amazing Grace, Km 13" everywhere, including the two copies stored in the database (the showroom row and the Help answer), corrected on the live database with audit rows.
 - Photo resizing switched to Vercel (`NEXT_PUBLIC_IMAGE_DELIVERY=vercel`) and locked to Sabicars' own Cloudinary account, so nobody can resize other people's pictures on our bill.
 - The full-screen hero stays. A framed "whole car" hero was built, shown, and rejected by Alex; the slow zoom and the car reselection were also reverted at his word. Hero cars remain a staff choice in the admin ("Use in the homepage hero").
@@ -45,6 +51,7 @@ Days before 8 November 2026 were reconstructed on 8 November from the saved Clau
 - Hero video shown only while YouTube says it is playing (6258a19).
 - Go-live guide: 20 of 30 tasks ticked with evidence; Vercel, UptimeRobot and photo-switch steps rewritten.
 - Project record: this journal, PROJECT-BOOK.md, iCloud backup of transcripts, Stop hook reminder.
+- Android app for Google Play (e8e4400): Bubblewrap project in `android/`, signed `app-release-bundle.aab` (1.1 MB) ready to upload and a sideload test APK for `sabicars.vercel.app`; the site now serves `/.well-known/assetlinks.json`; five phone screenshots and the feature graphic in `android/store/`; `docs/PLAY-STORE.md` with the owner's Play Console steps, listing text and data-safety answers. Java 17, the Android SDK and Bubblewrap were installed on the Mac without Homebrew (none present; `/usr/local` not writable).
 
 **Outage:** 10:45–10:52 Lagos, every database query failed: Supabase's connection pooler (London) refused connections after restarting at 10:42; the database itself never restarted. Not caused by the day's deploys. UptimeRobot, cron-job.org and System status all alerted; nothing was lost. Both errors resolved in the admin.
 
@@ -53,6 +60,7 @@ Days before 8 November 2026 were reconstructed on 8 November from the saved Clau
 - Permission to fix the old site's Instagram link on `main` (four pages still point at @sabicarsltd).
 - Supabase Pro / Resend Pro / Drive Plan wording approval: unconfirmed, so unticked in the guide.
 - Replace the Toyota advert with Sabicars' own footage.
+- Play Store: the owner opens the organisation developer account (D-U-N-S first), copies the Play app-signing fingerprint so it can be added to `assetlinks.json`, and tries the test APK on an Android phone; the keystore password file is moved to a password manager.
 
 ## 2026-11-07 (Saturday)
 **Instructions from Alex:**

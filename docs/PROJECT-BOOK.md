@@ -46,6 +46,7 @@ On switch day only two DNS records change (see `docs/LAUNCH.md`, part B). The ol
 | **OneSignal** | Push to customers who subscribed on the old site (new arrivals, price drops); same account, so subscribers carry over. | Customer push stops; staff alerts are unaffected (browser Web Push). | onesignal.com → Settings → Keys & IDs; Site URL must be `https://sabicars.com`. | Not stated. |
 | **Autochek** | Partner, not a service: finances the Drive Plan balance. Its deposit tiers by model year are coded in `lib/drive-plan.ts`. | — | — | — |
 | **GitHub Actions** | Runs the two workflows: the deploy walkthrough and the end-to-end money paths. | Changes ship untested. | github.com → repo → Actions; secrets under Settings → Secrets and variables. | Free for a public repo. |
+| **Google Play** | Lists the Android app (`android/`), a shell that opens the website full screen. | No app in the store; the website itself is unaffected. | play.google.com/console, an organisation account in Sabicars Limited's name (needs a D-U-N-S number). Steps in `docs/PLAY-STORE.md`. | US$25 once. |
 
 DNS for `sabicars.com` is at GoDaddy; email (MX) runs on Google Workspace.
 
@@ -55,7 +56,8 @@ DNS for `sabicars.com` is at GoDaddy; email (MX) runs on Google Workspace.
 
 - `*.html`, `theme.css`, `theme.js`, `notifications.js`, `OneSignalSDKWorker.js`, `manifest.json`, `CNAME`, `robots.txt`, `sitemap.xml`, `blog/`, `images/` — the **old site**, served by GitHub Pages. Do not edit; it is what buyers see until switch day.
 - `brand/` — the identity: logo files, the generated marks (`npm run brand`).
-- `docs/` — `ARCHITECTURE.md` (why it is built this way, phase by phase), `LAUNCH.md` (the switch-day checklist and everything measured), `HOMEPAGE-PLATFORM.md`, `SURVIVAL-PLAN.md`, `TRAINEE-TEST.md`.
+- `docs/` — `ARCHITECTURE.md` (why it is built this way, phase by phase), `LAUNCH.md` (the switch-day checklist and everything measured), `PLAY-STORE.md` (the Android app and the Play Console steps), `HOMEPAGE-PLATFORM.md`, `SURVIVAL-PLAN.md`, `TRAINEE-TEST.md`.
+- `android/` — the **Google Play app**: a Trusted Web Activity made with Google's Bubblewrap. `twa-manifest.json` is the recipe (package `com.sabicars.app`, opens `https://sabicars.com`, Android 7.0+); the rest is the generated Android project; `store/` holds the listing screenshots and feature graphic. The signing key is **not** here (see `docs/PLAY-STORE.md`). The site proves it owns the app through `web/public/.well-known/assetlinks.json`.
 - `.github/workflows/` — `smoke.yml` (walk the live site after each deploy), `e2e.yml` (money paths on a throwaway database).
 - `.vscode/` — editor settings.
 - `web/` — the new platform. Everything below is inside it.
@@ -257,12 +259,14 @@ The old API on Render has its own set (`MONGO_URI`, `CLOUDINARY_*`, `JWT_SECRET`
 
 **Build and deploy**: push to `platform`; Vercel builds `web/` with `next build` and goes live. There is no manual deploy step. On switch day, follow `docs/LAUNCH.md` part B.
 
+**Android app** (in `android/`): Bubblewrap, Java 17 and the Android SDK live on Alex's Mac under `~/sabicars-android/tools` and `~/.bubblewrap/` (no Homebrew there). Raise `appVersionCode` in `twa-manifest.json`, then `bubblewrap update --skipVersionUpgrade --directory . --manifest ./twa-manifest.json` and `bubblewrap build --directory . --skipPwaValidation` with the key password in `BUBBLEWRAP_KEYSTORE_PASSWORD` and `BUBBLEWRAP_KEY_PASSWORD`. Upload `app-release-bundle.aab` in the Play Console. Full steps in `docs/PLAY-STORE.md`.
+
 **Where to look when something is wrong**: `/admin/status` first (settings, outbox, backup, open errors with fixes); Vercel → Deployments (build and function logs); GitHub → Actions (the failed run and its Playwright report, kept 14 days); Resend → Logs; cron-job.org job history; UptimeRobot; Anthropic console for credit.
 
 ## 9. Rules that must not be broken
 
 - **Never put a proxy (Cloudflare orange cloud or any other) in front of `sabicars.com`.** The rate limiter trusts Vercel's real-IP header; behind a proxy every visitor shares a few addresses and real buyers get refused.
-- **Never commit `.env.local`, `.env.live` or any key.** `.env.example` holds placeholders only. Keep the live connection string in `web/.env.live`, never `.env.production.local` (Next loads that automatically and would point local tests at production).
+- **Never commit `.env.local`, `.env.live`, the Android keystore or any key.** `.env.example` holds placeholders only; the Play upload key stays in `~/sabicars-android/keys` and a password manager. Keep the live connection string in `web/.env.live`, never `.env.production.local` (Next loads that automatically and would point local tests at production).
 - **Never run the flows suite, `e2e:seed`, `test:backup` or `test:outbox` against the live database.** The scripts refuse a Supabase address; do not force them. Do not fire load at production either: the Nano database stalled under it (30 Oct 2026).
 - **Use the session pooler (port 5432) for both `DATABASE_URL` and `DIRECT_URL`;** the transaction pooler loses replies and hangs admin pages.
 - **Do not set `SUPABASE_SERVICE_ROLE_KEY`, `RESEND_API_URL` or `NEXT_PUBLIC_SITE_URL` in Vercel.**
