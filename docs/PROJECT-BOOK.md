@@ -94,7 +94,7 @@ Grouped by where they appear: `site/` (header, footer, phone tab bar, bell), `ho
 
 ### `src/content`, `src/db`, `src/styles`
 
-- `content/articles/` (seven articles as code), `content/ask-answers.ts` (first /ask answers), `listing-corrections.json`. Seeded with `blog:seed` and `ask:seed`; wording changes carried in with `content:sync` without overwriting staff edits.
+- `content/articles/` (seven articles as code), `content/ask-answers.ts` (first /ask answers), `listing-corrections.json` and `notification-corrections.json` (fixes to old-site records that the legacy import re-applies, only while the old record still says what was corrected). Seeded with `blog:seed` and `ask:seed`; wording changes carried in with `content:sync` without overwriting staff edits.
 - `db/schema.ts` (every table), `db/migrations/` (0000–0023), `db/lock.sql` (closes tables to Supabase's Data API), `db/index.ts` (the connection).
 - `styles/palette.json` → generated `tokens.css`; `article.css`, `assistant.css`, `motion.css`.
 - `instrumentation.ts` (every server error becomes an incident), `proxy.ts` (signed-out visitors sent away from `/admin`).
