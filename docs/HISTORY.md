@@ -19,13 +19,13 @@ Days before 8 November 2026 were reconstructed on 8 November from the saved Clau
 - "Can we edit or add or remove the vehicle images on the hero from the admin?" and "the old admin has a section to add a video link to the hero… were you aware?" Then: "go add video box to the admin."
 - "Load the live site and tell me your view about the new hero video I added" (Toyota USA's 2024 Land Cruiser advert).
 - "Hope you are documenting every prompt, every decision…" Then: "go do it all, and maybe we create a tool."
-- "Now I want to also add Sabicars app on Play Store." After the plan: "go, install the tooling and build the package."
+- "Now I want to also add Sabicars app on Play Store." After the plan: "go, install the tooling and build the package." Then: "I don't understand what has been done and what is waiting on me… I want the app developer to be ICS, that's Inova Creative Studio."
 
 **Decisions and why:**
 - The Play Store app is a Trusted Web Activity (Google's Bubblewrap): an Android shell that opens sabicars.com full screen with Chrome's engine. No second codebase; the website is the app. Package name `com.sabicars.app`, Android 7.0 or newer (Google's browser-helper library needs it), both orientations, notifications allowed for later.
 - It opens `sabicars.com`, not the vercel address, so it is published after switch day; a second APK pointed at `sabicars.vercel.app` was built for testing on a phone now.
 - The upload signing key lives outside the repo on Alex's Mac (`~/sabicars-android/keys`), password in a file to be moved to a password manager; only its public fingerprint is in git, in the site's verification file.
-- The Play Console account should be an organisation account in Sabicars Limited's name (D-U-N-S number needed; weeks in Nigeria), not a personal one (public home address, 20-tester test for 14 days).
+- The Play developer account is opened in the name of **Inova Creative Studio (ICS)**, Alex's studio, which publishes the app for Sabicars; Alex asked for this after the first plan named Sabicars Limited. Organisation account if ICS is registered (D-U-N-S number needed; weeks in Nigeria); otherwise a personal account in Alex's name, which Google shows publicly and which must run a 14-day closed test with at least 12 testers first.
 - No iPhone version now: US$99 a year and Apple tends to reject plain website wrappers.
 - The address is printed as "Amazing Grace, Km 13" everywhere, including the two copies stored in the database (the showroom row and the Help answer), corrected on the live database with audit rows.
 - Photo resizing switched to Vercel (`NEXT_PUBLIC_IMAGE_DELIVERY=vercel`) and locked to Sabicars' own Cloudinary account, so nobody can resize other people's pictures on our bill.

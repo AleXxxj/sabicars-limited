@@ -56,15 +56,17 @@ build, then change both back and build again.
 
 ## Owner's steps (Play Console)
 
-1. **Open a developer account** at https://play.google.com/console as an **organisation**, in the
-   name of Sabicars Limited. One-time fee of US$25. Google asks for:
-   - a D-U-N-S number for Sabicars Limited (free, from Dun & Bradstreet at dnb.com; in Nigeria it can
-     take days to weeks — ask for it first);
-   - the registered business name and address as on the CAC certificate;
-   - a company email and phone that Google can verify;
-   - identity documents for the person opening the account.
-   A personal account is quicker but shows a home address publicly and must run a 14-day closed test
-   with 20 testers before it can publish. Register as the organisation.
+1. **Open a developer account** at https://play.google.com/console in the name of **Inova Creative
+   Studio (ICS)**, Alex's studio, which publishes the app for Sabicars (decided 8 November 2026). The
+   store will show "Inova Creative Studio" as the developer; the app, its description, icon and
+   privacy page stay Sabicars. One-time fee of US$25.
+   - If ICS is a registered business, choose **organisation**. Google asks for a D-U-N-S number for
+     ICS (free, from Dun & Bradstreet at dnb.com; in Nigeria it can take days to weeks — ask for it
+     first), the registered name and address, a company email and phone it can verify, and identity
+     documents for the person opening the account.
+   - If ICS is not registered, the account is **personal**, in Alex's name. Google shows that name
+     publicly, and a new personal account must run a closed test with at least 12 testers for 14 days
+     before the app can go public, which adds about three weeks.
 
 2. **Create the app**: name `Sabicars`, app (not game), free, default language English.
 
