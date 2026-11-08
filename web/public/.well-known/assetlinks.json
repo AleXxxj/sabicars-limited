@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.sabicars.app",
+      "sha256_cert_fingerprints": [
+        "0A:15:D4:6D:24:28:83:C0:5D:73:D4:CB:34:33:46:53:66:3F:08:12:94:FF:E2:79:D0:AE:9B:17:FE:0C:3C:CA"
+      ]
+    }
+  }
+]

@@ -1,0 +1,42 @@
+{
+  "packageId": "com.sabicars.app",
+  "host": "sabicars.com",
+  "name": "Sabicars",
+  "launcherName": "Sabicars",
+  "display": "standalone",
+  "themeColor": "#090E0A",
+  "themeColorDark": "#090E0A",
+  "navigationColor": "#090E0A",
+  "navigationColorDark": "#090E0A",
+  "navigationDividerColor": "#090E0A",
+  "navigationDividerColorDark": "#090E0A",
+  "backgroundColor": "#090E0A",
+  "enableNotifications": true,
+  "startUrl": "/",
+  "iconUrl": "https://sabicars.vercel.app/brand/icon-512.png",
+  "maskableIconUrl": "https://sabicars.vercel.app/brand/icon-maskable-512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "/Users/mologstics/sabicars-android/keys/sabicars-upload.keystore",
+    "alias": "sabicars"
+  },
+  "appVersion": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://sabicars.vercel.app/manifest.webmanifest",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://sabicars.com/",
+  "minSdkVersion": 24,
+  "orientation": "default",
+  "fingerprints": [],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": []
+}

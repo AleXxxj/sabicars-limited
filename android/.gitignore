@@ -1,0 +1,13 @@
+# Signing keys never live in the repo (the upload key is in ~/sabicars-android/keys).
+*.keystore
+*.jks
+# Build output
+build/
+app/build/
+.gradle/
+*.apk
+*.aab
+*.idb
+*.idsig
+.DS_Store
+local.properties
