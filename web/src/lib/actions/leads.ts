@@ -67,6 +67,9 @@ export async function submitContact(_prev: LeadFormResult | null, formData: Form
 
   const phone = normalisePhone(v.phone);
   if (!phone) return { ok: false, fieldErrors: { phone: "Please enter a phone number we can call, e.g. 0803 123 4567" }, values };
+  // Asked to reply by email, with no email to reply to: the record could never be answered the way they chose
+  // (the sourcing and sell forms already refuse this; the contact form let it through until the 8 November 2026 audit).
+  if (v.preferredContact === "email" && !v.email) return { ok: false, fieldErrors: { email: "Add your email, or choose another way to hear from us" }, values };
   if (await tooManyFrom(phone)) return { ok: false, error: "We already have several messages from this number in the last hour — our team will be in touch.", values };
   // After the per-number check, so one person resending does not use up the allowance their whole mobile network shares.
   if (!(await withinLimit("enquiry"))) return { ok: false, error: RATE_LIMITED_MESSAGE, values };

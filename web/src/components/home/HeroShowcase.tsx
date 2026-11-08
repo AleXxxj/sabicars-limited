@@ -170,6 +170,8 @@ export function HeroShowcase({
             <iframe
               ref={frame}
               title="Sabicars showcase video"
+              // Decoration: the Tab key must go from "Skip to content" to the first real button, not into YouTube's player.
+              tabIndex={-1}
               src={`https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&mute=1&controls=0&playsinline=1&modestbranding=1&rel=0&enablejsapi=1`}
               allow="autoplay; encrypted-media"
               onLoad={() => frame.current?.contentWindow?.postMessage(JSON.stringify({ event: "listening", id: 1, channel: "widget" }), "*")}

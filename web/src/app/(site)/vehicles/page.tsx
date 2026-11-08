@@ -114,7 +114,11 @@ export default async function InventoryPage({ searchParams }: Props) {
               ))}
           </nav>
 
-          <AutoSubmitForm className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-[repeat(4,minmax(0,1fr))_auto]">
+          {/* Keyed by the filters in the address: the selects are uncontrolled (defaultValue), and on a client-side
+              move — Clear all filters, a page link, the browser's Back — React keeps the mounted controls, so a
+              price that was cleared stayed selected while the list showed all 50 cars (audit, 8 November 2026).
+              A new key remounts the form, and what the controls show is always what the results are. */}
+          <AutoSubmitForm key={filtersHref(f, {})} className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-[repeat(4,minmax(0,1fr))_auto]">
             {f.body && <input type="hidden" name="body" value={f.body} />}
             {f.segment && <input type="hidden" name="segment" value={f.segment} />}
             {f.maxDeposit && <input type="hidden" name="maxDeposit" value={f.maxDeposit} />}

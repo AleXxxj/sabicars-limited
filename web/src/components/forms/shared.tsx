@@ -65,7 +65,8 @@ export function Confirmation({
     ref.current?.scrollIntoView({ behavior: still ? "auto" : "smooth", block: "center" });
   }, []);
   return (
-    <div ref={ref} role="status" className="surface-card scroll-mt-24 !border-green-500/30 p-7 md:p-9">
+    // data-receipt: the engagement prompt holds off while a thank-you is on the page.
+    <div ref={ref} role="status" data-receipt className="surface-card scroll-mt-24 !border-green-500/30 p-7 md:p-9">
       <p className="kicker">Received</p>
       <h3 className="mt-3 text-display-3">Thank you{name ? `, ${name}` : ""}.</h3>
       <p className="mt-4 text-text-secondary">

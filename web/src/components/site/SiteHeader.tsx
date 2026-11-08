@@ -42,14 +42,18 @@ export function SiteHeader() {
           {/* On narrow phones the shortlist lives in More, so the header never overflows. */}
           <SavedLink className="!size-10 max-[479px]:!hidden sm:!size-11" />
           {/* Log in, or Account on a phone a partner has logged in on: one of the two shows, chosen before the first paint. */}
+          {/* The only account on the site is a partner's, so the button says so where there is room; on a phone the
+              short word fits, and the name read out is the full one (audit, 8 November 2026: a buyer took it for a buyer account). */}
           <Link
             href="/partner"
             prefetch={false}
             data-signed="out"
+            aria-label="Partner log in"
             className="glass inline-flex h-10 items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 text-[0.9rem] font-semibold text-text-primary transition-colors hover:text-green-300 min-[420px]:pl-3 sm:h-11 sm:pl-3.5 sm:pr-4"
           >
             <UserRound aria-hidden size={17} strokeWidth={1.9} className="hidden shrink-0 min-[420px]:block" />
-            Log in
+            <span className="md:hidden">Log in</span>
+            <span className="hidden md:inline">Partner log in</span>
           </Link>
           <AccountLink />
           <ButtonLink href={CARS_NAV.href} className="!hidden !min-h-11 !px-5 !text-[0.9rem] lg:!inline-flex">

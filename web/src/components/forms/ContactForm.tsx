@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { submitContact } from "@/lib/actions/leads";
 import { Button } from "@/components/ui/Button";
 import { Confirmation, FieldError, fieldClass, Label, PrivacyLink, SpamGuard } from "./shared";
@@ -24,6 +24,9 @@ export function ContactForm({
   const [state, action, pending] = useActionState(submitContact, null);
   const v = state?.values ?? {};
   const err = state?.fieldErrors ?? {};
+  // Which way they want the reply: when it is email, the email field is required, and says so before they send.
+  const [reply, setReply] = useState(v.preferredContact ?? "phone");
+  const byEmail = reply === "email";
 
   if (state?.ok) {
     return (
@@ -70,8 +73,8 @@ export function ContactForm({
       </div>
 
       <label className="grid gap-2">
-        <Label>Email (optional)</Label>
-        <input name="email" type="email" autoComplete="email" defaultValue={v.email} className={fieldClass} />
+        <Label>{byEmail ? "Email, so we can reply there" : "Email (optional)"}</Label>
+        <input name="email" type="email" autoComplete="email" required={byEmail} aria-required={byEmail} defaultValue={v.email} className={fieldClass} />
         <FieldError message={err.email} />
       </label>
 
@@ -90,7 +93,14 @@ export function ContactForm({
             ["email", "Email"],
           ].map(([value, label]) => (
             <label key={value} className="inline-flex min-h-11 items-center gap-3">
-              <input type="radio" name="preferredContact" value={value} defaultChecked={(v.preferredContact ?? "phone") === value} className="size-4 accent-[var(--green-500)]" />
+              <input
+                type="radio"
+                name="preferredContact"
+                value={value}
+                checked={reply === value}
+                onChange={() => setReply(value)}
+                className="size-4 accent-[var(--green-500)]"
+              />
               {label}
             </label>
           ))}

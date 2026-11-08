@@ -176,6 +176,16 @@ export function EnquiryForm({
   // Captured once, when the form first renders — the anti-bot timing check.
   const [renderedAt] = useState(() => Date.now());
   const confirmation = useRef<HTMLDivElement>(null);
+  // After one enquiry is saved the card shows its thank-you. A buyer who then wants something else — a
+  // question sent, now a viewing — gets the form back, not the old receipt again (audit, 8 November 2026).
+  // "Again" is remembered against the result it followed, so a new result (the next enquiry saved) ends it by itself.
+  const [againFor, setAgainFor] = useState<object | null>(null);
+  const again = state !== null && againFor === state;
+  // The latest result, for the hash handler below, which is set up once and would otherwise see the first.
+  const latest = useRef(state);
+  useEffect(() => {
+    latest.current = state;
+  }, [state]);
 
   // A link to one of the ways — from the buttons under the photos, the phone bar, or an address shared
   // with the hash — opens the card on that way. Clicks are watched as well as the hash, because clicking
@@ -183,7 +193,9 @@ export function EnquiryForm({
   useEffect(() => {
     const open = (hash: string) => {
       const way = wayForHash(hash);
-      if (way) setType(way);
+      if (!way) return;
+      setType(way);
+      if (latest.current?.ok) setAgainFor(latest.current);
     };
     open(window.location.hash);
     const onHash = () => open(window.location.hash);
@@ -217,7 +229,7 @@ export function EnquiryForm({
     </>
   );
 
-  if (state?.ok) {
+  if (state?.ok && !again) {
     const at = state.viewingAt ? new Date(state.viewingAt) : null;
     const reference = state.reference ?? "";
     const wa = `${whatsappBase}?text=${encodeURIComponent(
@@ -229,7 +241,7 @@ export function EnquiryForm({
       <div className="relative">
         {anchors}
         {state.kind === "callback" ? (
-          <div ref={confirmation} role="status" className={`scroll-mt-24 ${doneChrome}`}>
+          <div ref={confirmation} role="status" data-receipt className={`scroll-mt-24 ${doneChrome}`}>
             <p className="kicker">Call me back</p>
             <h3 className="mt-3 text-display-3">We will call {state.phone || "you"} shortly.</h3>
             <p className="mt-4 text-text-secondary">
@@ -238,7 +250,7 @@ export function EnquiryForm({
             </p>
           </div>
         ) : (
-          <div ref={confirmation} role="status" className={`scroll-mt-24 ${doneChrome}`}>
+          <div ref={confirmation} role="status" data-receipt className={`scroll-mt-24 ${doneChrome}`}>
             <p className="kicker">{at ? "Viewing booked" : "Enquiry received"}</p>
             <h3 className="mt-3 text-display-3">Thank you, {state.name}.</h3>
             {at ? (
@@ -262,6 +274,9 @@ export function EnquiryForm({
             </div>
           </div>
         )}
+        <button type="button" onClick={() => setAgainFor(state)} className="mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-green-300 hover:text-green-200">
+          Send another enquiry about this car →
+        </button>
       </div>
     );
   }

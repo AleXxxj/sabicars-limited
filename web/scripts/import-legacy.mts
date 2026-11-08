@@ -33,6 +33,11 @@ import { formatNaira } from "../src/lib/money";
 
 const dryRun = process.argv.includes("--dry-run");
 
+/** Corrections to old What's new posts (a headline naming the wrong car), re-applied the same way. */
+const NOTIFICATION_CORRECTIONS: { legacyId: string; about: string; fields: Record<string, [unknown, unknown]> }[] = JSON.parse(
+  readFileSync(new URL("../src/content/notification-corrections.json", import.meta.url), "utf8"),
+);
+
 /** Field corrections made on the new platform, re-applied after every import (see below). */
 const CORRECTIONS: { legacyId: string; vehicle: string; fields: Record<string, [unknown, unknown]> }[] = JSON.parse(
   readFileSync(new URL("../src/content/listing-corrections.json", import.meta.url), "utf8"),
@@ -384,6 +389,22 @@ try {
       };
       await tx.insert(schema.notifications).values(values).onConflictDoUpdate({ target: schema.notifications.legacyId, set: values });
       counts.notifications = (counts.notifications ?? 0) + 1;
+    }
+
+    // Old posts whose words named the wrong car, corrected on the new platform: re-applied after every
+    // import, like the listing corrections, and only while the old post still says what was corrected.
+    for (const c of NOTIFICATION_CORRECTIONS) {
+      const [row] = await tx.select().from(schema.notifications).where(eq(schema.notifications.legacyId, c.legacyId));
+      if (!row) continue;
+      const set: Record<string, unknown> = {};
+      for (const [field, [before, after]] of Object.entries(c.fields)) {
+        if (same((row as Record<string, unknown>)[field], before)) set[field] = after;
+        else skipped.push(`Correction to the ${c.about} (${field}) not applied: the legacy admin has changed it since.`);
+      }
+      if (Object.keys(set).length) {
+        await tx.update(schema.notifications).set(set).where(eq(schema.notifications.id, row.id));
+        counts.corrections = (counts.corrections ?? 0) + Object.keys(set).length;
+      }
     }
 
     const heroVideo = settings.find((s) => s.key === "heroVideoUrl");

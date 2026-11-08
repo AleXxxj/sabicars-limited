@@ -43,8 +43,8 @@ export function DrivePlanApply({
   if (state?.ok) {
     return (
       <div role="status" className="mt-5 rounded-xl border border-green-500/30 bg-green-500/10 p-4 text-sm leading-relaxed text-text-primary">
-        Thank you{state.name ? `, ${state.name}` : ""}. Sabicars will put this vehicle on its Autochek store and send you the application
-        link{state.reference ? <> — your reference is <strong className="figures">{state.reference}</strong></> : null}.
+        Thank you{state.name ? `, ${state.name}` : ""}. Sabicars will put this car on its Autochek store and send you the application link
+        on WhatsApp{state.reference ? <> — your reference is <strong className="figures">{state.reference}</strong></> : null}.
       </div>
     );
   }
@@ -53,7 +53,7 @@ export function DrivePlanApply({
     return (
       <div className="mt-5 grid gap-3">
         <Button type="button" variant="secondary" onClick={() => setOpen(true)} arrow className="w-full">
-          {autochekUrl ? `Apply for the ${financedPercent}% on Autochek` : "Apply for the Drive Plan"}
+          {autochekUrl ? `Apply for the ${financedPercent}% on Autochek` : "Ask for the Drive Plan on this car"}
         </Button>
         {autochekUrl && (
           <a href={autochekUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-1 text-xs text-text-muted hover:text-text-primary">
@@ -71,7 +71,7 @@ export function DrivePlanApply({
       <p className="text-sm text-text-secondary">
         {autochekUrl
           ? "Your name and number, so Sabicars can follow your application. Then Autochek takes you through the rest."
-          : "This vehicle is not on Autochek yet. Leave your name and number and Sabicars will list it and send you the link."}
+          : "This car is not on Autochek yet, so there is nothing to apply on today. Leave your name and number: Sabicars lists it, then sends you the application link on WhatsApp."}
       </p>
       {state?.error && <p className="text-sm text-danger">{state.error}</p>}
       <label className="grid gap-1.5">

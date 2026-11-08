@@ -44,21 +44,36 @@ export async function GET() {
 
   // A post about a car outlives the car: once it is taken down, its page answers 404, and a feed
   // item must never lead a visitor there. The link stays only while the car still has a page.
-  const carSlugs = rows.map((r) => r.link?.match(/^\/vehicles\/([a-z0-9-]+)$/)?.[1]).filter((s): s is string => Boolean(s));
-  const withPage = new Set(
+  const slugOf = (link: string | null) => link?.match(/^\/vehicles\/([a-z0-9-]+)$/)?.[1];
+  const carSlugs = rows.map((r) => slugOf(r.link)).filter((s): s is string => Boolean(s));
+  const carBySlug = new Map(
     carSlugs.length
-      ? (await db.select({ slug: vehicles.slug }).from(vehicles).where(and(inArray(vehicles.slug, carSlugs), inArray(vehicles.status, [...HAS_PAGE])))).map((v) => v.slug)
+      ? (
+          await db
+            .select({ slug: vehicles.slug, year: vehicles.year, make: vehicles.make, model: vehicles.model })
+            .from(vehicles)
+            .where(and(inArray(vehicles.slug, carSlugs), inArray(vehicles.status, [...HAS_PAGE])))
+        ).map((v) => [v.slug, v] as const)
       : [],
   );
   const stillThere = (link: string | null) => {
     if (!link?.startsWith("/")) return null;
-    const slug = link.match(/^\/vehicles\/([a-z0-9-]+)$/)?.[1];
-    return slug && !withPage.has(slug) ? null : link;
+    const slug = slugOf(link);
+    return slug && !carBySlug.has(slug) ? null : link;
+  };
+  // The headline and the car it opens come from the same record. Old posts were typed by hand, and one
+  // announced a "C300s" that opened a GLC 300 (audit, 8 November 2026): when a post's headline does not
+  // name the car at its link, the car's own name is the headline.
+  const headline = (title: string, link: string | null) => {
+    const car = carBySlug.get(slugOf(link) ?? "");
+    if (!car || title.toLowerCase().includes(car.model.toLowerCase())) return title;
+    const name = `${car.year} ${car.make} ${car.model}`;
+    return /arriv/i.test(title) ? `New arrival: ${name}` : name;
   };
 
   const items = rows.map((r) => ({
     id: r.id,
-    title: r.title,
+    title: headline(r.title, r.link),
     message: summary(r.message),
     kind: r.kind,
     // Only this site's own pages, and only pages that still answer.

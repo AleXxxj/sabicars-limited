@@ -128,10 +128,19 @@ export function EngagementPrompt() {
       return null;
     };
 
+    // Never over a task in hand: a field being typed in, an open dialog, a form on its way, or a receipt a
+    // buyer is reading (audit, 8 November 2026: the newsletter card sat over a listing and a thank-you).
+    // The timer simply keeps waiting; the ask comes once the page is quiet again.
+    const busy = () => {
+      const active = document.activeElement;
+      if (active && /^(INPUT|TEXTAREA|SELECT)$/.test(active.tagName)) return true;
+      return document.querySelector('dialog[open], [aria-modal="true"], [data-receipt], form[aria-busy="true"]') !== null;
+    };
+
     const timer = window.setInterval(() => {
       const started = Number(store.get("sabicars:session-start", true)) || Date.now();
       const views = Number(store.get("sabicars:views", true)) || 1;
-      if (Date.now() - started < ENGAGED_AFTER_MS || (views < 2 && deepest < 0.4)) return;
+      if (Date.now() - started < ENGAGED_AFTER_MS || (views < 2 && deepest < 0.4) || busy()) return;
       window.clearInterval(timer);
       const next = choose();
       if (next) {

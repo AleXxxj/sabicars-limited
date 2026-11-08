@@ -125,7 +125,7 @@ export function PriceSplit({ vehicles }: { vehicles: FinderVehicle[] }) {
             {naira && terms.eligible ? formatNaira(financedMinor) : "—"}
           </dd>
         </div>
-        {naira > 0 && terms.eligible && <RepaymentEstimate balanceMinor={financedMinor} size="hero" />}
+        {naira > 0 && terms.eligible && <RepaymentEstimate balanceMinor={financedMinor} depositMinor={depositMinor} size="hero" />}
         <p className="text-sm leading-relaxed text-text-secondary">
           Autochek&rsquo;s lender checks your details and sets your rate and how many months you repay. You take the car once the loan is
           approved and your deposit is paid.

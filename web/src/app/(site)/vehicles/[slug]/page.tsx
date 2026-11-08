@@ -319,7 +319,7 @@ export default async function VehiclePage({ params }: Props) {
                   </summary>
                   {balanceMinor !== null && (
                     <div className="mt-3">
-                      <RepaymentEstimate balanceMinor={balanceMinor} />
+                      <RepaymentEstimate balanceMinor={balanceMinor} depositMinor={depositMinor} />
                     </div>
                   )}
                   <p className="mt-4 text-xs text-text-muted">

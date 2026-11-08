@@ -1,18 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { DEFAULT_ESTIMATE_MONTHS, ESTIMATE_MONTHS, ESTIMATE_NOTE, monthlyAtCeilingMinor, type EstimateMonths } from "@/lib/drive-plan";
+import { DEFAULT_ESTIMATE_MONTHS, ESTIMATE_MONTHS, ESTIMATE_NOTE, MONTHLY_INCLUDES, monthlyAtCeilingMinor, type EstimateMonths } from "@/lib/drive-plan";
 import { formatNaira } from "@/lib/money";
 
 /**
  * The estimated monthly repayment on a financed balance, at the term the
- * buyer picks. Every figure is an estimate at Autochek's published ceiling
- * and says so beneath itself: the lender's offer is the only quote.
+ * buyer picks, with what that adds up to: the loan repaid in full, and — when
+ * the deposit is known — the whole outlay, deposit and loan together. A buyer
+ * comparing two cars should not have to multiply (audit, 8 November 2026).
+ * Every figure is an estimate at Autochek's published ceiling and says so
+ * beneath itself: the lender's offer is the only quote.
  */
-export function RepaymentEstimate({ balanceMinor, size = "card" }: { balanceMinor: number; size?: "card" | "hero" }) {
+export function RepaymentEstimate({ balanceMinor, depositMinor = null, size = "card" }: { balanceMinor: number; depositMinor?: number | null; size?: "card" | "hero" }) {
   const [months, setMonths] = useState<EstimateMonths>(DEFAULT_ESTIMATE_MONTHS);
   const monthly = monthlyAtCeilingMinor(balanceMinor, months);
   if (monthly === null) return null;
+  const repaid = monthly * months;
+  const outlay = depositMinor ? depositMinor + repaid : null;
 
   return (
     <div>
@@ -21,6 +26,19 @@ export function RepaymentEstimate({ balanceMinor, size = "card" }: { balanceMino
         {formatNaira(monthly)}{" "}
         <span className={`font-sans font-normal text-text-muted ${size === "hero" ? "text-sm" : "text-xs"}`}>a month for {months} months</span>
       </p>
+      <dl aria-live="polite" className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+        <div>
+          <dt className="text-text-muted">Loan repaid over {months} months</dt>
+          <dd className="figures mt-0.5 font-semibold text-text-primary">{formatNaira(repaid)}</dd>
+        </div>
+        {outlay !== null && (
+          <div>
+            <dt className="text-text-muted">All in, with your deposit</dt>
+            <dd className="figures mt-0.5 font-semibold text-text-primary">{formatNaira(outlay)}</dd>
+          </div>
+        )}
+      </dl>
+      <p className="mt-1.5 text-xs text-text-muted">The loan alone: {MONTHLY_INCLUDES} are not in these figures.</p>
       <div role="radiogroup" aria-label="Repayment term" className="mt-3 flex flex-wrap gap-2">
         {ESTIMATE_MONTHS.map((m) => (
           <button
