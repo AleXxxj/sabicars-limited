@@ -141,6 +141,9 @@ Data is encrypted in transit (HTTPS). Users can ask for their data to be deleted
 - Package name `com.sabicars.app`. It can never change once published.
 - The app opens `sabicars.com`, not the vercel address, so it is published after switch day.
 - Runs on Android 7.0 (2016) or newer; Google's own browser-helper library needs at least that.
+- The opening: Android shows a still icon until the site paints, so the site plays a 1.6 s opening of
+  its own when launched as an app (`web/src/lib/app-intro.ts`, `web/src/styles/intro.css`). Preview it
+  on any browser with `https://sabicars.vercel.app/?intro=1`.
 - Portrait and landscape both allowed, so photo galleries can turn.
 - Notifications allowed in the shell, for web push later.
 - No iPhone version for now: Apple charges US$99 a year and tends to reject plain website wrappers.

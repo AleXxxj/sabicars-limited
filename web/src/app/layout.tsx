@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
+import { APP_INTRO_SCRIPT } from "@/lib/app-intro";
+import { MARK_SVG, WORDMARK_SVG } from "@/lib/brand-marks";
 import { archivo } from "@/lib/fonts";
 import { PARTNER_FLAG_SCRIPT } from "@/lib/partner-flag";
 import { site, siteUrl } from "@/lib/site";
@@ -47,6 +49,17 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <Script id="partner-flag" strategy="beforeInteractive">
           {PARTNER_FLAG_SCRIPT}
         </Script>
+        <Script id="app-intro" strategy="beforeInteractive">
+          {APP_INTRO_SCRIPT}
+        </Script>
+        {/* The app opening (lib/app-intro.ts): display none unless <html data-intro>, which the script above sets
+            before the first paint when the site was opened from the Play Store shell or an installed PWA. */}
+        <div id="app-intro" aria-hidden="true">
+          <div className="intro-glow" />
+          <div className="intro-mark" dangerouslySetInnerHTML={{ __html: MARK_SVG }} />
+          <div className="intro-word" dangerouslySetInnerHTML={{ __html: WORDMARK_SVG }} />
+          <div className="intro-line" />
+        </div>
         {children}
       </body>
     </html>
