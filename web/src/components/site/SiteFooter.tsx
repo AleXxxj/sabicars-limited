@@ -65,7 +65,7 @@ export async function SiteFooter() {
             {/* eslint-disable-next-line @next/next/no-img-element -- a vector seal, cached across pages */}
             <img src="/brand/seal.svg" alt="" width={72} height={72} className="size-18 shrink-0" />
             <span className="figures leading-relaxed">
-              {site.legalName}
+              Run by {site.legalName}
               <br />
               CAC RC {site.rcNumber} — verify it ↗
             </span>
