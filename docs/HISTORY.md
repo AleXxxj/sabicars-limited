@@ -60,7 +60,7 @@ Days before 8 November 2026 were reconstructed on 8 November from the saved Clau
 - Permission to fix the old site's Instagram link on `main` (four pages still point at @sabicarsltd).
 - Supabase Pro / Resend Pro / Drive Plan wording approval: unconfirmed, so unticked in the guide.
 - Replace the Toyota advert with Sabicars' own footage.
-- Play Store: the owner opens the organisation developer account (D-U-N-S first), copies the Play app-signing fingerprint so it can be added to `assetlinks.json`, and tries the test APK on an Android phone; the keystore password file is moved to a password manager.
+- Play Store: Alex installed the test APK on an Android phone the same evening; it opened full screen with no browser bar, so the vouching file and the signing key are proven. Still open: ICS is not registered, so the Play account will be personal in Alex's name (developer name "Inova Creative Studio"), with the 14-day, 12-tester closed test (Inova trainees) and a later transfer to an ICS organisation account; copy the Play app-signing fingerprint into `assetlinks.json`; move the keystore password file to a password manager.
 
 ## 2026-11-07 (Saturday)
 **Instructions from Alex:**
