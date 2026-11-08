@@ -107,15 +107,22 @@ export function HeroShowcase({
     setVideoDone(true);
   }, []);
 
-  // YouTube reports the end of a video only to a page that asks: once the
-  // player is listening, it posts its state, and 0 means ended.
+  // YouTube reports its state only to a page that asks: once the player is
+  // listening, it posts playerState, where 1 is playing and 0 is ended. The
+  // video layer appears only on 1 — a player that is still buffering, or
+  // blocked, would otherwise cover the photographs with a black box (seen
+  // live on 8 November 2026 on a slow connection).
   useEffect(() => {
     if (!playVideo) return;
     const onMessage = (e: MessageEvent) => {
       if (typeof e.data !== "string" || !/youtube(-nocookie)?\.com$/.test(new URL(e.origin).hostname)) return;
       try {
         const data = JSON.parse(e.data) as { event?: string; info?: { playerState?: number } };
-        if (data.event === "infoDelivery" && data.info?.playerState === 0) finish();
+        if (data.event !== "infoDelivery" || data.info?.playerState === undefined) return;
+        const state = data.info.playerState;
+        if (state === 0) finish();
+        // 1 = playing; 3 = buffering (common on a slow line), -1/5 = not started, 2 = paused: the photos show meanwhile.
+        else setVideoOn(state === 1);
       } catch {
         /* not the player's message */
       }
@@ -165,10 +172,7 @@ export function HeroShowcase({
               title="Sabicars showcase video"
               src={`https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&mute=1&controls=0&playsinline=1&modestbranding=1&rel=0&enablejsapi=1`}
               allow="autoplay; encrypted-media"
-              onLoad={() => {
-                frame.current?.contentWindow?.postMessage(JSON.stringify({ event: "listening", id: 1, channel: "widget" }), "*");
-                setTimeout(() => setVideoOn(true), 1500);
-              }}
+              onLoad={() => frame.current?.contentWindow?.postMessage(JSON.stringify({ event: "listening", id: 1, channel: "widget" }), "*")}
               className="pointer-events-none absolute left-1/2 top-1/2 h-[max(100cqh,56.25cqw)] w-[max(100cqw,177.78cqh)] -translate-x-1/2 -translate-y-1/2 border-0"
             />
           ) : (
