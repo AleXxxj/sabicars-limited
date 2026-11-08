@@ -40,9 +40,11 @@ function videoAllowed(): boolean {
  * after the first are only fetched once they are about to be shown. Automatic
  * movement can be paused (WCAG 2.2.2) and stops when the tab is hidden.
  *
- * When staff set a hero video, it plays over the slideshow once it is actually
- * running — never a black box — and not at all on slow or data-saver
- * connections, where the slideshow stays.
+ * When staff set a hero video (Admin → Audience), it plays over the slideshow
+ * once it is actually running — never a black box — and not at all on slow or
+ * data-saver connections, where the slideshow stays. It plays once, muted,
+ * and then the slideshow comes back, as the old site did (the owner,
+ * 8 November 2026).
  */
 export function HeroShowcase({
   slides,
@@ -63,6 +65,7 @@ export function HeroShowcase({
   const [paused, setPaused] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [videoOn, setVideoOn] = useState(false);
+  const [videoDone, setVideoDone] = useState(false);
   const [muted, setMuted] = useState(true);
   const frame = useRef<HTMLIFrameElement>(null);
   const video = useRef<HTMLVideoElement>(null);
@@ -96,7 +99,30 @@ export function HeroShowcase({
   // The connection is only knowable in the browser: the server renders
   // without video, and the browser switches it on after hydrating if allowed.
   const connectionOk = useSyncExternalStore(noSubscription, videoAllowed, () => false);
-  const playVideo = Boolean(videoUrl) && connectionOk;
+  const playVideo = Boolean(videoUrl) && connectionOk && !videoDone;
+
+  /** The video has played through: it leaves, and the slideshow carries on from where it was. */
+  const finish = useCallback(() => {
+    setVideoOn(false);
+    setVideoDone(true);
+  }, []);
+
+  // YouTube reports the end of a video only to a page that asks: once the
+  // player is listening, it posts its state, and 0 means ended.
+  useEffect(() => {
+    if (!playVideo) return;
+    const onMessage = (e: MessageEvent) => {
+      if (typeof e.data !== "string" || !/youtube(-nocookie)?\.com$/.test(new URL(e.origin).hostname)) return;
+      try {
+        const data = JSON.parse(e.data) as { event?: string; info?: { playerState?: number } };
+        if (data.event === "infoDelivery" && data.info?.playerState === 0) finish();
+      } catch {
+        /* not the player's message */
+      }
+    };
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, [playVideo, finish]);
 
   function toggleSound() {
     const next = !muted;
@@ -137,13 +163,16 @@ export function HeroShowcase({
             <iframe
               ref={frame}
               title="Sabicars showcase video"
-              src={`https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&mute=1&loop=1&playlist=${ytId}&controls=0&playsinline=1&modestbranding=1&rel=0&enablejsapi=1`}
+              src={`https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&mute=1&controls=0&playsinline=1&modestbranding=1&rel=0&enablejsapi=1`}
               allow="autoplay; encrypted-media"
-              onLoad={() => setTimeout(() => setVideoOn(true), 1500)}
+              onLoad={() => {
+                frame.current?.contentWindow?.postMessage(JSON.stringify({ event: "listening", id: 1, channel: "widget" }), "*");
+                setTimeout(() => setVideoOn(true), 1500);
+              }}
               className="pointer-events-none absolute left-1/2 top-1/2 h-[max(100cqh,56.25cqw)] w-[max(100cqw,177.78cqh)] -translate-x-1/2 -translate-y-1/2 border-0"
             />
           ) : (
-            <video ref={video} src={videoUrl} autoPlay muted loop playsInline onPlaying={() => setVideoOn(true)} className="h-full w-full object-cover" />
+            <video ref={video} src={videoUrl} autoPlay muted playsInline onPlaying={() => setVideoOn(true)} onEnded={finish} onError={finish} className="h-full w-full object-cover" />
           )}
         </div>
       )}

@@ -521,12 +521,15 @@ export async function vehicleForDrivePlan(id: string): Promise<{ id: string; dea
   return v ? { id: v.id, dealerId: v.dealerId, slug: v.slug, title: vehicleTitle(v), autochekUrl: v.autochekUrl } : null;
 }
 
+/** The settings row that holds the homepage hero video link (set from Admin → Audience). */
+export const HERO_VIDEO_KEY = "hero_video_url";
+
 /** The homepage hero video, when staff have set one (YouTube link or direct video file). */
 export async function heroVideoUrl(): Promise<string | null> {
   const [row] = await db
     .select({ value: settings.value })
     .from(settings)
-    .where(and(eq(settings.dealerId, await sabicarsId()), eq(settings.key, "hero_video_url")))
+    .where(and(eq(settings.dealerId, await sabicarsId()), eq(settings.key, HERO_VIDEO_KEY)))
     .limit(1);
   return typeof row?.value === "string" && row.value.trim() ? row.value.trim() : null;
 }

@@ -13,6 +13,7 @@ import { shareImageUrl } from "@/lib/media";
 import { createBroadcast, deliver } from "@/lib/newsletter";
 import { postNotification } from "@/lib/notifications";
 import { TODAY_VIDEO_KEY } from "@/lib/repositories/today";
+import { HERO_VIDEO_KEY } from "@/lib/repositories/vehicles";
 
 export interface AnnounceResult {
   ok: boolean;
@@ -126,4 +127,46 @@ export async function setTodayVideo(_prev: AnnounceResult | null, formData: Form
   revalidatePath("/");
   revalidatePath("/admin/audience");
   return { ok: true, outcome: `On the homepage now as today's video (${source.kind === "file" ? "video file" : source.kind}).` };
+}
+
+const heroVideoSchema = z.object({
+  url: z.string().trim().max(500, "That link is too long"),
+  clear: z.preprocess((v) => v === "on" || v === "1", z.boolean()),
+});
+
+/**
+ * The homepage hero video: plays once over the photo slideshow, muted, then
+ * the slideshow comes back (components/home/HeroShowcase). Only a YouTube
+ * link or a direct video file can play inside the hero, so other links are
+ * refused here rather than failing silently on the homepage. The owner asked
+ * for this box on 8 November 2026: the old admin had one, and the link had
+ * only ever come across from there.
+ */
+export async function setHeroVideo(_prev: AnnounceResult | null, formData: FormData): Promise<AnnounceResult> {
+  const me = await requireStaff();
+  if (me.role === "sales") return { ok: false, error: "Only a manager can set the homepage video." };
+  const parsed = heroVideoSchema.safeParse(Object.fromEntries(formData.entries()));
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Check the form." };
+  const v = parsed.data;
+
+  if (v.clear || !v.url) {
+    await db.delete(settings).where(and(eq(settings.dealerId, me.dealerId), eq(settings.key, HERO_VIDEO_KEY)));
+    await audit(me, "setting", HERO_VIDEO_KEY, "delete");
+    revalidatePath("/");
+    revalidatePath("/admin/audience");
+    return { ok: true, outcome: "Taken off. The homepage shows the photo slideshow only." };
+  }
+
+  const source = videoSource(v.url);
+  if (!source || (source.kind !== "youtube" && source.kind !== "file")) {
+    return { ok: false, error: "The hero can play a YouTube link or a direct video file (.mp4, or a Cloudinary video link). TikTok, Facebook and Instagram links cannot play there." };
+  }
+  await db
+    .insert(settings)
+    .values({ dealerId: me.dealerId, key: HERO_VIDEO_KEY, value: v.url })
+    .onConflictDoUpdate({ target: [settings.dealerId, settings.key], set: { value: v.url, updatedAt: new Date() } });
+  await audit(me, "setting", HERO_VIDEO_KEY, "update", { url: v.url });
+  revalidatePath("/");
+  revalidatePath("/admin/audience");
+  return { ok: true, outcome: `On the homepage now (${source.kind === "file" ? "video file" : "YouTube"}). It plays once, muted, then the slideshow returns.` };
 }

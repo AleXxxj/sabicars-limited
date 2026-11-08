@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { AnnouncementForm } from "@/components/admin/AnnouncementForm";
+import { HeroVideoForm } from "@/components/admin/HeroVideoForm";
 import { TodayVideoForm } from "@/components/admin/TodayVideoForm";
 import { todayVideo } from "@/lib/repositories/today";
+import { heroVideoUrl } from "@/lib/repositories/vehicles";
 import { requireStaff } from "@/lib/auth";
 import { emailConfigured } from "@/lib/email";
 import { oneSignalConfigured } from "@/lib/notifications";
@@ -45,13 +47,14 @@ const KIND: Record<string, string> = {
  */
 export default async function AudienceAdmin() {
   const me = await requireStaff();
-  const [summary, posts, sends, subs, cars, video] = await Promise.all([
+  const [summary, posts, sends, subs, cars, video, heroVideo] = await Promise.all([
     audienceSummary(me.dealerId),
     recentNotifications(me.dealerId),
     recentSends(me.dealerId),
     recentSubscribers(me.dealerId),
     announceableVehicles(me.dealerId),
     todayVideo(),
+    heroVideoUrl(),
   ]);
   const pushReady = oneSignalConfigured();
   const emailReady = emailConfigured();
@@ -86,6 +89,20 @@ export default async function AudienceAdmin() {
 
       <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
         <div className="grid content-start gap-10">
+          <section aria-label="Homepage hero video" className="border border-border-subtle bg-surface-1 p-5 md:p-6">
+            <p className="text-sm font-semibold text-text-primary">Homepage hero video</p>
+            <p className="mt-1 text-xs text-text-muted">
+              Plays once over the big photos at the top of the homepage, muted, then the photos come back. A YouTube link or a video file. Visitors on slow or data-saver connections never download it; they see the photos.
+            </p>
+            <div className="mt-5">
+              {me.role === "sales" ? (
+                <p className="text-sm text-text-muted">A manager sets the hero video.</p>
+              ) : (
+                <HeroVideoForm current={heroVideo} />
+              )}
+            </div>
+          </section>
+
           <section aria-label="Today's video" className="border border-border-subtle bg-surface-1 p-5 md:p-6">
             <p className="text-sm font-semibold text-text-primary">Today&rsquo;s video from the park</p>
             <p className="mt-1 text-xs text-text-muted">
