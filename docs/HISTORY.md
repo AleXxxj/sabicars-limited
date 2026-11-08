@@ -53,7 +53,7 @@ Days before 8 November 2026 were reconstructed on 8 November from the saved Clau
 - Go-live guide: 20 of 30 tasks ticked with evidence; Vercel, UptimeRobot and photo-switch steps rewritten.
 - Project record: this journal, PROJECT-BOOK.md, iCloud backup of transcripts, Stop hook reminder.
 - Android app for Google Play (e8e4400): Bubblewrap project in `android/`, signed `app-release-bundle.aab` (1.1 MB) ready to upload and a sideload test APK for `sabicars.vercel.app`; the site now serves `/.well-known/assetlinks.json`; five phone screenshots and the feature graphic in `android/store/`; `docs/PLAY-STORE.md` with the owner's Play Console steps, listing text and data-safety answers. Java 17, the Android SDK and Bubblewrap were installed on the Mac without Homebrew (none present; `/usr/local` not writable).
-- The app opening (4d852ba): mark, wordmark and line sequence when launched as an app; `?intro=1` previews it.
+- The app opening (4d852ba): mark, wordmark and line sequence when launched as an app; `?intro=1` previews it. Alex confirmed it on the phone the same evening ("the app opening works now on the phone"). Next, in order: Alex opens the personal Play account (developer name Inova Creative Studio), creates the app and sends the App signing SHA-256; closed test with 12 Inova testers for 14 days; production after switch day.
 
 **Outage:** 10:45–10:52 Lagos, every database query failed: Supabase's connection pooler (London) refused connections after restarting at 10:42; the database itself never restarted. Not caused by the day's deploys. UptimeRobot, cron-job.org and System status all alerted; nothing was lost. Both errors resolved in the admin.
 
