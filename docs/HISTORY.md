@@ -4,6 +4,25 @@ One section per working day, newest first. Each records what Alex John asked for
 
 Days before 8 November 2026 were reconstructed on 8 November from the saved Claude Code transcripts and the commit history; from 8 November on, the day's entry is written at the end of the day (a Claude Code hook refuses to end a day with commits until it is).
 
+## 2026-11-09 (Monday)
+**Instructions from Alex (just after midnight, Lagos time):**
+- "Yes to both": correct the two What's new posts on the live database, and delete the audit's three QA enquiries. Then wider: "delete all enquiries and forms, they are all test."
+
+**Decisions and why:**
+- The deletion was pinned to the eight enquiries counted on the 8th, by id, not "everything not imported": the site is live, so a real enquiry arriving in between would have been swept up by the wider statement. Before any of it ran, a 17-agent adversarial review of the plan against the code (verdict: go, with conditions) found exactly that, plus the missing backup and the missing audit trail, and confirmed nothing else points at the rows (no reservation, commission, request, watch or queued email). So: the eight rows and their 15 activity rows were saved first to the iCloud project record (`backups/2026-11-09 deleted test enquiries.json`, restorable with the backup script's own statement), one `audit_log` row per lead was written in the app's own shape (actor the owner account, reason recorded), and the transaction checked every count before committing. A dry run came first.
+- The five enquiries imported from the old site were left in place. Deleting them here is futile (the switch-day import re-creates them from the old database), three are Alex's own tests, one is spam, and one from 29 September (a finance check) may be a real customer who was never answered. If they are to go, they go in the old admin.
+- The one Ask Sabicars chat that had produced a test enquiry was kept; only its link to the enquiry is now empty. Chats are not forms, so deleting the 25 test chats needs Alex's separate word.
+
+**Built and shipped (data only, no code):**
+- Live What's new rows corrected: the GLE 350 post's text no longer says GLE 250; the "C300s" post is titled "New arrival Mercedes-Benz GLC 300". Both checked on the live feed afterwards.
+- Live inbox: 8 test enquiries deleted (3 "QA TEST" from the audit, 5 from Alex and the trainees), 15 activity rows with them, 8 audit rows added, 0 emails cancelled (none were queued). 5 imported old-site contacts remain; nothing else changed.
+- The 8 November fixes checked on the live site (e04f9ca deployed): the filter boxes reset after "Clear all filters"; the contact form asks for an email the moment "Email" is chosen; both What's new posts read correctly in the feed.
+
+**Open questions at the end of the day:**
+- The five imported old-site enquiries: delete in the old admin, or keep (the 29 September one may be real).
+- The 25 test chats in Ask Sabicars: delete too, or keep.
+- Carried from the 8th: the ₦36m 4Runner duplicate in the old admin; the Instagram link on `main`; Supabase Pro / Resend Pro / Drive Plan wording; own hero footage; the Play account (payment paused until the card is topped up), then the app-signing fingerprint, the closed test and the keystore password into a password manager.
+
 ## 2026-11-08 (Sunday)
 **Instructions from Alex:**
 - Staff use only the old admin; nobody else has access to the new one yet.
