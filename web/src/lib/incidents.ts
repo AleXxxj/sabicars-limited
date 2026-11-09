@@ -1,6 +1,6 @@
 import "server-only";
 import { createHash } from "node:crypto";
-import { and, count, desc, eq, isNull, lt, or, sql } from "drizzle-orm";
+import { and, count, desc, eq, isNull, like, lt, or, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { incidents, type Incident } from "@/db/schema";
 import { alertManagers } from "@/lib/alerts";
@@ -130,6 +130,22 @@ export async function recentlyResolved(limit = 10): Promise<Incident[]> {
 export async function openIncidentCount(): Promise<number> {
   const [r] = await db.select({ n: count() }).from(incidents).where(isNull(incidents.resolvedAt));
   return r?.n ?? 0;
+}
+
+/**
+ * A deploy check that passes takes down the failures it reported before: every
+ * open "check" incident whose message begins "Deploy" (a failed deploy or a
+ * failed walkthrough, both posted by .github/workflows/smoke.yml) is resolved
+ * with nobody's name on it, and the status page says so. A failure after that
+ * is a new row, so nothing is hidden.
+ */
+export async function resolveDeployChecks(): Promise<number> {
+  const rows = await db
+    .update(incidents)
+    .set({ resolvedAt: new Date(), resolvedBy: null })
+    .where(and(eq(incidents.kind, "check"), isNull(incidents.resolvedAt), like(incidents.message, "Deploy %")))
+    .returning({ id: incidents.id });
+  return rows.length;
 }
 
 /** Marks an incident dealt with. If it happens again it reopens on the same row. */

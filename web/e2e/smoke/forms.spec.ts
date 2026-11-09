@@ -61,11 +61,13 @@ test.describe("Forms, without writing", () => {
     assertNoFaults(faults);
   });
 
-  test("Log in is in the header, and the log-in page answers a bot like a wrong PIN, looking nothing up", async ({ page }) => {
+  test("Partner log in is in the header, and the log-in page answers a bot like a wrong PIN, looking nothing up", async ({ page }) => {
     const faults = watchForFaults(page);
     await page.goto("/");
     const header = page.getByRole("banner");
-    await expect(header.getByRole("link", { name: "Log in", exact: true }), "the header has no Log in").toHaveAttribute("href", "/partner");
+    // Its accessible name is "Partner log in" on every screen (aria-label, after the 8 November audit's D04); phones show
+    // the shorter "Log in" and wide screens the full words, so the lookup is by name, not by what is printed.
+    await expect(header.getByRole("link", { name: "Partner log in", exact: true }), "the header has no Partner log in").toHaveAttribute("href", "/partner");
     await expect(header.locator('a[href^="tel:"]'), "the header still carries a call button").toHaveCount(0);
 
     await page.goto("/partner");
@@ -92,12 +94,12 @@ test.describe("Forms, without writing", () => {
     const account = header.getByRole("link", { name: "Account", exact: true });
     await expect(account, "a logged-in phone does not show Account").toBeVisible();
     await expect(account, "Account does not lead to the partner page").toHaveAttribute("href", "/partner");
-    await expect(header.getByRole("link", { name: "Log in", exact: true }), "a logged-in phone still shows Log in").toHaveCount(0);
+    await expect(header.getByRole("link", { name: "Partner log in", exact: true }), "a logged-in phone still shows Partner log in").toHaveCount(0);
 
-    // The server finds no session: the log-in shows, and the stale mark goes, so the header says Log in again.
+    // The server finds no session: the log-in shows, and the stale mark goes, so the header offers the partner log-in again.
     await page.goto("/partner");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Log in to your partner page.");
-    await expect(header.getByRole("link", { name: "Log in", exact: true }), "a stale mark kept Account in the header").toBeVisible();
+    await expect(header.getByRole("link", { name: "Partner log in", exact: true }), "a stale mark kept Account in the header").toBeVisible();
     assertNoFaults(faults);
   });
 

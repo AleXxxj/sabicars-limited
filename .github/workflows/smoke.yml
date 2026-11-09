@@ -139,6 +139,25 @@ jobs:
         env:
           SMOKE_BASE_URL: ${{ env.BASE_URL }}
 
+      - name: Tell the site the check passed
+        # Takes down the "Deploy check failed" / "Deploy failed" errors earlier runs put on /admin/status#errors,
+        # so a fixed deploy clears its own red badge; the status page shows them as resolved by a later passing
+        # check. Nothing is recorded, and the managers are not told, when a run simply passes.
+        if: success()
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "CRON_SECRET is not set in this repository's secrets; earlier failures on /admin/status stay until resolved by hand."
+            exit 0
+          fi
+          payload=$(jq -n --arg title "Deploy check passed" --arg body "The walkthrough of ${DEPLOY_SHA:0:7} passed. See the run: $RUN_URL" '{status: "passed", title: $title, body: $body}')
+          curl -sS --fail-with-body --max-time 30 -X POST "$BASE_URL/api/ops/alert" \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            -H "Content-Type: application/json" \
+            --data "$payload" \
+            || echo "::warning::The site did not take the all-clear; any earlier 'Deploy check failed' stays on /admin/status until resolved by hand."
+
       - name: Tell the site the check failed
         if: failure()
         env:

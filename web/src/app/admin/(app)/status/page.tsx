@@ -148,7 +148,8 @@ export default async function StatusPage() {
                     )}
                   </p>
                   <p className="figures mt-0.5">
-                    {kindLabel(i.kind)} · {times(i.count)} · resolved{i.resolvedBy && resolvers.get(i.resolvedBy) ? ` by ${resolvers.get(i.resolvedBy)}` : ""}
+                    {kindLabel(i.kind)} · {times(i.count)} · resolved
+                    {i.resolvedBy && resolvers.get(i.resolvedBy) ? ` by ${resolvers.get(i.resolvedBy)}` : !i.resolvedBy && i.kind === "check" ? " by a later passing check" : ""}
                     {i.resolvedAt ? ` on ${atTime(i.resolvedAt)}` : ""}
                   </p>
                 </li>

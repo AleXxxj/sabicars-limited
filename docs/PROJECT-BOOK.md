@@ -212,6 +212,7 @@ Tests: `e2e/smoke/` (fifteen read-only walks, one per public area plus admin and
 3. GitHub Actions `e2e.yml` starts a throwaway Postgres, seeds it, runs the gates, proves backup and outbox, builds and starts the site, and drives the money paths.
 4. `smoke.yml` waits for Vercel's status to turn green, then for `/api/health` to report that exact commit, then walks the live site on desktop and phone as a buyer and as staff.
 5. If anything fails it posts to `/api/ops/alert`: managers are pushed and emailed and the failure appears under Errors on System status.
+6. When a later walkthrough passes it posts the all-clear to the same route, and the deploy failures it had reported are resolved by themselves, shown as "resolved by a later passing check". Other errors stay until a manager resolves them.
 
 **An outage**
 1. UptimeRobot calls `/api/health` every 5 minutes; it checks the database and answers 200 with the running commit, or not.

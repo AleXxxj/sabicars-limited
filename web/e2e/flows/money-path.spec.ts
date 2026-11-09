@@ -242,7 +242,7 @@ test.describe("Refer & Earn, from registration to payment", () => {
 
     await page.getByRole("button", { name: "Log out" }).click();
     await page.waitForURL((url) => url.pathname === "/");
-    await expect(page.getByRole("banner").getByRole("link", { name: "Log in", exact: true }), "the header still shows Account after log out").toBeVisible();
+    await expect(page.getByRole("banner").getByRole("link", { name: "Partner log in", exact: true }), "the header still shows Account after log out").toBeVisible();
     expect(await sessionsNow(), "log out did not end the session on the server").toBe(before);
     await page.goto("/partner");
     await expect(page.getByRole("heading", { level: 1 }), "the page still opened after log out").toHaveText("Log in to your partner page.");
