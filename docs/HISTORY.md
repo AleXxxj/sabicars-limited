@@ -4,6 +4,34 @@ One section per working day, newest first. Each records what Alex John asked for
 
 Days before 8 November 2026 were reconstructed on 8 November from the saved Claude Code transcripts and the commit history; from 8 November on, the day's entry is written at the end of the day (a Claude Code hook refuses to end a day with commits until it is).
 
+## 2026-11-10 (Tuesday)
+**Instructions from Alex:**
+- (Late on the 9th, after the brief) "Am I giving it my partner login number?" Answer: no; the forms use two other test numbers, and Alex types the partner number and PIN himself when ChatGPT hands the browser over. In the end his partner number went in as test number 1, a second phone as number 2, and the owner's email (already on the Friday list) as the test email.
+- Sent ChatGPT's second review: a 15-page PDF (`SabiCars_Second_Review_2026-11-09.pdf`, saved outside the repo) and the chat link.
+- "Continue from where you stopped", after the session ran out of usage halfway through the fixes.
+
+**Decisions and why:**
+- The second review, checked against the code and the live database: D01, D02, D03 and D08 fixed; D04 fixed on desktop (phone width still untested, the Cloud Browser shows desktop only); X01 confirmed in the code (the hero video frame is out of the tab order) though no video played; D05 only half testable, because no live car has an Autochek link yet (0 of 50), which staff add in the admin; D06 still failing beside the Buy in bulk, Drive Plan and price-alert receipts; D07 names right, but the GLC 300 post pointed at an unlisted car, so it opened nothing. New: N01, a request for a Hummer 2 listed Hummer 1s and a Hummer 3 as matches; N02, D06 on more receipts; N03, a bare "404" for a dead link.
+- Not defects: the second chat's "no real callback" was the assistant humouring a tester who announced a test (it is told to confirm a typed number and promise a call, and the enquiry was filed anyway); "already on the list" (the owner's address is subscribed, so no welcome email went out); the Call me back form asking only for a phone number (by design).
+- Referral attribution, which the review marked untested, is in fact proven by its own records: four of its enquiries were credited to Alex's partner account through the link cookie set during the 8 November test (it lasts 90 days), and the ones sent from the partner's own number were not credited, as designed.
+- The fixes, reviewed twice by independent readers before shipping (the first review caught a must-fix in the prompt card and a regression of my own in the matcher):
+  - The newsletter and review card never sits beside a task: a field in use, a dialog or the chat open, or any receipt (every receipt on the site is now marked). It asks only after a quiet minute, steps aside the moment a task starts, may come back once, and is gone for the visit after a second step-aside. The review sheet now belongs to the card, so writing in it never makes the card leave.
+  - The Sourcing Desk matcher was rewritten. Short numbers and single letters name the version and must stand alone; another version is shown under "Close to what you asked", never as a match, and the desk never announces it. Fixed on the way: the Hummer page's own "Toyota Hiace Hummer bus" request matched nothing (no car is named "bus"); a bare number like "350" matched every 350; "C 300" took a GLC 300; "ES 350" offered an Escalade; listings spelt "Humer"; amounts, engine sizes, seat counts and 4x4 now ignored; reserved cars no longer offered as in stock. 53 rule checks run in every build, and the database version picked the same cars as the rule in all 294 comparisons over the local stock.
+  - What's new: a post about a car that has gone now says "This one has gone" and opens that make's cars in stock.
+  - Dead links: an old car link says "This car is no longer listed" with "See cars for sale" and "Request a car"; any other wrong address keeps the header, footer and tab bar; a staff alert about a deleted enquiry lands on "Back to the inbox".
+
+**Ideas raised (not yet built):**
+- Let body words in a request ("SUV" from the budget quiz, "Truck" from the truck guide) match on the car's body type; today such requests match nothing.
+- "Close" across trims (a Highlander Limited for a Highlander XLE request) needs a list of model names first.
+
+**Built and shipped:**
+- Nothing pushed yet today. The fixes are built (full build gate passed) and in their final local test run and review; they are committed and pushed once both are green.
+
+**Open questions at the end of the day:**
+- Delete the second review's test records? Nine "QA TEST Buyer" enquiries with their activity, one car request, one price alert and two test chats. Dry run done, copy saved to the iCloud record. The test viewing holds Monday 16 November at 10:00, and the request and the alert would email the owner's address, so this should happen before the 16th.
+- The ChatGPT share link shows the two test phone numbers and the owner's email to anyone who has it.
+- Carried: the five imported old-site enquiries; the 25 test chats; the ₦36m 4Runner duplicate in the old admin; the Instagram link on `main`; Supabase Pro / Resend Pro; own hero footage; the Play account.
+
 ## 2026-11-09 (Monday)
 **Instructions from Alex (just after midnight, Lagos time):**
 - "Yes to both": correct the two What's new posts on the live database, and delete the audit's three QA enquiries. Then wider: "delete all enquiries and forms, they are all test."
