@@ -105,7 +105,10 @@ export async function registerPartner(_prev: PartnerFormResult | null, formData:
   const parsed = schema.safeParse(Object.fromEntries(formData.entries()));
   if (!parsed.success) {
     const fieldErrors = Object.fromEntries(Object.entries(z.flattenError(parsed.error).fieldErrors).map(([k, v]) => [k, (v as string[] | undefined)?.[0]]));
-    return { ok: false, fieldErrors, values };
+    // Every problem in one go, the PIN's too, rather than one round per mistake.
+    const raw = (k: string) => String(formData.get(k) ?? "");
+    const pinBad = pinErrors(raw("pin"), raw("pinAgain"), normalisePhone(raw("phone")));
+    return { ok: false, fieldErrors: { ...pinBad, ...fieldErrors }, values };
   }
   const v = parsed.data;
   const firstName = v.name.split(" ")[0];
@@ -113,7 +116,7 @@ export async function registerPartner(_prev: PartnerFormResult | null, formData:
   if (looksAutomated(v.website, v.renderedAt)) return { ok: true, name: firstName, code: "RECEIV", link: referralLink(siteUrl(), "RECEIV") };
 
   const phone = normalisePhone(v.phone);
-  if (!phone) return { ok: false, fieldErrors: { phone: PHONE_HELP }, values };
+  if (!phone) return { ok: false, fieldErrors: { phone: PHONE_HELP, ...pinErrors(v.pin, v.pinAgain, null) }, values };
   // Counted after the bot check, so a bot keeps its decoy and never uses up the allowance real people share.
   if (!(await withinLimit("partner"))) return { ok: false, error: RATE_LIMITED_MESSAGE, values };
 
@@ -185,8 +188,10 @@ export async function logInPartner(_prev: LogInResult | null, formData: FormData
   // A bot is told what a wrong guess is told, and nothing is looked up.
   if (looksAutomated(v.website, v.renderedAt)) return { error: WRONG, phone: v.phone };
   const phone = normalisePhone(v.phone);
-  if (!phone) return { fieldErrors: { phone: PHONE_HELP }, phone: v.phone };
-  if (!/^[0-9]{6}$/.test(v.pin)) return { fieldErrors: { pin: "Your PIN is 6 numbers." }, phone: v.phone };
+  // Both mistakes at once, in words on the page (audit, 9 November 2026: a wrong-format PIN got no clear message).
+  const pinBad = /^[0-9]{6}$/.test(v.pin) ? null : "Your PIN is 6 numbers.";
+  if (!phone) return { fieldErrors: { phone: PHONE_HELP, ...(pinBad ? { pin: pinBad } : {}) }, phone: v.phone };
+  if (pinBad) return { fieldErrors: { pin: pinBad }, phone: v.phone };
   if (!(await withinLimit("partnerlogin"))) return { error: RATE_LIMITED_MESSAGE, phone: v.phone };
 
   const [p] = await db

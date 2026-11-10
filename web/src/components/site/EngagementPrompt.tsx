@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { BellRing, Mail, Share, Smartphone, Star, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -21,7 +21,13 @@ const DAY = 86_400_000;
 const REST: Record<Kind, number> = { subscribe: 14 * DAY, alerts: 14 * DAY, install: 30 * DAY, review: 60 * DAY };
 /** Seconds on the site, and a second page or some reading, before anything is asked. */
 const ENGAGED_AFTER_MS = 25_000;
+/** How long the page must have been quiet (nothing typed, no task open) before anything is asked. */
+const TASK_HOLD_MS = 60_000;
 const QUIET_PATHS = ["/review/", "/unsubscribe/"];
+const PROMPTED_KEY = "sabicars:prompted";
+/** How many times this visit the card has stepped aside for a task. After the second, nothing more is asked this visit. */
+const ASIDES_KEY = "sabicars:prompt-asides";
+const MAX_ASIDES = 2;
 
 const store = {
   get(key: string, session = false): string | null {
@@ -36,7 +42,36 @@ const store = {
       (session ? sessionStorage : localStorage).setItem(key, value);
     } catch {}
   },
+  remove(key: string, session = false) {
+    try {
+      (session ? sessionStorage : localStorage).removeItem(key);
+    } catch {}
+  },
 };
+
+/**
+ * Whether the visitor has a task open right now, so no ask may sit beside it: a form field or form button
+ * has focus, a dialog or the Ask Sabicars chat is open, the inventory filters are updating the list, or a
+ * receipt is on the page. Anything inside the card itself does not count (audit, 8 and 9 November 2026: the
+ * newsletter card sat over a listing, a thank-you, and the fleet, Drive Plan and price-alert receipts).
+ */
+function taskOpen(card: Element | null): boolean {
+  const active = document.activeElement;
+  if (active && !card?.contains(active) && (/^(INPUT|TEXTAREA|SELECT)$/.test(active.tagName) || active.closest("form"))) return true;
+  for (const el of document.querySelectorAll('dialog[open], [aria-modal="true"], #ask-sabicars, [data-receipt], form[aria-busy="true"]')) {
+    if (!card?.contains(el)) return true;
+  }
+  return false;
+}
+
+/**
+ * Whether the page counts as busy: a task is open now, or one was open (or something was typed) within the
+ * last minute. Each check that finds a task open restarts the minute, so an ask only ever follows a quiet minute.
+ */
+function busyPage(card: Element | null, lastBusyAt: { current: number }): boolean {
+  if (taskOpen(card)) lastBusyAt.current = Date.now();
+  return Date.now() - lastBusyAt.current < TASK_HOLD_MS;
+}
 
 const resting = (kind: Kind) => {
   const at = Number(store.get(`sabicars:prompt:${kind}`));
@@ -63,12 +98,15 @@ const standalone = () =>
 const ios = () => /iPhone|iPad|iPod/.test(navigator.userAgent);
 
 /**
- * One ask per visit, and only once the visitor is clearly interested.
+ * One ask at a time, only once the visitor is clearly interested, and never
+ * beside a task in hand.
  *
  * The old site could stack four popups on one visit — newsletter, review,
  * push, install. Here there is at most one, in this order of value:
  * subscribe, phone alerts, add to home screen, and — for someone who keeps
  * coming back — a review. Each is skipped once done, and rests after "Not now".
+ * If the visitor starts a task while it shows, it steps aside, and may come
+ * back once after a quiet minute: at most twice a visit.
  */
 export function EngagementPrompt() {
   const pathname = usePathname();
@@ -76,6 +114,34 @@ export function EngagementPrompt() {
   const [installEvent, setInstallEvent] = useState<InstallEvent | null>(null);
   const [reviewOpen, setReviewOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+  const card = useRef<HTMLElement>(null);
+  /** When the page was last busy: something typed or chosen outside the card, or a task seen open. */
+  const lastBusyAt = useRef(0);
+
+  // Anything typed or chosen in a form on the page, other than in the card itself, makes the page busy.
+  useEffect(() => {
+    const onInput = (e: Event) => {
+      const target = e.target as Element | null;
+      if (target && !card.current?.contains(target)) lastBusyAt.current = Date.now();
+    };
+    document.addEventListener("input", onInput, true);
+    return () => document.removeEventListener("input", onInput, true);
+  }, []);
+
+  // Once shown, the card steps aside the moment a task begins (a field gets typed in, a dialog opens, a
+  // receipt appears). The first time, it may come back after a quiet minute; the second time, it is done
+  // for this visit. The review sheet belongs to the card, so writing in it never counts.
+  useEffect(() => {
+    if (!kind) return;
+    const watch = window.setInterval(() => {
+      if (reviewOpen || !busyPage(card.current, lastBusyAt)) return;
+      const asides = Number(store.get(ASIDES_KEY, true) ?? 0) + 1;
+      store.set(ASIDES_KEY, String(asides), true);
+      if (asides < MAX_ASIDES) store.remove(PROMPTED_KEY, true);
+      setKind(null);
+    }, 1000);
+    return () => window.clearInterval(watch);
+  }, [kind, reviewOpen]);
 
   // Count page views and visits for the session.
   useEffect(() => {
@@ -111,7 +177,7 @@ export function EngagementPrompt() {
   }, []);
 
   useEffect(() => {
-    if (kind || store.get("sabicars:prompted", true) || QUIET_PATHS.some((p) => pathname.startsWith(p))) return;
+    if (kind || store.get(PROMPTED_KEY, true) || QUIET_PATHS.some((p) => pathname.startsWith(p))) return;
     let deepest = 0;
     const onScroll = () => {
       const max = document.documentElement.scrollHeight - window.innerHeight;
@@ -128,23 +194,18 @@ export function EngagementPrompt() {
       return null;
     };
 
-    // Never over a task in hand: a field being typed in, an open dialog, a form on its way, or a receipt a
-    // buyer is reading (audit, 8 November 2026: the newsletter card sat over a listing and a thank-you).
-    // The timer simply keeps waiting; the ask comes once the page is quiet again.
-    const busy = () => {
-      const active = document.activeElement;
-      if (active && /^(INPUT|TEXTAREA|SELECT)$/.test(active.tagName)) return true;
-      return document.querySelector('dialog[open], [aria-modal="true"], [data-receipt], form[aria-busy="true"]') !== null;
-    };
-
+    // Never beside a task in hand (busyPage above): the timer simply keeps waiting, and the ask comes once
+    // the page has been quiet for a minute.
     const timer = window.setInterval(() => {
       const started = Number(store.get("sabicars:session-start", true)) || Date.now();
       const views = Number(store.get("sabicars:views", true)) || 1;
-      if (Date.now() - started < ENGAGED_AFTER_MS || (views < 2 && deepest < 0.4) || busy()) return;
+      // Checked first, every tick, so a task open during the first seconds still restarts the quiet minute.
+      const busy = busyPage(card.current, lastBusyAt);
+      if (busy || Date.now() - started < ENGAGED_AFTER_MS || (views < 2 && deepest < 0.4)) return;
       window.clearInterval(timer);
       const next = choose();
       if (next) {
-        store.set("sabicars:prompted", "1", true);
+        store.set(PROMPTED_KEY, "1", true);
         setKind(next);
       }
     }, 2000);
@@ -187,6 +248,7 @@ export function EngagementPrompt() {
   return (
     <>
       <aside
+        ref={card}
         data-prompt
         aria-label={title}
         className="surface-card fixed inset-x-3 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-40 !rounded-2xl p-5 sm:inset-x-auto sm:left-5 sm:w-[24rem] lg:left-auto lg:right-6 lg:bottom-24"
@@ -286,18 +348,28 @@ export function EngagementPrompt() {
             </div>
           )}
         </div>
-      </aside>
 
-      {kind === "review" && (
-        <Dialog open={reviewOpen} onClose={() => setReviewOpen(false)} title="Write a review">
-          <ReviewForm
-            onDone={() => {
+        {/* Inside the card, so writing in the sheet is the card's own business and never makes the card step aside.
+            The sheet opens as a modal in the top layer, so the card's fixed box does not frame it. */}
+        {kind === "review" && (
+          <Dialog
+            open={reviewOpen}
+            onClose={() => {
               setReviewOpen(false);
-              finish();
+              // Closed by the X, Escape or the backdrop after posting: the ask has been answered.
+              if (store.get(REVIEWED_KEY)) finish();
             }}
-          />
-        </Dialog>
-      )}
+            title="Write a review"
+          >
+            <ReviewForm
+              onDone={() => {
+                setReviewOpen(false);
+                finish();
+              }}
+            />
+          </Dialog>
+        )}
+      </aside>
     </>
   );
 }

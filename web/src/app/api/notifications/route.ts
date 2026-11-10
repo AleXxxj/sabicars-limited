@@ -3,7 +3,7 @@ import { db } from "@/db";
 import { notifications, vehicleMedia, vehicles } from "@/db/schema";
 import { sabicarsDealerId } from "@/lib/leads";
 import { shareImageUrl } from "@/lib/media";
-import { HAS_PAGE } from "@/lib/repositories/vehicles";
+import { HAS_PAGE, LISTED } from "@/lib/repositories/vehicles";
 
 /**
  * Old posts were written for Instagram — a shouted first line ("🔥 NEW
@@ -25,6 +25,7 @@ function summary(message: string): string {
  * without every page view reaching the database.
  */
 export async function GET() {
+  const dealerId = await sabicarsDealerId();
   const rows = await db
     .select({
       id: notifications.id,
@@ -38,34 +39,64 @@ export async function GET() {
     })
     .from(notifications)
     .leftJoin(vehicleMedia, and(eq(vehicleMedia.vehicleId, notifications.vehicleId), eq(vehicleMedia.position, 0)))
-    .where(eq(notifications.dealerId, await sabicarsDealerId()))
+    .where(eq(notifications.dealerId, dealerId))
     .orderBy(desc(notifications.createdAt))
     .limit(20);
 
-  // A post about a car outlives the car: once it is taken down, its page answers 404, and a feed
-  // item must never lead a visitor there. The link stays only while the car still has a page.
+  // A post about a car outlives the car. While the car still has a page, the post opens it. Once the car is
+  // no longer listed (its page answers 404), the post says so and opens that make's cars for sale, or, when
+  // none is left, the request form already filled in, so a buyer who liked it has somewhere to go (audits,
+  // 8 and 9 November 2026: a corrected GLC 300 post "still led nowhere"). "No longer listed", not "sold":
+  // a car is also hidden while the team checks it.
   const slugOf = (link: string | null) => link?.match(/^\/vehicles\/([a-z0-9-]+)$/)?.[1];
   const carSlugs = rows.map((r) => slugOf(r.link)).filter((s): s is string => Boolean(s));
   const carBySlug = new Map(
     carSlugs.length
       ? (
           await db
-            .select({ slug: vehicles.slug, year: vehicles.year, make: vehicles.make, model: vehicles.model })
+            .select({ slug: vehicles.slug, year: vehicles.year, make: vehicles.make, model: vehicles.model, status: vehicles.status })
             .from(vehicles)
-            .where(and(inArray(vehicles.slug, carSlugs), inArray(vehicles.status, [...HAS_PAGE])))
+            .where(and(eq(vehicles.dealerId, dealerId), inArray(vehicles.slug, carSlugs)))
         ).map((v) => [v.slug, v] as const)
       : [],
   );
-  const stillThere = (link: string | null) => {
-    if (!link?.startsWith("/")) return null;
+  const hasPage = (status: string) => (HAS_PAGE as readonly string[]).includes(status);
+  const goneMakes = [...new Set([...carBySlug.values()].filter((c) => !hasPage(c.status)).map((c) => c.make))];
+  const makesForSale = new Set(
+    goneMakes.length
+      ? (
+          await db
+            .selectDistinct({ make: vehicles.make })
+            .from(vehicles)
+            .where(and(eq(vehicles.dealerId, dealerId), inArray(vehicles.status, [...LISTED]), inArray(vehicles.make, goneMakes)))
+        ).map((r) => r.make)
+      : [],
+  );
+  const carOf = (link: string | null) => carBySlug.get(slugOf(link) ?? "");
+  const where = (link: string | null) => {
+    // Only this site's own pages ("//elsewhere" is another site).
+    if (!link || !/^\/(?!\/)/.test(link)) return null;
     const slug = slugOf(link);
-    return slug && !carBySlug.has(slug) ? null : link;
+    if (!slug) return link;
+    const car = carBySlug.get(slug);
+    if (!car) return "/vehicles";
+    if (hasPage(car.status)) return link;
+    return makesForSale.has(car.make)
+      ? `/vehicles?make=${encodeURIComponent(car.make)}`
+      : `/find?want=${encodeURIComponent(`${car.make} ${car.model}`)}`;
+  };
+  const note = (link: string | null) => {
+    if (!slugOf(link)) return null;
+    const car = carOf(link);
+    if (!car) return "No longer listed. See the cars for sale now.";
+    if (hasPage(car.status)) return null;
+    return makesForSale.has(car.make) ? `No longer listed. See the ${car.make} cars for sale now.` : "No longer listed. Tell us and we will find one like it.";
   };
   // The headline and the car it opens come from the same record. Old posts were typed by hand, and one
   // announced a "C300s" that opened a GLC 300 (audit, 8 November 2026): when a post's headline does not
   // name the car at its link, the car's own name is the headline.
   const headline = (title: string, link: string | null) => {
-    const car = carBySlug.get(slugOf(link) ?? "");
+    const car = carOf(link);
     if (!car || title.toLowerCase().includes(car.model.toLowerCase())) return title;
     const name = `${car.year} ${car.make} ${car.model}`;
     return /arriv/i.test(title) ? `New arrival: ${name}` : name;
@@ -76,8 +107,8 @@ export async function GET() {
     title: headline(r.title, r.link),
     message: summary(r.message),
     kind: r.kind,
-    // Only this site's own pages, and only pages that still answer.
-    link: stillThere(r.link),
+    link: where(r.link),
+    note: note(r.link),
     image: r.imageUrl ?? (r.cover ? shareImageUrl(r.cover) : null),
     at: r.createdAt.toISOString(),
   }));

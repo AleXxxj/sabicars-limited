@@ -1,14 +1,14 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
 import { cache } from "react";
-import { and, asc, count, desc, eq, gte, inArray, lte, ne, sql, type SQL } from "drizzle-orm";
+import { and, asc, count, desc, eq, gte, inArray, lte, ne, or, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
 import { dealers, locations, notifications, settings, vehicleMedia, vehicles, type Vehicle, type VehicleMedia } from "@/db/schema";
 import { TAGS } from "@/lib/cache-tags";
 import { DRIVE_PLAN, depositMinorFor } from "@/lib/drive-plan";
 import { CAR_BODIES, type InventoryFilters } from "@/lib/inventory-filters";
 import { verificationMap, type Verification } from "@/lib/repositories/inspections";
-import { wantWords } from "@/lib/matching";
+import { mayBePrefix, readWant, wantsSomething } from "@/lib/matching";
 import { modelFamily, termFor, type Term } from "@/lib/seo/search-terms";
 import { vehicleTitle } from "@/lib/vehicle";
 
@@ -17,7 +17,7 @@ import { vehicleTitle } from "@/lib/vehicle";
  * Reserved) so interest is not lost if the reservation lapses; drafts and
  * unlisted cars never leave the admin.
  */
-const LISTED = ["available", "reserved"] as const;
+export const LISTED = ["available", "reserved"] as const;
 
 /**
  * A sold car keeps its own page — a link someone shared still works, and a
@@ -265,28 +265,78 @@ export async function catalogueWithShape(): Promise<(CatalogueItem & { body: str
 }
 
 /**
- * In-stock vehicles that satisfy a Sourcing Desk request — the same rule as
- * lib/matching.ts, expressed in SQL so it runs over the whole inventory.
+ * normaliseName in lib/matching.ts, in SQL, step for step: lower case, bracketed chassis codes dropped,
+ * "Humer", "Mercedez" and "Landcruiser" mended, letters and digits pulled apart. The patterns and
+ * replacements travel as parameters, so nothing in them is SQL.
  */
-export async function stockMatching(want: string, yearFrom: number | null, budgetMaxMinor: number | null, limit = 4): Promise<VehicleWithCover[]> {
-  const words = wantWords(want);
-  if (!words.length) return [];
-  const name = sql`(${vehicles.make} || ' ' || ${vehicles.model})`;
-  const rows = await db
+function normalisedName(expr: SQL): SQL {
+  let s = sql`lower(${expr})`;
+  const steps: [string, string][] = [
+    ["\\([^)]*\\)", " "],
+    ["humm?er", "hummer"],
+    ["mercedez", "mercedes"],
+    ["landcruiser", "land cruiser"],
+    ["([a-z])([0-9])", "\\1 \\2"],
+    ["([0-9])([a-z])", "\\1 \\2"],
+  ];
+  for (const [pattern, replacement] of steps) s = sql`regexp_replace(${s}, ${pattern}, ${replacement}, 'g')`;
+  return s;
+}
+
+/**
+ * Vehicles for sale now that answer a Sourcing Desk request: lib/matching.ts's matchLevel, in SQL, so it runs
+ * over the whole inventory (scripts/verify-matching-sql.mts proves the two pick the same cars). `exact` is
+ * what the buyer asked for; `close` has every word but another version, fuel or gearbox (a Hummer 1 or 3 for
+ * a Hummer 2), offered as an alternative and never called a match (audit, 9 November 2026). Available cars
+ * only: a reserved car is not on offer to this buyer, and the desk's engine (lib/sourcing-engine.ts) offers
+ * available cars only.
+ */
+export async function stockMatching(
+  wanted: string,
+  yearFrom: number | null,
+  budgetMaxMinor: number | null,
+  limit = 4,
+): Promise<{ exact: VehicleWithCover[]; close: VehicleWithCover[] }> {
+  const want = readWant(wanted);
+  if (!wantsSomething(want)) return { exact: [], close: [] };
+  const name = normalisedName(sql`${vehicles.make} || ' ' || ${vehicles.model}`);
+  const model = normalisedName(sql`${vehicles.model}`);
+  // Words are [a-z0-9] only (nameWords splits on everything else), so they are safe inside a pattern.
+  const standsAlone = (expr: SQL, w: string) => sql`${expr} ~ ${`(^|[^a-z0-9])${w}($|[^a-z0-9])`}`;
+  // hasWord in lib/matching.ts: from three letters a named word may start a longer word ("merc"); shorter, it is a whole word ("es").
+  const startsAWord = (expr: SQL, w: string) => (mayBePrefix(w) ? sql`${expr} ~ ${`(^|[^a-z0-9])${w}`}` : standsAlone(expr, w));
+  // fits in lib/matching.ts: a listing that does not record the field is not ruled out by it.
+  // drizzle sends a list as one parameter per value in brackets, so IN takes it as it comes.
+  const fits = (column: typeof vehicles.body | typeof vehicles.fuel | typeof vehicles.transmission, wanted: string[] | null) =>
+    wanted ? sql`(${column} IS NULL OR ${column}::text IN ${wanted})` : undefined;
+  const common = [
+    eq(vehicles.dealerId, await sabicarsId()),
+    eq(vehicles.status, "available"),
+    fits(vehicles.body, want.bodies),
+    ...want.named.map((w) => startsAWord(name, w)),
+    yearFrom ? gte(vehicles.year, yearFrom) : undefined,
+    budgetMaxMinor ? lte(vehicles.priceMinor, budgetMaxMinor) : undefined,
+  ];
+  const version = [...want.pinned.map((w) => standsAlone(name, w)), fits(vehicles.fuel, want.fuels), fits(vehicles.transmission, want.gearboxes)].filter(
+    (c): c is SQL => c !== undefined,
+  );
+  const exact = await db
     .select()
     .from(vehicles)
-    .where(
-      and(
-        eq(vehicles.dealerId, await sabicarsId()),
-        inArray(vehicles.status, [...LISTED]),
-        ...words.map((w) => sql`${name} ILIKE ${`%${w}%`}`),
-        yearFrom ? gte(vehicles.year, yearFrom) : undefined,
-        budgetMaxMinor ? lte(vehicles.priceMinor, budgetMaxMinor) : undefined,
-      ),
-    )
+    .where(and(...common, ...version))
     .orderBy(desc(vehicles.year), asc(vehicles.priceMinor))
     .limit(limit);
-  return withCovers(rows);
+  // Close only when the buyer named the model, not only the make: a GLC is not "close" to a C-Class.
+  const close =
+    version.length && want.named.length
+      ? await db
+          .select()
+          .from(vehicles)
+          .where(and(...common, sql`NOT (${and(...version)})`, or(...want.named.map((w) => startsAWord(model, w)))))
+          .orderBy(desc(vehicles.year), asc(vehicles.priceMinor))
+          .limit(limit)
+      : [];
+  return { exact: await withCovers(exact), close: await withCovers(close) };
 }
 
 /**

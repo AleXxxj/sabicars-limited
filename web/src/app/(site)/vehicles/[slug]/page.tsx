@@ -27,6 +27,17 @@ import { modelFamily, termFor, termHref } from "@/lib/seo/search-terms";
 import { pageAddress, site, siteUrl, whatsappLink } from "@/lib/site";
 import { CONDITION_LABEL, drivePlanBalance, drivePlanDeposit, priceLabel, specLine, specRows, vehicleTitle } from "@/lib/vehicle";
 
+/**
+ * What "Tell me when another one arrives" asks the Sourcing Desk for: the car's family, not its exact listing
+ * name, so a later "Highlander" answers a sold "Highlander XLE" (trims and chassis codes would rule every
+ * other listing out). A Hummer keeps its number: a Hummer 2 buyer wants another Hummer 2.
+ */
+function requestWant(v: { make: string; model: string }): string {
+  const family = modelFamily(v.make, v.model);
+  const hummer = family === "Hiace Hummer" ? v.model.match(/humm?er\s*(\d)/i)?.[1] : undefined;
+  return `${v.make} ${family}${hummer ? ` ${hummer}` : ""}`;
+}
+
 type Props = { params: Promise<{ slug: string }> };
 
 /**
@@ -372,7 +383,7 @@ export default async function VehiclePage({ params }: Props) {
                 </details>
               )}
               <Link
-                href={`/find?want=${encodeURIComponent(`${v.make} ${v.model}`)}`}
+                href={`/find?want=${encodeURIComponent(requestWant(v))}`}
                 className="surface-card group flex items-center justify-between gap-3 !rounded-2xl p-4 text-sm font-semibold text-text-primary hover:border-green-500/30"
               >
                 <span className="flex items-center gap-2">

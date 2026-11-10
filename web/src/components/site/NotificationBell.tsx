@@ -11,6 +11,8 @@ interface FeedItem {
   message: string;
   kind: string;
   link: string | null;
+  /** Set when the car a post was about is no longer listed; the link then opens that make's cars for sale, or the request form. */
+  note?: string | null;
   image: string | null;
   at: string;
 }
@@ -183,6 +185,7 @@ export function NotificationBell() {
                       {fresh && <span aria-label="New" className="mt-1.5 size-2 shrink-0 rounded-full bg-green-400" />}
                     </span>
                     {i.message && <span className="mt-1 line-clamp-2 block text-sm leading-snug text-text-secondary">{i.message}</span>}
+                    {i.note && <span className="mt-1 block text-xs font-semibold text-green-300">{i.note}</span>}
                     <span className="mt-1.5 block text-xs text-text-muted">{ago(i.at)}</span>
                   </span>
                 </>

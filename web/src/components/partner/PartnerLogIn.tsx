@@ -68,7 +68,7 @@ export function PartnerLogInForm({ helpPhone, next }: { helpPhone: string; next?
 
   if (state?.needsPin) {
     return (
-      <div role="status" className="surface-card !border-green-500/30 p-6 md:p-8">
+      <div role="status" data-receipt className="surface-card !border-green-500/30 p-6 md:p-8">
         <MailCheck aria-hidden size={28} className="text-green-300" />
         <p className="mt-4 font-display text-[1.9rem] leading-tight text-text-primary">Choose your PIN first.</p>
         <p className="mt-3 text-text-secondary">
@@ -81,7 +81,8 @@ export function PartnerLogInForm({ helpPhone, next }: { helpPhone: string; next?
   }
 
   return (
-    <form action={action} className="surface-card relative grid gap-5 p-6 md:p-8">
+    // noValidate, like every other form: the server's own words appear under the box, not a browser bubble that vanishes.
+    <form action={action} className="surface-card relative grid gap-5 p-6 md:p-8" noValidate>
       <SpamGuard />
       {next && <input type="hidden" name="next" value={next} />}
       <Alert message={state?.error} />
@@ -111,7 +112,7 @@ export function ForgotPinForm({ helpPhone, whatsappHref }: { helpPhone: string; 
 
   if (state?.sent) {
     return (
-      <div role="status" className="surface-card !border-green-500/30 p-6 md:p-8">
+      <div role="status" data-receipt className="surface-card !border-green-500/30 p-6 md:p-8">
         <MailCheck aria-hidden size={28} className="text-green-300" />
         <p className="mt-4 font-display text-[1.9rem] leading-tight text-text-primary">Check your email.</p>
         <p className="mt-3 text-text-secondary">
@@ -129,7 +130,7 @@ export function ForgotPinForm({ helpPhone, whatsappHref }: { helpPhone: string; 
   }
 
   return (
-    <form action={action} className="surface-card relative grid gap-5 p-6 md:p-8">
+    <form action={action} className="surface-card relative grid gap-5 p-6 md:p-8" noValidate>
       <SpamGuard />
       <Alert message={state?.error} />
       <PhoneInput defaultValue={state?.phone} error={state?.fieldError} />
@@ -147,7 +148,7 @@ export function ForgotPinForm({ helpPhone, whatsappHref }: { helpPhone: string; 
 export function SetPinForm({ via, secret }: { via: "setup" | "link"; secret: string }) {
   const [state, action, pending] = useActionState(setPartnerPin, null);
   return (
-    <form action={action} className="surface-card grid gap-5 p-6 md:p-8">
+    <form action={action} className="surface-card grid gap-5 p-6 md:p-8" noValidate>
       <input type="hidden" name="via" value={via} />
       <input type="hidden" name="secret" value={secret} />
       <Alert message={state?.error} />

@@ -20,7 +20,7 @@ export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const found = await vehicleBySlug((await params).slug);
-  return { title: found ? `Reserve the ${vehicleTitle(found.vehicle)}` : "Reserve a car", robots: { index: false, follow: false } };
+  return { title: found ? `Reserve the ${vehicleTitle(found.vehicle)}` : "Car not found", robots: { index: false, follow: false } };
 }
 
 const RULES = [

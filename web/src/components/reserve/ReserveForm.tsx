@@ -41,7 +41,7 @@ export function ReserveForm({ slug, title, choices }: { slug: string; title: str
 
   if (state?.ok && state.arranged) {
     return (
-      <div role="status" className="surface-card !border-green-500/30 p-7 md:p-9">
+      <div role="status" data-receipt className="surface-card !border-green-500/30 p-7 md:p-9">
         <p className="kicker">Reservation requested</p>
         <h3 className="mt-3 text-display-3">We will send you the account details.</h3>
         <p className="mt-4 text-text-secondary">
@@ -57,7 +57,7 @@ export function ReserveForm({ slug, title, choices }: { slug: string; title: str
 
   if (state?.ok && state.url) {
     return (
-      <p role="status" className="surface-card p-7 text-text-secondary md:p-9">
+      <p role="status" data-receipt className="surface-card p-7 text-text-secondary md:p-9">
         Taking you to the payment page…{" "}
         <a href={state.url} className="font-semibold text-green-300 underline-offset-4 hover:underline">
           Tap here if it does not open.

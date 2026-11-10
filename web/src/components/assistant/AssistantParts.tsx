@@ -197,7 +197,7 @@ export function CallbackForm({ conversationId, path }: { conversationId: string 
 
   if (done)
     return (
-      <div role="status" className="flex gap-3 rounded-2xl border border-green-500/30 bg-green-500/[0.07] p-4 text-sm text-text-secondary">
+      <div role="status" data-receipt className="flex gap-3 rounded-2xl border border-green-500/30 bg-green-500/[0.07] p-4 text-sm text-text-secondary">
         <Check aria-hidden size={18} className="mt-0.5 shrink-0 text-green-300" />
         <p>
           Thank you, {done.name.split(" ")[0]}. Someone from the team will call you — during showroom hours if it’s late. Your reference is{" "}

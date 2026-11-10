@@ -51,6 +51,7 @@ export function SellForm({
     return (
       <div
         role="status"
+        data-receipt
         className="surface-card scroll-mt-24 !border-green-500/30 p-7 md:p-9"
       >
         <p className="kicker">Received</p>

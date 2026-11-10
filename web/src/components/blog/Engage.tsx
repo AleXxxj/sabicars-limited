@@ -150,7 +150,7 @@ export function CommentForm({ slug }: { slug: string }) {
   const [state, action, pending] = useActionState(submitComment, null);
   if (state?.ok) {
     return (
-      <p role="status" className="surface-card flex items-start gap-3 p-5 text-text-secondary">
+      <p role="status" data-receipt className="surface-card flex items-start gap-3 p-5 text-text-secondary">
         <Check aria-hidden size={18} className="mt-1 shrink-0 text-green-300" />
         Thank you. Your comment appears here once the team has read it.
       </p>

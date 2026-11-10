@@ -150,5 +150,10 @@ export default async function ReserveDonePage({ searchParams }: Props) {
     );
   }
 
-  return <article className="mx-auto max-w-3xl px-5 pt-10 pb-20 md:px-10 md:pt-16">{card}</article>;
+  // data-receipt: the buyer has just paid (or tried to); no newsletter or review card may sit beside this.
+  return (
+    <article data-receipt className="mx-auto max-w-3xl px-5 pt-10 pb-20 md:px-10 md:pt-16">
+      {card}
+    </article>
+  );
 }

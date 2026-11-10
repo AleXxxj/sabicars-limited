@@ -43,7 +43,7 @@ export function BankAccountForm({
   return (
     <div className="grid gap-6">
       {state?.ok && !showForm && (
-        <p role="status" className="border-l-2 border-green-500 bg-surface-2 px-4 py-3 text-sm leading-relaxed text-text-primary">
+        <p role="status" data-receipt className="border-l-2 border-green-500 bg-surface-2 px-4 py-3 text-sm leading-relaxed text-text-primary">
           {state.accountName && (
             <>
               The bank holds this account in the name <strong>{state.accountName}</strong>.{" "}

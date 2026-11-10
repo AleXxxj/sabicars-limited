@@ -38,11 +38,12 @@ export function DrivePlanApply({
   }, [destination]);
 
   if (state?.ok && destination) {
-    return <p role="status" className="mt-5 text-sm text-text-secondary">Taking you to Autochek…</p>;
+    return <p role="status" data-receipt className="mt-5 text-sm text-text-secondary">Taking you to Autochek…</p>;
   }
   if (state?.ok) {
     return (
-      <div role="status" className="mt-5 rounded-xl border border-green-500/30 bg-green-500/10 p-4 text-sm leading-relaxed text-text-primary">
+      // data-receipt: the engagement prompt holds off while a thank-you is on the page.
+      <div role="status" data-receipt className="mt-5 rounded-xl border border-green-500/30 bg-green-500/10 p-4 text-sm leading-relaxed text-text-primary">
         Thank you{state.name ? `, ${state.name}` : ""}. Sabicars will put this car on its Autochek store and send you the application link
         on WhatsApp{state.reference ? <> — your reference is <strong className="figures">{state.reference}</strong></> : null}.
       </div>

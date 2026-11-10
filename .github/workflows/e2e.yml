@@ -102,7 +102,9 @@ jobs:
           node --import tsx scripts/seed-ask.mts
 
       - name: Cheap gates first
-        run: npm run test:ledger && npm run test:schema
+        # test:matching-sql lists its own test cars, proves the Sourcing Desk's SQL matcher picks the same cars as
+        # the rule in src/lib/matching.ts, and removes them again before the suites run.
+        run: npm run test:ledger && npm run test:schema && npm run test:matching-sql
 
       - name: Prove a backup restores exactly
         # Exports the seeded database through lib/backup.ts, restores it into an empty database

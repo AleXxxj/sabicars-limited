@@ -175,6 +175,8 @@ const sourcingSchema = z.object({
 export interface SourcingResult extends LeadFormResult {
   /** Vehicles already in stock that answer the request — the desk's first reply. */
   matches?: StockMatch[];
+  /** Vehicles of the same family in a different variant (a Hummer 1 for a Hummer 2 request): offered, never called a match. */
+  alternatives?: StockMatch[];
 }
 
 export async function submitSourcingRequest(_prev: SourcingResult | null, formData: FormData): Promise<SourcingResult> {
@@ -219,20 +221,19 @@ export async function submitSourcingRequest(_prev: SourcingResult | null, formDa
       { want: v.want, yearFrom: v.yearFrom ?? null, budgetMaxMinor: budgetMax, payment: v.payment },
     );
     // Looked up after saving: the request is on record whether or not this succeeds.
-    const matches = await stockMatching(v.want, v.yearFrom ?? null, budgetMax).catch(() => []);
-    await recordShownMatches(requestId, matches.map((m) => m.id)).catch((e) => console.error("[sourcing] could not record shown matches", e));
-    return {
-      ok: true,
-      reference,
-      name: v.name.split(" ")[0],
-      matches: matches.map((m) => ({
-        href: `/vehicles/${m.slug}`,
-        title: vehicleTitle(m),
-        price: priceLabel(m),
-        deposit: drivePlanDeposit(m),
-        coverUrl: m.cover?.url ?? null,
-      })),
-    };
+    const { exact, close } = await stockMatching(v.want, v.yearFrom ?? null, budgetMax).catch((e) => {
+      console.error("[sourcing] stock matching failed", e);
+      return { exact: [], close: [] };
+    });
+    await recordShownMatches(requestId, exact.map((m) => m.id)).catch((e) => console.error("[sourcing] could not record shown matches", e));
+    const card = (m: (typeof exact)[number]): StockMatch => ({
+      href: `/vehicles/${m.slug}`,
+      title: vehicleTitle(m),
+      price: priceLabel(m),
+      deposit: drivePlanDeposit(m),
+      coverUrl: m.cover?.url ?? null,
+    });
+    return { ok: true, reference, name: v.name.split(" ")[0], matches: exact.map(card), alternatives: close.map(card) };
   } catch (e) {
     console.error("[sourcing] insert failed", e);
     return { ok: false, error: `Something went wrong saving your request. Please call ${helpPhone}.`, values };

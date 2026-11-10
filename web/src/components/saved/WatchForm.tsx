@@ -21,7 +21,7 @@ export function WatchForm({ slugs, landingPath, compact = false }: { slugs: stri
 
   if (state?.ok) {
     return (
-      <div role="status" className="rounded-2xl border border-green-500/30 bg-green-500/10 p-5 text-text-primary">
+      <div role="status" data-receipt className="rounded-2xl border border-green-500/30 bg-green-500/10 p-5 text-text-primary">
         <p className="flex items-center gap-2 font-semibold">
           <BellRing aria-hidden size={18} className="text-green-300" /> You’re on the list{state.name ? `, ${state.name}` : ""}.
         </p>

@@ -25,8 +25,12 @@ function youTubeId(url: string): string | null {
   return m ? m[1] : null;
 }
 
-/** Most visitors are on metered mobile data: no background video for data-saver or slow connections. */
+/**
+ * Most visitors are on metered mobile data: no background video for data-saver or slow connections. And
+ * none for someone who has asked their phone for less motion: they get the photographs.
+ */
 function videoAllowed(): boolean {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return false;
   const c = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
   if (!c) return true;
   return !c.saveData && !["slow-2g", "2g", "3g"].includes(c.effectiveType ?? "");
@@ -244,9 +248,15 @@ export function HeroShowcase({
 
           <div className="flex items-center gap-4">
             {videoOn ? (
-              <button type="button" onClick={toggleSound} aria-label={muted ? "Sound on" : "Sound off"} className="glass inline-flex size-11 items-center justify-center rounded-full text-white/85 hover:text-white">
-                {muted ? <VolumeX aria-hidden size={18} /> : <Volume2 aria-hidden size={18} />}
-              </button>
+              <>
+                <button type="button" onClick={toggleSound} aria-label={muted ? "Sound on" : "Sound off"} className="glass inline-flex size-11 items-center justify-center rounded-full text-white/85 hover:text-white">
+                  {muted ? <VolumeX aria-hidden size={18} /> : <Volume2 aria-hidden size={18} />}
+                </button>
+                {/* Moving content that starts by itself must be stoppable (WCAG 2.2.2): the photographs come back. */}
+                <button type="button" onClick={finish} aria-label="Stop the video" className="glass inline-flex size-11 items-center justify-center rounded-full text-white/85 hover:text-white">
+                  <Pause aria-hidden size={18} />
+                </button>
+              </>
             ) : (
               slides.length > 1 && (
                 <>

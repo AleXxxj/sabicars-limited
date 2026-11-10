@@ -23,7 +23,8 @@ export function SubscribeForm({ source, onDone }: { source: "prompt" | "footer" 
 
   if (state?.ok) {
     return (
-      <p role="status" className="flex items-start gap-3 text-sm text-text-secondary">
+      // data-receipt holds other asks off while it shows; not in the footer, which stays on every page of the visit.
+      <p role="status" data-receipt={source === "footer" ? undefined : ""} className="flex items-start gap-3 text-sm text-text-secondary">
         <Check aria-hidden size={18} className="mt-0.5 shrink-0 text-green-300" />
         <span>
           {state.already ? (

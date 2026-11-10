@@ -8,6 +8,9 @@ import { Button } from "@/components/ui/Button";
 import { VehicleImage } from "@/components/VehicleImage";
 import { Confirmation, FieldError, fieldClass, Label, PrivacyLink, SpamGuard } from "./shared";
 
+/** Small counts read better as words: the list holds at most four. */
+const count = (n: number) => ["no", "one", "two", "three", "four"][n] ?? String(n);
+
 const REPLY_BY = [
   ["whatsapp", "WhatsApp"],
   ["phone", "A phone call"],
@@ -26,6 +29,25 @@ export function SourcingForm({ whatsappBase, initial }: { whatsappBase: string; 
 
   if (state?.ok) {
     const matches = state.matches ?? [];
+    const alternatives = state.alternatives ?? [];
+    const cars = (list: typeof matches) => (
+      <ul className="mt-6 grid gap-4 sm:grid-cols-2">
+        {list.map((m) => (
+          <li key={m.href}>
+            <Link href={m.href} className="group flex gap-4">
+              <div className="relative aspect-[4/3] w-28 shrink-0 overflow-hidden bg-surface-2">
+                {m.coverUrl && <VehicleImage src={m.coverUrl} alt="" fill sizes="112px" className="object-cover" />}
+              </div>
+              <div className="min-w-0">
+                <p className="text-text-primary group-hover:text-accent-text">{m.title}</p>
+                <p className="figures mt-1 text-sm text-text-secondary">{m.price}</p>
+                {m.deposit && <p className="figures text-xs text-text-muted">{m.deposit} deposit on the Drive Plan</p>}
+              </div>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    );
     return (
       <div className="grid gap-6">
         <Confirmation
@@ -40,22 +62,24 @@ export function SourcingForm({ whatsappBase, initial }: { whatsappBase: string; 
             <p className="mt-3 text-text-secondary">
               {matches.length === 1 ? "One vehicle in stock matches" : `${matches.length} vehicles in stock match`} what you asked for:
             </p>
-            <ul className="mt-6 grid gap-4 sm:grid-cols-2">
-              {matches.map((m) => (
-                <li key={m.href}>
-                  <Link href={m.href} className="group flex gap-4">
-                    <div className="relative aspect-[4/3] w-28 shrink-0 overflow-hidden bg-surface-2">
-                      {m.coverUrl && <VehicleImage src={m.coverUrl} alt="" fill sizes="112px" className="object-cover" />}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-text-primary group-hover:text-accent-text">{m.title}</p>
-                      <p className="figures mt-1 text-sm text-text-secondary">{m.price}</p>
-                      {m.deposit && <p className="figures text-xs text-text-muted">{m.deposit} deposit on the Drive Plan</p>}
-                    </div>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            {cars(matches)}
+          </div>
+        )}
+        {/* The same car in another version, called that: a buyer who asked for a Hummer 2 is not told a Hummer 1
+            matches (audit, 9 November 2026). */}
+        {alternatives.length > 0 && (
+          <div className="surface-card p-6 md:p-8">
+            <p className="kicker">Close to what you asked for</p>
+            <p className="mt-3 text-text-secondary">
+              {matches.length === 0
+                ? alternatives.length === 1
+                  ? "We don’t have that exact one yet. This one is close: the same car in another version."
+                  : `We don’t have that exact one yet. These ${count(alternatives.length)} are close: the same car in other versions.`
+                : alternatives.length === 1
+                  ? "Also in stock, close to it: the same car in another version."
+                  : `Also in stock, close to it: ${count(alternatives.length)} more, the same car in other versions.`}
+            </p>
+            {cars(alternatives)}
           </div>
         )}
       </div>

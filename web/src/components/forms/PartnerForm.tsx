@@ -64,7 +64,7 @@ function Welcome({ name, code, link, returning, loggedIn }: { name?: string; cod
   }, [loggedIn]);
 
   return (
-    <div ref={ref} role="status" className="surface-card scroll-mt-24 !border-green-500/30 p-7 md:p-9">
+    <div ref={ref} role="status" data-receipt className="surface-card scroll-mt-24 !border-green-500/30 p-7 md:p-9">
       <p className="kicker">{returning ? "Already registered" : "Registered"}</p>
       <h3 className="mt-3 text-display-3">{returning ? `Welcome back${name ? `, ${name}` : ""}.` : `You’re a Sabicars partner${name ? `, ${name}` : ""}.`}</h3>
       <p className="mt-4 text-text-secondary">{returning ? "This number is already registered. Your code is:" : "Your partner code is:"}</p>

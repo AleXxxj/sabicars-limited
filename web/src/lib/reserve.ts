@@ -34,6 +34,7 @@ import {
   type ReservationStatus,
 } from "@/lib/reservations";
 import { site, siteUrl, whatsappLink } from "@/lib/site";
+import { offerVehicle } from "@/lib/sourcing-engine";
 import { vehicleTitle } from "@/lib/vehicle";
 
 /**
@@ -456,7 +457,10 @@ async function releaseVehicle(vehicleId: string, now = new Date()): Promise<void
     .set({ status: "available", updatedAt: now })
     .where(and(eq(vehicles.id, vehicleId), eq(vehicles.status, "reserved")))
     .returning({ slug: vehicles.slug });
-  if (v) refreshPublicPages(v.slug);
+  if (!v) return;
+  refreshPublicPages(v.slug);
+  // Back on sale: a buyer who asked the Sourcing Desk for this car while it was held hears about it now.
+  await offerVehicle(vehicleId).catch((e) => console.error("[reserve] could not offer the released car to waiting requests", e));
 }
 
 /* ── What staff do ────────────────────────────────────────────────────── */
