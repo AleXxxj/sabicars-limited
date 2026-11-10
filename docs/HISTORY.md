@@ -9,6 +9,7 @@ Days before 8 November 2026 were reconstructed on 8 November from the saved Clau
 - (Late on the 9th, after the brief) "Am I giving it my partner login number?" Answer: no; the forms use two other test numbers, and Alex types the partner number and PIN himself when ChatGPT hands the browser over. In the end his partner number went in as test number 1, a second phone as number 2, and the owner's email (already on the Friday list) as the test email.
 - Sent ChatGPT's second review: a 15-page PDF (`SabiCars_Second_Review_2026-11-09.pdf`, saved outside the repo) and the chat link.
 - "Continue from where you stopped", after the session ran out of usage halfway through the fixes.
+- "Delete all test enquiries": the second review's test records.
 
 **Decisions and why:**
 - The second review, checked against the code and the live database: D01, D02, D03 and D08 fixed; D04 fixed on desktop (phone width still untested, the Cloud Browser shows desktop only); X01 confirmed in the code (the hero video frame is out of the tab order) though no video played; D05 only half testable, because no live car has an Autochek link yet (0 of 50), which staff add in the admin; D06 still failing beside the Buy in bulk, Drive Plan and price-alert receipts; D07 names right, but the GLC 300 post pointed at an unlisted car, so it opened nothing. New: N01, a request for a Hummer 2 listed Hummer 1s and a Hummer 3 as matches; N02, D06 on more receipts; N03, a bare "404" for a dead link.
@@ -25,10 +26,10 @@ Days before 8 November 2026 were reconstructed on 8 November from the saved Clau
 - "Close" across trims (a Highlander Limited for a Highlander XLE request) needs a list of model names first.
 
 **Built and shipped:**
-- Nothing pushed yet today. The fixes are built (full build gate passed) and in their final local test run and review; they are committed and pushed once both are green.
+- The fixes built (full build gate passed) and passed locally: flows 9 passed, 1 skipped (the staff path, CI only); smoke 117 passed, 13 skipped, desktop and phone. Committed and pushed once the second review round is in.
+- Live clean-up, on Alex's word, the same way as on the 9th (pinned ids, copy saved first to the iCloud record as `backups/2026-11-09 deleted QA records, second review.json`, an audit row per enquiry, every count checked before commit): the second review's 9 "QA TEST Buyer" enquiries deleted with their 16 activity rows, the car request and its 4 offered matches, the price alert, and the two test chats (8 messages). No queued email to cancel. The test viewing's Monday slot is free again, the Friday reminder and the match and price emails to the owner's address can no longer fire, and the four test enquiries credited to Alex's partner account are gone from his page. The live inbox holds the 5 old-site contacts and nothing else.
 
 **Open questions at the end of the day:**
-- Delete the second review's test records? Nine "QA TEST Buyer" enquiries with their activity, one car request, one price alert and two test chats. Dry run done, copy saved to the iCloud record. The test viewing holds Monday 16 November at 10:00, and the request and the alert would email the owner's address, so this should happen before the 16th.
 - The ChatGPT share link shows the two test phone numbers and the owner's email to anyone who has it.
 - Carried: the five imported old-site enquiries; the 25 test chats; the ₦36m 4Runner duplicate in the old admin; the Instagram link on `main`; Supabase Pro / Resend Pro; own hero footage; the Play account.
 
