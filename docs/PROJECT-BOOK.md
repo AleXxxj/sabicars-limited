@@ -70,7 +70,7 @@ DNS for `sabicars.com` is at GoDaddy; email (MX) runs on Google Workspace.
 
 **Public site** — `(site)/`: `page.tsx` (home), `vehicles/[slug]` (the stock and one car), `buy/[term]` (search-term pages such as "Highlander"), `compare/[pair]`, `reserve/[slug]` and `reserve/done`, `drive-plan/`, `hummer-bus/` (Hiace family guide), `fleet/`, `find/` (Sourcing Desk), `sell/`, `saved/`, `ask/[slug]`, `blog/[slug]` (Insights), `partners/` (the programme), `partner/` (account: `cars` to share, `pin`, `forgot`, `[token]` set-up link), `review/[token]`, `v/[code]` (Verified inspection report), `about/`, `contact/`, `privacy/`, `unsubscribe/[token]`.
 
-**Referral links** — `r/[code]` and `r/[code]/[slug]`: record the partner, then forward. **Old addresses** — `car-detail.html/`, `blog-post.html/`: look up the old Mongo id and redirect permanently. Also `llms.txt`, `robots.ts`, `sitemap.ts`, `manifest.ts`, `error.tsx`.
+**Referral links** — `r/[code]` and `r/[code]/[slug]`: record the partner, then forward. **Old addresses** — `car-detail.html/`, `blog-post.html/`: look up the old Mongo id and redirect permanently. Also `llms.txt`, `robots.ts`, `sitemap.ts`, `manifest.ts`, `error.tsx`, and the not-found pages (`not-found.tsx` at the root, under `(site)`, `vehicles/[slug]`, `reserve/[slug]` and `admin/(app)`): a dead link always keeps the visitor in the showroom with a way on.
 
 **Admin** — `admin/login`, `admin/seal/[id]` (print the Verified seal), and `admin/(app)/`: `leads` (Enquiries), `vehicles` (+ `new`, `[id]`, `[id]/inspection`), `reservations`, `requests` (Sourcing Desk), `conversations`, `ask` (Answers + weekly lesson), `reviews`, `blog`, `audience`, `consignors`, `partners`, `payouts`, `status` (System status, errors, backup download). `lib/admin-nav.ts` decides who sees what: Sales the first five; Owner and Manager all.
 
@@ -101,7 +101,7 @@ Grouped by where they appear: `site/` (header, footer, phone tab bar, bell), `ho
 
 ### `scripts/` and `e2e/`
 
-Scripts: `local-db.mjs`, `migrate.mjs`, `import-legacy.mts`, `create-staff.mjs`, `check-auth.mjs`, `check-launch.mts`, `seed-*.mts`, `sync-content.mjs`, `restore-backup.mts`, `build-tokens.mjs`, `check-contrast.mjs`, `build-brand.mjs` (+ `fonts/`), and the `verify-*` gates (schema, money, hours, viewings, seller, reservations, drive-plan, ledger, pin, backup, outbox, chat).
+Scripts: `local-db.mjs`, `migrate.mjs`, `import-legacy.mts`, `create-staff.mjs`, `check-auth.mjs`, `check-launch.mts`, `seed-*.mts`, `sync-content.mjs`, `restore-backup.mts`, `build-tokens.mjs`, `check-contrast.mjs`, `build-brand.mjs` (+ `fonts/`), and the `verify-*` gates (schema, money, hours, viewings, seller, reservations, drive-plan, matching, ledger, pin, backup, outbox, chat, matching-sql; `matching-fixtures.ts` holds the cars and wants the two matching checks share).
 
 Tests: `e2e/smoke/` (fifteen read-only walks, one per public area plus admin and api), `e2e/flows/` (`money-path`, `sign-in`, `throttle`), `fixtures.ts`, `helpers.ts`.
 
@@ -256,7 +256,7 @@ The old API on Render has its own set (`MONGO_URI`, `CLOUDINARY_*`, `JWT_SECRET`
 
 **Run locally** (in `web/`): `npm install`; `cp .env.example .env.local` and fill it; `npm run db:local` (real Postgres 17 from `node_modules`); `npm run db:migrate`; `npm run legacy:import` or `npm run e2e:seed` for data; `npm run dev` → `http://localhost:3000`. Without an Anthropic key the chat uses `dev-reply.ts`.
 
-**Test**: `npm run build` runs the eleven gates and fails on any. `npm run test:smoke` walks a running site read-only. `npm run test:e2e` drives the money paths against the database in `.env.local` (seed first). `test:backup`, `test:outbox`, `test:chat` prove those parts against a local database. `npm run check:launch` prints the System status checks. `npm run typecheck`, `npm run lint`.
+**Test**: `npm run build` runs the twelve gates and fails on any (the Sourcing Desk's matching rule among them). `npm run test:smoke` walks a running site read-only. `npm run test:e2e` drives the money paths against the database in `.env.local` (seed first). `test:backup`, `test:outbox`, `test:chat` prove those parts against a local database; `test:matching-sql` proves the SQL matcher picks the same cars as the rule (it lists and removes its own test cars; CI runs it on the throwaway database). `npm run check:launch` prints the System status checks. `npm run typecheck`, `npm run lint`.
 
 **Build and deploy**: push to `platform`; Vercel builds `web/` with `next build` and goes live. There is no manual deploy step. On switch day, follow `docs/LAUNCH.md` part B.
 
@@ -268,7 +268,7 @@ The old API on Render has its own set (`MONGO_URI`, `CLOUDINARY_*`, `JWT_SECRET`
 
 - **Never put a proxy (Cloudflare orange cloud or any other) in front of `sabicars.com`.** The rate limiter trusts Vercel's real-IP header; behind a proxy every visitor shares a few addresses and real buyers get refused.
 - **Never commit `.env.local`, `.env.live`, the Android keystore or any key.** `.env.example` holds placeholders only; the Play upload key stays in `~/sabicars-android/keys` and a password manager. Keep the live connection string in `web/.env.live`, never `.env.production.local` (Next loads that automatically and would point local tests at production).
-- **Never run the flows suite, `e2e:seed`, `test:backup` or `test:outbox` against the live database.** The scripts refuse a Supabase address; do not force them. Do not fire load at production either: the Nano database stalled under it (30 Oct 2026).
+- **Never run the flows suite, `e2e:seed`, `test:backup`, `test:outbox` or `test:matching-sql` against the live database.** The scripts refuse a Supabase address; do not force them. Do not fire load at production either: the Nano database stalled under it (30 Oct 2026).
 - **Use the session pooler (port 5432) for both `DATABASE_URL` and `DIRECT_URL`;** the transaction pooler loses replies and hangs admin pages.
 - **Do not set `SUPABASE_SERVICE_ROLE_KEY`, `RESEND_API_URL` or `NEXT_PUBLIC_SITE_URL` in Vercel.**
 - **Never touch the MX records**; email runs on Google Workspace. No second DMARC record. On switch day change only the four `@` A records and the `www` CNAME, old values written down first.
