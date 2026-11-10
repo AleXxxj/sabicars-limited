@@ -56,6 +56,8 @@ export const FIXTURES = {
   fl7: car("Volvo", "FL7", 2008, "truck", "diesel", "manual"),
   man: car("MAN", "TGA 26.414", 2009, "truck", "diesel", "manual"),
   noFuel: car("Toyota", "Hiace Hummer 2", 2014, "bus", null, null),
+  noBody: car("Toyota", "Coaster", 2014, null),
+  noBodyHummer: car("Toyota", "Hiace Hummer 2", 2019, null),
   noPrice: car("Toyota", "Hiace Hummer 2", 2019, "bus", "petrol", "automatic", null),
 };
 
@@ -69,5 +71,7 @@ export const WANTS = [
   "Camry 2.4 under ₦20m, 08", "Camry 20-25m", "Camry n 20m", "Camry under 20 m", "Camry 20mill", "Camry 12 model", "Camry 1.8T",
   "Highlander 20,000,000 or 25 million", "Highlander hybrid", "Toyota saloon", "Toyota bus", "Lexus SUV", "Lexus jeep", "Truck",
   "SUV", "Toyota pick-up", "Hilux 4x4", "Volvo FL7 truck", "MAN TGA 26.414", "Hyundai Santa Fe", "Lexus GX 460", "Toyota 4runner",
-  "Toyota Highlander", "Mercedes-Benz GLE", "toyota", "a clean tokunbo car",
+  "Toyota Highlander", "Mercedes-Benz GLE", "toyota", "a clean tokunbo car", "Toyota Hiace (Hummer 2)", "Hiace Hummer 2 (diesel)",
+  "Mercedes-Benz AMG GLE 43 Coupe 4MATIC (C292)", "Toyota Camry (any colour)", "Mercedes A200", "BMW i8", "I want a 4runner",
+  "Toyota Hiace Hummer bus, petrol automatic",
 ];

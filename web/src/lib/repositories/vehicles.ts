@@ -307,8 +307,10 @@ export async function stockMatching(
   const startsAWord = (expr: SQL, w: string) => (mayBePrefix(w) ? sql`${expr} ~ ${`(^|[^a-z0-9])${w}`}` : standsAlone(expr, w));
   // fits in lib/matching.ts: a listing that does not record the field is not ruled out by it.
   // drizzle sends a list as one parameter per value in brackets, so IN takes it as it comes.
-  const fits = (column: typeof vehicles.body | typeof vehicles.fuel | typeof vehicles.transmission, wanted: string[] | null) =>
-    wanted ? sql`(${column} IS NULL OR ${column}::text IN ${wanted})` : undefined;
+  type Field = typeof vehicles.body | typeof vehicles.fuel | typeof vehicles.transmission;
+  const fits = (column: Field, wanted: string[] | null) => (wanted ? sql`(${column} IS NULL OR ${column}::text IN ${wanted})` : undefined);
+  // shown in lib/matching.ts: exact needs the field filled in and right. IS NOT NULL AND ... is FALSE, never NULL, so NOT (...) below holds.
+  const shown = (column: Field, wanted: string[] | null) => (wanted ? sql`(${column} IS NOT NULL AND ${column}::text IN ${wanted})` : undefined);
   const common = [
     eq(vehicles.dealerId, await sabicarsId()),
     eq(vehicles.status, "available"),
@@ -317,9 +319,12 @@ export async function stockMatching(
     yearFrom ? gte(vehicles.year, yearFrom) : undefined,
     budgetMaxMinor ? lte(vehicles.priceMinor, budgetMaxMinor) : undefined,
   ];
-  const version = [...want.pinned.map((w) => standsAlone(name, w)), fits(vehicles.fuel, want.fuels), fits(vehicles.transmission, want.gearboxes)].filter(
-    (c): c is SQL => c !== undefined,
-  );
+  const version = [
+    ...want.pinned.map((w) => standsAlone(name, w)),
+    shown(vehicles.body, want.bodies),
+    shown(vehicles.fuel, want.fuels),
+    shown(vehicles.transmission, want.gearboxes),
+  ].filter((c): c is SQL => c !== undefined);
   const exact = await db
     .select()
     .from(vehicles)

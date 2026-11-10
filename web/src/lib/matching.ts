@@ -27,8 +27,8 @@ const NOISE = new Set([
   "used", "new", "brand", "foreign", "nigerian", "tokunbo", "clean", "neat", "from", "under", "below", "above", "over", "to",
   "of", "in", "on", "i", "me", "want", "need", "looking", "about", "around", "budget", "price", "naira", "year", "years",
   "class", "edition", "version", "type", "between", "full", "option", "options", "fully", "loaded", "low", "mileage", "first",
-  "body", "registered", "condition", "good", "very", "accident", "free", "wagon", "wagen", "gear",
-  "black", "white", "silver", "grey", "gray", "red", "blue", "gold", "green", "brown",
+  "body", "registered", "condition", "good", "very", "accident", "free", "wagon", "wagen", "gear", "generation",
+  "colour", "color", "black", "white", "silver", "grey", "gray", "red", "blue", "gold", "green", "brown",
 ]);
 
 /** Saloon cars, as the inventory's "Saloon cars" chip counts them (lib/inventory-filters.ts CAR_BODIES). */
@@ -83,6 +83,9 @@ function clean(want: string): string {
   return (
     want
       .toLowerCase()
+      // A bracket that names the car or its fuel ("(Hummer 2)", "(diesel)") is read with the rest. One of chassis codes or
+      // filler ("(C292)", "(X253 generation)", "(any colour)") stays, for normaliseName to drop as it does from a listing.
+      .replace(/\(([^)]*)\)/g, (code, inner: string) => (nameWords(inner).every((w) => isPinned(w) || NOISE.has(w)) ? code : ` ${inner} `))
       // engine sizes: 2.4, 3.5L, 2.5D, 1.8T
       .replace(/\b\d{1,2}\.\d(?:\s*(?:l|litres?|liters?)|[a-z])?(?![a-z0-9])/g, " ")
       // a budget after a budget word: under 20m, below 20 m, max ₦30,000,000, up to 25 million
@@ -117,7 +120,10 @@ export interface Want {
 }
 
 export function readWant(want: string): Want {
-  const tokens = nameWords(clean(want));
+  const cleaned = clean(want);
+  // A letter written onto its number ("A200", "A4", "i8") is the model, even "a" or "i". A spaced one ("a 4Runner") is not.
+  const joined = new Set(Array.from(cleaned.matchAll(/\b([a-z])-?(?=\d)/g), (m) => m[1]));
+  const tokens = nameWords(cleaned);
   const words: string[] = [];
   const bodies = new Set<string>();
   const fuels = new Set<string>();
@@ -128,6 +134,10 @@ export function readWant(want: string): Want {
     if (/^[a-z]$/.test(w) && tokens[i + 1] === "class") {
       words.push(w);
       i++;
+      continue;
+    }
+    if (/^[a-z]$/.test(w) && joined.has(w)) {
+      words.push(w);
       continue;
     }
     if (BODY_WORDS[w]) BODY_WORDS[w].forEach((b) => bodies.add(b));
@@ -171,8 +181,10 @@ export interface MatchableRequest {
 
 export type MatchLevel = "exact" | "close";
 
-/** A listing that does not record its body, fuel or gearbox is not ruled out by it. */
+/** A listing that does not record its body, fuel or gearbox is not ruled out by it... */
 const fits = (value: string | null | undefined, wanted: string[] | null) => !wanted || !value || wanted.includes(value);
+/** ...but cannot be shown to be what was asked for, as a car with no price is not within a budget: it is close at most. */
+const shown = (value: string | null | undefined, wanted: string[] | null) => !wanted || (!!value && wanted.includes(value));
 
 /**
  * How well a vehicle answers a request: "exact" when every word the buyer used is in the car's name, every
@@ -190,7 +202,7 @@ export function matchLevel(v: MatchableVehicle, r: MatchableRequest): MatchLevel
   if (r.yearFrom && v.year < r.yearFrom) return null;
   // A vehicle with no price cannot be shown to be within a stated budget.
   if (r.budgetMaxMinor && (v.priceMinor === null || v.priceMinor > r.budgetMaxMinor)) return null;
-  if (want.pinned.every((w) => name.includes(w)) && fits(v.fuel, want.fuels) && fits(v.transmission, want.gearboxes)) return "exact";
+  if (want.pinned.every((w) => name.includes(w)) && shown(v.body, want.bodies) && shown(v.fuel, want.fuels) && shown(v.transmission, want.gearboxes)) return "exact";
   const model = nameWords(v.model);
   return want.named.some((w) => hasWord(model, w)) ? "close" : null;
 }
