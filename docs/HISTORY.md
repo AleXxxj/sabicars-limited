@@ -4,6 +4,34 @@ One section per working day, newest first. Each records what Alex John asked for
 
 Days before 8 November 2026 were reconstructed on 8 November from the saved Claude Code transcripts and the commit history; from 8 November on, the day's entry is written at the end of the day (a Claude Code hook refuses to end a day with commits until it is).
 
+## 2026-11-14 (Saturday)
+**Instructions from Alex:** 
+- Sent a screenshot of the live Sabicars hero and said: "i want the hero screen to be exactly like that of dayo".
+- The long write-up under the headline ("every photo has a price...") "is not neccesaary".
+- Between the car photos in the hero slideshow, "lets the services all display one slidshow after the other".
+- "then the 6 cards build it and start with the vin check free part".
+**Decisions and why:** 
+- The hero is rebuilt on the Adedayo Aremu Autos hero's structure and measurements, in Sabicars' own colours: words on the photo, three doors (Buy in orange with the live stock count, Sell, Check VIN), the car's name and price, thin slide bars and a pause button.
+- The paragraph is replaced by one short line of two live facts (cars for sale, lowest Drive Plan deposit).
+- The slideshow runs car, service, car, service. Services: 40% Drive Plan, Hummer buses, Free VIN check, Sell or swap, Request a car, Earn 1.5%. Each has its own two-line headline and one link.
+- The Drive Plan slide only shows over a car from 2010 up, so "Pay 40%" is never said over a car that needs 50%. With no such car the slide stays away.
+- On a phone each door puts its icon above its name, because "Check VIN" does not fit beside the icon. This is the one place the doors differ from Adedayo's.
+- Six cards under the search box (Buy a car, 40% Drive Plan, Check a car, Sell your car, Request a car, Earn 1.5%), each with a live fact. Nothing already on the page was removed.
+- "Check a car" added to the More menu and the footer.
+- The old hero component and its styles are retired: its global `[data-slide]` rule hid the new hero until the new one took its own attribute name.
+- The free VIN check (`/check`) is being ported from the Adedayo engine: free NHTSA facts and recalls only, no US price estimate, no paid history, no scraped auction photos.
+**Ideas raised (not yet built):** 
+- Paid title history and foreign auction photos for the VIN check: need quotes from a licensed source first.
+- "Car evaluation": meaning still to be agreed (suggested: a price range from Sabicars' own stock that leads into Sell).
+**Rejected or reversed:** 
+- The 13 November instruction "am not saying change sabicars to adedayo design" is replaced, for the hero only, by today's "exactly like that of dayo".
+- The first try at the doors (added inside the old hero) is dropped in favour of the full rebuild.
+**Built and shipped:** 
+- Built on the local machine only; nothing committed or live. Hero, service slides, six cards and menu link checked by eye on desktop and phone sizes; type and lint checks pass for the home page. The `/check` page is unfinished.
+**Open questions at the end of the day:** 
+- Alex to see the desktop and phone screens before anything is pushed (the 8 November hero change was reversed after going live).
+- Full test suites still to run once `/check` exists.
+
 ## 2026-11-13 (Friday)
 **Instructions from Alex:**
 - "I want us to include VIN check and car evaluation on this app." And: look at the Adedayo Aremu Autos US page (`adedayoaremuautos.com/us`), "see the way the hero view is and the way those buttons are, but Sabicars' own more standout. Then look at the content layout."
