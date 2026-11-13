@@ -10,6 +10,7 @@ Days before 8 November 2026 were reconstructed on 8 November from the saved Clau
 - The long write-up under the headline ("every photo has a price...") "is not neccesaary".
 - Between the car photos in the hero slideshow, "lets the services all display one slidshow after the other".
 - "then the 6 cards build it and start with the vin check free part".
+- Later: "let the down menu Request a car turn check vin" (the phone's bottom bar).
 **Decisions and why:** 
 - The hero is rebuilt on the Adedayo Aremu Autos hero's structure and measurements, in Sabicars' own colours: words on the photo, three doors (Buy in orange with the live stock count, Sell, Check VIN), the car's name and price, thin slide bars and a pause button.
 - The paragraph is replaced by one short line of two live facts (cars for sale, lowest Drive Plan deposit).
@@ -17,7 +18,8 @@ Days before 8 November 2026 were reconstructed on 8 November from the saved Clau
 - The Drive Plan slide only shows over a car from 2010 up, so "Pay 40%" is never said over a car that needs 50%. With no such car the slide stays away.
 - On a phone each door puts its icon above its name, because "Check VIN" does not fit beside the icon. This is the one place the doors differ from Adedayo's.
 - Six cards under the search box (Buy a car, 40% Drive Plan, Check a car, Sell your car, Request a car, Earn 1.5%), each with a live fact. Nothing already on the page was removed.
-- "Check a car" added to the More menu and the footer.
+- The phone's bottom bar is now Home, Cars, Drive Plan, Check VIN, Earn. Request a car is not lost: on a phone it moves into the More menu, and it stays in the header on a wide screen, where Check VIN sits under More instead.
+- The section has one name everywhere, "Check VIN": the hero door, the tab, the card, the More menu and the footer.
 - The old hero component and its styles are retired: its global `[data-slide]` rule hid the new hero until the new one took its own attribute name.
 - The free VIN check (`/check`) is being ported from the Adedayo engine: free NHTSA facts and recalls only, no US price estimate, no paid history, no scraped auction photos.
 **Ideas raised (not yet built):** 
