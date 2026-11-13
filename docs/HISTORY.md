@@ -4,6 +4,29 @@ One section per working day, newest first. Each records what Alex John asked for
 
 Days before 8 November 2026 were reconstructed on 8 November from the saved Claude Code transcripts and the commit history; from 8 November on, the day's entry is written at the end of the day (a Claude Code hook refuses to end a day with commits until it is).
 
+## 2026-11-13 (Friday)
+**Instructions from Alex:**
+- "I want us to include VIN check and car evaluation on this app." And: look at the Adedayo Aremu Autos US page (`adedayoaremuautos.com/us`), "see the way the hero view is and the way those buttons are, but Sabicars' own more standout. Then look at the content layout."
+
+**What was found (no code yet):**
+- The Adedayo hero names its three jobs in the headline ("Buy it. Rent it. Or sell us yours.") and puts three glass tiles under it (Buy, Sell, Rent), each with an icon and a live fact ("16 cars", "From $350/wk"). Sabicars has one orange button and one plain "Sell your car" button, so it reads as one job.
+- Its content layout: a search box, then a "What do you need?" grid of six cards (Rent, Rent to own, Buy, Financing, Check a car, Refer and earn), so every service is in one screen. Sabicars goes from the hero into long sections, with Request a car, Sell, Buy in bulk, Compare and Earn under "More".
+- The Adedayo engine already has both tools (newer than the local copy; on its `origin/main`): a free VIN check on the US government's records (the car, recalls, safety stars; `lib/vin/nhtsa.ts` and friends) and a value check on American dealer prices (MarketCheck), which its own code limits to the US: "never a US price converted to naira".
+- For Sabicars that means the VIN check works for cars first sold in America (most tokunbo Highlanders, Camrys, Lexus, Benz) and not for Hiace buses, and there is no Nigerian price service to copy for the value check.
+
+**Ideas raised (proposed to Alex, not yet decided):**
+- Hero: keep the full-screen photo and headline; replace the two buttons with tiles in Sabicars colours, the main one solid orange with the live count, the others glass with a real number each. Suggested tiles: Buy, Sell, Check a car.
+- A "What do you need?" grid under the search box: Buy, Drive Plan, Check a car, Value my car, Sell, Request a car, Earn. Nothing existing removed.
+- "Check a car": bring the Adedayo VIN check across, saying plainly when a chassis number is not in the US records.
+- "Car evaluation", three readings: a price range from Sabicars' own listed cars leading into "Sell your car" (recommended); a condition grade from questions (the earlier "chassis check with grades" idea); or both.
+
+**Built and shipped:**
+- Nothing today.
+
+**Open questions at the end of the day:**
+- What "car evaluation" should do, and which jobs go on the hero tiles. Because the 8 November hero change was built and then reversed, the hero and grid will be built locally and shown as screenshots before anything goes live.
+- Carried: no car has an Autochek link; the two hidden GLC 300 listings; phone layout untested; the five imported old-site enquiries; the 25 test chats; the ₦36m 4Runner duplicate; the Instagram link on `main`; Supabase Pro / Resend Pro; own hero footage; the Play account.
+
 ## 2026-11-10 (Tuesday)
 **Instructions from Alex:**
 - (Late on the 9th, after the brief) "Am I giving it my partner login number?" Answer: no; the forms use two other test numbers, and Alex types the partner number and PIN himself when ChatGPT hands the browser over. In the end his partner number went in as test number 1, a second phone as number 2, and the owner's email (already on the Friday list) as the test email.
