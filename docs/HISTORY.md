@@ -20,11 +20,13 @@ Days before 8 November 2026 were reconstructed on 8 November from the saved Clau
 - "Check a car": bring the Adedayo VIN check across, saying plainly when a chassis number is not in the US records.
 - "Car evaluation", three readings: a price range from Sabicars' own listed cars leading into "Sell your car" (recommended); a condition grade from questions (the earlier "chassis check with grades" idea); or both.
 
-**Built and shipped:**
-- Nothing today.
+- Later the same day Alex sent six screenshots of the Adedayo page, desktop and phone, and settled it: Sabicars keeps its own design; take the hero's structure and measurements; the three doors are Buy, Sell, Check VIN; the VIN check must be "more realistic and factual" than the American one, and if it can, show the car's foreign photos, its true history and its features. He asked what I think of the "Find your car" panel with the grid of service cards under it. "Let's start with those first."
+
+**Built (local only, not committed, not live):**
+- The hero's two buttons replaced by three doors, sized from the Adedayo hero (three across, 16px corners, an icon chip, a bold name, one fact): Buy in solid orange with today's stock count, Sell and Check VIN in glass. On a phone the icon sits above the name so "Check VIN" fits a third of the screen. `/check` does not exist yet, so this cannot go live before the VIN check does.
 
 **Open questions at the end of the day:**
-- What "car evaluation" should do, and which jobs go on the hero tiles. Because the 8 November hero change was built and then reversed, the hero and grid will be built locally and shown as screenshots before anything goes live.
+- What "car evaluation" should do (the tiles are settled: Buy, Sell, Check VIN). Which paid source, if any, to use for foreign auction photos and title history in the VIN check: none publishes a clear price per lookup, so that needs a quote before it is promised. Because the 8 November hero change was built and then reversed, the hero and grid will be built locally and shown as screenshots before anything goes live.
 - Carried: no car has an Autochek link; the two hidden GLC 300 listings; phone layout untested; the five imported old-site enquiries; the 25 test chats; the ₦36m 4Runner duplicate; the Instagram link on `main`; Supabase Pro / Resend Pro; own hero footage; the Play account.
 
 ## 2026-11-10 (Tuesday)
