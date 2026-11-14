@@ -17,6 +17,7 @@ Days before 8 November 2026 were reconstructed on 8 November from the saved Clau
 - Then, of a photo narrower than the screen with blurred bands at its sides: "is still cropped bro let the vehicle fill in it space".
 - Then: "i love the mobile view so perfectly, but the desktop view is poor", with a screenshot of Adedayo's desktop hero: "thats how i want the desktop view to look". And: remove the "Cars for sale" button from the header, "cus its desame with the buy button, or what u suggest?"
 - Then "a lil adjustment": the Check VIN name ran out of its button on a narrow screen ("scan the whole site if theres any other like that and fix"), and "the desktop view make the shaded part a lil more see through".
+- Then, with his desktop hero beside Adedayo's: "u see the difference?"
 **Decisions and why:** 
 - The hero is rebuilt on the Adedayo Aremu Autos hero's structure and measurements, in Sabicars' own colours: words on the photo, three doors (Buy in orange with the live stock count, Sell, Check VIN), the car's name and price, thin slide bars and a pause button.
 - The paragraph is replaced by one short line of two live facts (cars for sale, lowest Drive Plan deposit).
@@ -50,7 +51,11 @@ Days before 8 November 2026 were reconstructed on 8 November from the saved Clau
   - a long button name may now wrap onto a second line under 360px.
 - Left: a 3px clip of a price on the compare page at 300px, narrower than any phone.
 - The desktop hero's shade is lighter (0.76 at its darkest, from 0.9), and the words carry a soft shadow so they still read.
+- The difference left between the two desktop heroes is the photographs, not the layout. Adedayo's are wide shots taken from a distance, so one photo covers the hero and shows behind the words. All seven of the owner's hero cover photos are upright or square phone shots taken close (measured: 0.56 to 1.0 wide to 1 high). An upright photo cannot cover a wide hero without being blown up, so it stands at the right over a blurred copy.
+- A wide photo (1.3 or more wide to 1 high) now lies across the desktop hero, sharp behind the words, as Adedayo's does: as wide as the hero when that takes no more than a quarter over its whole size, never more. Shown to Alex with three cars in stock whose cover photos are wide. 15 of the 46 cover photos in stock are wide.
+- An automatic "use the car's first wide photo" was ruled out: on the Lexus RX 350L the only wide photo is the dashboard.
 **Ideas raised (not yet built):** 
+- In Admin, Audience: choose which of a car's photos stands on its hero slide, so a wide outside photo can be used without changing the car's cover photo. The Hummer 2 and the 2021 Highlander already have good wide outside photos in their galleries.
 - Paid title history and foreign auction photos for the VIN check: need quotes from a licensed source first.
 - "Car evaluation": meaning still to be agreed (suggested: a price range from Sabicars' own stock that leads into Sell).
 **Rejected or reversed:** 
@@ -62,10 +67,12 @@ Days before 8 November 2026 were reconstructed on 8 November from the saved Clau
 - Built on the local machine only; nothing committed or live.
 - Hero, service slides, six cards, the Check VIN tab and the `/check` page all work in a local production build. A real 2017 Toyota Highlander VIN gave the car, a photo of the model, 3 recalls, 272 complaints and 5/5 crash stars.
 - A page test ("an old car link") failed twice during the day, both times while the browser pane was also loading the site, and passed every time it was run again (8 of 8, and straight after a restart). Not traced to any change.
+- Local tests at the end of the day, run with nothing else touching the site: build with all its checks, money-path 9 passed and 1 skipped, phone and desktop smoke 127 passed and 13 skipped, and the narrow-screen scan clean at 320, 360 and 390px.
 - Local tests after the slide picker: build with all its checks (the VIN checks and 25 hero-rule checks are new gates), money-path 9 passed and 1 skipped, phone and desktop smoke 127 passed and 13 skipped.
 - The new admin box was not tried in a browser (staff sign-in is the owner's); its database reads and its rules were run against the local copy.
 **Open questions at the end of the day:** 
 - Alex to see the desktop and phone screens before anything is pushed (the 8 November hero change was reversed after going live).
+- For the desktop hero to look like Adedayo's: put a wide outside photo first on each hero car (it becomes the cover), or have the photo chooser built. Alex to say which. Photos taken a few steps back, with room round the car, would look best.
 - The owner's seven picks are not saved on live: the box is not live yet. After the push, either Alex picks them in the admin or approves setting them once.
 - Whether to turn the plain-words recall summaries on, and whether the NICB link opens from Nigeria.
 
