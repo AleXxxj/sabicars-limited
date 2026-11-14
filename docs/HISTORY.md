@@ -19,6 +19,7 @@ Days before 8 November 2026 were reconstructed on 8 November from the saved Clau
 - Then "a lil adjustment": the Check VIN name ran out of its button on a narrow screen ("scan the whole site if theres any other like that and fix"), and "the desktop view make the shaded part a lil more see through".
 - Then, with his desktop hero beside Adedayo's: "u see the difference?"
 - Then: "u dont get.. thats not what am saying, am only saying the shaded blur sided on hero view, let it be see through shaded like screenshot i attached. u are not to re create the page or anything.. thats why i said a lil change.. just that".
+- Then, with his desktop hero and four of Adedayo's: "look at what u did, confirm it before rounding up, didnt u see it glitches? look at the screenshot of adedayo desktop view and look at ours. dont make any change on the mobile view, thats perfect. just the desktop view is what we talking abt".
 **Decisions and why:** 
 - The hero is rebuilt on the Adedayo Aremu Autos hero's structure and measurements, in Sabicars' own colours: words on the photo, three doors (Buy in orange with the live stock count, Sell, Check VIN), the car's name and price, thin slide bars and a pause button.
 - The paragraph is replaced by one short line of two live facts (cars for sale, lowest Drive Plan deposit).
@@ -57,11 +58,17 @@ Days before 8 November 2026 were reconstructed on 8 November from the saved Clau
 - An automatic "use the car's first wide photo" was ruled out: on the Lexus RX 350L the only wide photo is the dashboard.
 - The small change Alex asked for, done as asked: on a wide screen the words' side of the hero is no longer a blur. The photo itself shows there, sharp, through the dark shade, as on Adedayo's hero. The phone view is untouched.
 - Claude had read "u see the difference?" as a request to explain and close the whole gap with Adedayo's hero, and answered with photo shapes, a demo and two options. Alex wanted only the blur gone. The wide-photo support built in between stays (it changes nothing for the present photos), but the photo chooser was not asked for and is only an idea.
+- The glitch was real and Claude had seen it: on the desktop the car stood at the right over a bigger, sharp copy of the same photo, so one car showed twice at two sizes. Claude mentioned it as a side note and still reported the work done. It should have been fixed before reporting.
+- Fixed, desktop only, the way Adedayo's hero is built (read from his live site that day: one photo covering the whole hero, object-fit cover, under a left-to-right shade): one photo now covers the whole desktop hero, under the lighter see-through shade; the second copy is gone. The photo is the car framed by Cloudinary, then the middle 16:9 strip of it, so the car's face shows: asked for a 16:9 strip straight away, Cloudinary chose the Hummer's bumper alone and the Highlander's grille alone (compared on all seven hero cars before choosing; none worse).
+- The shade stays the lighter one Alex asked for, not Adedayo's exact one (0.92 at the left edge): under his, the black G 63 and AMG coupe almost vanished. Every headline was checked readable over the white Hummer and the white Lexus.
+- The phone view did not move: compared pixel by pixel with the pictures taken of the version Alex approved, the only differences (6 and 12 pixels) are the slide's progress bar caught at another moment. The blurred strip under the words on phones is back on its approved code, which the last change had swapped (it looked the same).
+- Checked before reporting, in a browser of its own: every slide at Alex's window size (1040 wide) and on a large screen (1440), the first load, and a crossfade between two slides; one picture on screen per slide, covering the hero.
 **Ideas raised (not yet built):** 
 - In Admin, Audience: choose which of a car's photos stands on its hero slide, so a wide outside photo can be used without changing the car's cover photo. The Hummer 2 and the 2021 Highlander already have good wide outside photos in their galleries.
 - Paid title history and foreign auction photos for the VIN check: need quotes from a licensed source first.
 - "Car evaluation": meaning still to be agreed (suggested: a price range from Sabicars' own stock that leads into Sell).
 **Rejected or reversed:** 
+- The sharp copy of the photo behind the car on the desktop (the "see-through" change): it showed the car twice. Replaced by one photo across the whole hero.
 - Showing the whole tall photo in the room above the words: it made the photo a small card, and Alex rejected it at once. Moving a tall photo up to hide its sky was tried next and cut the Changan's roof, so it was dropped for Cloudinary's own framing of the car.
 - Making the framed photo narrower on a short screen so the words stayed off it: it left blurred bands at the sides, which Alex read as cropped. Showing the whole tall photo on wide screens: it stood small at the side. Both dropped for the one framing at full size.
 - The 13 November instruction "am not saying change sabicars to adedayo design" is replaced, for the hero only, by today's "exactly like that of dayo".
