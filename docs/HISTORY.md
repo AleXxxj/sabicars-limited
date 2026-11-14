@@ -18,6 +18,7 @@ Days before 8 November 2026 were reconstructed on 8 November from the saved Clau
 - Then: "i love the mobile view so perfectly, but the desktop view is poor", with a screenshot of Adedayo's desktop hero: "thats how i want the desktop view to look". And: remove the "Cars for sale" button from the header, "cus its desame with the buy button, or what u suggest?"
 - Then "a lil adjustment": the Check VIN name ran out of its button on a narrow screen ("scan the whole site if theres any other like that and fix"), and "the desktop view make the shaded part a lil more see through".
 - Then, with his desktop hero beside Adedayo's: "u see the difference?"
+- Then: "u dont get.. thats not what am saying, am only saying the shaded blur sided on hero view, let it be see through shaded like screenshot i attached. u are not to re create the page or anything.. thats why i said a lil change.. just that".
 **Decisions and why:** 
 - The hero is rebuilt on the Adedayo Aremu Autos hero's structure and measurements, in Sabicars' own colours: words on the photo, three doors (Buy in orange with the live stock count, Sell, Check VIN), the car's name and price, thin slide bars and a pause button.
 - The paragraph is replaced by one short line of two live facts (cars for sale, lowest Drive Plan deposit).
@@ -54,6 +55,8 @@ Days before 8 November 2026 were reconstructed on 8 November from the saved Clau
 - The difference left between the two desktop heroes is the photographs, not the layout. Adedayo's are wide shots taken from a distance, so one photo covers the hero and shows behind the words. All seven of the owner's hero cover photos are upright or square phone shots taken close (measured: 0.56 to 1.0 wide to 1 high). An upright photo cannot cover a wide hero without being blown up, so it stands at the right over a blurred copy.
 - A wide photo (1.3 or more wide to 1 high) now lies across the desktop hero, sharp behind the words, as Adedayo's does: as wide as the hero when that takes no more than a quarter over its whole size, never more. Shown to Alex with three cars in stock whose cover photos are wide. 15 of the 46 cover photos in stock are wide.
 - An automatic "use the car's first wide photo" was ruled out: on the Lexus RX 350L the only wide photo is the dashboard.
+- The small change Alex asked for, done as asked: on a wide screen the words' side of the hero is no longer a blur. The photo itself shows there, sharp, through the dark shade, as on Adedayo's hero. The phone view is untouched.
+- Claude had read "u see the difference?" as a request to explain and close the whole gap with Adedayo's hero, and answered with photo shapes, a demo and two options. Alex wanted only the blur gone. The wide-photo support built in between stays (it changes nothing for the present photos), but the photo chooser was not asked for and is only an idea.
 **Ideas raised (not yet built):** 
 - In Admin, Audience: choose which of a car's photos stands on its hero slide, so a wide outside photo can be used without changing the car's cover photo. The Hummer 2 and the 2021 Highlander already have good wide outside photos in their galleries.
 - Paid title history and foreign auction photos for the VIN check: need quotes from a licensed source first.
