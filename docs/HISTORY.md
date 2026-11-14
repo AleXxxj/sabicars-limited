@@ -63,6 +63,10 @@ Days before 8 November 2026 were reconstructed on 8 November from the saved Clau
 - The shade stays the lighter one Alex asked for, not Adedayo's exact one (0.92 at the left edge): under his, the black G 63 and AMG coupe almost vanished. Every headline was checked readable over the white Hummer and the white Lexus.
 - The phone view did not move: compared pixel by pixel with the pictures taken of the version Alex approved, the only differences (6 and 12 pixels) are the slide's progress bar caught at another moment. The blurred strip under the words on phones is back on its approved code, which the last change had swapped (it looked the same).
 - Checked before reporting, in a browser of its own: every slide at Alex's window size (1040 wide) and on a large screen (1440), the first load, and a crossfade between two slides; one picture on screen per slide, covering the hero.
+- Then, with Adedayo's tablet view beside ours: "am not cool with ours"; a little more see-through shade on the left of the desktop; and the Hummer, the 2021 Lexus RX 350L and the G-Wagon "more visible" without changing the design or layout.
+- Tablet (640 to 1023px) now as Adedayo's tablet: one photo across the stage (the phone's framing of the car, no blurred copy), words at its foot over a shade that darkens towards the buttons, a big headline that keeps two lines (8.2vw, at most 72px). Lighter shade than his and no top band: at a 936 by 670 window his shade left Sabicars' dark cars almost black. The shade now reaches both screen edges (it stopped 16px short at 768px and up; fixed, built, not yet looked at again).
+- Desktop: a little more shade under the words, none more over the car; the photo strip is 1.5 wide to 1 high instead of 16:9, so a laptop shows about a sixth more of each car's height, the most a tall close-up photo can show when it fills a wide hero. To show the whole Hummer, G-Wagon or RX 350L the hero needs a wide photo of it: the Hummer has good wide outside photos in its gallery, the other two do not.
+- Phone view checked unchanged against the approved pictures after every step (differences of 6 to 18 pixels, the progress bar).
 **Ideas raised (not yet built):** 
 - In Admin, Audience: choose which of a car's photos stands on its hero slide, so a wide outside photo can be used without changing the car's cover photo. The Hummer 2 and the 2021 Highlander already have good wide outside photos in their galleries.
 - Paid title history and foreign auction photos for the VIN check: need quotes from a licensed source first.
@@ -82,6 +86,7 @@ Days before 8 November 2026 were reconstructed on 8 November from the saved Clau
 - The new admin box was not tried in a browser (staff sign-in is the owner's); its database reads and its rules were run against the local copy.
 **Open questions at the end of the day:** 
 - Alex to see the desktop and phone screens before anything is pushed (the 8 November hero change was reversed after going live).
+- Stopped mid-check: Alex's Mac was at 1% battery. Still to do: look at the tablet after the edge fix, run the full tests on the last build.
 - For the desktop hero to look like Adedayo's: put a wide outside photo first on each hero car (it becomes the cover), or have the photo chooser built. Alex to say which. Photos taken a few steps back, with room round the car, would look best.
 - The owner's seven picks are not saved on live: the box is not live yet. After the push, either Alex picks them in the admin or approves setting them once.
 - Whether to turn the plain-words recall summaries on, and whether the NICB link opens from Nigeria.
