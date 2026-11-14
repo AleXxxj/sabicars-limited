@@ -11,10 +11,11 @@ Days before 8 November 2026 were reconstructed on 8 November from the saved Clau
 - Between the car photos in the hero slideshow, "lets the services all display one slidshow after the other".
 - "then the 6 cards build it and start with the vin check free part".
 - Later: "let the down menu Request a car turn check vin" (the phone's bottom bar).
+- After seeing the pictures: "its repeatative, i dont want a repeatative hero", and "real car real price is not really that neccessary, cus are there fake prices?"
 **Decisions and why:** 
 - The hero is rebuilt on the Adedayo Aremu Autos hero's structure and measurements, in Sabicars' own colours: words on the photo, three doors (Buy in orange with the live stock count, Sell, Check VIN), the car's name and price, thin slide bars and a pause button.
 - The paragraph is replaced by one short line of two live facts (cars for sale, lowest Drive Plan deposit).
-- The slideshow runs car, service, car, service. Services: 40% Drive Plan, Hummer buses, Free VIN check, Sell or swap, Request a car, Earn 1.5%. Each has its own two-line headline and one link.
+- First build of the slideshow ran car, service, car, service (changed later the same day, see below). Services: 40% Drive Plan, Hummer buses, Free VIN check, Sell or swap, Request a car, Earn 1.5%. Each has its own two-line headline and one link.
 - The Drive Plan slide only shows over a car from 2010 up, so "Pay 40%" is never said over a car that needs 50%. With no such car the slide stays away.
 - On a phone each door puts its icon above its name, because "Check VIN" does not fit beside the icon. This is the one place the doors differ from Adedayo's.
 - Six cards under the search box (Buy a car, 40% Drive Plan, Check a car, Sell your car, Request a car, Earn 1.5%), each with a live fact. Nothing already on the page was removed.
@@ -23,6 +24,9 @@ Days before 8 November 2026 were reconstructed on 8 November from the saved Clau
 - The old hero component and its styles are retired: its global `[data-slide]` rule hid the new hero until the new one took its own attribute name.
 - The free VIN check (`/check`) is ported from the Adedayo engine: free NHTSA facts and recalls only, no US price estimate, no paid history, no scraped auction photos. The photo is of the model, from Wikimedia Commons, and says so.
 - Rewriting recalls in plain words with Claude is behind its own switch (`RECALL_SUMMARIES=on`), off by default: a public page must not spend on Anthropic with no daily cap, or send anything to a service the privacy notice does not name, until the owner says so.
+- The hero no longer repeats itself. Every slide has its own words over its own car: the opening one, then one for each service. Before, the same headline came back on every car slide and a service slide showed the same photo as the car after it. When there are more slides than hero cars, other featured cars lend their photos.
+- The headline "Real cars, real prices." is gone ("are there fake prices?"). The opening headline is "Your next car is here. / See it before you pay.", and its line is "Cars, SUVs and buses from" the lowest price, not the stock count the Buy door already shows.
+- The VIN slide reads "Check any car. / It is free." so "before you pay" is said once.
 **Ideas raised (not yet built):** 
 - Paid title history and foreign auction photos for the VIN check: need quotes from a licensed source first.
 - "Car evaluation": meaning still to be agreed (suggested: a price range from Sabicars' own stock that leads into Sell).
