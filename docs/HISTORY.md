@@ -21,7 +21,8 @@ Days before 8 November 2026 were reconstructed on 8 November from the saved Clau
 - The phone's bottom bar is now Home, Cars, Drive Plan, Check VIN, Earn. Request a car is not lost: on a phone it moves into the More menu, and it stays in the header on a wide screen, where Check VIN sits under More instead.
 - The section has one name everywhere, "Check VIN": the hero door, the tab, the card, the More menu and the footer.
 - The old hero component and its styles are retired: its global `[data-slide]` rule hid the new hero until the new one took its own attribute name.
-- The free VIN check (`/check`) is being ported from the Adedayo engine: free NHTSA facts and recalls only, no US price estimate, no paid history, no scraped auction photos.
+- The free VIN check (`/check`) is ported from the Adedayo engine: free NHTSA facts and recalls only, no US price estimate, no paid history, no scraped auction photos. The photo is of the model, from Wikimedia Commons, and says so.
+- Rewriting recalls in plain words with Claude is behind its own switch (`RECALL_SUMMARIES=on`), off by default: a public page must not spend on Anthropic with no daily cap, or send anything to a service the privacy notice does not name, until the owner says so.
 **Ideas raised (not yet built):** 
 - Paid title history and foreign auction photos for the VIN check: need quotes from a licensed source first.
 - "Car evaluation": meaning still to be agreed (suggested: a price range from Sabicars' own stock that leads into Sell).
@@ -29,10 +30,12 @@ Days before 8 November 2026 were reconstructed on 8 November from the saved Clau
 - The 13 November instruction "am not saying change sabicars to adedayo design" is replaced, for the hero only, by today's "exactly like that of dayo".
 - The first try at the doors (added inside the old hero) is dropped in favour of the full rebuild.
 **Built and shipped:** 
-- Built on the local machine only; nothing committed or live. Hero, service slides, six cards and menu link checked by eye on desktop and phone sizes; type and lint checks pass for the home page. The `/check` page is unfinished.
+- Built on the local machine only; nothing committed or live.
+- Hero, service slides, six cards, the Check VIN tab and the `/check` page all work in a local production build. A real 2017 Toyota Highlander VIN gave the car, a photo of the model, 3 recalls, 272 complaints and 5/5 crash stars.
+- Local tests: build with all its checks (the VIN checks are a new gate), money-path 9 passed and 1 skipped, phone and desktop smoke 126 passed and 13 skipped. One page test failed once under load and passed on two re-runs.
 **Open questions at the end of the day:** 
 - Alex to see the desktop and phone screens before anything is pushed (the 8 November hero change was reversed after going live).
-- Full test suites still to run once `/check` exists.
+- Whether to turn the plain-words recall summaries on, and whether the NICB link opens from Nigeria.
 
 ## 2026-11-13 (Friday)
 **Instructions from Alex:**
