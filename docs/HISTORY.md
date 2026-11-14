@@ -12,6 +12,7 @@ Days before 8 November 2026 were reconstructed on 8 November from the saved Clau
 - "then the 6 cards build it and start with the vin check free part".
 - Later: "let the down menu Request a car turn check vin" (the phone's bottom bar).
 - After seeing the pictures: "its repeatative, i dont want a repeatative hero", and "real car real price is not really that neccessary, cus are there fake prices?"
+- Asked if the hero cars can be changed in the admin, then named a car for each of the seven slides (one of them the sold 2014 Hiace Hummer 2) and said: "make the vehicles all fit perfectly in the hero slide view like not zoomed in".
 **Decisions and why:** 
 - The hero is rebuilt on the Adedayo Aremu Autos hero's structure and measurements, in Sabicars' own colours: words on the photo, three doors (Buy in orange with the live stock count, Sell, Check VIN), the car's name and price, thin slide bars and a pause button.
 - The paragraph is replaced by one short line of two live facts (cars for sale, lowest Drive Plan deposit).
@@ -27,6 +28,11 @@ Days before 8 November 2026 were reconstructed on 8 November from the saved Clau
 - The hero no longer repeats itself. Every slide has its own words over its own car: the opening one, then one for each service. Before, the same headline came back on every car slide and a service slide showed the same photo as the car after it. When there are more slides than hero cars, other featured cars lend their photos.
 - The headline "Real cars, real prices." is gone ("are there fake prices?"). The opening headline is "Your next car is here. / See it before you pay.", and its line is "Cars, SUVs and buses from" the lowest price, not the stock count the Buy door already shows.
 - The VIN slide reads "Check any car. / It is free." so "before you pay" is said once.
+- The owner now chooses which car stands on which slide: a new box in Admin, Audience ("Homepage cars: which car on which slide"), saved in the settings table, so no database change was needed. Ticking "Use in the homepage hero" could not say which slide, and a sold car drops out of the ticked list.
+- A sold car may be shown and is marked "Sold" where a price would be. A car is refused where the slide's words would be untrue of it: no sold car on the opening or Drive Plan slide, only a priced car from 2010 up on the Drive Plan slide, only a Hummer on the Hummer slide.
+- The hero has exactly seven slides. A ticked car that no slide uses is not shown (the first build added it as an extra slide with no words; dropped as a surprise).
+- The whole car is shown, never cropped and never zoomed. On a wide screen the car stands on the right and the words on the left. On a phone the whole photo sits in the room above the words, which the page measures, on a blurred copy of itself. Most cover photos are tall phone photos with the car low down, so the words were lying on the car.
+- The phone headline is smaller than Adedayo's, so every slide's words take two lines.
 **Ideas raised (not yet built):** 
 - Paid title history and foreign auction photos for the VIN check: need quotes from a licensed source first.
 - "Car evaluation": meaning still to be agreed (suggested: a price range from Sabicars' own stock that leads into Sell).
@@ -36,9 +42,11 @@ Days before 8 November 2026 were reconstructed on 8 November from the saved Clau
 **Built and shipped:** 
 - Built on the local machine only; nothing committed or live.
 - Hero, service slides, six cards, the Check VIN tab and the `/check` page all work in a local production build. A real 2017 Toyota Highlander VIN gave the car, a photo of the model, 3 recalls, 272 complaints and 5/5 crash stars.
-- Local tests: build with all its checks (the VIN checks are a new gate), money-path 9 passed and 1 skipped, phone and desktop smoke 126 passed and 13 skipped. One page test failed once under load and passed on two re-runs.
+- Local tests after the last change: build with all its checks (the VIN checks and 25 hero-rule checks are new gates), money-path 9 passed and 1 skipped, phone and desktop smoke 127 passed and 13 skipped.
+- The new admin box was not tried in a browser (staff sign-in is the owner's); its database reads and its rules were run against the local copy.
 **Open questions at the end of the day:** 
 - Alex to see the desktop and phone screens before anything is pushed (the 8 November hero change was reversed after going live).
+- The owner's seven picks are not saved on live: the box is not live yet. After the push, either Alex picks them in the admin or approves setting them once.
 - Whether to turn the plain-words recall summaries on, and whether the NICB link opens from Nigeria.
 
 ## 2026-11-13 (Friday)
