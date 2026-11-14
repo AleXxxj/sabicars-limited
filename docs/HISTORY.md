@@ -16,6 +16,7 @@ Days before 8 November 2026 were reconstructed on 8 November from the saved Clau
 - Sent two screenshots of the result, the photo shrunk to a small card: "look at what u did? this not what i asked u to do".
 - Then, of a photo narrower than the screen with blurred bands at its sides: "is still cropped bro let the vehicle fill in it space".
 - Then: "i love the mobile view so perfectly, but the desktop view is poor", with a screenshot of Adedayo's desktop hero: "thats how i want the desktop view to look". And: remove the "Cars for sale" button from the header, "cus its desame with the buy button, or what u suggest?"
+- Then "a lil adjustment": the Check VIN name ran out of its button on a narrow screen ("scan the whole site if theres any other like that and fix"), and "the desktop view make the shaded part a lil more see through".
 **Decisions and why:** 
 - The hero is rebuilt on the Adedayo Aremu Autos hero's structure and measurements, in Sabicars' own colours: words on the photo, three doors (Buy in orange with the live stock count, Sell, Check VIN), the car's name and price, thin slide bars and a pause button.
 - The paragraph is replaced by one short line of two live facts (cars for sale, lowest Drive Plan deposit).
@@ -40,6 +41,15 @@ Days before 8 November 2026 were reconstructed on 8 November from the saved Clau
 - The desktop hero now sits the way Adedayo's does. His header lies over the photo; Sabicars' is in the page's flow, which pushed the words, doors and controls down by its height and off a laptop's screen. So the hero is drawn up under the header, which is see-through. The car's photo is as tall as the whole hero, at the right, with no band above or below it.
 - The header's orange "Cars for sale" button is gone. It is now the first plain link in the header: on the homepage it said the same thing as the hero's Buy door, but every other page has no Buy door and still needs a way to the cars. This was Claude's suggestion in answer to Alex's question; Alex can still have it removed outright.
 - Found and fixed while checking: the first photo was loaded but not drawn on first load, until the slide changed. Chrome drew the photo's fade before its frame had a size. The frame now has its own layer at every width. Checked on first load at four sizes in a browser of its own.
+- The whole site was scanned for words running out of, or cut by, their button or card, and for things hanging off the screen's edge: 25 kinds of page at 300, 320, 360, 390 and 430px wide, in a browser of its own. Found and fixed:
+  - the header was 330px wide at its least, so under 340px the menu button hung off the edge and every page slid sideways;
+  - the hero's door names are now sized from the door, so "Check VIN" fits down to 300px;
+  - a car card's one-line spec text set the least width of the whole card, which pushed the car lists on the Hummer and "buy by make" pages 26px past the edge of a 360px phone;
+  - a nine-figure price and its deposit now share the card by wrapping, not by running out of it;
+  - the three figures on the Hummer page and the Drive Plan example, and the Drive Plan calculator's big figure and its list of cars;
+  - a long button name may now wrap onto a second line under 360px.
+- Left: a 3px clip of a price on the compare page at 300px, narrower than any phone.
+- The desktop hero's shade is lighter (0.76 at its darkest, from 0.9), and the words carry a soft shadow so they still read.
 **Ideas raised (not yet built):** 
 - Paid title history and foreign auction photos for the VIN check: need quotes from a licensed source first.
 - "Car evaluation": meaning still to be agreed (suggested: a price range from Sabicars' own stock that leads into Sell).
