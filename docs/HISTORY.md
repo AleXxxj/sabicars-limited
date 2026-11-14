@@ -15,6 +15,7 @@ Days before 8 November 2026 were reconstructed on 8 November from the saved Clau
 - Asked if the hero cars can be changed in the admin, then named a car for each of the seven slides (one of them the sold 2014 Hiace Hummer 2) and said: "make the vehicles all fit perfectly in the hero slide view like not zoomed in".
 - Sent two screenshots of the result, the photo shrunk to a small card: "look at what u did? this not what i asked u to do".
 - Then, of a photo narrower than the screen with blurred bands at its sides: "is still cropped bro let the vehicle fill in it space".
+- Then: "i love the mobile view so perfectly, but the desktop view is poor", with a screenshot of Adedayo's desktop hero: "thats how i want the desktop view to look". And: remove the "Cars for sale" button from the header, "cus its desame with the buy button, or what u suggest?"
 **Decisions and why:** 
 - The hero is rebuilt on the Adedayo Aremu Autos hero's structure and measurements, in Sabicars' own colours: words on the photo, three doors (Buy in orange with the live stock count, Sell, Check VIN), the car's name and price, thin slide bars and a pause button.
 - The paragraph is replaced by one short line of two live facts (cars for sale, lowest Drive Plan deposit).
@@ -36,6 +37,9 @@ Days before 8 November 2026 were reconstructed on 8 November from the saved Clau
 - The photo fills its space and the car in it is whole, never enlarged. Most cover photos are tall phone photos with the car low down, so Cloudinary frames the car itself (g_auto, already used for link previews): an upright or square photo becomes a wide one (1.15 wide to 1 high) at its full width, with the car whole in the middle. One framing at every width: on a phone it runs edge to edge; from a tablet up it stands on the right at the hero's full height, with the words on the left.
 - On a phone the hero is now as tall as the photo needs, not as tall as the screen allows. Adedayo's hero is cut to the screen so the doors are always in sight; on most phones that left about 400px, and the words lay over the lower half of the car. The owner chose the car. The doors follow right under: in sight on a tall phone, one short scroll away on a small one, where the bottom bar already has Cars and Check VIN.
 - The phone headline is smaller than Adedayo's, so every slide's words take two lines.
+- The desktop hero now sits the way Adedayo's does. His header lies over the photo; Sabicars' is in the page's flow, which pushed the words, doors and controls down by its height and off a laptop's screen. So the hero is drawn up under the header, which is see-through. The car's photo is as tall as the whole hero, at the right, with no band above or below it.
+- The header's orange "Cars for sale" button is gone. It is now the first plain link in the header: on the homepage it said the same thing as the hero's Buy door, but every other page has no Buy door and still needs a way to the cars. This was Claude's suggestion in answer to Alex's question; Alex can still have it removed outright.
+- Found and fixed while checking: the first photo was loaded but not drawn on first load, until the slide changed. Chrome drew the photo's fade before its frame had a size. The frame now has its own layer at every width. Checked on first load at four sizes in a browser of its own.
 **Ideas raised (not yet built):** 
 - Paid title history and foreign auction photos for the VIN check: need quotes from a licensed source first.
 - "Car evaluation": meaning still to be agreed (suggested: a price range from Sabicars' own stock that leads into Sell).
@@ -47,7 +51,8 @@ Days before 8 November 2026 were reconstructed on 8 November from the saved Clau
 **Built and shipped:** 
 - Built on the local machine only; nothing committed or live.
 - Hero, service slides, six cards, the Check VIN tab and the `/check` page all work in a local production build. A real 2017 Toyota Highlander VIN gave the car, a photo of the model, 3 recalls, 272 complaints and 5/5 crash stars.
-- Local tests after the last change: build with all its checks (the VIN checks and 25 hero-rule checks are new gates), money-path 9 passed and 1 skipped, phone and desktop smoke 127 passed and 13 skipped.
+- A page test ("an old car link") failed twice during the day, both times while the browser pane was also loading the site, and passed every time it was run again (8 of 8, and straight after a restart). Not traced to any change.
+- Local tests after the slide picker: build with all its checks (the VIN checks and 25 hero-rule checks are new gates), money-path 9 passed and 1 skipped, phone and desktop smoke 127 passed and 13 skipped.
 - The new admin box was not tried in a browser (staff sign-in is the owner's); its database reads and its rules were run against the local copy.
 **Open questions at the end of the day:** 
 - Alex to see the desktop and phone screens before anything is pushed (the 8 November hero change was reversed after going live).
