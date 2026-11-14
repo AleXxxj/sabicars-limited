@@ -4,6 +4,12 @@ One section per working day, newest first. Each records what Alex John asked for
 
 Days before 8 November 2026 were reconstructed on 8 November from the saved Claude Code transcripts and the commit history; from 8 November on, the day's entry is written at the end of the day (a Claude Code hook refuses to end a day with commits until it is).
 
+## 2026-11-15 (Sunday)
+**Instructions from Alex:** 
+- "Do this task here", for the suggested task "Fix missing-car 404 sent as Next's empty error shell" (late on the 14th), then "Try again", four times.
+**Built and shipped:** 
+- GitHub's two runs on 7c1faac (End to end and Smoke, 22:25 UTC on the 14th) failed at "Walk the site as a buyer and as staff". Their logs need the owner's sign-in, so the night's new homepage tests were run once from this Mac against the live site, one at a time: the chunk test's new check tapped More on the reloaded page before that page's code had arrived (on the live site, half a second after its words), so the tap was lost and the More menu never opened. On this Mac the code arrives at once, which is why it passed here. The site itself was right. The test now waits until the page has woken (React's mark on the button), then taps: passed on this Mac and against the live site, phone and desktop. The failed Smoke run also posted "Deploy check failed" to System status; the next passing run clears it.
+
 ## 2026-11-14 (Saturday)
 **Instructions from Alex:** 
 - Sent a screenshot of the live Sabicars hero and said: "i want the hero screen to be exactly like that of dayo".

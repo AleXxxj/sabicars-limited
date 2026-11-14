@@ -381,8 +381,17 @@ test.describe("Home", () => {
     await expect(page.getByText("Something went wrong on our side."), "the visitor saw the error page instead of a reload").toHaveCount(0);
     expect(reloaded, "the page did not load again after its code failed to arrive").toBe(true);
     expect(await page.evaluate(() => sessionStorage.getItem("sc_chunk_reload")), "the reload was not the site's own cure").not.toBeNull();
-    // And the page it reloaded onto works, not just shows: a tap opens More.
-    await page.getByRole("button", { name: "More", exact: true }).click();
+    // And the page it reloaded onto works, not just shows. Its words come from the server at once, but a tap does
+    // something only once its code has arrived and woken it (React's mark on the button): on the live site that takes
+    // a moment, and a tap before it is lost (GitHub's runs on 7c1faac, 14 November 2026). So: woken, then a tap.
+    const more = page.getByRole("button", { name: "More", exact: true });
+    await expect
+      .poll(() => more.evaluate((el) => Object.keys(el).some((k) => k.startsWith("__reactFiber"))), {
+        message: "the reloaded page's code never woke it",
+        timeout: 20_000,
+      })
+      .toBe(true);
+    await more.click();
     await expect(page.getByRole("dialog", { name: "More" }), "the reloaded page does not respond to a tap").toBeVisible();
     expect(alerts, "code that failed to arrive raised an alert").toEqual([]);
   });
