@@ -834,6 +834,10 @@
 .hh-video.is-on {
   opacity: 1;
 }
+/* Asked for with "Watch video" and shown: the player takes taps, so a phone that blocks autoplay can still start it. */
+.hh-video.is-on.is-asked {
+  pointer-events: auto;
+}
 .hh-video video {
   width: 100%;
   height: 100%;

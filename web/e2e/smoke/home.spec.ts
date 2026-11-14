@@ -255,6 +255,79 @@ test.describe("Home", () => {
     await expect(controls.getByRole("button", { name: /Watch video|Loading video/ }), "the button is back after the video was watched").toHaveCount(0);
   });
 
+  test("a hero video that does not start by itself gives way to Watch video, and asking shows the player", async ({ page }) => {
+    // A player that never answers, as on a phone that blocks autoplay: the hero must not just keep its photos.
+    await page.route(/youtube(-nocookie)?\.com|ytimg\.com/, (r) => r.fulfill({ status: 200, contentType: "text/html", body: "<html></html>" }));
+    await page.goto("/");
+    const controls = page.getByRole("group", { name: "Photos of our cars" });
+    const player = page.locator('iframe[title="Sabicars showcase video"]');
+    test.skip((await player.count()) === 0, "No YouTube hero video is set, or this connection is too slow for one (its own test covers that)");
+    const watch = controls.getByRole("button", { name: "Watch video" });
+    await expect(watch, "a video that never started did not give way to Watch video").toBeVisible({ timeout: 15_000 });
+    await expect(player, "the stalled player was left on the page").toHaveCount(0);
+    await watch.click();
+    // Not started, so shown after a moment with its own play button, and Stop to close it.
+    const stop = controls.getByRole("button", { name: "Stop the video" });
+    await expect(stop, "asking for the video did not show the player").toBeVisible({ timeout: 6_000 });
+    await expect(page.locator(".hh-video.is-on.is-asked"), "the shown player does not take taps").toHaveCount(1);
+    await stop.click();
+    await expect(player, "the video is still on the page after it was stopped").toHaveCount(0);
+  });
+
+  test("scrolling the homepage fetches no other page ahead; touching a link does", async ({ page }) => {
+    const ahead: string[] = [];
+    page.on("request", (r) => {
+      const h = r.headers();
+      if (h["next-router-prefetch"] || /[?&]_rsc=/.test(r.url())) ahead.push(new URL(r.url()).pathname);
+    });
+    await page.goto("/");
+    const height = await page.evaluate(() => document.body.scrollHeight);
+    for (let y = 0; y < height; y += 600) {
+      await page.evaluate((top) => window.scrollTo(0, top), y);
+      await page.waitForTimeout(100);
+    }
+    await page.waitForTimeout(1500);
+    // The owner, 14 November 2026: a phone fetched 25 pages (605 KB) on one scroll of the homepage, on paid data.
+    expect(ahead, "pages were fetched ahead just by scrolling").toEqual([]);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    const door = page.getByRole("navigation", { name: "Start here" }).getByRole("link", { name: /^Sell/ });
+    await door.hover();
+    await expect.poll(() => ahead.includes("/sell"), { message: "pointing at a link did not fetch its page ahead", timeout: 5_000 }).toBe(true);
+  });
+
+  test("a piece of the page's code that fails to arrive reloads the page once, and raises no alert", async ({ page }) => {
+    const alerts: string[] = [];
+    page.on("request", (r) => {
+      if (r.url().includes("/api/ops/client-error")) alerts.push(r.postData() ?? "");
+    });
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    // The code already here stays; every new piece fails until the page loads again, as on a connection that stays
+    // bad for a moment (one dropped piece alone is simply fetched again by Next, which needs no cure).
+    const had = new Set(await page.evaluate(() => performance.getEntriesByType("resource").map((e) => e.name)));
+    let reloaded = false;
+    page.on("load", () => {
+      reloaded = true;
+    });
+    const dropped: string[] = [];
+    await page.route(/\/_next\/static\/.+\.js(\?.*)?$/, (route) => {
+      if (!reloaded && !had.has(route.request().url())) {
+        dropped.push(route.request().url());
+        return route.abort("connectionreset");
+      }
+      return route.continue();
+    });
+    await page.getByRole("navigation", { name: "Start here" }).getByRole("link", { name: /^Check VIN/ }).click();
+    // The page the visitor asked for, not the one they were on: the cure reloads straight onto it.
+    await expect(page, "the visitor never reached the page they tapped").toHaveURL(/\/check$/, { timeout: 20_000 });
+    await expect(page.getByRole("heading", { level: 1 }), "the page they tapped did not open").toContainText("Check any car", { timeout: 20_000 });
+    test.skip(dropped.length === 0, "This page needed no new code to open, so nothing could be dropped");
+    await expect(page.getByText("Something went wrong on our side."), "the visitor saw the error page instead of a reload").toHaveCount(0);
+    expect(reloaded, "the page did not load again after its code failed to arrive").toBe(true);
+    expect(await page.evaluate(() => sessionStorage.getItem("sc_chunk_reload")), "the reload was not the site's own cure").not.toBeNull();
+    expect(alerts, "code that failed to arrive raised an alert").toEqual([]);
+  });
+
   test("What do you need? has a door for each of the six things Sabicars does", async ({ page }) => {
     const faults = watchForFaults(page);
     await page.goto("/");

@@ -70,7 +70,7 @@ DNS for `sabicars.com` is at GoDaddy; email (MX) runs on Google Workspace.
 
 **Public site** — `(site)/`: `page.tsx` (home), `vehicles/[slug]` (the stock and one car), `buy/[term]` (search-term pages such as "Highlander"), `compare/[pair]`, `reserve/[slug]` and `reserve/done`, `drive-plan/`, `hummer-bus/` (Hiace family guide), `fleet/`, `find/` (Sourcing Desk), `sell/`, `saved/`, `ask/[slug]`, `blog/[slug]` (Insights), `check/` (the free VIN check), `partners/` (the programme), `partner/` (account: `cars` to share, `pin`, `forgot`, `[token]` set-up link), `review/[token]`, `v/[code]` (Verified inspection report), `about/`, `contact/`, `privacy/`, `unsubscribe/[token]`.
 
-**Referral links** — `r/[code]` and `r/[code]/[slug]`: record the partner, then forward. **Old addresses** — `car-detail.html/`, `blog-post.html/`: look up the old Mongo id and redirect permanently. Also `llms.txt`, `robots.ts`, `sitemap.ts`, `manifest.ts`, `error.tsx`, and the not-found pages (`not-found.tsx` at the root, under `(site)`, `vehicles/[slug]`, `reserve/[slug]` and `admin/(app)`): a dead link always keeps the visitor in the showroom with a way on.
+**Referral links** — `r/[code]` and `r/[code]/[slug]`: record the partner, then forward. **Old addresses** — `car-detail.html/`, `blog-post.html/`: look up the old Mongo id and redirect permanently. Also `llms.txt`, `robots.ts`, `sitemap.ts`, `manifest.ts`, `error.tsx` and `global-error.tsx` (a page whose code failed to arrive reloads itself once, with no alert; any other error is reported and the visitor gets a calm page), and the not-found pages (`not-found.tsx` at the root, under `(site)`, `vehicles/[slug]`, `reserve/[slug]` and `admin/(app)`): a dead link always keeps the visitor in the showroom with a way on.
 
 **Admin** — `admin/login`, `admin/seal/[id]` (print the Verified seal), and `admin/(app)/`: `leads` (Enquiries), `vehicles` (+ `new`, `[id]`, `[id]/inspection`), `reservations`, `requests` (Sourcing Desk), `conversations`, `ask` (Answers + weekly lesson), `reviews`, `blog`, `audience`, `consignors`, `partners`, `payouts`, `status` (System status, errors, backup download). `lib/admin-nav.ts` decides who sees what: Sales the first five; Owner and Manager all.
 
@@ -90,7 +90,7 @@ DNS for `sabicars.com` is at GoDaddy; email (MX) runs on Google Workspace.
 
 ### `src/components`
 
-Grouped by where they appear: `site/` (header, footer, phone tab bar, bell), `home/`, `inventory/`, `vehicle/` (enquiry sheet), `reserve/`, `compare/`, `forms/`, `partner/`, `referral/`, `reviews/`, `saved/`, `subscribe/`, `assistant/` (chat window, Hiace race), `check/` (the VIN check), `blog/` (blocks, illustrations, video, the cards' moving pictures), `admin/` (every admin form and button), `brand/`, `ui/`, plus `VehicleCard`, `VehicleImage`, `Logo`, `ThemeToggle`.
+Grouped by where they appear: `site/` (header, footer, phone tab bar, bell), `home/`, `inventory/`, `vehicle/` (enquiry sheet), `reserve/`, `compare/`, `forms/`, `partner/`, `referral/`, `reviews/`, `saved/`, `subscribe/`, `assistant/` (chat window, Hiace race), `check/` (the VIN check), `blog/` (blocks, illustrations, video, the cards' moving pictures), `admin/` (every admin form and button), `brand/`, `ui/`, plus `VehicleCard`, `VehicleImage`, `Logo`, `ThemeToggle`, and `IntentLink`, the link every page uses (imported as `Link`): a page is fetched ahead only when a finger, the mouse or the keyboard is on its link, never because it scrolled into view.
 
 ### `src/content`, `src/db`, `src/styles`
 

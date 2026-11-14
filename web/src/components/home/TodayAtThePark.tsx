@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { VehicleImage } from "@/components/VehicleImage";
 import { VEHICLE_PLACEHOLDER } from "@/lib/media";

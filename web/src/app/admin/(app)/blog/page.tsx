@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { CommentControls } from "@/components/admin/CommentControls";
 import { requireStaff } from "@/lib/auth";
 import { adminPosts, pendingComments } from "@/lib/repositories/blog";

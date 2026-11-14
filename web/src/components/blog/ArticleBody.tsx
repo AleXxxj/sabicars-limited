@@ -1,5 +1,5 @@
 import { cache } from "react";
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { AlertTriangle, ArrowRight, CheckCircle2, Info, Lightbulb } from "lucide-react";
 import { VehicleCard } from "@/components/VehicleCard";
 import { anchorFor, type Block } from "@/lib/blog/blocks";

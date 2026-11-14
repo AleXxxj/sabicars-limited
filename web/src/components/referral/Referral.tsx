@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { BadgeCheck, Ban, Check, FileCheck2, Gift, type LucideIcon } from "lucide-react";
 import { VehicleImage } from "@/components/VehicleImage";
 import { formatNaira } from "@/lib/money";

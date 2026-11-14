@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { notFound } from "next/navigation";
 import { InspectionEditor } from "@/components/admin/InspectionEditor";
 import { WithdrawReport } from "@/components/admin/WithdrawReport";

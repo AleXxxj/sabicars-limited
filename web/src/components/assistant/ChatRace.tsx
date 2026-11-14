@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { ArrowRight, Flag, RotateCcw } from "lucide-react";
 import { FAMILY_RACERS, SCENARIOS, familySpec, familyVerdict } from "@/components/blog/illustrations/HiaceFamilyRace";
 import { HUMMER_RACERS, hummerSpec } from "@/components/blog/illustrations/HummerRace";

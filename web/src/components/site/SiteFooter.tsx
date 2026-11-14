@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { Fragment } from "react";
 import { Logo } from "@/components/Logo";
 import { SubscribeForm } from "@/components/subscribe/SubscribeForm";

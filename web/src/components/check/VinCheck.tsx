@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { useEffect, useReducer, useRef, useState, useSyncExternalStore } from "react";
 import {
   Car,

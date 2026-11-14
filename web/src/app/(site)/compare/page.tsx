@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { ArrowRight } from "lucide-react";
 import { ComparePicker } from "@/components/compare/ComparePicker";
 import { PageIntro } from "@/components/site/PageIntro";

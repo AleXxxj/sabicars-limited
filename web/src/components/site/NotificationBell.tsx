@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { Bell, BellRing, X } from "lucide-react";
 import { alertsAvailable, alertsBlocked, alertsGranted, loadOneSignal, turnOnAlerts } from "@/lib/onesignal-client";
 

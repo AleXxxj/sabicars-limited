@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { ArrowRight } from "lucide-react";
 import { formatNaira } from "@/lib/money";
 import { useTween } from "./motion";

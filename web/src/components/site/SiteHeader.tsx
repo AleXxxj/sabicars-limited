@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { UserRound } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { AccountLink } from "@/components/partner/AccountLink";

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { Logo } from "@/components/Logo";
 import { NavLink } from "@/components/site/NavLink";
 import { can, requireStaff } from "@/lib/auth";

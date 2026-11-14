@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { ArrowRight, BadgeCheck, Eye, Truck, Wallet } from "lucide-react";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { PageIntro } from "@/components/site/PageIntro";

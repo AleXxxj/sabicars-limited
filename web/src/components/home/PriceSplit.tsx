@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { RepaymentEstimate } from "@/components/vehicle/RepaymentEstimate";
 import { DRIVE_PLAN, depositMinorFor, drivePlanTerms } from "@/lib/drive-plan";
 import { formatNaira } from "@/lib/money";

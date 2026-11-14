@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { useActionState } from "react";
 import { submitSourcingRequest } from "@/lib/actions/leads";
 import { BUDGET_OPTIONS, PAYMENT_OPTIONS, YEAR_OPTIONS } from "@/lib/sourcing";

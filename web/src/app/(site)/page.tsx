@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Form from "next/form";
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { Fragment } from "react";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { Address } from "@/components/site/Address";
@@ -497,7 +497,7 @@ export default async function Home() {
           </ScrollReveal>
 
           <ScrollReveal delay={120}>
-            <Form action="/find" className="surface-card grid gap-4 p-5 md:p-8">
+            <Form action="/find" prefetch={false} className="surface-card grid gap-4 p-5 md:p-8">
               <label className="grid gap-2">
                 <span className="text-sm font-medium text-text-secondary">What car do you want?</span>
                 <input name="want" required maxLength={120} placeholder="e.g. Toyota Highlander, 2018 or newer" className={fieldClass} />

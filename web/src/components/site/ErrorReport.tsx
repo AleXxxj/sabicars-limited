@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Wordmark } from "@/components/Logo";
 import { Button, ButtonAnchor } from "@/components/ui/Button";
 import { site, whatsappLink } from "@/lib/site";
@@ -23,6 +23,61 @@ import { site, whatsappLink } from "@/lib/site";
  */
 
 export type BoundaryError = Error & { digest?: string };
+
+/**
+ * A piece of the site's code that did not arrive: the phone's connection dropped while it downloaded, or the page was
+ * open across an update. Reloading fetches it again, so this is cured, not reported (the owner's phone, 14 November
+ * 2026: "Failed to load chunk … from module 40248" on /admin/leads, a file the site had sent but that never arrived).
+ */
+export function isChunkLoadError(error: unknown): boolean {
+  const e = error as { name?: unknown; message?: unknown } | null;
+  const text = `${typeof e?.name === "string" ? e.name : ""} ${typeof e?.message === "string" ? e.message : ""}`;
+  return /ChunkLoadError|Failed to load chunk|Loading (CSS )?chunk [\w-]+ failed|dynamically imported module|Importing a module script failed/i.test(text);
+}
+
+/** When the page last reloaded itself for a missing chunk, kept for the tab's life only. */
+const CURE_KEY = "sc_chunk_reload";
+/** A second chunk error this soon after the reload is not a dropped download: it is reported. */
+const CURE_WINDOW_MS = 60_000;
+
+/**
+ * Whether this error is cured by reloading the page once, and the reload itself. True for a chunk that did not arrive,
+ * while the phone is online, and not already reloaded for one in the last minute; offline, a reload would only show
+ * the browser's own error page, so the calm screen stays. Without session storage there is no way to stop a reload
+ * loop, so the error is reported as before.
+ */
+export function useReloadCure(error: BoundaryError): boolean {
+  const [cure] = useState(() => {
+    if (typeof window === "undefined" || !isChunkLoadError(error) || navigator.onLine === false) return false;
+    try {
+      return Date.now() - Number(sessionStorage.getItem(CURE_KEY) ?? 0) > CURE_WINDOW_MS;
+    } catch {
+      return false;
+    }
+  });
+  useEffect(() => {
+    if (!cure) return;
+    try {
+      sessionStorage.setItem(CURE_KEY, String(Date.now()));
+    } catch {
+      return;
+    }
+    window.location.reload();
+  }, [cure]);
+  return cure;
+}
+
+/** What shows for the moment the page takes to reload itself: no alarm, nothing to do. */
+export function ReloadingScreen() {
+  return (
+    <main className="flex min-h-svh flex-col items-center justify-center gap-6 px-5 text-center">
+      <Wordmark className="h-7 w-auto md:h-8" />
+      <p className="text-text-secondary" role="status">
+        One moment…
+      </p>
+    </main>
+  );
+}
 
 /** The limits /api/ops/client-error accepts; anything longer is cut here rather than refused there. */
 const MESSAGE_CHARS = 500;

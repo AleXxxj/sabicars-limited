@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { ArrowRight } from "lucide-react";
 import { ScopeLists, WHICH_CARS, WHICH_CARS_NOT } from "@/components/check/CheckScope";
 import { VinCheck } from "@/components/check/VinCheck";

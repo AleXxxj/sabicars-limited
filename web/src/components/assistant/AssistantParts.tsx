@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { useState, useTransition } from "react";
 import { ArrowRight, Check, PhoneCall } from "lucide-react";
 import { fieldClass } from "@/components/forms/field";

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { PostCard } from "@/components/blog/PostCard";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { publishedPosts } from "@/lib/repositories/blog";

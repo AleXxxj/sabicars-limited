@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { PartnerLogInForm } from "@/components/partner/PartnerLogIn";
 import { PartnerStatementView } from "@/components/partner/PartnerStatementView";
 import { partnerStatement } from "@/lib/ledger";

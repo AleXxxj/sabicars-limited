@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { notFound } from "next/navigation";
 import { ArrowLeft, BadgeCheck, CalendarClock, RotateCcw, Users } from "lucide-react";
 import { ReserveForm } from "@/components/reserve/ReserveForm";

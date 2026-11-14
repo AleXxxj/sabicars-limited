@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { PartnerForm } from "@/components/forms/PartnerForm";
 import { EarningsExamples, PartnerRules } from "@/components/referral/Referral";

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { BadgeCheck } from "lucide-react";
 import { ReviewControls } from "@/components/admin/ReviewControls";
 import { Stars } from "@/components/reviews/Stars";

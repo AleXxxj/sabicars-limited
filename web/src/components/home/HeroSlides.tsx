@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { ArrowRight, Pause, Play, Square, Volume2, VolumeX } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type FocusEvent, type ReactNode, type TouchEvent } from "react";
 import { VehicleImage } from "@/components/VehicleImage";
@@ -25,6 +25,13 @@ function subscribeReduced(onChange: () => void) {
 }
 /** The connection type is read once; nothing to subscribe to. */
 const noSubscription = () => () => {};
+
+/** How long a video meant to start by itself may take before the hero stops waiting and offers "Watch video" instead. */
+const START_WAIT_MS = 10_000;
+/** After "Watch video", how long before a player that has not started is shown anyway, with its own play button. */
+const SHOW_ASKED_MS = 2_500;
+/** After "Watch video", how long before a player that never started is given up, and the photos come back. */
+const ASKED_GIVE_UP_MS = 45_000;
 
 /**
  * The homepage opened with ?video plays the hero video whatever the connection: a preview for staff (linked from
@@ -114,8 +121,16 @@ export function HeroSlides({
   const [hidden, setHidden] = useState(false);
   const [offscreen, setOffscreen] = useState(false);
   const [focusInside, setFocusInside] = useState(false);
-  const [videoOn, setVideoOn] = useState(false);
+  // The video has really started (the player said so), so it is shown until it ends or is stopped, through any pause to load.
+  const [started, setStarted] = useState(false);
   const [videoDone, setVideoDone] = useState(false);
+  // It was meant to start by itself and did not, in START_WAIT_MS: the phone blocks autoplay (an iPhone in Low Power
+  // Mode, for one) or the player never woke. It gives way to the "Watch video" button rather than leave nothing.
+  const [stalled, setStalled] = useState(false);
+  // Asked for, and still not started after SHOW_ASKED_MS: the player is shown anyway, so its own play button is there to tap.
+  const [showAsked, setShowAsked] = useState(false);
+  // The player has answered at least once, so it is listening and need not be asked again.
+  const heard = useRef(false);
   const [muted, setMuted] = useState(true);
   const reduced = useSyncExternalStore(subscribeReduced, () => window.matchMedia(REDUCED).matches, () => false);
   const connectionOk = useSyncExternalStore(noSubscription, videoAllowed, () => false);
@@ -130,12 +145,14 @@ export function HeroSlides({
   // Offered once the page knows the connection, never in the server's HTML, so a fast connection never sees it flash.
   const [asked, setAsked] = useState(false);
   const hydrated = useSyncExternalStore(noSubscription, () => true, () => false);
-  const playVideo = Boolean(videoUrl) && (connectionOk || asked) && !videoDone;
-  const offerVideo = Boolean(videoUrl) && hydrated && !connectionOk && !asked && !videoDone;
-  const loadingVideo = asked && !videoOn && !videoDone;
+  const playVideo = Boolean(videoUrl) && ((connectionOk && !stalled) || asked) && !videoDone;
+  const offerVideo = Boolean(videoUrl) && hydrated && (!connectionOk || stalled) && !asked && !videoDone;
+  const loadingVideo = asked && !started && !videoDone;
+  // Shown over the photos: once it has started, or once it was asked for and given a moment.
+  const videoShown = !videoDone && (started || (asked && showAsked));
   const ytId = videoUrl ? youTubeId(videoUrl) : null;
   const auto = count > 1 && !reduced;
-  const running = auto && !userPaused && !hidden && !offscreen && !focusInside && !videoOn;
+  const running = auto && !userPaused && !hidden && !offscreen && !focusInside && !videoShown;
 
   const goTo = useCallback(
     (to: number) => {
@@ -153,16 +170,36 @@ export function HeroSlides({
 
   /** The video has played through, or was stopped: it leaves, and the slides carry on. */
   const finish = useCallback(() => {
-    setVideoOn(false);
     setVideoDone(true);
   }, []);
 
-  // Asked for on a slow connection but still not playing after 30 seconds: given up, and the photos stay.
+  // Meant to start by itself, and not started in time: the "Watch video" button takes its place (the owner,
+  // 14 November 2026: the video worked on his computer and not on the live site, read on his iPhone).
   useEffect(() => {
-    if (!loadingVideo) return;
-    const t = setTimeout(finish, 30_000);
+    if (!playVideo || asked || started) return;
+    const t = setTimeout(() => setStalled(true), START_WAIT_MS);
     return () => clearTimeout(t);
-  }, [loadingVideo, finish]);
+  }, [playVideo, asked, started]);
+
+  // Asked for and not started yet: shown after a moment, so a phone that blocks autoplay still offers the player's own
+  // play button; given up after ASKED_GIVE_UP_MS if nothing happens, and the photos stay.
+  useEffect(() => {
+    if (!asked || started || videoDone) return;
+    const show = setTimeout(() => setShowAsked(true), SHOW_ASKED_MS);
+    const giveUp = setTimeout(finish, ASKED_GIVE_UP_MS);
+    return () => {
+      clearTimeout(show);
+      clearTimeout(giveUp);
+    };
+  }, [asked, started, videoDone, finish]);
+
+  // Started: its share of the hero is its seconds, and a few more for loading. YouTube is told the same with end= and
+  // says when it ends; this is the backstop for a player that goes quiet, so the slides always come back.
+  useEffect(() => {
+    if (!started || videoDone) return;
+    const t = setTimeout(finish, (videoSeconds + 8) * 1000);
+    return () => clearTimeout(t);
+  }, [started, videoDone, videoSeconds, finish]);
 
   // Hidden tab.
   useEffect(() => {
@@ -194,17 +231,18 @@ export function HeroSlides({
     return () => io.disconnect();
   }, [playVideo, finish]);
 
-  // YouTube reports its state only to a page that asks: 1 is playing, 0 is ended. The video shows only while
-  // it is really playing: a player still buffering, or blocked, would otherwise cover the photos with a black box.
+  // YouTube reports its state only to a page that asks: 1 is playing, 0 is ended. The video shows once it has
+  // really started: a player still loading, or blocked, would otherwise cover the photos with a black box.
   useEffect(() => {
     if (!playVideo) return;
     const onMessage = (e: MessageEvent) => {
       if (typeof e.data !== "string" || !/youtube(-nocookie)?\.com$/.test(new URL(e.origin).hostname)) return;
       try {
         const data = JSON.parse(e.data) as { event?: string; info?: { playerState?: number } };
+        heard.current = true;
         if (data.event !== "infoDelivery" || data.info?.playerState === undefined) return;
         if (data.info.playerState === 0) finish();
-        else setVideoOn(data.info.playerState === 1);
+        else if (data.info.playerState === 1) setStarted(true);
       } catch {
         /* not the player's message */
       }
@@ -212,6 +250,23 @@ export function HeroSlides({
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
   }, [playVideo, finish]);
+
+  // Asking once, when the frame loads, is not enough: on a phone the player is often not awake yet and the question
+  // is lost, and then the page never hears that it plays. YouTube's own script asks again until it is answered; so
+  // does this, every 400 ms for up to 16 seconds.
+  useEffect(() => {
+    if (!playVideo || !ytId) return;
+    heard.current = false;
+    let tries = 0;
+    const ask = setInterval(() => {
+      if (heard.current || ++tries > 40) {
+        clearInterval(ask);
+        return;
+      }
+      frame.current?.contentWindow?.postMessage(JSON.stringify({ event: "listening", id: 1, channel: "widget" }), "*");
+    }, 400);
+    return () => clearInterval(ask);
+  }, [playVideo, ytId]);
 
   function toggleSound() {
     const next = !muted;
@@ -253,7 +308,7 @@ export function HeroSlides({
   const current = slides[index];
   const previous = count > 1 ? (index - 1 + count) % count : -1;
   // While the video plays, the opening words stay: the video is not any one service's slide.
-  const shown = videoOn ? 0 : Math.min(current?.head ?? 0, heads.length - 1);
+  const shown = videoShown ? 0 : Math.min(current?.head ?? 0, heads.length - 1);
 
   return (
     <section
@@ -300,7 +355,8 @@ export function HeroSlides({
           ) : null,
         )}
         {playVideo && videoUrl && (
-          <div className={`hh-video${videoOn ? " is-on" : ""}`}>
+          // Asked for: once shown it takes taps, so the player's own play button works on a phone that blocks autoplay.
+          <div className={`hh-video${videoShown ? " is-on" : ""}${asked ? " is-asked" : ""}`}>
             {ytId ? (
               <iframe
                 ref={frame}
@@ -318,7 +374,7 @@ export function HeroSlides({
                 autoPlay
                 muted
                 playsInline
-                onPlaying={() => setVideoOn(true)}
+                onPlaying={() => setStarted(true)}
                 // Its share of the hero, in its own time: YouTube is told the same with end= above.
                 onTimeUpdate={(e) => {
                   if (e.currentTarget.currentTime >= videoSeconds) finish();
@@ -357,7 +413,7 @@ export function HeroSlides({
       {count > 0 && current && (
         <div className="hh-dock">
           <div className="hh-controls" role="group" aria-label="Photos of our cars">
-            {videoOn ? (
+            {videoShown ? (
               <div className="hh-track">
                 <button type="button" className="hh-pause" aria-label={muted ? "Sound on" : "Sound off"} onClick={toggleSound}>
                   {muted ? <VolumeX aria-hidden size={16} /> : <Volume2 aria-hidden size={16} />}

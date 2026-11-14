@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { ArrowRight } from "lucide-react";
 import { Cover } from "./Cover";
 import { GuideVisual } from "./GuideVisual";

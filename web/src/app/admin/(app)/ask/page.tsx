@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { AnswerEditor } from "@/components/admin/AnswerEditor";
 import { WeeklyLesson } from "@/components/admin/WeeklyLesson";
 import { latestReview } from "@/lib/assistant/learn";

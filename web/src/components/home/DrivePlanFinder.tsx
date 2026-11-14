@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { ArrowRight } from "lucide-react";
 import { useId, useState } from "react";
 import { VehicleImage } from "@/components/VehicleImage";

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { ArrowRight } from "lucide-react";
 import type { Inspection } from "@/db/schema";
 import { isFresh, type Tally } from "@/lib/inspection/checklist";

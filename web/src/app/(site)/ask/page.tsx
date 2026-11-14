@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { AskButton } from "@/components/assistant/AskButton";
 import { PageIntro } from "@/components/site/PageIntro";

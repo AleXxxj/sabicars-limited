@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { ArrowRight, Check } from "lucide-react";
 import { VehicleImage } from "@/components/VehicleImage";
 import { comparePath } from "@/lib/assistant/parts";

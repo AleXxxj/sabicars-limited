@@ -1,6 +1,6 @@
 "use client";
 
-import { ErrorReport, ErrorScreen, type BoundaryError } from "@/components/site/ErrorReport";
+import { ErrorReport, ErrorScreen, ReloadingScreen, useReloadCure, type BoundaryError } from "@/components/site/ErrorReport";
 import { archivo } from "@/lib/fonts";
 import "./globals.css";
 
@@ -14,11 +14,19 @@ import "./globals.css";
  * the place of it.
  */
 export default function GlobalError({ error, reset }: { error: BoundaryError; reset: () => void }) {
+  // A piece of code that did not arrive is cured by one reload, as in error.tsx.
+  const reloading = useReloadCure(error);
   return (
     <html lang="en-NG" data-theme="dark" className={archivo.variable}>
       <body>
-        <ErrorReport error={error} />
-        <ErrorScreen reset={reset} />
+        {reloading ? (
+          <ReloadingScreen />
+        ) : (
+          <>
+            <ErrorReport error={error} />
+            <ErrorScreen reset={reset} />
+          </>
+        )}
       </body>
     </html>
   );

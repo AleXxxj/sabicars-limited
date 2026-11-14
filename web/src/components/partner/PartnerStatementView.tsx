@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { ReferralShare } from "@/components/forms/PartnerForm";
 import { BankAccountForm, type CurrentAccount } from "@/components/partner/BankAccountForm";
 import { LogOutButton, SignedInMark } from "@/components/partner/PartnerLogIn";

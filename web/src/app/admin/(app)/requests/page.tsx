@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { NotifyOnWhatsApp, RequestControls } from "@/components/admin/RequestControls";
 import { requireStaff } from "@/lib/auth";
 import { formatNaira } from "@/lib/money";

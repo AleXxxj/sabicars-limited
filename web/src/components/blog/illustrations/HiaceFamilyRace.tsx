@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { ArrowRight, Flag, Megaphone, RotateCcw, Trophy, Users } from "lucide-react";
 import { FAMILY, type FamilyId, type FamilyMember } from "@/lib/hiace-family";
 import { formatNaira } from "@/lib/money";

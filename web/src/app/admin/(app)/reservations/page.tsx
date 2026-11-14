@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { LiveRefresh } from "@/components/admin/LiveRefresh";
 import { ReservationActions } from "@/components/admin/ReservationActions";
 import { ShowroomDepositForm } from "@/components/admin/ShowroomDepositForm";

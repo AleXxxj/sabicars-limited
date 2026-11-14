@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { ArrowRight, Flag, Megaphone, RotateCcw, Trophy } from "lucide-react";
 import { VehicleImage } from "@/components/VehicleImage";
 import { formatNaira } from "@/lib/money";

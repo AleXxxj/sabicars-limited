@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { notFound, permanentRedirect } from "next/navigation";
 import { ArrowRight, Check, Sparkles } from "lucide-react";
 import { AskButton } from "@/components/assistant/AskButton";

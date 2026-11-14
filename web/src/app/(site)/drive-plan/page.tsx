@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { BadgeCheck, CarFront, FileSignature, KeyRound } from "lucide-react";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { DrivePlanFinder } from "@/components/home/DrivePlanFinder";

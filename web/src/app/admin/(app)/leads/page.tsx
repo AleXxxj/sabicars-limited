@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Form from "next/form";
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { after } from "next/server";
 import { Search } from "lucide-react";
 import { LiveRefresh } from "@/components/admin/LiveRefresh";
@@ -88,7 +88,7 @@ export default async function LeadsInbox({ searchParams }: Props) {
           <p className="eyebrow">Enquiries</p>
           <h1 className="mt-2 text-display-3">Inbox</h1>
         </div>
-        <Form action="/admin/leads" className="relative w-full sm:w-80">
+        <Form action="/admin/leads" prefetch={false} className="relative w-full sm:w-80">
           <Search aria-hidden size={16} className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-text-muted" />
           <label htmlFor="lead-search" className="sr-only">
             Search enquiries

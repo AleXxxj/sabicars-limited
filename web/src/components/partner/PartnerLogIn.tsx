@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { useActionState, useEffect } from "react";
 import { MailCheck } from "lucide-react";
 import { Button } from "@/components/ui/Button";

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { ButtonLink } from "@/components/ui/Button";
 import { VehicleImage } from "@/components/VehicleImage";
 import { requireStaff } from "@/lib/auth";

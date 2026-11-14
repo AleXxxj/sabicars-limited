@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { Heart } from "lucide-react";
 import { toggleSaved, useSaved } from "@/lib/saved";
 

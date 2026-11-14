@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { unstable_cache } from "next/cache";
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { SellForm } from "@/components/forms/SellForm";
 import { PageIntro } from "@/components/site/PageIntro";

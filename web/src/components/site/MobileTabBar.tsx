@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { usePathname } from "next/navigation";
 import { TAB_BAR } from "@/lib/navigation";
 import { NAV_ICON } from "./nav-icons";

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { notFound } from "next/navigation";
 import { AlertTriangle, Check, CircleSlash, Wrench } from "lucide-react";
 import { ButtonLink } from "@/components/ui/Button";

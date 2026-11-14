@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { usePathname } from "next/navigation";
 
 /** A header link that knows when it is the current section. Sentence case, readable at a glance; `hint` says what it leads to on hover. */

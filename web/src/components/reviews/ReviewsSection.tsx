@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { BadgeCheck } from "lucide-react";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import type { PublicReview } from "@/lib/repositories/reviews";

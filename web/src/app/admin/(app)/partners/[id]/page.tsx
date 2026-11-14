@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { notFound, redirect } from "next/navigation";
 import { ConfirmAccount, CopyLink, PartnerStatusControl, ResetPin, VoidCommission } from "@/components/admin/PartnerAdminActions";
 import { can, requireStaff } from "@/lib/auth";

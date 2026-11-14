@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { VehicleCard } from "@/components/VehicleCard";
 import { AutoSubmitForm } from "@/components/inventory/AutoSubmitForm";
 import { RecentlyViewed } from "@/components/saved/RecentlyViewed";

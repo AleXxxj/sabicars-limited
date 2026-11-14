@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { Lock } from "lucide-react";
 import { fieldClass as field } from "@/components/forms/field";
 import { PrivacyLink, SpamGuard } from "@/components/forms/shared";

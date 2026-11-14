@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { VehicleForm } from "@/components/admin/VehicleForm";
 import { can, requireStaff } from "@/lib/auth";
 import { formOptions } from "@/lib/repositories/admin-vehicles";

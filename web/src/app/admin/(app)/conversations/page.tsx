@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { LiveRefresh } from "@/components/admin/LiveRefresh";
 import { requireStaff } from "@/lib/auth";
 import { conversationCounts, conversations, type ConversationView } from "@/lib/repositories/ask";

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { redirect } from "next/navigation";
 import { can, requireStaff } from "@/lib/auth";
 import { partnerOverview, type PartnerSummary } from "@/lib/ledger";

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { Address } from "@/components/site/Address";
 import { PageIntro } from "@/components/site/PageIntro";
 import { pageAddress, site } from "@/lib/site";
