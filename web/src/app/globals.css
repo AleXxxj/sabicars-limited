@@ -2,8 +2,10 @@
 @import "../styles/tokens.css";
 @import "../styles/motion.css";
 @import "../styles/article.css";
+@import "../styles/guide-visual.css";
 @import "../styles/assistant.css";
 @import "../styles/intro.css";
+@import "../styles/home.css";
 
 /*
  * Typography scale.

@@ -1,0 +1,283 @@
+/*
+ * The small moving picture on an article's card (components/blog/GuideVisual.tsx; the choice is lib/guide-visual.ts).
+ * After the Adedayo guide cards: a dark chip in the photo's corner whose marks build up, twice through, the first time
+ * the card is well in view (data-live) and whenever it is pointed at or focused. At rest it shows the finished picture.
+ */
+.gv {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  z-index: 1;
+  width: 84px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgb(9 14 10 / 0.84);
+  border: 1px solid rgb(255 255 255 / 0.16);
+  color: var(--text-primary);
+  overflow: hidden;
+  pointer-events: none;
+  /* How long the picture waits before it starts: a beat when it plays on arrival, so the card has settled first. */
+  --gv-wait: 0s;
+}
+.gv[data-live] {
+  --gv-wait: 0.45s;
+}
+/* On the short card the photo is narrow, so the chip is smaller and tucked closer to the corner. */
+.gv--small {
+  right: 6px;
+  bottom: 6px;
+  transform: scale(0.72);
+  transform-origin: 100% 100%;
+}
+.gv i,
+.gv b {
+  display: block;
+  font-style: normal;
+}
+
+/* Ticks, popping in one by one: an inspection, a checklist, any guide. */
+.gv--check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.gv--check i {
+  position: relative;
+  width: 12px;
+  height: 12px;
+}
+.gv--check i::before {
+  content: "";
+  position: absolute;
+  left: 1px;
+  top: 2px;
+  width: 10px;
+  height: 5px;
+  border-left: 2.5px solid var(--green-300);
+  border-bottom: 2.5px solid var(--green-300);
+  transform: rotate(-45deg);
+}
+
+/* Two bars, one longer: a comparison. */
+.gv--versus {
+  display: grid;
+  align-content: center;
+  gap: 6px;
+  padding: 0 10px;
+}
+.gv--versus i {
+  height: 5px;
+  border-radius: 3px;
+  background: currentColor;
+  transform: scaleX(var(--p));
+  transform-origin: 0 50%;
+}
+.gv--versus i:nth-child(1) {
+  --p: 0.9;
+  background: var(--green-300);
+}
+.gv--versus i:nth-child(2) {
+  --p: 0.62;
+}
+
+/* A bus's seats filling, row by row: the Hummer bus. */
+.gv--seats {
+  display: grid;
+  grid-template-columns: repeat(7, 6px);
+  grid-auto-rows: 6px;
+  gap: 4px;
+  place-content: center;
+}
+.gv--seats i {
+  border-radius: 2px 2px 1px 1px;
+  background: var(--green-300);
+}
+
+/* A truck running down the road: trucks. */
+.gv--road {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 9px 8px;
+}
+.gv--road i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.gv--road b {
+  position: absolute;
+  left: 8px;
+  bottom: 15px;
+  width: 16px;
+  height: 9px;
+  border-radius: 2px 4px 2px 2px;
+  background: var(--green-300);
+  transform: translateX(52px);
+}
+
+/* The 40% first, then the months: the Drive Plan. */
+.gv--plan {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding-left: 38px;
+}
+.gv--plan b {
+  position: absolute;
+  left: 9px;
+  top: 50%;
+  width: 24px;
+  height: 10px;
+  margin-top: -5px;
+  border-radius: 3px;
+  background: var(--green-300);
+  transform-origin: 0 50%;
+}
+.gv--plan i {
+  width: 7px;
+  height: 10px;
+  border-radius: 2px;
+  background: currentColor;
+}
+
+/* Five bars, best first: a "best five". */
+.gv--rank {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 5px;
+  padding-bottom: 8px;
+}
+.gv--rank i {
+  width: 7px;
+  height: calc(20px - var(--i) * 3px);
+  border-radius: 2px 2px 1px 1px;
+  background: currentColor;
+  transform-origin: 50% 100%;
+}
+.gv--rank i:first-child {
+  background: var(--green-300);
+}
+
+/* A budget line, and what fits under it: "under ₦5 million". */
+.gv--budget {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 9px 8px;
+}
+.gv--budget i {
+  width: 10px;
+  height: 8px;
+  border-radius: 2px;
+  background: currentColor;
+}
+.gv--budget i:nth-of-type(n + 4) {
+  opacity: 0.25;
+}
+.gv--budget b {
+  position: absolute;
+  left: 9px;
+  right: 9px;
+  top: 9px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--green-300);
+  transform: scaleX(0.6);
+  transform-origin: 0 50%;
+}
+
+/* Playing: on arrival (data-live), or while the card is pointed at or focused. */
+:is(.group:hover, .group:focus-visible) .gv :is(i, b),
+.gv[data-live] :is(i, b) {
+  animation-duration: 2.4s;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+  animation-iteration-count: 2;
+  animation-fill-mode: backwards;
+}
+:is(.group:hover, .group:focus-visible) .gv--check i,
+.gv--check[data-live] i {
+  animation-name: gv-pop;
+  animation-delay: calc(var(--gv-wait) + var(--i) * 0.26s);
+}
+:is(.group:hover, .group:focus-visible) .gv--versus i,
+.gv--versus[data-live] i {
+  animation-name: gv-grow-x;
+  animation-delay: calc(var(--gv-wait) + var(--i) * 0.18s);
+}
+:is(.group:hover, .group:focus-visible) .gv--seats i,
+.gv--seats[data-live] i {
+  animation-name: gv-light;
+  animation-delay: calc(var(--gv-wait) + var(--i) * 0.07s);
+}
+:is(.group:hover, .group:focus-visible) .gv--road i,
+.gv--road[data-live] i {
+  animation-name: gv-light;
+  animation-delay: calc(var(--gv-wait) + var(--i) * 0.19s);
+}
+:is(.group:hover, .group:focus-visible) .gv--road b,
+.gv--road[data-live] b {
+  animation-name: gv-run;
+  animation-delay: var(--gv-wait);
+  animation-timing-function: cubic-bezier(0.45, 0.05, 0.2, 1);
+}
+:is(.group:hover, .group:focus-visible) .gv--plan b,
+.gv--plan[data-live] b {
+  --p: 1;
+  animation-name: gv-grow-x;
+  animation-delay: var(--gv-wait);
+}
+:is(.group:hover, .group:focus-visible) .gv--plan i,
+.gv--plan[data-live] i {
+  animation-name: gv-pop;
+  animation-delay: calc(var(--gv-wait) + 0.55s + var(--i) * 0.22s);
+}
+:is(.group:hover, .group:focus-visible) .gv--rank i,
+.gv--rank[data-live] i {
+  animation-name: gv-grow-y;
+  animation-delay: calc(var(--gv-wait) + var(--i) * 0.15s);
+}
+:is(.group:hover, .group:focus-visible) .gv--budget i:nth-of-type(-n + 3),
+.gv--budget[data-live] i:nth-of-type(-n + 3) {
+  animation-name: gv-pop;
+  animation-delay: calc(var(--gv-wait) + 0.3s + var(--i) * 0.2s);
+}
+:is(.group:hover, .group:focus-visible) .gv--budget b,
+.gv--budget[data-live] b {
+  animation-name: gv-fill;
+  animation-delay: var(--gv-wait);
+}
+
+@keyframes gv-pop {
+  0% { opacity: 0.2; transform: scale(0.5); }
+  14%, 100% { opacity: 1; transform: none; }
+}
+@keyframes gv-light {
+  0% { opacity: 0.2; }
+  10%, 100% { opacity: 1; }
+}
+@keyframes gv-grow-x {
+  0% { transform: scaleX(0); }
+  42%, 100% { transform: scaleX(var(--p, 1)); }
+}
+@keyframes gv-grow-y {
+  0% { transform: scaleY(0); }
+  40%, 100% { transform: none; }
+}
+@keyframes gv-run {
+  0% { transform: translateX(0); }
+  62%, 100% { transform: translateX(52px); }
+}
+@keyframes gv-fill {
+  0% { transform: scaleX(0); }
+  45%, 100% { transform: scaleX(0.6); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gv :is(i, b) {
+    animation: none !important;
+  }
+}

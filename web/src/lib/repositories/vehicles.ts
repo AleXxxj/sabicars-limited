@@ -6,6 +6,8 @@ import { db } from "@/db";
 import { dealers, locations, notifications, settings, vehicleMedia, vehicles, type Vehicle, type VehicleMedia } from "@/db/schema";
 import { TAGS } from "@/lib/cache-tags";
 import { DRIVE_PLAN, depositMinorFor } from "@/lib/drive-plan";
+import { HERO_SLIDE_KEYS, heroPickProblem, readHeroPicks, type HeroPickSlugs, type HeroSlideKey } from "@/lib/hero-slides";
+import { HERO_VIDEO_SECONDS_KEY, readVideoSeconds } from "@/lib/hero-video";
 import { CAR_BODIES, type InventoryFilters } from "@/lib/inventory-filters";
 import { verificationMap, type Verification } from "@/lib/repositories/inspections";
 import { mayBePrefix, readWant, wantsSomething } from "@/lib/matching";
@@ -579,14 +581,69 @@ export async function vehicleForDrivePlan(id: string): Promise<{ id: string; dea
 /** The settings row that holds the homepage hero video link (set from Admin → Audience). */
 export const HERO_VIDEO_KEY = "hero_video_url";
 
-/** The homepage hero video, when staff have set one (YouTube link or direct video file). */
-export async function heroVideoUrl(): Promise<string | null> {
+/**
+ * The homepage hero video, when staff have set one (YouTube link or direct video file), and how many seconds it plays
+ * before the slides come back (lib/hero-video.ts: 20 unless a manager chose another number).
+ */
+export async function heroVideo(): Promise<{ url: string | null; seconds: number }> {
+  const rows = await db
+    .select({ key: settings.key, value: settings.value })
+    .from(settings)
+    .where(and(eq(settings.dealerId, await sabicarsId()), inArray(settings.key, [HERO_VIDEO_KEY, HERO_VIDEO_SECONDS_KEY])));
+  const link = rows.find((r) => r.key === HERO_VIDEO_KEY)?.value;
+  return {
+    url: typeof link === "string" && link.trim() ? link.trim() : null,
+    seconds: readVideoSeconds(rows.find((r) => r.key === HERO_VIDEO_SECONDS_KEY)?.value),
+  };
+}
+
+/** The settings row that holds the owner's car for each hero slide (set from Admin → Audience; lib/hero-slides.ts). */
+export const HERO_SLIDES_KEY = "hero_slides";
+
+/** A car may stand on a hero slide while it is on the site, or sold: a sold car is shown as sold. */
+const HERO_PICKABLE = [...LISTED, "sold"] as const;
+
+/** The owner's picks as stored: a slug for each slide that has one. */
+export async function heroPickSlugs(): Promise<HeroPickSlugs> {
   const [row] = await db
     .select({ value: settings.value })
     .from(settings)
-    .where(and(eq(settings.dealerId, await sabicarsId()), eq(settings.key, HERO_VIDEO_KEY)))
+    .where(and(eq(settings.dealerId, await sabicarsId()), eq(settings.key, HERO_SLIDES_KEY)))
     .limit(1);
-  return typeof row?.value === "string" && row.value.trim() ? row.value.trim() : null;
+  return readHeroPicks(row?.value);
+}
+
+/**
+ * The car the owner chose for each hero slide, for the home page. A pick that
+ * no longer holds (the car was unlisted, lost its photo, or sold while on a
+ * slide about buying it) is left out, and the slide takes a car by itself.
+ */
+export async function heroPicks(): Promise<Partial<Record<HeroSlideKey, VehicleWithCover>>> {
+  const slugs = await heroPickSlugs();
+  const wanted = [...new Set(Object.values(slugs))];
+  if (!wanted.length) return {};
+  const rows = await db
+    .select()
+    .from(vehicles)
+    .where(and(eq(vehicles.dealerId, await sabicarsId()), inArray(vehicles.slug, wanted), inArray(vehicles.status, [...HERO_PICKABLE])));
+  const bySlug = new Map((await withCovers(rows)).map((v) => [v.slug, v]));
+  const out: Partial<Record<HeroSlideKey, VehicleWithCover>> = {};
+  for (const key of HERO_SLIDE_KEYS) {
+    const v = slugs[key] ? bySlug.get(slugs[key]) : undefined;
+    if (v && !heroPickProblem(key, { status: v.status, model: v.model, year: v.year, priceMinor: v.priceMinor, hasCover: Boolean(v.cover) })) out[key] = v;
+  }
+  return out;
+}
+
+/** Every car that could stand on a hero slide, for the admin's lists: cars on the site first, then sold ones, each by name. */
+export async function heroPickOptions(dealerId: string): Promise<{ slug: string; label: string; status: string; model: string; year: number; priceMinor: number | null }[]> {
+  const rows = await db
+    .select({ slug: vehicles.slug, year: vehicles.year, make: vehicles.make, model: vehicles.model, status: vehicles.status, priceMinor: vehicles.priceMinor })
+    .from(vehicles)
+    .innerJoin(vehicleMedia, and(eq(vehicleMedia.vehicleId, vehicles.id), eq(vehicleMedia.position, 0), eq(vehicleMedia.kind, "photo")))
+    .where(and(eq(vehicles.dealerId, dealerId), inArray(vehicles.status, [...HERO_PICKABLE])))
+    .orderBy(sql`${vehicles.status} = 'sold'`, asc(vehicles.make), asc(vehicles.model), desc(vehicles.year));
+  return rows.map((r) => ({ slug: r.slug, label: `${r.year} ${r.make} ${r.model}${r.status === "sold" ? " (sold)" : r.status === "reserved" ? " (reserved)" : ""}`, status: r.status, model: r.model, year: r.year, priceMinor: r.priceMinor }));
 }
 
 /* ── Inventory search ──────────────────────────────────────────────────── */

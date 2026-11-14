@@ -15,12 +15,18 @@ export function ScrollReveal({
   delay = 0,
   className,
   as: Tag = "div",
+  card = false,
 }: {
   children: React.ReactNode;
   delay?: number;
   className?: string;
   /** "li" inside a list: a <div> there is invalid HTML and breaks the list for screen readers. */
   as?: "div" | "li";
+  /**
+   * A card arriving rather than a block of words: it also grows a little into place and its photo settles from a
+   * slight zoom (styles/motion.css, [data-reveal-card]). Once, the first time it is seen, like every reveal.
+   */
+  card?: boolean;
 }) {
   const ref = useRef<HTMLElement>(null);
 
@@ -43,12 +49,13 @@ export function ScrollReveal({
   }, []);
 
   const style = delay ? ({ ["--reveal-delay" as string]: `${delay}ms` } as React.CSSProperties) : undefined;
+  const asCard = card ? { "data-reveal-card": "" } : undefined;
   return Tag === "li" ? (
-    <li ref={ref as React.Ref<HTMLLIElement>} className={className} style={style}>
+    <li ref={ref as React.Ref<HTMLLIElement>} className={className} style={style} {...asCard}>
       {children}
     </li>
   ) : (
-    <div ref={ref as React.Ref<HTMLDivElement>} className={className} style={style}>
+    <div ref={ref as React.Ref<HTMLDivElement>} className={className} style={style} {...asCard}>
       {children}
     </div>
   );

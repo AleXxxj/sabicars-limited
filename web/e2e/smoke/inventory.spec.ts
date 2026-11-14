@@ -16,6 +16,9 @@ test.describe("Inventory", () => {
     const cards = page.getByRole("article").filter({ hasText: /₦[\d,]+|Price on request/ });
     await expect(cards.first(), "the inventory shows no vehicle card with a price").toBeVisible();
     expect(await cards.count(), "fewer priced cards than the stock count promises").toBeGreaterThanOrEqual(Math.min(inStock, 1));
+    // The plain list names no total (the owner, 14 November 2026): no count sentence, and "All" carries no number.
+    await expect(page.getByText(/\d+ vehicles? in stock/), "the plain list states the total stock").toHaveCount(0);
+    await expect(page.getByRole("navigation", { name: "Vehicle type" }).getByRole("link", { name: /^All$/ }), 'the "All" chip carries a number').toBeVisible();
     assertNoFaults(faults);
   });
 

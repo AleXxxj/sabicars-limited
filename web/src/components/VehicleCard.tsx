@@ -73,20 +73,26 @@ export function VehicleCard({
           <p className="text-[0.8rem] font-medium text-text-muted">
             {v.year} · {v.make}
           </p>
-          <h3 className="mt-1 truncate font-sans text-[1.3rem] font-semibold leading-snug tracking-[-0.01em] text-text-primary">{v.model}</h3>
+          {/* w-0 min-w-full, and the same on the line below: a line kept to one row is as wide as all its words when a
+              list works out how narrow a card may be, and that width (about 300px for "Foreign used · 128,000 km ·
+              Automatic · RWD") pushed whole lists of cards past the edge of a 360px phone. Counted as nothing, the
+              line still fills the card and still ends in dots (found 14 November 2026). */}
+          <h3 className="mt-1 w-0 min-w-full truncate font-sans text-[1.3rem] font-semibold leading-snug tracking-[-0.01em] text-text-primary">{v.model}</h3>
           {spec && (
             <p className="mt-1.5 flex items-center gap-1.5 text-sm text-text-muted">
               <Gauge aria-hidden size={15} className="shrink-0 opacity-70" />
-              <span className="truncate">{spec}</span>
+              <span className="w-0 min-w-0 flex-1 truncate">{spec}</span>
             </p>
           )}
         </div>
 
-        <div className="mt-auto flex items-end justify-between gap-3 border-t border-white/[0.06] pt-4">
-          {/* shrink-0: the price never wraps or squeezes; the deposit block gives way and wraps instead. */}
+        <div className="mt-auto flex flex-wrap items-end justify-between gap-x-3 gap-y-2.5 border-t border-white/[0.06] pt-4">
+          {/* shrink-0: the price never wraps or squeezes; the deposit block gives way and wraps instead. When the two
+              cannot share a line at all (a nine-figure price on a phone), the deposit drops under the price instead
+              of running out of the card. */}
           <p className="figures shrink-0 text-[1.35rem] font-semibold leading-none tracking-tight text-text-primary">{priceLabel(v)}</p>
           {deposit && (
-            <p className="flex min-w-0 items-center gap-1.5 text-right text-[0.8rem] leading-tight text-text-secondary">
+            <p className="flex min-w-0 flex-1 basis-[7.25rem] items-center justify-end gap-1.5 text-right text-[0.8rem] leading-tight text-text-secondary">
               <Wallet aria-hidden size={15} className="shrink-0 text-accent-text" />
               <span className="min-w-0">
                 <span className="figures block font-semibold text-accent-text">{deposit}</span>

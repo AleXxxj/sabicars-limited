@@ -21,7 +21,10 @@ type Variant = "primary" | "secondary" | "signature" | "quiet";
 type Size = "md" | "lg";
 
 const base =
-  "group inline-flex items-center justify-center gap-2.5 font-sans font-semibold tracking-[0.005em] whitespace-nowrap " +
+  // One line, except on a screen under 360px wide, where a long name ("Ask for the Drive Plan on this car") ran off
+  // the screen's edge: there it may wrap onto a second line, and the button is never wider than what holds it.
+  "group inline-flex max-w-full items-center justify-center gap-2.5 font-sans font-semibold tracking-[0.005em] whitespace-nowrap " +
+  "max-[359px]:whitespace-normal max-[359px]:py-2 max-[359px]:text-center max-[359px]:leading-tight " +
   "transition-[background,border-color,color,box-shadow,transform,filter] duration-[var(--duration-fast)] ease-[var(--ease-out)] " +
   "active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50";
 

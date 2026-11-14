@@ -16,14 +16,23 @@ export const MAIN_NAV = [
   { href: "/partners", label: "Earn", hint: "Send a buyer. Earn 1.5% when they buy" },
 ] as const;
 
+/** The free VIN check: the phone's fourth tab, and under More on a wide screen (the owner, 14 November 2026: "let the down menu Request a car turn check vin"). */
+export const CHECK_NAV = { href: "/check", label: "Check VIN", hint: "Free check: see what a car really is before you pay" } as const;
+
+export type MoreItem = { readonly href: string; readonly label: string; readonly hint: string; /** Shown on one width only, because the other width already has it in its bar. */ readonly on?: "phone" | "wide" };
+
 /**
  * Everything else, behind "More" on every width, in two groups. Nothing here
- * repeats a section the header or the tab bar already shows.
+ * repeats a section the header or the tab bar already shows on that width:
+ * a phone's tab bar has Check VIN and not Request a car, a wide screen's
+ * header has Request a car and not Check VIN, so More carries the other one.
  */
 export const MORE_NAV = [
   {
     group: "Buying and selling",
     items: [
+      { ...MAIN_NAV[1], on: "phone" },
+      { ...CHECK_NAV, on: "wide" },
       { href: "/sell", label: "Sell your car", hint: "Sell it to us, swap it, or we sell it for you" },
       { href: "/fleet", label: "Buy in bulk", hint: "2 or more vehicles for a company or government" },
       { href: "/compare", label: "Compare cars", hint: "Two or three cars side by side" },
@@ -40,17 +49,21 @@ export const MORE_NAV = [
       { href: "/contact", label: "Contact", hint: "Visit, call or write, with a map" },
     ],
   },
-] as const;
+] as const satisfies readonly { readonly group: string; readonly items: readonly MoreItem[] }[];
 
-/** Every More item in one list, in order, for the footer and the tests. */
-export const MORE_ITEMS = MORE_NAV.flatMap<{ readonly href: string; readonly label: string; readonly hint: string }>((g) => g.items);
+/** What More shows on one width, in order, for the tests. */
+type AnyMoreItem = (typeof MORE_NAV)[number]["items"][number];
+export const moreItemsOn = (width: "phone" | "wide"): AnyMoreItem[] => MORE_NAV.flatMap<AnyMoreItem>((g) => g.items).filter((i) => !("on" in i) || i.on === width);
+
+/** Every section that is not in MAIN_NAV, in order, for the footer (which lists MAIN_NAV first). */
+export const MORE_ITEMS = moreItemsOn("wide");
 
 /** The phone's bottom bar: the five things a visitor comes to do, one thumb away, named as above. */
 export const TAB_BAR = [
   { href: "/", label: "Home" },
   { href: CARS_NAV.href, label: CARS_NAV.short },
   { href: MAIN_NAV[0].href, label: MAIN_NAV[0].short },
-  { href: MAIN_NAV[1].href, label: MAIN_NAV[1].label },
+  { href: CHECK_NAV.href, label: CHECK_NAV.label },
   { href: MAIN_NAV[2].href, label: MAIN_NAV[2].label },
 ] as const;
 

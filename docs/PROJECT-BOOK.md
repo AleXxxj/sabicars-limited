@@ -68,7 +68,7 @@ DNS for `sabicars.com` is at GoDaddy; email (MX) runs on Google Workspace.
 
 ### `src/app` — the pages and addresses
 
-**Public site** — `(site)/`: `page.tsx` (home), `vehicles/[slug]` (the stock and one car), `buy/[term]` (search-term pages such as "Highlander"), `compare/[pair]`, `reserve/[slug]` and `reserve/done`, `drive-plan/`, `hummer-bus/` (Hiace family guide), `fleet/`, `find/` (Sourcing Desk), `sell/`, `saved/`, `ask/[slug]`, `blog/[slug]` (Insights), `partners/` (the programme), `partner/` (account: `cars` to share, `pin`, `forgot`, `[token]` set-up link), `review/[token]`, `v/[code]` (Verified inspection report), `about/`, `contact/`, `privacy/`, `unsubscribe/[token]`.
+**Public site** — `(site)/`: `page.tsx` (home), `vehicles/[slug]` (the stock and one car), `buy/[term]` (search-term pages such as "Highlander"), `compare/[pair]`, `reserve/[slug]` and `reserve/done`, `drive-plan/`, `hummer-bus/` (Hiace family guide), `fleet/`, `find/` (Sourcing Desk), `sell/`, `saved/`, `ask/[slug]`, `blog/[slug]` (Insights), `check/` (the free VIN check), `partners/` (the programme), `partner/` (account: `cars` to share, `pin`, `forgot`, `[token]` set-up link), `review/[token]`, `v/[code]` (Verified inspection report), `about/`, `contact/`, `privacy/`, `unsubscribe/[token]`.
 
 **Referral links** — `r/[code]` and `r/[code]/[slug]`: record the partner, then forward. **Old addresses** — `car-detail.html/`, `blog-post.html/`: look up the old Mongo id and redirect permanently. Also `llms.txt`, `robots.ts`, `sitemap.ts`, `manifest.ts`, `error.tsx`, and the not-found pages (`not-found.tsx` at the root, under `(site)`, `vehicles/[slug]`, `reserve/[slug]` and `admin/(app)`): a dead link always keeps the visitor in the showroom with a way on.
 
@@ -80,28 +80,28 @@ DNS for `sabicars.com` is at GoDaddy; email (MX) runs on Google Workspace.
 
 ### `src/lib` — the rules and the plumbing
 
-- **Business rules, no database, proved at build**: `money.ts` (kobo integers), `reservations.ts`, `referral.ts`, `ledger-rules.ts`, `drive-plan.ts`, `viewings.ts`, `showroom-hours.ts`, `partner-pin.ts`, `hiace-family.ts`, `matching.ts`.
+- **Business rules, no database, proved at build**: `money.ts` (kobo integers), `reservations.ts`, `referral.ts`, `ledger-rules.ts`, `drive-plan.ts`, `viewings.ts`, `showroom-hours.ts`, `partner-pin.ts`, `hiace-family.ts`, `matching.ts`, `hero-slides.ts` and `hero-video.ts` (which car on which homepage slide; how long the hero video plays), `guide-visual.ts` (the moving picture on an article's card).
 - **Money and partners**: `ledger.ts`, `ledger-notify.ts`, `paystack.ts`, `banks.ts`, `partners.ts` (codes, first-touch cookie), `partner-session.ts`, `partner-pin-links.ts`, `partner-flag.ts`, `referral-link.ts`, `share-caption.ts`, `brand-photo.ts`, `reserve.ts` (deposit: quote → Paystack → confirm once → expire).
 - **Leads and messaging**: `leads.ts`, `lead-labels.ts`, `deadline.ts`, `reference.ts`, `sourcing*.ts`, `watch-engine.ts`, `viewing-reminders.ts`, `alerts.ts` (Web Push to staff, then email), `email.ts` (the outbox), `newsletter.ts`, `notifications.ts` and `onesignal-client.ts` (customer push).
 - **Assistant** (`assistant/`): `prompt.ts` (voice and limits), `knowledge.ts` (what it may know, live from the DB), `parts.ts` (cards), `memory.ts`, `vault.ts` (encryption), `seller.ts`/`seller-room.ts` (Chat with seller), `learn.ts` (Monday review), `summarise.ts`, `health.ts`, `dev-reply.ts` (local stand-in).
 - **Operations**: `launch-checks.ts` (System status), `incidents.ts`, `rate-limit.ts`, `cron.ts`, `backup.ts`, `audit.ts`, `auth.ts` (`requireStaff`), `supabase/`, `cache-tags.ts`, `public-pages.ts`.
-- **Content and presentation**: `site.ts` (business facts, one place), `navigation.ts`, `theme.ts`, `fonts.ts`, `media.ts`, `cloudinary.ts` (signed direct uploads), `vehicle*.ts`, `inventory-filters.ts`, `compare.ts`, `fleet.ts`, `sell.ts`, `saved.ts`, `device-list.ts`, `phone.ts`, `blog/`, `inspection/checklist.ts`, `seo/`, `legacy/` (old URLs and redirects).
+- **Content and presentation**: `site.ts` (business facts, one place), `navigation.ts`, `theme.ts`, `fonts.ts`, `media.ts`, `cloudinary.ts` (signed direct uploads), `vehicle*.ts`, `inventory-filters.ts`, `compare.ts`, `fleet.ts`, `sell.ts`, `saved.ts`, `device-list.ts`, `phone.ts`, `vin/` (the free VIN check: validation, NHTSA lookups, plain words, the model's photo), `blog/`, `inspection/checklist.ts`, `seo/`, `legacy/` (old URLs and redirects).
 - **`actions/`** — the server actions forms and admin buttons call. **`repositories/`** — the read queries pages use.
 
 ### `src/components`
 
-Grouped by where they appear: `site/` (header, footer, phone tab bar, bell), `home/`, `inventory/`, `vehicle/` (enquiry sheet), `reserve/`, `compare/`, `forms/`, `partner/`, `referral/`, `reviews/`, `saved/`, `subscribe/`, `assistant/` (chat window, Hiace race), `blog/` (blocks, illustrations, video), `admin/` (every admin form and button), `brand/`, `ui/`, plus `VehicleCard`, `VehicleImage`, `Logo`, `ThemeToggle`.
+Grouped by where they appear: `site/` (header, footer, phone tab bar, bell), `home/`, `inventory/`, `vehicle/` (enquiry sheet), `reserve/`, `compare/`, `forms/`, `partner/`, `referral/`, `reviews/`, `saved/`, `subscribe/`, `assistant/` (chat window, Hiace race), `check/` (the VIN check), `blog/` (blocks, illustrations, video, the cards' moving pictures), `admin/` (every admin form and button), `brand/`, `ui/`, plus `VehicleCard`, `VehicleImage`, `Logo`, `ThemeToggle`.
 
 ### `src/content`, `src/db`, `src/styles`
 
 - `content/articles/` (seven articles as code), `content/ask-answers.ts` (first /ask answers), `listing-corrections.json` and `notification-corrections.json` (fixes to old-site records that the legacy import re-applies, only while the old record still says what was corrected). Seeded with `blog:seed` and `ask:seed`; wording changes carried in with `content:sync` without overwriting staff edits.
 - `db/schema.ts` (every table), `db/migrations/` (0000–0023), `db/lock.sql` (closes tables to Supabase's Data API), `db/index.ts` (the connection).
-- `styles/palette.json` → generated `tokens.css`; `article.css`, `assistant.css`, `motion.css`.
+- `styles/palette.json` → generated `tokens.css`; `article.css`, `assistant.css`, `motion.css`, `home.css` (the homepage hero and cards), `guide-visual.css`, `vin-check.css`.
 - `instrumentation.ts` (every server error becomes an incident), `proxy.ts` (signed-out visitors sent away from `/admin`).
 
 ### `scripts/` and `e2e/`
 
-Scripts: `local-db.mjs`, `migrate.mjs`, `import-legacy.mts`, `create-staff.mjs`, `check-auth.mjs`, `check-launch.mts`, `seed-*.mts`, `sync-content.mjs`, `restore-backup.mts`, `build-tokens.mjs`, `check-contrast.mjs`, `build-brand.mjs` (+ `fonts/`), and the `verify-*` gates (schema, money, hours, viewings, seller, reservations, drive-plan, matching, ledger, pin, backup, outbox, chat, matching-sql; `matching-fixtures.ts` holds the cars and wants the two matching checks share).
+Scripts: `local-db.mjs`, `migrate.mjs`, `import-legacy.mts`, `create-staff.mjs`, `check-auth.mjs`, `check-launch.mts`, `seed-*.mts`, `sync-content.mjs`, `restore-backup.mts`, `build-tokens.mjs`, `check-contrast.mjs`, `build-brand.mjs` (+ `fonts/`), and the `verify-*` gates (schema, money, hours, viewings, seller, reservations, drive-plan, matching, hero, guide-visual, vin, ledger, pin, backup, outbox, chat, matching-sql; `matching-fixtures.ts` holds the cars and wants the two matching checks share; `fixtures/vin/` holds the NHTSA answers the VIN checks run on, so the build never calls NHTSA).
 
 Tests: `e2e/smoke/` (fifteen read-only walks, one per public area plus admin and api), `e2e/flows/` (`money-path`, `sign-in`, `throttle`), `fixtures.ts`, `helpers.ts`.
 
@@ -256,7 +256,7 @@ The old API on Render has its own set (`MONGO_URI`, `CLOUDINARY_*`, `JWT_SECRET`
 
 **Run locally** (in `web/`): `npm install`; `cp .env.example .env.local` and fill it; `npm run db:local` (real Postgres 17 from `node_modules`); `npm run db:migrate`; `npm run legacy:import` or `npm run e2e:seed` for data; `npm run dev` → `http://localhost:3000`. Without an Anthropic key the chat uses `dev-reply.ts`.
 
-**Test**: `npm run build` runs the twelve gates and fails on any (the Sourcing Desk's matching rule among them). `npm run test:smoke` walks a running site read-only. `npm run test:e2e` drives the money paths against the database in `.env.local` (seed first). `test:backup`, `test:outbox`, `test:chat` prove those parts against a local database; `test:matching-sql` proves the SQL matcher picks the same cars as the rule (it lists and removes its own test cars; CI runs it on the throwaway database). `npm run check:launch` prints the System status checks. `npm run typecheck`, `npm run lint`.
+**Test**: `npm run build` runs the fifteen gates and fails on any (the Sourcing Desk's matching rule, the home hero's rules, the guide cards' pictures and the VIN checks among them). `npm run test:smoke` walks a running site read-only. `npm run test:e2e` drives the money paths against the database in `.env.local` (seed first). `test:backup`, `test:outbox`, `test:chat` prove those parts against a local database; `test:matching-sql` proves the SQL matcher picks the same cars as the rule (it lists and removes its own test cars; CI runs it on the throwaway database). `npm run check:launch` prints the System status checks. `npm run typecheck`, `npm run lint`.
 
 **Build and deploy**: push to `platform`; Vercel builds `web/` with `next build` and goes live. There is no manual deploy step. On switch day, follow `docs/LAUNCH.md` part B.
 

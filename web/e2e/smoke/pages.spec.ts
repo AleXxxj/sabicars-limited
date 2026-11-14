@@ -7,6 +7,7 @@ const PAGES: { path: string; headline: RegExp }[] = [
   { path: "/privacy", headline: /Your details, and what we do with them/ },
   { path: "/sell", headline: /Selling a car\? Start with Sabicars/ },
   { path: "/find", headline: /Tell us the car you want/ },
+  { path: "/check", headline: /Check any car/ },
   { path: "/hummer-bus", headline: /The Toyota Hiace Hummer bus/ },
   { path: "/fleet", headline: /./ },
 ];

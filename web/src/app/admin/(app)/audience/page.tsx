@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { AnnouncementForm } from "@/components/admin/AnnouncementForm";
+import { HeroSlidesForm } from "@/components/admin/HeroSlidesForm";
 import { HeroVideoForm } from "@/components/admin/HeroVideoForm";
 import { TodayVideoForm } from "@/components/admin/TodayVideoForm";
 import { todayVideo } from "@/lib/repositories/today";
-import { heroVideoUrl } from "@/lib/repositories/vehicles";
+import { heroPickOptions, heroPickSlugs, heroVideo } from "@/lib/repositories/vehicles";
 import { requireStaff } from "@/lib/auth";
 import { emailConfigured } from "@/lib/email";
 import { oneSignalConfigured } from "@/lib/notifications";
@@ -47,14 +48,16 @@ const KIND: Record<string, string> = {
  */
 export default async function AudienceAdmin() {
   const me = await requireStaff();
-  const [summary, posts, sends, subs, cars, video, heroVideo] = await Promise.all([
+  const [summary, posts, sends, subs, cars, video, heroVid, heroCars, heroChosen] = await Promise.all([
     audienceSummary(me.dealerId),
     recentNotifications(me.dealerId),
     recentSends(me.dealerId),
     recentSubscribers(me.dealerId),
     announceableVehicles(me.dealerId),
     todayVideo(),
-    heroVideoUrl(),
+    heroVideo(),
+    heroPickOptions(me.dealerId),
+    heroPickSlugs(),
   ]);
   const pushReady = oneSignalConfigured();
   const emailReady = emailConfigured();
@@ -89,16 +92,30 @@ export default async function AudienceAdmin() {
 
       <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
         <div className="grid content-start gap-10">
+          <section aria-label="Homepage cars" className="border border-border-subtle bg-surface-1 p-5 md:p-6">
+            <p className="text-sm font-semibold text-text-primary">Homepage cars: which car on which slide</p>
+            <p className="mt-1 text-xs text-text-muted">
+              The big photos at the top of the homepage. Each slide has its own words; choose the car that stands under them. The photo used is the car&rsquo;s cover photo. A slide left on &ldquo;Choose by itself&rdquo; takes the cars ticked &ldquo;Use in the homepage hero&rdquo;, in turn. A sold car can be shown, and is marked Sold.
+            </p>
+            <div className="mt-5">
+              {me.role === "sales" ? (
+                <p className="text-sm text-text-muted">A manager chooses the homepage cars.</p>
+              ) : (
+                <HeroSlidesForm current={heroChosen} cars={heroCars.map((c) => ({ slug: c.slug, label: c.label }))} />
+              )}
+            </div>
+          </section>
+
           <section aria-label="Homepage hero video" className="border border-border-subtle bg-surface-1 p-5 md:p-6">
             <p className="text-sm font-semibold text-text-primary">Homepage hero video</p>
             <p className="mt-1 text-xs text-text-muted">
-              Plays once over the big photos at the top of the homepage, muted, then the photos come back. A YouTube link or a video file. Visitors on slow or data-saver connections never download it; they see the photos.
+              Plays once over the big photos at the top of the homepage, muted, for the seconds you set, then the photos come back. It stops when a visitor scrolls past it. A YouTube link or a video file. On a slow or data-saving connection (many phones in Nigeria) it does not start by itself: visitors get a &ldquo;Watch video&rdquo; button, so it only uses their data if they tap it. &ldquo;See it play&rdquo; shows it starting by itself, on any connection.
             </p>
             <div className="mt-5">
               {me.role === "sales" ? (
                 <p className="text-sm text-text-muted">A manager sets the hero video.</p>
               ) : (
-                <HeroVideoForm current={heroVideo} />
+                <HeroVideoForm current={heroVid.url} seconds={heroVid.seconds} />
               )}
             </div>
           </section>

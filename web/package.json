@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npm run tokens && npm run check:contrast && npm run test:schema && npm run test:money && npm run test:hours && npm run test:viewings && npm run test:seller && npm run test:reservations && npm run test:drive-plan && npm run test:matching && npm run test:ledger && npm run test:pin && next build",
+    "build": "npm run tokens && npm run check:contrast && npm run test:schema && npm run test:money && npm run test:hours && npm run test:viewings && npm run test:seller && npm run test:reservations && npm run test:drive-plan && npm run test:matching && npm run test:hero && npm run test:guide-visual && npm run test:vin && npm run test:ledger && npm run test:pin && next build",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
@@ -27,6 +27,9 @@
     "test:reservations": "tsx scripts/verify-reservations.ts",
     "test:drive-plan": "tsx scripts/verify-drive-plan.ts",
     "test:matching": "tsx scripts/verify-matching.ts",
+    "test:hero": "tsx scripts/verify-hero.ts",
+    "test:guide-visual": "tsx scripts/verify-guide-visual.ts",
+    "test:vin": "node --import tsx scripts/verify-vin.ts && node --conditions=react-server --import tsx scripts/verify-vin-nhtsa.mts && node --conditions=react-server --import tsx scripts/verify-vin-plain.mts",
     "test:matching-sql": "node --env-file-if-exists=.env.local --conditions=react-server --import tsx scripts/verify-matching-sql.mts",
     "test:ledger": "tsx scripts/verify-ledger.ts",
     "test:pin": "tsx scripts/verify-pin.ts",

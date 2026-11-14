@@ -2,18 +2,39 @@ import type { Metadata } from "next";
 import Form from "next/form";
 import Image from "next/image";
 import Link from "next/link";
+import { Fragment } from "react";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { Address } from "@/components/site/Address";
 import { VehicleCard } from "@/components/VehicleCard";
 import { VehicleImage } from "@/components/VehicleImage";
 import { DrivePlanFinder } from "@/components/home/DrivePlanFinder";
-import { HeroShowcase, type HeroSlide } from "@/components/home/HeroShowcase";
+import { HeroSlides } from "@/components/home/HeroSlides";
+import { heroDeck, type HeroSlide } from "@/components/home/heroDeck";
+import { AskButton } from "@/components/assistant/AskButton";
+import { REFERRAL_COMMISSION_BPS } from "@/lib/referral";
 import { TodayAtThePark } from "@/components/home/TodayAtThePark";
 import { TodayVideo } from "@/components/home/TodayVideo";
 import { EarningsRow, PartnerPromises } from "@/components/referral/Referral";
 import { HomeSearch } from "@/components/home/HomeSearch";
 import { PostCard } from "@/components/blog/PostCard";
-import { MapPin } from "lucide-react";
+import {
+  BadgeCheck,
+  Camera,
+  CarFront,
+  ChevronRight,
+  Clock,
+  HandCoins,
+  Mail,
+  MapPin,
+  Phone,
+  ScanSearch,
+  Search,
+  ShieldCheck,
+  Sparkles,
+  Tag,
+  Wallet,
+  type LucideIcon,
+} from "lucide-react";
 import { Button, ButtonAnchor, ButtonLink } from "@/components/ui/Button";
 import { fieldClass } from "@/components/forms/field";
 import {
@@ -22,8 +43,9 @@ import {
   drivePlanCatalogue,
   everyListedCarVerified,
   featuredVehicles,
+  heroPicks,
   heroVehicles,
-  heroVideoUrl,
+  heroVideo,
   hummerBuses,
   inventoryStats,
   priceDropsThisWeek,
@@ -31,14 +53,14 @@ import {
 } from "@/lib/repositories/vehicles";
 import { mostRequested } from "@/lib/repositories/sourcing";
 import { todayVideo } from "@/lib/repositories/today";
-import { publishedReviews, reviewSummary } from "@/lib/repositories/reviews";
-import { ReviewRating, ReviewsSection } from "@/components/reviews/ReviewsSection";
-import { WriteReview } from "@/components/reviews/WriteReview";
+import { reviewSummary } from "@/lib/repositories/reviews";
+import { Stars } from "@/components/reviews/Stars";
 import { latestPosts } from "@/lib/repositories/blog";
 import { formatNaira } from "@/lib/money";
 import { dealerJsonLd, jsonLdScript } from "@/lib/seo/structured-data";
 import { pageAddress, site, siteUrl } from "@/lib/site";
 import { DRIVE_PLAN, depositMinorFor } from "@/lib/drive-plan";
+import type { HeroSlideKey } from "@/lib/hero-slides";
 import { priceLabel, vehicleTitle } from "@/lib/vehicle";
 
 /**
@@ -52,6 +74,24 @@ export const metadata: Metadata = {
   title: { absolute: "Sabicars — Toyota Hiace Hummer Buses, Luxury Cars & SUVs in Lagos" },
   ...pageAddress("/"),
 };
+
+/**
+ * Why people trust us: three promises the site already makes and keeps (the About page's standards and the privacy
+ * notice), one plain line each. "See it before you pay" is not among them: the hero's first words already say it.
+ */
+const TRUST: { icon: LucideIcon; text: string }[] = [
+  { icon: Camera, text: "The car you get is the car in the photos." },
+  // A no-break space, so a narrow phone never leaves "RC" at the end of one line and the number on the next.
+  { icon: BadgeCheck, text: `Registered with CAC: RC ${site.rcNumber}.` },
+  { icon: ShieldCheck, text: "We never ask for your BVN or card details in a chat or form." },
+];
+
+/**
+ * The one fact beside the founder's name on his card. It has to be one Sabicars can stand behind (the About page leaves
+ * out sales totals until they are confirmed): 300k is the size of his audience across his pages, not a count of cars
+ * sold. A number of cars sold goes here once it is confirmed.
+ */
+const FOUNDER_FACT = "300k followers";
 
 function SectionHead({ eyebrow, title, children }: { eyebrow: string; title: string; children?: React.ReactNode }) {
   return (
@@ -75,17 +115,16 @@ function SectionHead({ eyebrow, title, children }: { eyebrow: string; title: str
  * built to capture the audience, not just display the lot.
  */
 export default async function Home() {
-  const [hero, featuredStock, stats, tiles, videoUrl, catalogue, demand, buses, reviews, reviewStats, posts, allVerified, terms, arrivals, drops, video] =
+  const [hero, featuredStock, stats, tiles, heroVid, catalogue, demand, buses, reviewStats, posts, allVerified, terms, arrivals, drops, video, picked] =
     await Promise.all([
       heroVehicles(8),
       featuredVehicles(6),
       inventoryStats(),
       categoryTiles(),
-      heroVideoUrl(),
+      heroVideo(),
       drivePlanCatalogue(),
       mostRequested(),
       hummerBuses(),
-      publishedReviews(),
       reviewSummary(),
       latestPosts(3),
       everyListedCarVerified(),
@@ -93,6 +132,7 @@ export default async function Home() {
       arrivedThisWeek(),
       priceDropsThisWeek(),
       todayVideo(),
+      heroPicks(),
     ]);
   // Hummer buses, newest first, those with a photograph.
   const hummers = buses.filter((b) => /hum+er/i.test(b.model) && b.cover);
@@ -122,7 +162,19 @@ export default async function Home() {
   // Staff choose hero vehicles; if none are chosen, lead with featured stock
   // rather than an empty backdrop.
   const heroSource = (hero.length ? hero : featured).filter((v) => v.cover);
-  const slides: HeroSlide[] = heroSource.map((v) => ({ url: v.cover!.url, title: vehicleTitle(v), price: priceLabel(v), href: `/vehicles/${v.slug}` }));
+  const photoOf = (v: (typeof heroSource)[number]): HeroSlide => ({
+    head: 0,
+    src: v.cover!.url,
+    // The photo's shape, so the hero can show the whole car and not a cut of it.
+    ratio: v.cover!.width && v.cover!.height ? v.cover!.width / v.cover!.height : null,
+    name: vehicleTitle(v),
+    // A sold car the owner chose to show is said to be sold, where a price would be.
+    note: v.status === "sold" ? "Sold" : priceLabel(v),
+    href: `/vehicles/${v.slug}`,
+  });
+  /** The car the owner chose for a slide in Admin, Audience (lib/hero-slides.ts), if there is one. */
+  const chosen = (key: HeroSlideKey): HeroSlide | undefined => (picked[key] ? photoOf(picked[key]) : undefined);
+  const cars = heroSource.map(photoOf);
 
   // The smallest deposit that drives a car home today: each car at its own tier, so a 2009 car at 50% is not mistaken for the cheapest.
   const lowestDeposit = catalogue.length ? Math.min(...catalogue.map((v) => v.depositMinor)) : null;
@@ -132,6 +184,65 @@ export default async function Home() {
     shortcuts.push({ label: `Drive Plan from ${formatNaira(lowestDeposit, { compact: true })} down`, href: `/vehicles?maxDeposit=${reach}` });
   }
   const hummerDepositFrom = hummers.map((b) => depositMinorFor(b.priceMinor, b.year)).filter((d): d is number => d !== null).sort((a, b) => a - b)[0] ?? null;
+
+  // The hero's opening line: one fact, no paragraph (the owner, 14 November 2026). Not the stock count: the Buy door right under it says that.
+  const standingLine = `Cars, SUVs and buses${stats.fromMinor ? ` from ${formatNaira(stats.fromMinor, { compact: true })}` : ""}.`;
+  // Not the first hero car when another will do: that one opens the page.
+  const onPlan = (v: (typeof heroSource)[number]) => v.priceMinor !== null && v.year >= DRIVE_PLAN.standardYear;
+  const planCar = picked.plan ?? heroSource.slice(1).find(onPlan) ?? heroSource.find(onPlan);
+  const hummerCar = picked.hummer ?? hummers[0];
+  // One hero slide per thing Sabicars does, after the opening one, each over a different car, so the hero never repeats
+  // itself. The Hummer slide brings a Hummer's photo and the Drive Plan slide a car the plan's words are true of.
+  const services: { kicker: string; title: [string, string]; line: string; more: string; href: string; photo?: HeroSlide | null }[] = [
+    // Never "Pay 40%" over a car too old for 40%: the photo is a car the words are true of, or the slide stays away.
+    ...(planCar
+      ? [
+          {
+            kicker: "40% Drive Plan",
+            title: ["Pay 40% now.", "Drive it home."] as [string, string],
+            line: `On a car from ${DRIVE_PLAN.standardYear} up. Autochek lends you the rest if they approve you.`,
+            more: "How it works",
+            href: "/drive-plan",
+            photo: photoOf(planCar),
+          },
+        ]
+      : []),
+    ...(hummerCar
+      ? [
+          {
+            kicker: "Hummer buses",
+            title: ["The home of", "the Hummer bus."] as [string, string],
+            line: `For staff, schools, churches and transport.${hummerFrom ? ` From ${formatNaira(hummerFrom, { compact: true })}.` : ""}`,
+            more: "See every Hummer bus",
+            href: "/hummer-bus",
+            photo: photoOf(hummerCar),
+          },
+        ]
+      : []),
+    { kicker: "Free VIN check", title: ["Check any car.", "It is free."], line: "Type the VIN (chassis number) and see what the car really is.", more: "Check a car", href: "/check", photo: chosen("check") },
+    { kicker: "Sell or swap", title: ["Sell us your car.", "Or swap it."], line: "Sell it to us, swap it for another, or we sell it for you.", more: "Tell us about your car", href: "/sell", photo: chosen("sell") },
+    { kicker: "Request a car", title: ["Can’t find it?", "Tell us."], line: "Tell us the car you want. When it comes in, we tell you.", more: "Request a car", href: "/find", photo: chosen("find") },
+    { kicker: "Earn", title: ["Know a buyer?", `Earn ${REFERRAL_COMMISSION_BPS / 100}%.`], line: "Free to join. You are paid when your buyer buys.", more: "Get your free link", href: "/partners", photo: chosen("earn") },
+  ];
+
+  // What do you need? Six doors, each with a live line. No line names the total stock: the owner took the count off every
+  // page (14 November 2026), so Buy says where the prices start.
+  const tilesNeed: { title: string; detail: string; href: string; tint: string; icon: LucideIcon; photos?: string[] }[] = [
+    {
+      title: "Buy a car",
+      detail: stats.fromMinor ? `From ${formatNaira(stats.fromMinor, { compact: true })}` : "Cars for sale",
+      href: "/vehicles",
+      tint: "buy",
+      icon: CarFront,
+      photos: featured.filter((v) => v.cover).slice(0, 3).map((v) => v.cover!.url),
+    },
+    // Never "Pay 40%" on its own: the terms that make it true are in the Drive Plan section further down, not under the tiles.
+    { title: "40% Drive Plan", detail: lowestDeposit !== null ? `From ${formatNaira(lowestDeposit, { compact: true })} down` : `On cars from ${DRIVE_PLAN.standardYear} up`, href: "/drive-plan", tint: "plan", icon: Wallet },
+    { title: "Check VIN", detail: "Free check", href: "/check", tint: "check", icon: ScanSearch },
+    { title: "Sell your car", detail: "Sell or swap", href: "/sell", tint: "sell", icon: Tag },
+    { title: "Request a car", detail: "We look for it", href: "/find", tint: "find", icon: Search },
+    { title: `Earn ${REFERRAL_COMMISSION_BPS / 100}%`, detail: "When your buyer buys", href: "/partners", tint: "earn", icon: HandCoins },
+  ];
 
   return (
     <>
@@ -145,13 +256,108 @@ export default async function Home() {
         }}
       />
 
-      <HeroShowcase slides={slides} videoUrl={videoUrl} allVerified={allVerified} />
+      {/* The hero, built the way the Adedayo Aremu Autos hero is (the owner, 14 November 2026): the cars one after another with
+          words on the photo and the three doors right under it. Every slide has its own words and its own car: the opening
+          one, then one for each thing Sabicars does. Nothing is said twice in one turn. */}
+      <HeroSlides
+        slides={heroDeck(
+          cars,
+          [{ head: 0, photo: chosen("opening") }, ...services.map((sv, i) => ({ head: i + 1, label: sv.kicker, photo: sv.photo }))],
+          // More sets of words than hero cars: the other featured cars lend their photos, so none comes round twice.
+          featured.filter((v) => v.cover).map(photoOf),
+        )}
+        videoUrl={heroVid.url}
+        videoSeconds={heroVid.seconds}
+        heads={[
+          <Fragment key="standing">
+            <p className="home-eyebrow">Car dealer in Nigeria</p>
+            <h1 className="hh-title">
+              {allVerified ? "Every car checked." : "Your next car is here."}
+              <span>See it before you pay.</span>
+            </h1>
+            <p className="hh-line figures">{standingLine}</p>
+          </Fragment>,
+          ...services.map((sv) => (
+            <Fragment key={sv.kicker}>
+              <p className="home-eyebrow">{sv.kicker}</p>
+              <h2 className="hh-title">
+                {sv.title[0]}
+                <span>{sv.title[1]}</span>
+              </h2>
+              <p className="hh-line hh-line--terms">
+                {sv.line}{" "}
+                <Link href={sv.href} className="hh-more">
+                  {sv.more}
+                </Link>
+              </p>
+            </Fragment>
+          )),
+        ]}
+      >
+        {/* Three doors, each with its own colour and one fact: Buy is the one in Sabicars' orange. The hidden comma makes a
+            screen reader say "Buy, Cars for sale". Buy names no count: the owner took the total stock off every page
+            (14 November 2026), and its prices are in the opening line just above, so the door does not repeat them. */}
+        <nav aria-label="Start here" className="hh-actions">
+          <Door href="/vehicles" tint="buy" icon={CarFront} label="Buy" sub="Cars for sale" />
+          <Door href="/sell" tint="sell" icon={Tag} label="Sell" sub="Sell or swap" />
+          <Door href="/check" tint="check" icon={ScanSearch} label="Check VIN" sub="Free check" />
+        </nav>
+        <div className="hh-links">
+          <AskButton className="hh-link">
+            <Sparkles aria-hidden size={17} />
+            <span>
+              Not sure where to start? <strong>Ask Sabicars</strong>
+            </span>
+          </AskButton>
+          <Link href="/partners" className="hh-link">
+            <HandCoins aria-hidden size={17} />
+            <span>
+              Know a buyer? <strong>Earn {REFERRAL_COMMISSION_BPS / 100}%</strong>
+            </span>
+          </Link>
+        </div>
+      </HeroSlides>
 
       {/* Do they have what I want? One field, answered from the stock as they type — or by Ask Sabicars. */}
-      <section aria-label="Find your car" className="relative z-10 -mt-12 md:-mt-16">
+      <section aria-label="Find your car" className="relative z-10 lg:-mt-10">
         <div className="mx-auto max-w-7xl px-5 md:px-10">
           <HomeSearch terms={stockTerms.map((t) => ({ slug: t.slug, label: t.label, fromMinor: t.fromMinor }))} shortcuts={shortcuts} hummers={hummers.length > 0} />
         </div>
+      </section>
+
+      {/* What do you need? One door per thing a visitor came to do, each with a live line, so nothing Sabicars does is
+          hidden under "More" (the owner, 14 November 2026, after the Adedayo home page). */}
+      <section className="mx-auto mt-8 max-w-7xl px-5 md:mt-10 md:px-10">
+        <h2 className="home-sr">What do you need?</h2>
+        <ul className="home-tiles">
+          {tilesNeed.map((t, i) => (
+            <li key={t.title} style={{ ["--i" as string]: i }}>
+              <Link href={t.href} className="home-tile" data-tint={t.tint}>
+                <span className="home-tile-top">
+                  <span className="home-tile-icon">
+                    <t.icon aria-hidden size={22} strokeWidth={2} />
+                  </span>
+                  {t.photos && t.photos.length > 0 && (
+                    <span className="home-tile-photos" aria-hidden="true">
+                      {t.photos.map((src, k) => (
+                        <span key={`${k}-${src}`} className="home-tile-photo">
+                          <VehicleImage src={src} alt="" fill sizes="32px" />
+                        </span>
+                      ))}
+                    </span>
+                  )}
+                </span>
+                <span className="home-tile-title">
+                  {t.title}
+                  <ChevronRight aria-hidden size={16} />
+                </span>
+                <span className="home-tile-detail figures">{t.detail}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+        {/* The Drive Plan's terms are not repeated here: the Drive Plan section below says them once, with its finder
+            (the owner, 14 November 2026: "same explanation is in screenshot 2"). */}
       </section>
 
       {/* The reason to open Sabicars today: what is new this week and whose price dropped. */}
@@ -165,10 +371,8 @@ export default async function Home() {
           <div className="mx-auto grid max-w-7xl gap-10 px-5 py-16 md:px-10 md:py-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:items-center lg:gap-16">
             <ScrollReveal>
               <SectionHead eyebrow="Hummer buses" title="The home of the Hummer bus.">
-                <p>
-                  We are known for the Toyota Hiace Hummer bus: for staff, schools, churches, hotels and transport. Come and see one. Buy one or
-                  many, or pay 40% now on the Drive Plan.
-                </p>
+                {/* One line (the owner, 14 November 2026: "can we summerise it"). The Drive Plan is in the figures just below. */}
+                <p>Toyota Hiace Hummer buses for staff, schools, churches and transport. Buy one or many.</p>
               </SectionHead>
               <p className="figures mt-6 text-text-primary">
                 {[
@@ -219,14 +423,11 @@ export default async function Home() {
       {catalogue.length > 0 && (
         <section id="drive-plan" className="scroll-mt-20 border-t border-white/[0.06] md:scroll-mt-24">
           <div className="mx-auto max-w-7xl px-5 py-16 md:px-10 md:py-20">
-            <DrivePlanFinder vehicles={catalogue}>
+            {/* No paragraph under the question (the owner, 14 November 2026): "who really needs drive plan will click the link
+                to learn more". The two sentences that keep the answer true sit under the cars it finds. */}
+            <DrivePlanFinder vehicles={catalogue} brief>
               <ScrollReveal>
-                <SectionHead eyebrow="The 40% Drive Plan" title="How much do you have?">
-                  <p>
-                    Pay 40% now on a car from {DRIVE_PLAN.standardYear} up. Autochek lends you the rest if they approve you, and you pay
-                    monthly. Type what you have and see the cars you can drive home.
-                  </p>
-                </SectionHead>
+                <SectionHead eyebrow="The 40% Drive Plan" title="How much do you have?" />
                 <ButtonLink href="/drive-plan" variant="quiet" className="mt-4">
                   How the Drive Plan works
                 </ButtonLink>
@@ -243,7 +444,7 @@ export default async function Home() {
             <ScrollReveal className="flex flex-wrap items-end justify-between gap-6">
               <SectionHead eyebrow="Cars for sale" title="What are you looking for?" />
               <ButtonLink href="/vehicles" variant="quiet">
-                See all {stats.inStock} cars for sale
+                See all cars for sale
               </ButtonLink>
             </ScrollReveal>
             {tiles.length > 0 && (
@@ -262,8 +463,9 @@ export default async function Home() {
             {/* On a phone, a row to swipe through — the pattern every shopping app uses — instead of 4,000px of stacked cards. On a desktop, one row. */}
             {featured.length > 0 && (
               <div className="-mx-5 mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-5 px-5 pb-4 [scrollbar-width:none] md:mx-0 md:mt-10 md:grid md:snap-none md:grid-cols-2 md:gap-6 md:overflow-visible md:px-0 md:pb-0 xl:grid-cols-3 [&::-webkit-scrollbar]:hidden md:[&>*:nth-child(n+5)]:hidden xl:[&>*:nth-child(n+4)]:hidden">
+                {/* Each card arrives the first time it is seen, on a phone as it is swiped in (the owner, 14 November 2026). */}
                 {featured.map((v, i) => (
-                  <ScrollReveal key={v.id} delay={(i % 3) * 90} className="w-[84%] shrink-0 snap-start sm:w-[60%] md:w-auto">
+                  <ScrollReveal key={v.id} card delay={(i % 3) * 110} className="w-[84%] shrink-0 snap-start sm:w-[60%] md:w-auto">
                     <VehicleCard vehicle={v} href={`/vehicles/${v.slug}`} />
                   </ScrollReveal>
                 ))}
@@ -308,45 +510,72 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Who you are buying from: the man the audience came for, then his customers in their own words, each read by a person first.
-          #reviews lands here, on the founder block; the rating and "Write a review" follow the quote, and the reviews come just below. */}
-      <section id="reviews" className="scroll-mt-24 border-t border-border-subtle">
-        <div className="mx-auto grid max-w-7xl gap-12 px-5 pt-16 md:px-10 md:pt-20 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-center">
+      {/* Who you are buying from, in one short block, the way the Adedayo home page does it (the owner, 14 November 2026:
+          the founder section "consumes space"): three promises the site already makes, and one card to the founder's story.
+          His photo, his quote and the reviews in full are on /about, where "Our story" and the rating lead. */}
+      <section aria-labelledby="trust-title" className="border-t border-border-subtle">
+        <div className="mx-auto grid max-w-7xl gap-8 px-5 py-14 md:px-10 md:py-20 lg:grid-cols-2 lg:items-center lg:gap-16">
           <ScrollReveal>
-            <div className="relative aspect-[4/5] overflow-hidden rounded-3xl border border-white/[0.08] bg-surface-2 shadow-[0_40px_90px_-40px_rgb(0_0_0/0.9)] lg:aspect-square">
-              <Image src="/founder.jpg" alt={`Ccristian Dee, founder of ${site.legalName}`} fill sizes="(min-width: 1024px) 40vw, 100vw" className="object-cover object-[60%_center]" />
-            </div>
+            <h2 id="trust-title" className="text-display-3">
+              Why people trust us
+            </h2>
+            <ul className="mt-6 grid gap-4">
+              {TRUST.map((t) => (
+                <li key={t.text} className="flex items-center gap-4">
+                  <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-green-500/[0.14] text-green-300 md:size-14">
+                    <t.icon aria-hidden size={22} strokeWidth={2} />
+                  </span>
+                  <span className="text-[1.08rem] font-semibold leading-snug text-text-primary md:text-[1.2rem]">{t.text}</span>
+                </li>
+              ))}
+            </ul>
           </ScrollReveal>
-          <ScrollReveal delay={120}>
-            <p className="kicker">The man behind Sabicars</p>
-            <blockquote className="mt-6">
-              <p className="font-display text-[1.9rem] leading-[1.25] text-text-primary md:text-[2.4rem]">
-                “Every vehicle that leaves our showroom carries my name on it … That’s not a slogan, it’s how I built this.”
-              </p>
-              <footer className="mt-8">
-                <p className="font-medium text-text-primary">Ccristian Dee</p>
-                <p className="text-sm text-text-muted">Prince Emmanuel Abisoye · Founder &amp; CEO, {site.legalName}</p>
-              </footer>
-            </blockquote>
-            <ReviewRating summary={reviewStats} className="mt-8" />
-            <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-3">
-              <WriteReview />
-              <ButtonLink href="/about" variant="quiet">
-                The Sabicars story
-              </ButtonLink>
-            </div>
+          <ScrollReveal delay={120} className="grid gap-4">
+            <Link
+              href="/about"
+              className="group flex items-center gap-4 rounded-[2rem] border border-white/[0.08] bg-surface-1 p-3 pr-5 transition-colors duration-[var(--duration-fast)] hover:border-border-strong md:p-4 md:pr-6"
+            >
+              <span className="relative size-16 shrink-0 overflow-hidden rounded-full bg-surface-2 md:size-20">
+                <Image src="/founder.jpg" alt="" fill sizes="80px" className="object-cover object-[60%_25%]" />
+              </span>
+              <span className="min-w-0 flex-1">
+                {/* One line where there is room; on a phone the fact takes its own line instead of leaving the dot behind. */}
+                <span className="block font-semibold leading-snug text-text-primary">
+                  Founded by Ccristian Dee{" "}
+                  <span className="figures block font-medium text-text-secondary sm:inline">
+                    <span className="hidden sm:inline">· </span>
+                    {FOUNDER_FACT}
+                  </span>
+                </span>
+                <span className="mt-1 block font-semibold text-green-300 group-hover:text-green-200">Our story</span>
+              </span>
+              <ChevronRight aria-hidden size={20} className="shrink-0 text-text-muted transition-transform duration-[var(--duration-fast)] group-hover:translate-x-0.5" />
+            </Link>
+            {/* The reviews in brief: the rating and where to read them all, on /about. */}
+            {reviewStats.count > 0 && reviewStats.average !== null && (
+              <Link
+                href="/about#reviews"
+                className="group flex flex-wrap items-center gap-x-3 gap-y-1 rounded-2xl px-1 py-2 text-text-secondary transition-colors hover:text-text-primary"
+              >
+                <span className="figures font-semibold text-text-primary">{reviewStats.average.toFixed(1)}</span>
+                <Stars rating={reviewStats.average} size={16} />
+                <span className="figures">
+                  {reviewStats.count} {reviewStats.count === 1 ? "review" : "reviews"}
+                </span>
+                <span className="font-semibold text-green-300 group-hover:text-green-200">Read them</span>
+              </Link>
+            )}
           </ScrollReveal>
         </div>
-        {/* The day's video from the park, with his line for the day: his face, his words, then today's words. */}
+        {/* The day's video from the park, with his line for the day, when one is set. */}
         {video && (
-          <div className="mx-auto max-w-7xl px-5 pt-14 md:px-10 md:pt-16">
+          <div className="mx-auto max-w-7xl px-5 pb-14 md:px-10 md:pb-20">
             <ScrollReveal>
               <TodayVideo video={video} />
             </ScrollReveal>
           </div>
         )}
       </section>
-      <ReviewsSection reviews={reviews} summary={reviewStats} head={false} />
 
       {/* Can I earn from this? The three promises, the way in, and a row of cars at the park with what one buyer earns on each:
           every car counts, not one. The rules in full are on /partners, one tap away (the owner's review, 2026-11-06). */}
@@ -382,11 +611,13 @@ export default async function Home() {
                 All buying guides
               </ButtonLink>
             </ScrollReveal>
-            {/* On a phone, a row to swipe, like the cars: one guide at a time instead of three stacked. On a desktop, a grid. */}
-            <div className="-mx-5 mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-5 px-5 pb-2 [scrollbar-width:none] md:mx-0 md:mt-12 md:grid md:snap-none md:grid-cols-2 md:gap-6 md:overflow-visible md:px-0 md:pb-0 lg:grid-cols-3 [&::-webkit-scrollbar]:hidden">
+            {/* Short cards, the picture beside the headline, the way the Adedayo home page lists its guides: one under another
+                on a phone and a tablet, three across on a desktop. The old tall card took a phone's whole screen for one guide
+                (the owner, 14 November 2026: "our article card is too long"). */}
+            <div className="mt-8 grid gap-3 md:mt-12 lg:grid-cols-3 lg:gap-5">
               {posts.map((p, i) => (
-                <ScrollReveal key={p.slug} delay={i * 90} className="w-[84%] shrink-0 snap-start sm:w-[60%] md:w-auto">
-                  <PostCard post={p} />
+                <ScrollReveal key={p.slug} card delay={i * 110} className="h-full">
+                  <PostCard post={p} size="sm" />
                 </ScrollReveal>
               ))}
             </div>
@@ -394,23 +625,78 @@ export default async function Home() {
         </section>
       )}
 
-      {/* Come and see it. The phones and email are in the footer, just below. */}
-      <section className="border-t border-border-subtle">
-        <div className="mx-auto grid max-w-7xl gap-10 px-5 py-20 md:px-10 md:py-24 lg:grid-cols-2 lg:items-end">
+      {/* Visit or call, the way the Adedayo home page ends (the owner, 14 November 2026): the park and the way there, the
+          hours, the email, then one button to call and one to write. The footer under it keeps only a one-line address. */}
+      <section aria-labelledby="visit-title" className="border-t border-border-subtle">
+        <div className="mx-auto grid max-w-7xl gap-8 px-5 py-14 md:px-10 md:py-20 lg:grid-cols-2 lg:items-center lg:gap-16">
           <ScrollReveal>
-            <SectionHead eyebrow="Visit" title="Come to the park.">
-              <p>Come and see the cars yourself before you pay. We are at the park every day.</p>
-            </SectionHead>
+            <h2 id="visit-title" className="text-display-3">
+              Visit or call
+            </h2>
+            <ul className="mt-6 grid gap-5 text-text-secondary">
+              <li className="flex gap-4">
+                <MapPin aria-hidden size={20} className="mt-1 shrink-0 text-green-300" />
+                <div>
+                  <Address className="text-text-primary" />
+                  <a
+                    href={site.mapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex min-h-11 items-center font-semibold text-green-300 underline decoration-green-300/40 underline-offset-4 hover:text-green-200 hover:decoration-green-200"
+                  >
+                    Get directions<span className="sr-only"> (opens in a new tab)</span>
+                  </a>
+                </div>
+              </li>
+              <li className="flex gap-4">
+                <Clock aria-hidden size={20} className="mt-1 shrink-0 text-green-300" />
+                {/* Short day names, and the time kept whole, so each line fits a 310px phone: "Mon – Fri  8:00am – 7:00pm". */}
+                <p className="figures leading-relaxed">
+                  {site.hours.map((h) => (
+                    <span key={h.days} className="block">
+                      {h.days.replace(/(Mon|Tues|Wednes|Thurs|Fri|Satur|Sun)day/g, (_, d: string) => d.slice(0, 3))}{" "}
+                      <span className="whitespace-nowrap text-text-primary">{h.time}</span>
+                    </span>
+                  ))}
+                </p>
+              </li>
+              <li className="flex items-center gap-4">
+                <Mail aria-hidden size={20} className="shrink-0 text-green-300" />
+                <a
+                  href={`mailto:${site.email}`}
+                  className="inline-flex min-h-11 items-center font-semibold text-green-300 underline decoration-green-300/40 underline-offset-4 hover:text-green-200 hover:decoration-green-200"
+                >
+                  {site.email}
+                </a>
+              </li>
+            </ul>
           </ScrollReveal>
-          <ScrollReveal delay={120}>
-            <p className="text-sm font-medium text-text-muted">Our park</p>
-            <Address className="mt-3 text-text-secondary" />
-            <ButtonAnchor href={site.mapsUrl} target="_blank" rel="noopener noreferrer" variant="secondary" className="mt-5">
-              <MapPin aria-hidden size={17} /> Get directions
+          <ScrollReveal delay={120} className="grid gap-3 sm:max-w-sm lg:w-full lg:justify-self-end">
+            <ButtonAnchor href={`tel:${site.phones[0].e164}`} size="lg" className="w-full">
+              <Phone aria-hidden size={18} /> Call <span className="figures">{site.phones[0].display}</span>
             </ButtonAnchor>
+            <ButtonLink href="/contact" variant="secondary" size="lg" className="w-full">
+              Send a message
+            </ButtonLink>
           </ScrollReveal>
         </div>
       </section>
     </>
+  );
+}
+
+/** One of the hero's three doors: an icon chip, a short name and one fact (styles/home.css, .hh-btn). */
+function Door({ href, tint, icon: Icon, label, sub }: { href: string; tint: string; icon: LucideIcon; label: string; sub: string }) {
+  return (
+    <Link href={href} className="hh-btn" data-tint={tint}>
+      <span className="hh-btn-chip">
+        <Icon aria-hidden size={16} strokeWidth={2} />
+      </span>
+      <span className="hh-btn-label">
+        {label}
+        <span className="home-sr">, </span>
+      </span>
+      <span className="hh-btn-sub figures">{sub}</span>
+    </Link>
   );
 }

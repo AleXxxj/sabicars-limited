@@ -6,7 +6,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Menu, Phone, X } from "lucide-react";
 import { ButtonAnchor } from "@/components/ui/Button";
-import { MORE_NAV } from "@/lib/navigation";
+import { MORE_NAV, type MoreItem } from "@/lib/navigation";
 import { site, whatsappLink } from "@/lib/site";
 import { Address } from "./Address";
 import { NAV_ICON } from "./nav-icons";
@@ -137,11 +137,12 @@ export function MobileMenu({ variant = "icon" }: { variant?: "icon" | "pill" }) 
                   <div key={group.group}>
                     <h2 className="px-3 text-sm font-semibold text-text-muted">{group.group}</h2>
                     <ul className="mt-1 grid gap-1">
-                      {group.items.map((item) => {
+                      {group.items.map((item: MoreItem) => {
                         const Icon = NAV_ICON[item.href];
                         const current = pathname.startsWith(item.href);
                         return (
-                          <li key={item.href}>
+                          // An item for one width only is hidden on the other, where the bar already shows it.
+                          <li key={item.href} className={item.on === "phone" ? "lg:hidden" : item.on === "wide" ? "max-lg:hidden" : undefined}>
                             <Link
                               href={item.href}
                               onClick={() => setOpen(false)}

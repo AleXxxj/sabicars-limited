@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { CARS_NAV, MAIN_NAV, MORE_ITEMS, TAB_BAR } from "@/lib/navigation";
+import { CARS_NAV, MAIN_NAV, TAB_BAR, moreItemsOn } from "@/lib/navigation";
 import { assertNoFaults, watchForFaults } from "../helpers";
 
 /**
@@ -7,11 +7,14 @@ import { assertNoFaults, watchForFaults } from "../helpers";
  * ways in, the Drive Plan question, and a car with a price on it.
  */
 
-/** The live stock count the page states, on its "See all N cars for sale" link (0 when nothing is in stock and the section is hidden). */
+/**
+ * How many cars the homepage's "Cars for sale" row shows (0 when nothing is in stock and the section is hidden). The
+ * page names no total stock (the owner, 14 November 2026), so the row's cards are counted.
+ */
 async function vehiclesInStockToday(page: Page): Promise<number> {
-  const link = page.getByRole("link", { name: /See all \d+ cars for sale/ }).first();
+  const link = page.getByRole("link", { name: "See all cars for sale" }).first();
   if (!(await link.count())) return 0;
-  return Number((await link.innerText()).match(/(\d+)/)?.[1] ?? 0);
+  return page.locator("section").filter({ has: link }).last().getByRole("article").count();
 }
 
 test.describe("Home", () => {
@@ -47,7 +50,8 @@ test.describe("Home", () => {
     await page.getByRole("button", { name: "More", exact: true }).click();
     const menu = page.getByRole("dialog", { name: "More" });
     await expect(menu, "the More menu did not open").toBeVisible();
-    for (const item of MORE_ITEMS) {
+    // More carries whatever that width's bar does not: Request a car on a phone, Check VIN on a wide screen.
+    for (const item of moreItemsOn(isMobile ? "phone" : "wide")) {
       await expect(menu.getByRole("link", { name: item.label }), `the More menu has no "${item.label}" link`).toBeVisible();
     }
     await page.getByRole("button", { name: "Close menu" }).click();
@@ -55,12 +59,216 @@ test.describe("Home", () => {
     assertNoFaults(faults);
   });
 
-  test("the hero offers to sell your car", async ({ page }) => {
+  test("the homepage never states how many cars are in stock", async ({ page }) => {
     const faults = watchForFaults(page);
     await page.goto("/");
-    const link = page.getByRole("link", { name: /sell your car/i }).first();
-    await expect(link, 'the hero has no "Sell your car" link').toBeVisible();
-    await expect(link, "the sell link does not lead to the Sell your car page").toHaveAttribute("href", /\/sell$/);
+    // The owner, 14 November 2026: "remove that 48, and any other place u name all vehicles amount". The Buy door, the
+    // Buy tile and the cars row's link carried it; each type's own number (SUVs, Buses) stays.
+    const buyDoor = page.getByRole("navigation", { name: "Start here" }).getByRole("link", { name: /^Buy/ });
+    await expect(buyDoor, "the Buy door names a number of cars").not.toContainText(/\d+\s*cars/);
+    await expect(page.getByRole("link", { name: /^Buy a car/ }), "the Buy tile names a number of cars").not.toContainText(/\d+\s*cars/);
+    await expect(page.getByText(/See all \d+ cars/), "the cars row names the total stock").toHaveCount(0);
+    assertNoFaults(faults);
+  });
+
+  test("Why people trust us: three promises, the founder's card and the rating, in one short block", async ({ page }) => {
+    const faults = watchForFaults(page);
+    await page.goto("/");
+    const section = page.locator("section").filter({ has: page.getByRole("heading", { level: 2, name: "Why people trust us" }) }).last();
+    await expect(section.getByRole("listitem"), "the block does not make its three promises").toHaveCount(3);
+    const story = section.getByRole("link", { name: /Founded by Ccristian Dee/ });
+    await expect(story, "the founder's card does not lead to his story").toHaveAttribute("href", "/about");
+    await expect(story, "the founder's card does not say Our story").toContainText("Our story");
+    // The reviews in full are on About; here, at most the rating, leading there.
+    const rating = section.getByRole("link", { name: /reviews?/ });
+    if (await rating.count()) await expect(rating, "the rating does not lead to the reviews on About").toHaveAttribute("href", "/about#reviews");
+    // Inside the page only: the floating prompt (outside <main>) may offer a review on its own.
+    await expect(page.getByRole("main").getByRole("button", { name: "Write a review" }), "the homepage still has the full reviews block").toHaveCount(0);
+    assertNoFaults(faults);
+  });
+
+  test("the Drive Plan question is short, and its answer keeps the two sentences that make it true", async ({ page }) => {
+    const faults = watchForFaults(page);
+    await page.goto("/");
+    const section = page.locator("section#drive-plan");
+    test.skip((await section.count()) === 0, "No car is on the Drive Plan today, so the section is hidden");
+    await expect(section.getByRole("heading", { name: "How much do you have?" })).toBeVisible();
+    // The owner, 14 November 2026: the paragraph and the reach sentence went; the link says the rest.
+    await expect(section, "the paragraph under the question is back").not.toContainText("Type what you have and see the cars");
+    await expect(section, "the reach sentence is back").not.toContainText("of a price up to");
+    await expect(section.getByRole("link", { name: "How the Drive Plan works" }), "the way to the full terms is missing").toHaveAttribute("href", "/drive-plan");
+    if (await section.getByText(/cars? you can drive home with this/).count()) {
+      await expect(section, '"drive home" is said without "if they approve you"').toContainText("Autochek lends you the rest if they approve you.");
+      await expect(section, "the monthly figures are shown without saying they are a guide").toContainText("The monthly figures are a guide");
+    }
+    assertNoFaults(faults);
+  });
+
+  test("Visit or call: the park, the hours, the email, and a button to call or write", async ({ page }) => {
+    const faults = watchForFaults(page);
+    await page.goto("/");
+    const visit = page.locator("section").filter({ has: page.getByRole("heading", { level: 2, name: "Visit or call" }) }).last();
+    await expect(visit.getByRole("link", { name: /Get directions/ }), "no way to the park").toHaveAttribute("href", /google\.com\/maps/);
+    await expect(visit, "the hours are missing").toContainText(/Mon – Fri/);
+    await expect(visit.getByRole("link", { name: /@/ }), "the email is not a link").toHaveAttribute("href", /^mailto:/);
+    await expect(visit.getByRole("link", { name: /^Call / }), "there is no button to call").toHaveAttribute("href", /^tel:\+234/);
+    await expect(visit.getByRole("link", { name: "Send a message" }), "there is no button to write").toHaveAttribute("href", "/contact");
+    assertNoFaults(faults);
+  });
+
+  test("the footer is short and says who runs the site, where it is and how to call", async ({ page }) => {
+    const faults = watchForFaults(page);
+    await page.goto("/");
+    const footer = page.getByRole("contentinfo");
+    // \s: the RC number is held to its "RC" by a no-break space.
+    await expect(footer, "the footer does not name the company and its RC number").toContainText(/Sabicars Limited · CAC RC\s\d+/);
+    await expect(footer.getByRole("link", { name: "Privacy notice" }), "the privacy notice is not in the footer").toHaveAttribute("href", "/privacy");
+    // Once on any screen: in Quick links on a wide one, in the bottom line on a phone.
+    const contact = footer.getByRole("link", { name: "Contact", exact: true }).filter({ visible: true });
+    await expect(contact, "Contact is not in the footer, or shows twice").toHaveCount(1);
+    await expect(contact, "Contact leads to the wrong page").toHaveAttribute("href", "/contact");
+    await expect(footer.locator('a[href^="tel:"]').first(), "no number to call in the footer").toBeAttached();
+    // Never "Pay 40%" without the year it holds for: the old footer said it bare.
+    await expect(footer, 'the footer says "Pay 40%"').not.toContainText(/pay 40%/i);
+    // The popular model links stay in the page on every screen (hidden on a phone, never left out), so search engines
+    // reading the phone version still find them.
+    const popular = footer.locator('nav[aria-label="Popular searches"] a');
+    if (await popular.count()) {
+      expect(await popular.count(), "more than twelve popular links").toBeLessThanOrEqual(12);
+      await expect(popular.first(), "a popular link leads nowhere useful").toHaveAttribute("href", /^\/(buy\/[a-z0-9-]+|hummer-bus)$/);
+    }
+    assertNoFaults(faults);
+  });
+
+  test("the guide cards each carry a small picture of what the guide is about", async ({ page }) => {
+    const faults = watchForFaults(page);
+    await page.goto("/");
+    const heading = page.getByRole("heading", { name: "Read before you buy." });
+    test.skip((await heading.count()) === 0, "No guide is published, so the section is hidden");
+    const cards = page.locator("section").filter({ has: heading }).last().locator('a[href^="/blog/"]');
+    const count = await cards.count();
+    for (let i = 0; i < count; i++) {
+      await expect(cards.nth(i).locator(".gv"), `guide card ${i + 1} has no picture`).toHaveCount(1);
+      await expect(cards.nth(i).locator(".gv"), `guide card ${i + 1}'s picture is read out`).toHaveAttribute("aria-hidden", "true");
+    }
+    assertNoFaults(faults);
+  });
+
+  test("the hero has its three doors: Buy, Sell and Check VIN", async ({ page }) => {
+    const faults = watchForFaults(page);
+    await page.goto("/");
+    const doors = page.getByRole("navigation", { name: "Start here" });
+    for (const [name, href] of [
+      [/^Buy/, "/vehicles"],
+      [/^Sell/, "/sell"],
+      [/^Check VIN/, "/check"],
+    ] as const) {
+      const door = doors.getByRole("link", { name });
+      await expect(door, `the hero has no ${name} door`).toBeVisible();
+      await expect(door, `the ${name} door leads to the wrong page`).toHaveAttribute("href", href);
+    }
+    assertNoFaults(faults);
+  });
+
+  test("the slideshow shows each service between the cars, and can be paused", async ({ page }) => {
+    const faults = watchForFaults(page);
+    // A hero video set in Admin, Audience plays first and holds the slides until it ends or is stopped (the test
+    // below). Here the slides alone are tested: YouTube's player is answered with an empty page, so it never plays.
+    await page.route(/youtube(-nocookie)?\.com\/embed\//, (route) => route.fulfill({ status: 200, contentType: "text/html", body: "<!doctype html><title>no video</title>" }));
+    await page.goto("/");
+    const controls = page.getByRole("group", { name: "Photos of our cars" });
+    test.skip((await controls.count()) === 0, "No car has a photo, so there is no slideshow");
+    const drivePlan = controls.getByRole("button", { name: /40% Drive Plan/ });
+    await expect(drivePlan, "the slideshow has no Drive Plan slide").toHaveCount(1);
+    await drivePlan.click();
+    await expect(page.getByRole("heading", { level: 2, name: /Pay 40% now/ }), "the Drive Plan slide does not show its words").toBeVisible();
+    // Someone who asked for less motion gets no auto-advance, so no pause button.
+    const pause = controls.getByRole("button", { name: /Pause the slideshow|Play the slideshow/ });
+    if (await pause.count()) await expect(pause).toBeVisible();
+    assertNoFaults(faults);
+  });
+
+  test("a hero video, when one is set and plays, can be stopped and the slides come back", async ({ page }) => {
+    // Sabicars' own errors only: YouTube's player logs its own, inside its frame, and they are not the site's.
+    const theirs = /youtube|ytimg|googlevideo|google\.com|gstatic|doubleclick/;
+    const own: string[] = [];
+    page.on("console", (m) => {
+      if (m.type() === "error" && !theirs.test(m.location().url) && !theirs.test(m.text())) own.push(m.text());
+    });
+    page.on("pageerror", (e) => {
+      if (!theirs.test(e.stack ?? e.message)) own.push(e.message);
+    });
+    page.on("response", (r) => {
+      if (r.status() >= 500 && !theirs.test(r.url())) own.push(`${r.status()} ${r.url()}`);
+    });
+    await page.goto("/");
+    const controls = page.getByRole("group", { name: "Photos of our cars" });
+    const player = page.locator('iframe[title="Sabicars showcase video"], .hh-video video');
+    test.skip((await player.count()) === 0, "No hero video is set, or this connection is too slow for one");
+    const stop = controls.getByRole("button", { name: "Stop the video" });
+    // YouTube may not play at all in a test browser; the hero then keeps its photos, which is the design.
+    const played = await stop.waitFor({ state: "visible", timeout: 20_000 }).then(() => true, () => false);
+    test.skip(!played, "The video did not start in this browser; the photos stay, as designed");
+    await stop.click();
+    await expect(player, "the video is still on the page after it was stopped").toHaveCount(0);
+    // The slides carry on from wherever they were: while YouTube was still loading, they may have moved on.
+    await expect(controls.getByRole("button", { name: /40% Drive Plan/ }), "the slides did not come back after the video was stopped").toHaveCount(1);
+    expect(own, "the page had errors of its own while the video played").toEqual([]);
+  });
+
+  test("a hero video stops for good when the visitor scrolls past it, and the slides are there on the way back", async ({ page }) => {
+    await page.goto("/");
+    const controls = page.getByRole("group", { name: "Photos of our cars" });
+    const player = page.locator('iframe[title="Sabicars showcase video"], .hh-video video');
+    test.skip((await player.count()) === 0, "No hero video is set, or this connection is too slow for one");
+    const stop = controls.getByRole("button", { name: "Stop the video" });
+    const played = await stop.waitFor({ state: "visible", timeout: 20_000 }).then(() => true, () => false);
+    test.skip(!played, "The video did not start in this browser; the photos stay, as designed");
+    // Down past the hero, a moment there, and back up, as a visitor would.
+    await page.getByRole("heading", { name: "What do you need?" }).scrollIntoViewIfNeeded();
+    await page.mouse.wheel(0, 1600);
+    await expect(player, "the video kept playing after the hero was scrolled out of sight").toHaveCount(0);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await expect(controls.getByRole("button", { name: /40% Drive Plan/ }), "the slides are not there on the way back").toHaveCount(1);
+    await expect(stop, "the video started again on the way back").toHaveCount(0);
+  });
+
+  test("on a slow connection a hero video waits for its Watch video button, then plays", async ({ page }) => {
+    // Chrome rates many Lagos connections "3g": there the video must not start by itself, nor use data unasked.
+    await page.addInitScript(() =>
+      Object.defineProperty(navigator, "connection", { configurable: true, value: { effectiveType: "3g", saveData: false } }),
+    );
+    await page.goto("/");
+    const controls = page.getByRole("group", { name: "Photos of our cars" });
+    const watch = controls.getByRole("button", { name: "Watch video" });
+    const offered = await watch.waitFor({ state: "visible", timeout: 8_000 }).then(() => true, () => false);
+    test.skip(!offered, "No hero video is set");
+    const player = page.locator('iframe[title="Sabicars showcase video"], .hh-video video');
+    await expect(player, "the video started by itself on a slow connection").toHaveCount(0);
+    await watch.click();
+    await expect(player, "asking for the video did not load it").toHaveCount(1);
+    const stop = controls.getByRole("button", { name: "Stop the video" });
+    const played = await stop.waitFor({ state: "visible", timeout: 25_000 }).then(() => true, () => false);
+    test.skip(!played, "The video did not start in this browser; the photos stay, as designed");
+    await stop.click();
+    await expect(player, "the video is still on the page after it was stopped").toHaveCount(0);
+    await expect(controls.getByRole("button", { name: /Watch video|Loading video/ }), "the button is back after the video was watched").toHaveCount(0);
+  });
+
+  test("What do you need? has a door for each of the six things Sabicars does", async ({ page }) => {
+    const faults = watchForFaults(page);
+    await page.goto("/");
+    const section = page.locator("section").filter({ has: page.getByRole("heading", { level: 2, name: "What do you need?" }) }).last();
+    for (const [name, href] of [
+      [/^Buy a car/, "/vehicles"],
+      [/^40% Drive Plan/, "/drive-plan"],
+      [/^Check VIN/, "/check"],
+      [/^Sell your car/, "/sell"],
+      [/^Request a car/, "/find"],
+      [/^Earn/, "/partners"],
+    ] as const) {
+      await expect(section.getByRole("link", { name }), `What do you need? has no ${name} door`).toHaveAttribute("href", href);
+    }
     assertNoFaults(faults);
   });
 

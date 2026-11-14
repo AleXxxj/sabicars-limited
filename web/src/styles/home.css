@@ -1,0 +1,986 @@
+/*
+ * The home page's hero and its six doors. The structure and the measurements are the Adedayo Aremu Autos
+ * hero's (the owner, 13 and 14 November 2026: "exactly like that of Dayo"), in Sabicars' own colours: a photo
+ * stage sized by the screen, the page's first words on the photo's lower part, three doors right under it on
+ * a phone and over it on a wide screen, and one quiet strip naming the car in the photo. Generated from that
+ * stylesheet once, then kept here by hand.
+ */
+.home-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 12px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--green-300);
+}
+.home-eyebrow::before {
+  content: "";
+  flex: none;
+  width: 28px;
+  height: 1px;
+  background: currentColor;
+}
+.home-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-weight: 600;
+  color: var(--green-300);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.home-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+:is(.hh-pause, .hh-link, .hh-watch):focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+  border-radius: 999px;
+}
+.home-tile:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+  border-radius: 20px;
+}
+.hh-btn:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+  border-radius: 16px;
+}
+:is(.hh-now, .hh-more):focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+.hh-seg:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+  border-radius: 8px;
+}
+.hh {
+  --hh-stage: 560px;
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: var(--hh-stage) auto;
+  overflow: hidden;
+  background: var(--surface-0);
+}
+@supports (height: 1svh) {
+  .hh {
+    --hh-stage: clamp(400px, calc(100svh - 312px - env(safe-area-inset-bottom, 0px)), 720px);
+  }
+}
+@media (max-height: 560px) and (max-width: 1023px) {
+  .hh {
+    --hh-stage: 400px;
+  }
+}
+.hh-photos {
+  position: relative;
+  z-index: 0;
+  grid-area: 1 / 1;
+  overflow: hidden;
+}
+.hh-photo {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 600ms ease-out;
+}
+.hh-photo.is-current, .hh-photo--still {
+  opacity: 1;
+}
+/* The whole car, in the photo's own shape (--hh-ratio, set per slide), never cut and never zoomed. Behind it the same
+   photo, tiny and blurred, fills the stage, so a photo of any shape sits on its own colours. */
+.hh-photos {
+  container-type: size;
+}
+.hh-photo-back {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.hh-photo-back img {
+  object-fit: cover;
+  filter: blur(26px) saturate(1.1) brightness(0.5);
+  transform: scale(1.25);
+}
+/*
+ * On a phone the photo fills the hero from edge to edge, always, and the car in it is whole.
+ *
+ * Most cover photos are shot upright on a phone, with the car low in the frame, right where the words lie. So the
+ * phone is given a framing of the car itself (lib/media.ts, heroPhotoSources): a wide picture with the car in the
+ * middle. It sits at the top of the stage at the screen's full width, never narrower (the owner, 14 November 2026:
+ * "let the vehicle fill in it space"; a photo made narrower to clear the words stood between two blurred bands and
+ * read as cut). On a short screen the words lie over its foot, which melts into its own blurred copy. Never
+ * enlarged: the photo is exactly as wide as the screen.
+ */
+.hh-photo-car {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  aspect-ratio: var(--hh-ratio, 1.15);
+  /* Its own layer at every width: without one, Chrome drew the fade below before the frame had its size and never
+     drew it again, and the first photo stayed unseen until the slide changed (found 14 November 2026). */
+  will-change: transform;
+  -webkit-mask-image: linear-gradient(to bottom, #000 76%, transparent);
+  mask-image: linear-gradient(to bottom, #000 76%, transparent);
+}
+.hh-photo-car img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+/*
+ * From a tablet up, one photo covers the whole stage, cropped to its shape, as Adedayo's does on a tablet and a wide
+ * screen: no blurred copy beside it (the owner, 14 November 2026, of the tablet: "see adedayo tab view and see ours,
+ * am not cool with ours"; of the desktop the same day, two copies of one car read as a glitch). On a tablet the photo
+ * is the phone's framing of the car; a wide screen asks for a wider strip of it (lib/media.ts, heroPhotoSources).
+ */
+@media (min-width: 640px) {
+  .hh-photo-back {
+    display: none;
+  }
+  .hh-photo-car {
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: auto;
+    transform: none;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .hh-photo-car img {
+    object-fit: cover;
+    object-position: 50% 50%;
+  }
+}
+/* The photo's foot melts into the page under the words and the strip of controls, on a phone and a tablet (a wide
+   screen has its own shade, .hh::after). */
+.hh-photos::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 1;
+  height: 124px;
+  background: linear-gradient(
+  to top,
+  var(--surface-0) 0,
+  rgba(9, 14, 10, 0.86) 20px,
+  rgba(9, 14, 10, 0.62) 46px,
+  rgba(9, 14, 10, 0.26) 84px,
+  rgba(9, 14, 10, 0) 124px
+  );
+  pointer-events: none;
+}
+.hh::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 1;
+  height: 180px;
+  background: linear-gradient(to bottom, rgba(9, 14, 10, 0.7), rgba(9, 14, 10, 0));
+  pointer-events: none;
+}
+.hh-words {
+  position: relative;
+  z-index: 2;
+  grid-area: 1 / 1;
+  align-self: end;
+  min-width: 0;
+  padding-bottom: 84px;
+}
+.hh-body {
+  position: relative;
+  z-index: 2;
+  grid-area: 2 / 1;
+  padding: 16px 0 44px;
+  background: var(--surface-0);
+}
+.hh-inner {
+  max-width: 1232px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+.hh-heads {
+  display: grid;
+  align-items: end;
+}
+.hh-head {
+  position: relative;
+  isolation: isolate;
+  grid-area: 1 / 1;
+  min-width: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+  opacity 280ms ease-out,
+  visibility 0s linear 280ms;
+}
+.hh-head.is-on {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
+}
+.hh-head::before {
+  content: "";
+  position: absolute;
+  inset: -96px -24px -84px;
+  z-index: -1;
+  background: linear-gradient(
+  to bottom,
+  rgba(9, 14, 10, 0) 0,
+  rgba(9, 14, 10, 0.34) 36px,
+  rgba(9, 14, 10, 0.66) 68px,
+  rgba(9, 14, 10, 0.8) 96px,
+  rgba(9, 14, 10, 0.9) 100%
+  );
+  pointer-events: none;
+}
+.hh .home-eyebrow {
+  color: var(--text-secondary);
+}
+.hh-title {
+  margin: 0;
+  font-size: clamp(36px, 10vw, 72px);
+  font-weight: 800;
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+  color: #fff;
+}
+.hh-title span {
+  display: block;
+  color: var(--green-300);
+}
+.hh-line {
+  margin-top: 12px;
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+.hh-line--terms {
+  max-width: 46ch;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.hh-more {
+  padding: 12px 0;
+  font-weight: 700;
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  white-space: nowrap;
+}
+.hh-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.hh-btn {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px 9px;
+  min-height: 84px;
+  padding: 12px 11px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.03));
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  color: #fff;
+  text-decoration: none;
+  touch-action: manipulation;
+  transition:
+  transform 180ms ease-out,
+  background-color 180ms ease-out,
+  border-color 180ms ease-out;
+}
+.hh-btn-chip {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  font-size: 14px;
+}
+.hh-btn[data-tint="sell"] .hh-btn-chip {
+  border-color: rgba(165, 219, 111, 0.42);
+  background: rgba(165, 219, 111, 0.16);
+  color: var(--green-300);
+}
+.hh-btn[data-tint="buy"] .hh-btn-chip {
+  border-color: rgba(247, 128, 30, 0.4);
+  background: rgba(247, 128, 30, 0.14);
+  color: var(--orange-400);
+}
+.hh-btn-label {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+.hh-btn-sub {
+  grid-column: 1 / -1;
+  font-size: 12px;
+  line-height: 1.3;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.hh-btn:hover {
+  border-color: rgba(255, 255, 255, 0.34);
+  background-color: rgba(255, 255, 255, 0.06);
+}
+.hh-btn:active {
+  transform: scale(0.97);
+}
+.hh-links {
+  display: grid;
+  justify-items: start;
+  margin-top: 10px;
+  padding-right: 64px;
+}
+.hh-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.35;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+.hh-link svg {
+  flex: none;
+  width: 18px;
+  font-size: 15px;
+  text-align: center;
+  color: var(--text-muted);
+}
+.hh-link strong {
+  font-weight: 700;
+  color: var(--green-300);
+  text-decoration: underline;
+  text-decoration-color: rgba(165, 219, 111, 0.6);
+  text-underline-offset: 3px;
+}
+.hh-link:hover strong {
+  text-decoration-color: var(--green-300);
+}
+.hh-dock {
+  position: relative;
+  z-index: 3;
+  grid-area: 1 / 1;
+  align-self: end;
+  margin-bottom: -8px;
+}
+.hh-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: start;
+  max-width: 1232px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+.hh-now {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 5px;
+  max-width: 100%;
+  min-height: 44px;
+  margin-bottom: -8px;
+  padding-bottom: 8px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+  text-decoration: none;
+  text-shadow:
+  0 1px 2px rgba(0, 0, 0, 0.75),
+  0 0 14px rgba(0, 0, 0, 0.6);
+}
+.hh-now-car {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.hh-now-note {
+  flex: none;
+  white-space: nowrap;
+}
+.hh-now svg {
+  flex: none;
+  margin: 0 0 2px 3px;
+  font-size: 12px;
+}
+.hh-now:hover .hh-now-car {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.hh-track {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+.hh-segments {
+  display: flex;
+  flex: 1;
+  gap: 4px;
+  min-width: 0;
+}
+.hh-seg {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  min-width: 0;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.hh-seg-bar {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.36);
+}
+.hh-seg.is-done .hh-seg-bar {
+  background: rgba(255, 255, 255, 0.9);
+}
+.hh-seg-fill {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  transform-origin: left center;
+}
+.hh-seg-fill.is-timed {
+  animation-name: hh-fill;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+}
+@keyframes hh-fill {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+}
+.hh-pause {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  margin-right: -14px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: #fff;
+  font-size: 11px;
+  cursor: pointer;
+}
+.hh-pause:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+/* "Watch video": on a slow or data-saving connection the hero video waits to be asked for (HeroSlides). A small
+   glass pill at the start of the slide controls, so it is seen without covering the car. */
+.hh-watch {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  margin-right: 10px;
+  padding: 0 13px;
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  border-radius: 999px;
+  background: rgba(9, 14, 10, 0.5);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+  background-color 180ms ease-out,
+  border-color 180ms ease-out;
+}
+.hh-watch:hover {
+  border-color: rgba(255, 255, 255, 0.55);
+  background-color: rgba(9, 14, 10, 0.7);
+}
+.hh-watch:disabled {
+  cursor: default;
+  opacity: 0.85;
+}
+.home-tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  list-style: none;
+}
+.home-tiles > li {
+  animation: home-tile-in 320ms ease-out both;
+  animation-delay: calc(80ms + var(--i, 0) * 50ms);
+}
+@keyframes home-tile-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: none; }
+}
+.home-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+  min-height: 136px;
+  padding: 14px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 20px;
+  background: var(--surface-1);
+  color: var(--text-primary);
+  text-decoration: none;
+  touch-action: manipulation;
+  transition:
+  transform 180ms ease-out,
+  border-color 180ms ease-out,
+  box-shadow 180ms ease-out;
+}
+.home-tile:active {
+  transform: scale(0.97);
+}
+@media (hover: hover) {
+  .home-tile:hover {
+    transform: translateY(-3px);
+    border-color: var(--border-default);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.45);
+  }
+  .home-tile:active {
+    transform: scale(0.97);
+  }
+}
+.home-tile-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.home-tile-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--tile, var(--green-300));
+  color: var(--surface-0);
+  font-size: 20px;
+}
+.home-tile[data-tint="buy"] {
+  --tile: linear-gradient(140deg, var(--orange-400), var(--orange-500));
+}
+.home-tile[data-tint="plan"] {
+  --tile: linear-gradient(140deg, var(--green-300), var(--green-400));
+}
+.home-tile[data-tint="sell"] {
+  --tile: linear-gradient(140deg, var(--green-100), var(--green-200));
+}
+.home-tile[data-tint="find"] {
+  --tile: linear-gradient(140deg, var(--green-50), var(--green-100));
+}
+.home-tile[data-tint="check"] {
+  --tile: linear-gradient(140deg, var(--green-400), var(--green-500));
+}
+.home-tile[data-tint="earn"] {
+  --tile: linear-gradient(140deg, var(--orange-200), var(--orange-300));
+}
+.home-tile-photos {
+  display: flex;
+  flex-direction: row-reverse;
+  min-width: 0;
+}
+.home-tile-photo {
+  position: relative;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  margin-left: -10px;
+  overflow: hidden;
+  border: 2px solid var(--surface-1);
+  border-radius: 50%;
+  background: var(--surface-2);
+}
+.home-tile-photo:last-child {
+  margin-left: 0;
+}
+.home-tile-photo img {
+  object-fit: cover;
+}
+.home-tile-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-top: auto;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+.home-tile-title svg {
+  flex: none;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.home-tile-detail {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text-secondary);
+}
+.home-fine .home-link {
+  min-height: 0;
+  margin: -12px 0;
+  padding: 12px 0;
+}
+.home-visit-list .home-link {
+  min-height: 0;
+  padding: 10px 0;
+  margin: -10px 0;
+}
+@media (max-width: 359px) {
+  .home-eyebrow {
+    letter-spacing: 0.1em;
+  }
+  .hh-actions {
+    gap: 6px;
+  }
+  .hh-btn {
+    gap: 9px 7px;
+    padding: 10px 7px;
+  }
+  .hh-btn-chip {
+    width: 30px;
+    height: 30px;
+    font-size: 13px;
+  }
+  .hh-btn-label {
+    font-size: 17px;
+  }
+  .hh-btn-sub {
+    font-size: 11px;
+    letter-spacing: -0.02em;
+  }
+}
+@media (min-width: 640px) {
+  .home-tiles {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (min-width: 768px) {
+  .hh-inner, .hh-controls {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+@media (min-width: 1024px) {
+  .hh {
+    grid-template-rows: minmax(120px, 1fr) auto auto;
+    min-height: 680px;
+  }
+  .hh-photos {
+    grid-area: 1 / 1 / -1 / -1;
+  }
+  .hh::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background:
+    /* Dark under the words at the left, clear over the car at the right: the car is shown whole, and must be seen. */
+    /* A little more see-through than at first (the owner, 14 November 2026, beside Adedayo's): the photo shows
+       through under the words, and the words carry a soft shadow of their own so they still read (below). */
+    /* Then "add a lil see through shade on the left, just a lil bit" (same day): darker under the words, the same over
+       the car in the middle, clear a little sooner at the right. */
+    linear-gradient(
+    90deg,
+    rgba(9, 14, 10, 0.84) 0%,
+    rgba(9, 14, 10, 0.72) 34%,
+    rgba(9, 14, 10, 0.42) 50%,
+    rgba(9, 14, 10, 0.14) 66%,
+    rgba(9, 14, 10, 0) 82%
+    ),
+    linear-gradient(
+    to top,
+    rgba(9, 14, 10, 0.94) 0,
+    rgba(9, 14, 10, 0.62) 130px,
+    rgba(9, 14, 10, 0) 260px
+    );
+    pointer-events: none;
+  }
+  .hh-photos::after {
+    content: none;
+  }
+  .hh-words {
+    grid-area: 2 / 1;
+    padding-bottom: 0;
+  }
+  .hh-head::before {
+    content: none;
+  }
+  .hh-body {
+    grid-area: 3 / 1;
+    padding: 20px 0 72px;
+    background: none;
+  }
+  .hh-heads, .hh-copy {
+    max-width: 640px;
+  }
+  .hh-actions {
+    grid-template-columns: repeat(3, minmax(0, 176px));
+    gap: 10px;
+  }
+  .hh-links {
+    padding-right: 0;
+  }
+  .hh-btn {
+    min-height: 92px;
+    padding: 14px;
+  }
+  .hh-line--terms {
+    font-size: 15px;
+  }
+  .hh-dock {
+    grid-area: 3 / 1;
+    margin: 0 0 50px;
+    pointer-events: none;
+  }
+  .hh-controls {
+    grid-template-columns: minmax(0, 380px);
+    justify-content: end;
+    padding: 0 24px;
+  }
+  .hh-controls > * {
+    pointer-events: auto;
+  }
+  .hh-pause {
+    margin-right: -10px;
+  }
+}
+@media (min-width: 1100px) {
+  .home-tiles {
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-tiles > li {
+    animation: none;
+  }
+  .hh-photo, .hh-head, .hh-btn {
+    transition: none;
+  }
+  .hh-btn:active {
+    transform: none;
+  }
+}
+
+/* Sabicars' own additions to the structure above. */
+/* The header here is in the page's flow (4rem), not fixed over the photo: the stage gives that height back (312 = 248 + 64). */
+/* The content column is the site's: 80rem wide, 20px in on a phone and 40px from md. */
+.hh-inner {
+  max-width: 80rem;
+  padding: 0 20px;
+}
+@media (min-width: 768px) {
+  .hh-inner {
+    padding: 0 40px;
+  }
+}
+/* A hero video (Admin, Audience) lies over the photos and shows only once it is really playing. */
+.hh-video {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 1400ms ease-out;
+  container-type: size;
+  pointer-events: none;
+}
+.hh-video.is-on {
+  opacity: 1;
+}
+.hh-video video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.hh-video iframe {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max(100cqw, 177.78cqh);
+  height: max(100cqh, 56.25cqw);
+  border: 0;
+  transform: translate(-50%, -50%);
+}
+/* The third door, Check VIN: Sabicars' green, deeper than Sell's. */
+.hh-btn[data-tint="check"] .hh-btn-chip {
+  border-color: rgba(141, 199, 77, 0.5);
+  background: rgba(120, 176, 48, 0.22);
+  color: var(--green-200);
+}
+/* Sabicars' opening headline is longer than a service's: on a wide screen it gets the room to stay on two lines. */
+@media (min-width: 1024px) {
+  .hh-heads {
+    max-width: 760px;
+  }
+}
+/* "Check VIN" is a longer name than a phone's door has room for beside its icon: on a phone each door puts the icon
+   above the name, so all three names stay on one line. */
+@media (max-width: 479px) {
+  .hh-btn {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: start;
+    gap: 6px;
+    padding: 12px 11px;
+  }
+  .hh-btn-label {
+    font-size: clamp(15px, 4.4vw, 18px);
+    white-space: nowrap;
+  }
+  /* Sized from the door itself, so the longest name ("Check VIN", 4.95 times its letter height wide) always fits
+     inside the door's padding, down to the narrowest screen. Sized from the screen it spilled out of the door on a
+     300px one (the owner's screenshot, 14 November 2026). A door is a third of the row less its two 8px gaps, and
+     has 12px of edge and padding each side. */
+  @supports (width: 1cqw) {
+    .hh-actions {
+      container-type: inline-size;
+    }
+    .hh-btn-label {
+      font-size: clamp(11px, calc(((100cqw - 16px) / 3 - 26px) / 5.05), 18px);
+    }
+  }
+  .hh-btn-sub {
+    grid-column: auto;
+  }
+}
+/* On a phone the headline is smaller than Adedayo's, so every slide's words take two lines and the car above them has
+   the room to be seen whole. */
+@media (max-width: 639px) {
+  .hh-title {
+    font-size: clamp(26px, 8vw, 44px);
+  }
+  .hh-line {
+    margin-top: 8px;
+    font-size: 15px;
+  }
+}
+/*
+ * A tablet, laid out as Adedayo's tablet is: the words at the photo's foot over a shade that darkens towards the
+ * buttons (.hh-head::before), the headline as big as his (72px from about 880px wide). The longest line, "See it before
+ * you pay.", is about 10.5 times as wide as the letters are tall, so the size follows the screen and every headline
+ * keeps two lines from 640 to 1023px.
+ *
+ * Lighter than his: at a laptop-tablet window (936 by 670) the stage is 400px tall and the words fill most of it, so
+ * his shade, over Sabicars' dark cars shot close, left the photo almost black. Here it is see-through, as the owner
+ * asked for the wide screen the same day, and the words keep a soft shadow. The dark band at the photo's top is his for
+ * a header that lies over the photo; Sabicars' header stands above it, so the band only hid the photo.
+ */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .hh-title {
+    font-size: clamp(36px, 8.2vw, 72px);
+  }
+  /* Edge to edge: the base reaches 24px past the words, Adedayo's margin; Sabicars' is 40px from 768px wide, which left
+     an unshaded strip 16px wide at each side of the screen. */
+  .hh-head::before {
+    left: -100vw;
+    right: -100vw;
+    background: linear-gradient(
+    to bottom,
+    rgba(9, 14, 10, 0) 0,
+    rgba(9, 14, 10, 0.22) 36px,
+    rgba(9, 14, 10, 0.46) 68px,
+    rgba(9, 14, 10, 0.58) 96px,
+    rgba(9, 14, 10, 0.7) 100%
+    );
+  }
+  .hh::before {
+    content: none;
+  }
+  .hh-title,
+  .hh-line,
+  .hh-head .home-eyebrow {
+    text-shadow: 0 1px 14px rgba(9, 14, 10, 0.6);
+  }
+}
+/*
+ * On a phone the stage is as tall as the photo needs, not as tall as the screen allows.
+ *
+ * Adedayo's stage is cut to the screen (100svh less the header, the doors and the tab bar), so the doors are always in
+ * sight. On most phones in a browser that leaves about 400px, and the words and the strip of controls take 230 of it:
+ * a car shown whole at the screen's full width (about 340px tall) then had the words lying over its lower half. The
+ * owner chose the car (14 November 2026: "let the vehicle fill in it space"). So the stage is the photo's height at
+ * full width (1.15 wide to 1 high, lib/media.ts) plus the room the words and controls need less the photo's faded
+ * foot, which they overlap. The doors follow right under, in sight on a tall phone and one short scroll away on a
+ * small one, where the tab bar already offers Cars and Check VIN.
+ */
+@media (max-width: 639px) {
+  .hh {
+    --hh-stage: calc(100vw / 1.15 + 176px);
+  }
+}
+/*
+ * A wide screen, the way Adedayo's is. There the header lies over the photo, so the hero starts at the top of the
+ * page and its words, doors and controls all sit in the first screen, with the search box overlapping its foot.
+ * Sabicars' header is in the page's flow, which pushed all of that down by its height and off a laptop's screen: so
+ * the hero is drawn up under the header (4.5rem and its 1px line), which is see-through and blurs the photo behind it.
+ *
+ * And one photo covers the whole hero, edge to edge and top to foot (see "From a tablet up"), under the shade that
+ * is dark at the words' side and clear at the far side (.hh::after), so the photo is seen through it.
+ */
+@media (min-width: 1024px) {
+  .hh {
+    margin-top: calc(-4.5rem - 1px);
+  }
+}
+/* A short laptop window: the floating Ask Sabicars button rests in the bottom right corner, just where the hero's
+   strip of controls is. The strip moves left of it, so the car's name and price are not hidden behind it. */
+@media (min-width: 1024px) and (max-height: 760px) {
+  .hh-controls {
+    padding-right: 196px;
+  }
+}
+/* A wide screen's shade is lighter than Adedayo's, so the photo is seen through it (the owner, 14 November 2026:
+   "let it be see through shaded"): the words keep a soft shadow so they read over whatever the photo shows. */
+@media (min-width: 1024px) {
+  .hh-title,
+  .hh-line,
+  .hh-head .home-eyebrow {
+    text-shadow: 0 1px 14px rgba(9, 14, 10, 0.6);
+  }
+}

@@ -30,7 +30,22 @@ const grouped = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
  * that concrete with real cars, each at its own deposit, rather than a
  * percentage.
  */
-export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicle[]; children: React.ReactNode }) {
+export function DrivePlanFinder({
+  vehicles,
+  children,
+  brief = false,
+}: {
+  vehicles: FinderVehicle[];
+  children: React.ReactNode;
+  /**
+   * The homepage's short version (the owner, 14 November 2026: "who really needs drive plan will click the link to
+   * learn more"): no line on how far the money reaches, and the terms cut to the two sentences that keep the answer
+   * true, under the cars they are about. "Cars you can drive home" holds only if Autochek approves the loan, and the
+   * monthly figures are at its top rate; without those two sentences the card would read as a promise. Each car
+   * already shows its own 40% or 50%. The Drive Plan page keeps everything.
+   */
+  brief?: boolean;
+}) {
   const cheapest = vehicles.reduce<FinderVehicle | null>((best, v) => (best === null || v.depositMinor < best.depositMinor ? v : best), null);
   // The quick amounts start at the smallest deposit that drives a car home today, rounded up to the next ₦100,000,
   // so every button finds a car and they follow the stock as cheaper cars arrive.
@@ -87,10 +102,12 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
               </button>
             ))}
           </div>
-          <p className="mt-4 text-xs leading-relaxed text-text-muted">
-            Cars from {DRIVE_PLAN.standardYear} up: 40% down. {DRIVE_PLAN.minYear} and {DRIVE_PLAN.standardYear - 1} cars: 50% down. Autochek does not give loans
-            on older cars. The monthly figures are a guide, at Autochek&rsquo;s top rate. Your own rate can be lower.
-          </p>
+          {!brief && (
+            <p className="mt-4 text-xs leading-relaxed text-text-muted">
+              Cars from {DRIVE_PLAN.standardYear} up: 40% down. {DRIVE_PLAN.minYear} and {DRIVE_PLAN.standardYear - 1} cars: 50% down. Autochek does not give loans
+              on older cars. The monthly figures are a guide, at Autochek&rsquo;s top rate. Your own rate can be lower.
+            </p>
+          )}
         </div>
       </div>
 
@@ -105,17 +122,19 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
                 {within.length === 1 ? "car" : "cars"} you can drive home with this
               </span>
             </p>
-            <p className="mt-4 text-sm leading-relaxed text-text-secondary">
-              On a car from {DRIVE_PLAN.standardYear} up, this is 40% of a price up to{" "}
-              <span className="figures text-text-primary">{formatNaira(reachNaira * 100)}</span>.{" "}
-              {inFull > 0 ? (
-                <>
-                  <span className="figures">{inFull}</span> of them you can pay for in full.
-                </>
-              ) : (
-                "The most expensive cars you can get with this:"
-              )}
-            </p>
+            {!brief && (
+              <p className="mt-4 text-sm leading-relaxed text-text-secondary">
+                On a car from {DRIVE_PLAN.standardYear} up, this is 40% of a price up to{" "}
+                <span className="figures text-text-primary">{formatNaira(reachNaira * 100)}</span>.{" "}
+                {inFull > 0 ? (
+                  <>
+                    <span className="figures">{inFull}</span> of them you can pay for in full.
+                  </>
+                ) : (
+                  "The most expensive cars you can get with this:"
+                )}
+              </p>
+            )}
 
             {/* Two cars on a phone (one row), four from a tablet up: "See all" has the rest. */}
             <ul className="mt-6 grid grid-cols-2 gap-3 md:gap-4 max-md:[&>li:nth-child(n+3)]:hidden">
@@ -149,6 +168,12 @@ export function DrivePlanFinder({ vehicles, children }: { vehicles: FinderVehicl
                 );
               })}
             </ul>
+            {brief && (
+              // Two sentences the site already uses, kept beside the figures they are about.
+              <p className="mt-4 text-xs leading-relaxed text-text-muted">
+                Autochek lends you the rest if they approve you. The monthly figures are a guide, at Autochek&rsquo;s top rate.
+              </p>
+            )}
 
             <div className="mt-6 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-t border-border-subtle pt-5">
               {/* The inventory filters on the same rule — each car's own deposit — so "see all" shows exactly these cars. */}

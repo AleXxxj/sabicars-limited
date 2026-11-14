@@ -182,7 +182,9 @@ export default async function DrivePlanPage() {
                 <div className="p-6 md:p-10">
                   <p className="text-sm font-medium text-text-muted">For example</p>
                   <p className="mt-1 text-[1.5rem] font-semibold leading-tight text-text-primary group-hover:text-green-200">{vehicleTitle(example)}</p>
-                  <dl className="mt-6 grid grid-cols-3 gap-4 border-t border-white/[0.06] pt-5">
+                  {/* One under another on a phone. Wider, as many side by side as fit at 7.5rem each, the rest on the next row: in
+                      thirds, "₦19,920,000" ran out of the card's narrow text column on a 768px tablet. */}
+                  <dl className="mt-6 grid gap-3 border-t border-white/[0.06] pt-5 min-[520px]:grid-cols-[repeat(auto-fit,minmax(7.5rem,1fr))] min-[520px]:gap-x-4">
                     <div>
                       <dt className="text-xs text-text-muted">Price</dt>
                       <dd className="figures mt-1 font-semibold">{priceLabel(example)}</dd>

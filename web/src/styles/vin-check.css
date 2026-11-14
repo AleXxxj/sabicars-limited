@@ -1,0 +1,1067 @@
+/*
+ * Check any car (/check): the free VIN check.
+ *
+ * Only what the utilities can't say in a class or two: the small grids (facts,
+ * tiles, bars, stars) and the disclosures. Everything is drawn with the site's
+ * own tokens (styles/tokens.css): cards are the raised surface every page
+ * uses, green is the voice (labels, links, stars), orange stays on the one
+ * button that matters, and the warning and danger colours are the site's own.
+ *
+ * In the components layer, like the article and the assistant, so a utility
+ * class on anything inside (a button, a card) always wins over these defaults.
+ * Phone first, one column throughout.
+ */
+
+@layer components {
+  /* One column that can never grow past its card: without the minmax, a
+     button that won't wrap sets the column's width and pushes every line of
+     text out of the card on a narrow phone. */
+  .vc-results {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+  }
+
+  /* On top of .surface-card, which gives the surface, the edge and the shadow. */
+  .vc-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.9rem;
+    min-width: 0;
+    padding: 1.35rem 1.1rem;
+    color: var(--text-primary);
+  }
+
+  /* Paragraphs in a card, unless a class below says otherwise (:where keeps
+     this rule weaker than every class). */
+  :where(.vc-card p) {
+    font-size: 0.97rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+  }
+
+  /* Text links; buttons and tiles are links too, styled by their own classes. */
+  .vc-tool :where(a:not([class])) {
+    color: var(--link);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* Jumped to from the tiles: clear of the fixed header. */
+  .vc-tool [id] {
+    scroll-margin-top: 6.5rem;
+  }
+
+  .vc-tool summary:focus-visible,
+  .vc-tool [tabindex="-1"]:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 3px;
+    border-radius: 0.6rem;
+  }
+
+  /* ── Type ────────────────────────────────────────────────────────────── */
+
+  .vc-car {
+    font-size: clamp(1.7rem, 1.2rem + 2.6vw, 2.6rem);
+    line-height: 1.06;
+    letter-spacing: -0.025em;
+    overflow-wrap: anywhere;
+  }
+
+  .vc-h {
+    font-size: clamp(1.3rem, 1.1rem + 1vw, 1.65rem);
+    line-height: 1.12;
+  }
+
+  .vc-facts {
+    font-size: 0.97rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+  }
+
+  .vc-note {
+    font-size: 0.84rem;
+    line-height: 1.5;
+    color: var(--text-muted);
+  }
+
+  .vc-muted {
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--text-muted);
+  }
+
+  /* A count people take in at a glance. */
+  .vc-big {
+    font-size: clamp(2.2rem, 1.6rem + 3.4vw, 3rem);
+    font-weight: 780;
+    font-stretch: 106%;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+
+  .vc-big span {
+    font-size: 1.05rem;
+    font-weight: 600;
+    font-stretch: 100%;
+    letter-spacing: 0;
+    color: var(--text-secondary);
+  }
+
+  .vc-subhead {
+    margin-top: 0.25rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  /* ── Buttons that are not the site's Button ──────────────────────────── */
+
+  .vc-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.6rem;
+  }
+
+  .vc-link-button {
+    min-height: 2.75rem;
+    padding: 0 0.25rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--link);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+
+  /* ── The VIN box ─────────────────────────────────────────────────────── */
+
+  .vc-label {
+    display: grid;
+    gap: 0.1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .vc-label span {
+    font-size: 0.84rem;
+    font-weight: 400;
+    color: var(--text-muted);
+  }
+
+  /* Capitals, a little spaced, as the number is stamped on the car. The size
+     and padding are the site's own field (forms/field.ts); the spacing is
+     kept small so all 17 characters show at once on a 320px phone, and a
+     buyer can read the whole number back against the car. */
+  .vc-input {
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+
+  .vc-input::placeholder {
+    font-size: 0.92rem;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  .vc-error,
+  .vc-warn {
+    padding: 0.75rem 0.9rem;
+    border-radius: 0.85rem;
+    font-size: 0.92rem;
+    line-height: 1.5;
+  }
+
+  .vc-error {
+    border: 1px solid color-mix(in srgb, var(--danger) 45%, transparent);
+    background: color-mix(in srgb, var(--danger) 10%, transparent);
+    color: var(--danger);
+  }
+
+  .vc-warn {
+    border: 1px solid color-mix(in srgb, var(--warning) 45%, transparent);
+    background: color-mix(in srgb, var(--warning) 10%, transparent);
+    color: var(--warning);
+  }
+
+  .vc-warn--stop {
+    border-color: color-mix(in srgb, var(--danger) 50%, transparent);
+    background: color-mix(in srgb, var(--danger) 10%, transparent);
+    color: var(--danger);
+  }
+
+  .vc-help summary {
+    display: flex;
+    align-items: center;
+    min-height: 2.75rem;
+    cursor: pointer;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--link);
+  }
+
+  .vc-help p {
+    margin-top: 0.25rem;
+    font-size: 0.92rem;
+  }
+
+  /* The small disclosures say they open: a flex summary loses the browser's
+     own triangle. */
+  :is(.vc-help, .vc-notice, .vc-others) > summary {
+    list-style: none;
+  }
+
+  :is(.vc-help, .vc-notice, .vc-others) > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  :is(.vc-help, .vc-notice, .vc-others) > summary::after {
+    content: "";
+    flex: none;
+    width: 7px;
+    height: 7px;
+    margin-left: 0.6rem;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: translateY(-2px) rotate(45deg);
+    transition: transform 0.2s ease-out;
+  }
+
+  :is(.vc-help, .vc-notice, .vc-others)[open] > summary::after {
+    transform: translateY(2px) rotate(225deg);
+  }
+
+  /* ── What the check shows, and what it cannot ────────────────────────── */
+
+  .vc-scope {
+    display: grid;
+    gap: 0.55rem;
+    list-style: none;
+  }
+
+  .vc-scope li {
+    display: grid;
+    grid-template-columns: 1.15rem minmax(0, 1fr);
+    gap: 0.6rem;
+    font-size: 0.97rem;
+    line-height: 1.45;
+    color: var(--text-primary);
+  }
+
+  .vc-scope svg {
+    margin-top: 0.2rem;
+    color: var(--green-300);
+  }
+
+  .vc-scope--no svg {
+    color: var(--text-muted);
+  }
+
+  /* Said right under a result: this is not the car's whole history. */
+  .vc-limits {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.7rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid color-mix(in srgb, var(--warning) 40%, transparent);
+    border-radius: 1rem;
+    background: color-mix(in srgb, var(--warning) 8%, transparent);
+    font-size: 0.95rem;
+    line-height: 1.55;
+    color: var(--text-primary);
+  }
+
+  .vc-limits svg {
+    margin-top: 0.2rem;
+    color: var(--warning);
+  }
+
+  .vc-limits strong {
+    display: block;
+    font-weight: 700;
+  }
+
+  /* ── The photo, or the placeholder ───────────────────────────────────── */
+
+  /* Edge to edge across the top of its card. */
+  .vc-photo {
+    margin: -1.35rem -1.1rem 0;
+  }
+
+  .vc-photo img {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 27.5rem;
+    object-fit: cover;
+    border-radius: calc(1.25rem - 1px) calc(1.25rem - 1px) 0 0;
+    background: var(--surface-2);
+  }
+
+  .vc-credit {
+    padding: 0.55rem 1.1rem 0;
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: var(--text-muted);
+    overflow-wrap: anywhere;
+  }
+
+  /* The one line that must be read: whose car this is not. */
+  .vc-credit strong {
+    display: block;
+    font-size: 0.86rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  .vc-tool .vc-credit a {
+    color: var(--text-secondary);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  /* No photo: a low panel with a small outline of the body shape and a line
+     saying so. It reads as an empty photo slot, not as a picture: one thin
+     grey line, nothing filled. */
+  .vc-photo--none {
+    display: grid;
+    justify-items: center;
+    gap: 0.4rem;
+    padding: 1.4rem 1rem 0.9rem;
+    border-radius: calc(1.25rem - 1px) calc(1.25rem - 1px) 0 0;
+    background: var(--surface-2);
+  }
+
+  .vc-shape {
+    display: block;
+    width: min(56%, 200px);
+    height: auto;
+    overflow: visible;
+  }
+
+  /* The same width at any size, so the line never thickens with the drawing. */
+  .vc-shape-line {
+    fill: none;
+    stroke: var(--border-strong);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .vc-shape-line--soft {
+    stroke: var(--surface-4);
+    stroke-width: 1;
+  }
+
+  /* The panel's own colour, after the line's "no fill": it hides the body's
+     line where it would run through an arch or a wheel. */
+  .vc-shape-cut {
+    fill: var(--surface-2);
+  }
+
+  .vc-nophoto {
+    font-size: 0.78rem;
+    line-height: 1.4;
+    color: var(--text-muted);
+  }
+
+  /* ── The car ─────────────────────────────────────────────────────────── */
+
+  .vc-vin > p:first-child {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 0.5rem;
+    font-size: 0.92rem;
+    color: var(--text-secondary);
+  }
+
+  .vc-vin code {
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    font-variant-numeric: tabular-nums lining-nums;
+    color: var(--text-primary);
+    overflow-wrap: anywhere;
+  }
+
+  /* One icon and one short line each, two to a row on a phone. The icon sits
+     with the label, so the line itself has the column's whole width. */
+  .vc-factgrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem 0.75rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-default);
+    list-style: none;
+  }
+
+  .vc-factgrid li {
+    display: grid;
+    align-content: start;
+    gap: 0.2rem;
+  }
+
+  .vc-fact-label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    color: var(--text-muted);
+  }
+
+  .vc-fact-label svg {
+    flex: none;
+    color: var(--green-300);
+  }
+
+  .vc-fact-text {
+    font-size: 0.97rem;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--text-primary);
+  }
+
+  .vc-fact-note {
+    font-size: 0.78rem;
+    line-height: 1.4;
+    color: var(--text-muted);
+  }
+
+  /* Two to a row: a last one on its own takes the whole row. */
+  @media (max-width: 599px) {
+    .vc-factgrid li:last-child:nth-child(odd) {
+      grid-column: 1 / -1;
+    }
+  }
+
+  /* On "Is this the car?": the same list, closer together, with no rule over
+     it, and two to a row at every width. */
+  .vc-factgrid--compact {
+    gap: 0.75rem;
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .vc-factgrid--compact .vc-fact-label svg {
+    color: var(--text-secondary);
+  }
+
+  .vc-factgrid--compact li:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+
+  /* What a word means, in a line or two under its heading. */
+  .vc-explain {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.65rem;
+    padding: 0.75rem 0.9rem;
+    border: 1px solid var(--border-default);
+    border-radius: 0.85rem;
+    background: var(--surface-0);
+    font-size: 0.97rem;
+    line-height: 1.5;
+    color: var(--text-primary);
+  }
+
+  .vc-explain svg {
+    margin-top: 0.2rem;
+    color: var(--text-secondary);
+  }
+
+  /* ── At a glance ─────────────────────────────────────────────────────── */
+
+  .vc-glance ul {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.6rem;
+    list-style: none;
+  }
+
+  .vc-tile {
+    display: grid;
+    align-content: start;
+    justify-items: start;
+    gap: 0.1rem;
+    height: 100%;
+    min-height: 7.4rem;
+    padding: 0.9rem 0.75rem;
+    border: 1px solid rgb(255 255 255 / 0.09);
+    border-radius: 1.25rem;
+    background: var(--surface-1);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.05);
+    color: var(--text-primary);
+    text-decoration: none;
+    transition:
+      transform 0.2s ease-out,
+      border-color 0.2s ease-out;
+  }
+
+  .vc-tile:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-strong);
+  }
+
+  .vc-tile:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+    border-radius: 1.25rem;
+  }
+
+  .vc-tile svg {
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+  }
+
+  .vc-tile strong {
+    font-size: clamp(1.6rem, 1rem + 3.4vw, 2.25rem);
+    font-weight: 780;
+    font-stretch: 106%;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+
+  .vc-tile-label {
+    margin-top: 0.15rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+
+  .vc-tile-sub {
+    font-size: 0.78rem;
+    line-height: 1.3;
+    color: var(--text-secondary);
+  }
+
+  .vc-tile--warn {
+    border-color: color-mix(in srgb, var(--warning) 55%, transparent);
+  }
+
+  .vc-tile--warn :is(svg, strong) {
+    color: var(--warning);
+  }
+
+  .vc-tile--stop {
+    border-color: color-mix(in srgb, var(--danger) 60%, transparent);
+    background: color-mix(in srgb, var(--danger) 8%, var(--surface-1));
+  }
+
+  .vc-tile--stop :is(svg, strong) {
+    color: var(--danger);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .vc-tile:hover {
+      transform: none;
+    }
+  }
+
+  /* A 320px phone: "Complaints" still fits in a third of the width. */
+  @media (max-width: 359px) {
+    .vc-glance ul {
+      gap: 0.5rem;
+    }
+
+    .vc-tile {
+      padding: 0.75rem 0.5rem;
+    }
+
+    .vc-tile-label {
+      font-size: 0.82rem;
+    }
+
+    .vc-tile-sub {
+      font-size: 0.7rem;
+    }
+  }
+
+  /* ── Safety equipment ────────────────────────────────────────────────── */
+
+  .vc-checks {
+    display: grid;
+    gap: 0.6rem;
+    list-style: none;
+  }
+
+  .vc-checks li {
+    display: grid;
+    grid-template-columns: 1.15rem minmax(0, 1fr);
+    gap: 0.6rem;
+    font-size: 0.97rem;
+    line-height: 1.4;
+    color: var(--text-primary);
+  }
+
+  .vc-checks svg {
+    margin-top: 0.15rem;
+    color: var(--green-300);
+  }
+
+  .vc-checks .vc-check--optional {
+    color: var(--text-secondary);
+  }
+
+  .vc-checks .vc-check--optional svg {
+    color: var(--text-muted);
+  }
+
+  /* ── Recalls ─────────────────────────────────────────────────────────── */
+
+  .vc-todo {
+    display: grid;
+    gap: 0.4rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid color-mix(in srgb, var(--green-500) 35%, transparent);
+    border-radius: 1rem;
+    background: color-mix(in srgb, var(--green-500) 9%, transparent);
+  }
+
+  .vc-todo .vc-todo-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.97rem;
+    font-weight: 700;
+    color: var(--green-300);
+  }
+
+  .vc-todo p:not(.vc-todo-title) {
+    color: var(--text-primary);
+  }
+
+  .vc-recalls {
+    display: grid;
+    gap: 0.6rem;
+    list-style: none;
+  }
+
+  .vc-recalls > li > details {
+    border: 1px solid var(--border-default);
+    border-radius: 1rem;
+    background: var(--surface-0);
+  }
+
+  .vc-recalls > li > details[open] {
+    border-color: var(--border-strong);
+  }
+
+  /* The headline and an arrow on top, the date and badges under them. */
+  .vc-recalls > li > details > summary {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.4rem 0.75rem;
+    min-height: 3.25rem;
+    padding: 0.9rem 1rem;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .vc-recalls summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .vc-recalls > li > details > summary::after {
+    content: "";
+    grid-column: 2;
+    grid-row: 1;
+    width: 9px;
+    height: 9px;
+    margin: 6px 4px 0;
+    border-right: 2px solid var(--green-300);
+    border-bottom: 2px solid var(--green-300);
+    transform: rotate(45deg);
+    transition: transform 0.2s ease-out;
+  }
+
+  .vc-recalls > li > details[open] > summary::after {
+    transform: rotate(225deg);
+  }
+
+  .vc-recall-head {
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--text-primary);
+  }
+
+  .vc-recall-meta {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 0.5rem;
+    font-size: 0.84rem;
+    color: var(--text-muted);
+  }
+
+  .vc-badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.6rem;
+    padding: 0.1rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .vc-badge--stop {
+    border: 1px solid color-mix(in srgb, var(--danger) 50%, transparent);
+    background: color-mix(in srgb, var(--danger) 14%, transparent);
+    color: var(--danger);
+  }
+
+  .vc-recall-body {
+    display: grid;
+    gap: 0.75rem;
+    padding: 0 1rem 0.9rem;
+  }
+
+  .vc-recall-body dl {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .vc-recall-body dt {
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: var(--green-300);
+  }
+
+  .vc-recall-body dd {
+    margin-top: 0.1rem;
+    font-size: 0.97rem;
+    line-height: 1.55;
+    color: var(--text-primary);
+  }
+
+  .vc-notice {
+    border-top: 1px solid var(--border-default);
+  }
+
+  .vc-notice summary {
+    display: flex;
+    align-items: center;
+    min-height: 2.75rem;
+    cursor: pointer;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--link);
+  }
+
+  .vc-notice p {
+    margin-top: 0.5rem;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--text-secondary);
+  }
+
+  .vc-notice p strong {
+    color: var(--text-primary);
+  }
+
+  /* ── Complaints ──────────────────────────────────────────────────────── */
+
+  .vc-incidents {
+    display: grid;
+    gap: 0.5rem;
+    list-style: none;
+  }
+
+  .vc-incidents li {
+    display: grid;
+    grid-template-columns: 1.25rem minmax(0, 1fr);
+    gap: 0.6rem;
+    font-size: 0.97rem;
+    line-height: 1.4;
+    color: var(--text-secondary);
+  }
+
+  .vc-incidents svg {
+    margin-top: 0.15rem;
+    color: var(--text-muted);
+  }
+
+  .vc-incidents strong {
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+
+  /* A name and a count, with the bar under them. */
+  .vc-bars {
+    display: grid;
+    gap: 0.9rem;
+    list-style: none;
+  }
+
+  .vc-bars li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: 0.4rem 0.75rem;
+  }
+
+  .vc-bar-name {
+    font-size: 0.97rem;
+    line-height: 1.35;
+    color: var(--text-primary);
+  }
+
+  .vc-bars strong {
+    font-size: 0.97rem;
+    font-variant-numeric: tabular-nums lining-nums;
+    color: var(--text-primary);
+  }
+
+  .vc-bar-track {
+    grid-column: 1 / -1;
+    display: block;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--surface-3);
+    overflow: hidden;
+  }
+
+  .vc-bar-fill {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--green-600), var(--green-400));
+  }
+
+  /* ── Crash-test stars ────────────────────────────────────────────────── */
+
+  .vc-glyphs {
+    color: var(--green-300);
+    white-space: nowrap;
+  }
+
+  /* Quiet, but at least 3:1 against the card and the overall panel. */
+  .vc-star-off {
+    color: var(--border-strong);
+  }
+
+  .vc-overall {
+    display: grid;
+    justify-items: start;
+    gap: 0.4rem;
+    padding: 1rem;
+    border-radius: 1rem;
+    background: var(--surface-2);
+  }
+
+  .vc-overall .vc-overall-label {
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  .vc-overall .vc-glyphs {
+    font-size: 2.25rem;
+    letter-spacing: 4px;
+    line-height: 1;
+  }
+
+  .vc-overall .vc-overall-score {
+    font-size: 1.05rem;
+    color: var(--text-primary);
+  }
+
+  .vc-overall-score strong {
+    font-weight: 700;
+  }
+
+  .vc-starlist {
+    display: grid;
+    list-style: none;
+  }
+
+  /* Icon, name and stars on one line; what it means under them. */
+  .vc-starlist li {
+    display: grid;
+    grid-template-columns: 1.35rem minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.1rem 0.6rem;
+    padding: 0.75rem 0;
+    border-top: 1px solid var(--border-default);
+  }
+
+  .vc-starlist li:last-child {
+    padding-bottom: 0;
+  }
+
+  .vc-starlist svg {
+    color: var(--green-300);
+  }
+
+  .vc-star-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .vc-starlist .vc-glyphs {
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+  }
+
+  .vc-star-meaning {
+    grid-column: 2 / -1;
+    font-size: 0.9rem;
+    line-height: 1.45;
+    color: var(--text-secondary);
+  }
+
+  .vc-card .vc-version-line {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  .vc-ministars {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 128px), 1fr));
+    gap: 0.5rem;
+  }
+
+  .vc-ministars div {
+    padding: 0.5rem 0.65rem;
+    border: 1px solid var(--border-default);
+    border-radius: 0.75rem;
+  }
+
+  .vc-ministars dt {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+
+  .vc-ministars dd {
+    margin-top: 0.1rem;
+    font-size: 1rem;
+    letter-spacing: 1px;
+  }
+
+  .vc-others summary {
+    display: flex;
+    align-items: center;
+    min-height: 2.75rem;
+    cursor: pointer;
+    font-size: 0.97rem;
+    font-weight: 600;
+    color: var(--link);
+  }
+
+  .vc-others > .vc-versions {
+    margin-top: 0.4rem;
+  }
+
+  .vc-others > .vc-note {
+    margin-top: 0.6rem;
+  }
+
+  /* Versions shown side by side: each one's name, then its own stars. */
+  .vc-versions {
+    display: grid;
+    gap: 0.9rem;
+    list-style: none;
+  }
+
+  .vc-versions .vc-version-name {
+    margin-bottom: 0.4rem;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  /* ── The way out ─────────────────────────────────────────────────────── */
+
+  .vc-out {
+    display: grid;
+    gap: 0.5rem;
+    list-style: none;
+  }
+
+  .vc-out a {
+    display: grid;
+    gap: 0.1rem;
+    min-height: 3.25rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-default);
+    border-radius: 1rem;
+    background: var(--surface-0);
+    font-size: 0.97rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: border-color 0.2s ease-out;
+  }
+
+  .vc-out a:hover {
+    border-color: var(--border-strong);
+  }
+
+  .vc-out a span {
+    font-size: 0.84rem;
+    font-weight: 400;
+    color: var(--text-muted);
+  }
+
+  .vc-footnote {
+    margin-top: 0.25rem;
+    font-size: 0.84rem;
+    line-height: 1.55;
+    color: var(--text-muted);
+  }
+
+  /* ── Wider screens ───────────────────────────────────────────────────── */
+
+  @media (min-width: 600px) {
+    .vc-card {
+      padding: 1.75rem;
+    }
+
+    .vc-photo {
+      margin: -1.75rem -1.75rem 0;
+    }
+
+    .vc-credit {
+      padding: 0.55rem 1.75rem 0;
+    }
+
+    .vc-factgrid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    /* "Is this the car?" keeps two to a row. */
+    .vc-factgrid--compact {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.9rem 1.25rem;
+    }
+
+    .vc-photo--none {
+      padding: 1.75rem 1.5rem 1rem;
+    }
+
+    .vc-checks {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: 1.25rem;
+    }
+
+    .vc-tile {
+      min-height: 8.25rem;
+      padding: 1.1rem 1rem;
+    }
+
+    .vc-actions {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+}

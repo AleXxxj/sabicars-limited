@@ -63,10 +63,11 @@ export default async function HummerBusPage() {
             [from ? formatNaira(from, { compact: true }) : "—", "Starting price"],
             [depositFrom ? formatNaira(depositFrom, { compact: true }) : "—", "Lowest Drive Plan deposit"],
           ].map(([value, label]) => (
-            <div key={label} className="glass rounded-2xl p-4 md:p-6">
+            <div key={label} className="glass min-w-0 rounded-2xl p-3 min-[400px]:p-4 md:p-6">
               <dt className="sr-only">{label}</dt>
               <dd>
-                <span className="figures block font-display text-[1.9rem] leading-none md:text-[2.75rem]">{value}</span>
+                {/* Three boxes across a phone are about 70px inside: the figure is sized from the screen so "₦9.6M" fits. */}
+                <span className="figures block font-display text-[clamp(1.05rem,5.2vw,1.9rem)] leading-none md:text-[2.75rem]">{value}</span>
                 <span className="mt-2 block text-[0.8rem] leading-snug text-text-secondary">{label}</span>
               </dd>
             </div>
@@ -85,7 +86,7 @@ export default async function HummerBusPage() {
           </ButtonLink>
         </ScrollReveal>
         {buses.length ? (
-          <div className="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
             {buses.map((v, i) => (
               <ScrollReveal key={v.id} delay={(i % 3) * 80}>
                 <VehicleCard vehicle={v} href={`/vehicles/${v.slug}`} />

@@ -21,7 +21,12 @@ export interface FaultLog {
   consoleErrors: string[];
 }
 
-const IGNORED_CONSOLE = [/Download the React DevTools/, /third-party cookie/i, /favicon/i, /googletagmanager/i, /onesignal/i];
+const IGNORED_CONSOLE = [/Download the React DevTools/, /third-party cookie/i, /favicon/i, /googletagmanager/i, /onesignal/i, /compute-pressure is not allowed/i];
+/**
+ * Messages logged inside the hero video's YouTube player are YouTube's, not the site's: with a hero video set (Admin,
+ * Audience) its player logs things like "compute-pressure is not allowed", now and then, inside its own frame.
+ */
+const THIRD_PARTY_FRAME = /^https:\/\/([a-z0-9-]+\.)*(youtube(-nocookie)?\.com|ytimg\.com|googlevideo\.com)\//i;
 
 export function watchForFaults(page: Page): FaultLog {
   const log: FaultLog = { serverErrors: [], pageErrors: [], consoleErrors: [] };
@@ -30,7 +35,8 @@ export function watchForFaults(page: Page): FaultLog {
   });
   page.on("pageerror", (err) => log.pageErrors.push(err.message));
   page.on("console", (msg) => {
-    if (msg.type() === "error" && !IGNORED_CONSOLE.some((re) => re.test(msg.text()))) log.consoleErrors.push(msg.text());
+    if (msg.type() !== "error" || THIRD_PARTY_FRAME.test(msg.location().url)) return;
+    if (!IGNORED_CONSOLE.some((re) => re.test(msg.text()))) log.consoleErrors.push(msg.text());
   });
   return log;
 }
@@ -118,12 +124,15 @@ export async function waitUntilFormLooksHuman(page: Page, form?: Locator): Promi
   if (remaining > 0) await page.waitForTimeout(remaining);
 }
 
-/** How many vehicles the inventory lists, from the "N vehicles in stock" sentence on /vehicles. Zero means the smoke tests that need a car should skip. */
+/**
+ * How many cars the first page of /vehicles lists: the cards in its results, not the sold ones under them. The page
+ * states no total (the owner, 14 November 2026), so the cards are counted. Zero means the smoke tests that need a car
+ * should skip.
+ */
 export async function stockCount(page: Page): Promise<number> {
   await page.goto("/vehicles");
-  const sentence = page.getByText(/\d+ vehicles? in stock/).first();
-  await expect(sentence, "the inventory page shows no count of vehicles in stock").toBeVisible();
-  return Number((await sentence.textContent())?.match(/(\d+) vehicles? in stock/)?.[1] ?? 0);
+  await expect(page.getByRole("heading", { level: 1 }), "the inventory page shows no heading").toBeVisible();
+  return page.locator("#results").getByRole("article").count();
 }
 
 /**

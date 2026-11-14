@@ -121,7 +121,7 @@ export default async function TermPage({ params }: Props) {
 
       <section className="mx-auto max-w-7xl px-5 py-10 md:px-10 md:py-14">
         {cars.length ? (
-          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
             {cars.map((v, i) => (
               <ScrollReveal key={v.id} delay={(i % 3) * 80}>
                 <VehicleCard vehicle={v} href={`/vehicles/${v.slug}`} priority={i < 3} />

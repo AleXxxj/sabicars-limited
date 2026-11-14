@@ -96,5 +96,47 @@ export function sharePhotoSource(src: string): string {
   return src.replace("/upload/", "/upload/e_improve,c_limit,w_1280,h_1280,q_auto:good,f_jpg/");
 }
 
+/**
+ * The home hero's photo, framed on the car (components/home/HeroSlides).
+ *
+ * Most stock is shot upright on a phone: sky in the top of the frame, the
+ * car low down. So Cloudinary frames the car itself (g_auto finds it, as it
+ * does for link previews above), in two shapes:
+ *
+ * - `srcSet`, for a phone or a tablet: an upright or square photo becomes a
+ *   wide one (1.15 wide to 1 high) with the car whole in the middle, at the
+ *   photo's full width, so nothing is enlarged and the car fills its space
+ *   (the owner, 14 November 2026). Tried on the owner's seven hero cars that
+ *   day, the 9:16 shots among them: every car came out whole. A photo already
+ *   that wide is left as it is.
+ * - `wide`, for a wide screen, where the photo alone covers the whole hero
+ *   the way Adedayo's does (the owner, 14 November 2026, beside Adedayo's
+ *   desktop hero): the car framed as above, then the middle strip of it, so
+ *   the hero shows the car's face and not the sky above it. Framing the car
+ *   first matters: asked for a strip straight away, g_auto chose the Hummer
+ *   bus's bumper alone and the Highlander's grille alone; framed first, their
+ *   badge, lights and bumper all show. The strip is 1.5 wide to 1 high, the
+ *   shape of the narrowest wide-screen hero (1024 by 680): a laptop then shows
+ *   as much of the car's height as its hero can hold, about a sixth more than
+ *   a 16:9 strip did (the owner asked for the Hummer, the RX 350L and the
+ *   G 63 to be more visible, same day), and a wider screen trims the strip's
+ *   top and foot just as before.
+ *
+ * Asked of Cloudinary directly whatever NEXT_PUBLIC_IMAGE_DELIVERY says: the
+ * framing is Cloudinary's work, and this is seven photos, not the stock.
+ * Null for a photo that is not on Cloudinary; the caller shows it plain.
+ */
+export function heroPhotoSources(src: string): { srcSet: string; fallback: string; wide: string } | null {
+  if (!src.includes("res.cloudinary.com") || !src.includes("/upload/")) return null;
+  const at = (frame: string, width: number) => src.replace("/upload/", `/upload/${frame}e_improve,f_auto,q_auto,c_limit,w_${width}/`);
+  const phone = "if_ar_lt_1.15/ar_1.15,c_fill,g_auto/if_end/";
+  const wide = `${phone}ar_1.5,c_fill,g_center/`;
+  return {
+    srcSet: [640, 828, 1080, 1600].map((w) => `${at(phone, w)} ${w}w`).join(", "),
+    fallback: at(phone, 828),
+    wide: [1280, 1600, 1920].map((w) => `${at(wide, w)} ${w}w`).join(", "),
+  };
+}
+
 /** Shown when a vehicle has no photos yet. An honest empty state, never a stock car. */
 export const VEHICLE_PLACEHOLDER = "/vehicle-placeholder.svg";

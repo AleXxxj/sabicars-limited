@@ -1,4 +1,4 @@
-import { ArrowLeftRight, BadgeCheck, CarFront, ClipboardList, Columns2, HandCoins, Heart, House, MessageCircle, Newspaper, Sparkles, Truck, Wallet, type LucideIcon } from "lucide-react";
+import { ArrowLeftRight, BadgeCheck, CarFront, ClipboardList, Columns2, HandCoins, Heart, House, MessageCircle, Newspaper, ScanSearch, Sparkles, Truck, Wallet, type LucideIcon } from "lucide-react";
 
 /**
  * One icon per destination, so the menu and the tab bar never disagree. A car
@@ -9,6 +9,7 @@ export const NAV_ICON: Record<string, LucideIcon> = {
   "/": House,
   "/vehicles": CarFront,
   "/find": ClipboardList,
+  "/check": ScanSearch,
   "/#drive-plan": Wallet,
   "/drive-plan": Wallet,
   "/fleet": Truck,

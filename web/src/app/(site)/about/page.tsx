@@ -7,6 +7,7 @@ import { ButtonLink } from "@/components/ui/Button";
 import { ReviewsSection } from "@/components/reviews/ReviewsSection";
 import { publishedReviews, reviewSummary } from "@/lib/repositories/reviews";
 import { inventoryStats } from "@/lib/repositories/vehicles";
+import { formatNaira } from "@/lib/money";
 import { pageAddress, site } from "@/lib/site";
 
 export const revalidate = 3600;
@@ -133,9 +134,14 @@ export default async function AboutPage() {
       <section className="border-t border-border-subtle">
         <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 md:px-10 md:py-24 lg:grid-cols-2 lg:items-end">
           <ScrollReveal>
+            {/* No count of the cars: the site names no total stock (the owner, 14 November 2026). Where the prices start
+                and how many brands, both live, say what is here. */}
             <p className="kicker">Today</p>
-            <p className="figures mt-4 font-display text-[3.5rem] leading-none md:text-[4.5rem]">{stats.inStock}</p>
-            <p className="mt-3 text-lg text-text-secondary">vehicles in stock right now, from {stats.makes} brands.</p>
+            <h2 className="mt-4 text-display-2">Come and see the cars.</h2>
+            <p className="figures mt-4 text-lg text-text-secondary">
+              {stats.makes > 1 ? `Cars, SUVs and buses from ${stats.makes} brands.` : "Cars, SUVs and buses."}
+              {stats.fromMinor !== null && ` Prices start at ${formatNaira(stats.fromMinor, { compact: true })}.`}
+            </p>
             <div className="mt-8 flex flex-wrap gap-4">
               <ButtonLink href="/vehicles">See cars for sale</ButtonLink>
               <ButtonLink href="/contact" variant="secondary">

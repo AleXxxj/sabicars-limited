@@ -21,7 +21,7 @@ import {
   monthlyAtCeilingMinor,
 } from "@/lib/drive-plan";
 import { BODY_LABEL, CONDITION_LABEL, DRIVETRAIN_LABEL, vehicleTitle } from "@/lib/vehicle";
-import { CARS_NAV, MAIN_NAV, MORE_NAV } from "@/lib/navigation";
+import { CARS_NAV, MAIN_NAV, MORE_ITEMS } from "@/lib/navigation";
 import type { AssistantCar } from "./parts";
 import { familyGuide } from "@/lib/hiace-family";
 
@@ -165,7 +165,7 @@ function stockSummary(stock: VehicleWithCover[]): string {
  * the tab bar, the More menu and the footer use, so the assistant never sends
  * a buyer to a page by a name the site no longer shows.
  */
-const PAGES = [CARS_NAV, ...MAIN_NAV, ...MORE_NAV.flatMap<(typeof MORE_NAV)[number]["items"][number]>((g) => g.items)];
+const PAGES = [CARS_NAV, ...MAIN_NAV, ...MORE_ITEMS];
 type PageHref = (typeof PAGES)[number]["href"];
 
 /** A page as the assistant should name it: "Request a car (/find)". */

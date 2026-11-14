@@ -76,9 +76,13 @@ export default async function InventoryPage({ searchParams }: Props) {
         <div className="mx-auto max-w-7xl px-5 pb-10 pt-14 md:px-10 md:pt-20">
           <p className="kicker">Cars for sale</p>
           <h1 className="mt-4 text-display-2">{headingFor(f)}</h1>
-          <p className="figures mt-4 text-text-secondary">
-            {result.total} {result.total === 1 ? "vehicle" : "vehicles"} in stock
-          </p>
+          {/* How many match, once the list is narrowed: "6 vehicles in stock" answers "SUVs under ₦30M?". Never the whole
+              stock: the site names no total (the owner, 14 November 2026). */}
+          {hasActiveFilters(f) && (
+            <p className="figures mt-4 text-text-secondary">
+              {result.total} {result.total === 1 ? "vehicle" : "vehicles"} in stock
+            </p>
+          )}
           {f.maxDeposit && (
             // From the Drive Plan finder: say what this list is, since no dropdown shows it.
             <p className="mt-2 text-sm text-text-secondary">
@@ -92,8 +96,9 @@ export default async function InventoryPage({ searchParams }: Props) {
 
           {/* Shape first: it is how most buyers start ("I need a bus"). */}
           <nav aria-label="Vehicle type" className="-mx-5 mt-10 flex gap-2 overflow-x-auto px-5 [scrollbar-width:none] md:mx-0 md:flex-wrap md:px-0 [&::-webkit-scrollbar]:hidden">
+            {/* "All" carries no number: on the plain list it would be the whole stock. Each type keeps its own. */}
             <Chip href={filtersHref(f, { body: undefined, segment: undefined })} active={!f.body && !f.segment}>
-              All <span className="figures opacity-70">{result.allTypesCount}</span>
+              All
             </Chip>
             <Chip href={filtersHref(f, { segment: f.segment === "luxury" ? undefined : "luxury", body: undefined })} active={f.segment === "luxury"}>
               Luxury
@@ -187,7 +192,7 @@ export default async function InventoryPage({ searchParams }: Props) {
 
       <section className="mx-auto max-w-7xl px-5 py-12 md:px-10 md:py-16">
         {result.vehicles.length ? (
-          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          <div id="results" className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
             {result.vehicles.map((v, i) => (
               <VehicleCard key={v.id} vehicle={v} href={`/vehicles/${v.slug}`} priority={i < 3} />
             ))}
@@ -244,7 +249,7 @@ export default async function InventoryPage({ searchParams }: Props) {
               </Link>{" "}
               and we will tell you if a similar one arrives.
             </p>
-            <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
               {sold.map((v) => (
                 <VehicleCard key={v.id} vehicle={v} href={`/vehicles/${v.slug}`} />
               ))}

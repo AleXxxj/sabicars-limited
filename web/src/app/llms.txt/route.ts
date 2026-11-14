@@ -41,12 +41,13 @@ export async function GET() {
 - [Toyota Hiace Hummer buses](${base}/hummer-bus)
 - [Compare cars side by side](${base}/compare)
 - [Request a car](${base}/find): ask for a car that is not in stock; the buyer gets a reference number and is told when a match arrives
+- [Check VIN](${base}/check): free check of a 17-character VIN against United States government records: what the car is, its safety equipment, recalls for its model and crash-test stars. It only knows cars first sold in America, and it cannot show accidents, flood damage, mileage history or theft
 - [Earn](${base}/partners): 1.5% commission on buyers you send
 - [Buy in bulk (fleet supply)](${base}/fleet): two or more vehicles for a company or government, as one order
 - [Answers to common questions](${base}/ask)
 - [Contact](${base}/contact)
 
-## For sale now (${stock.length} vehicles; prices in Nigerian naira)
+## For sale now (prices in Nigerian naira)
 ${stock
   .map((v) => {
     const deposit = drivePlanDeposit(v);

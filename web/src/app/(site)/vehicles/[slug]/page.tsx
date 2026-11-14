@@ -456,7 +456,7 @@ export default async function VehiclePage({ params }: Props) {
             <div className="mx-auto max-w-7xl px-5 md:px-10">
               <p className="kicker">You might also like</p>
               <h2 className="mt-3 text-display-3">Similar vehicles</h2>
-              <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+              <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
                 {similar.map((s) => (
                   <VehicleCard key={s.id} vehicle={s} href={`/vehicles/${s.slug}`} />
                 ))}

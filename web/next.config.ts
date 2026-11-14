@@ -9,7 +9,17 @@ const nextConfig: NextConfig = {
     // a page that loads and one that is abandoned. Only Sabicars' own
     // Cloudinary account: with the hostname alone, anyone could have Vercel
     // resize any Cloudinary customer's pictures, each one billed to us.
-    remotePatterns: [{ protocol: "https", hostname: "res.cloudinary.com", pathname: `/${PHOTO_CLOUD}/image/upload/**` }],
+    //
+    // The two Wikimedia hosts are for the free VIN check (/check): a photo of
+    // the car's model from Wikimedia Commons, shown with its credit
+    // (lib/vin/photo.ts). Commons' own files only, and only the folders its
+    // thumbnails are served from. Resized here, so a visitor's phone gets a
+    // small picture and never contacts Wikimedia itself.
+    remotePatterns: [
+      { protocol: "https", hostname: "res.cloudinary.com", pathname: `/${PHOTO_CLOUD}/image/upload/**` },
+      { protocol: "https", hostname: "thumb.wikimedia.org", pathname: "/wikipedia/commons/thumb/**" },
+      { protocol: "https", hostname: "upload.wikimedia.org", pathname: "/wikipedia/commons/**" },
+    ],
     // A short list of sizes, on purpose. Every distinct size of every photo is
     // one resize billed (by Cloudinary today, by Vercel once
     // NEXT_PUBLIC_IMAGE_DELIVERY=vercel — see lib/media.ts), so the default

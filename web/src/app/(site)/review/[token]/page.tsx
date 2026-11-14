@@ -39,7 +39,8 @@ export default async function BuyerReviewPage({ params }: Props) {
               : "It appears on the site once the team has read it."}
           </p>
           <blockquote className="surface-card mt-8 p-6 font-display text-[1.3rem] leading-snug">“{invite.existing.message}”</blockquote>
-          <ButtonLink href="/#reviews" variant="secondary" className="mt-8">
+          {/* The reviews in full live on About since 14 November 2026; the homepage shows the rating only. */}
+          <ButtonLink href="/about#reviews" variant="secondary" className="mt-8">
             See the reviews
           </ButtonLink>
         </>

@@ -39,7 +39,10 @@ export function PriceSplit({ vehicles }: { vehicles: FinderVehicle[] }) {
   const tier = TIERS.find((t) => tierYear >= t.year) ?? TIERS[0];
 
   return (
-    <div className="surface-card grid gap-8 p-6 md:grid-cols-2 md:p-10">
+    // minmax(0,1fr): the list of cars is as wide as its longest name, and without this that width became the column's,
+    // so on a 320px phone everything in the card ran past its right edge (found 14 November 2026). Two halves only from
+    // 1024px: on a tablet each half was 254 to 320px wide, and the big figure ("₦15,200,000", 336px) ran out of it.
+    <div className="surface-card grid grid-cols-[minmax(0,1fr)] gap-8 p-5 min-[360px]:p-6 md:p-10 lg:grid-cols-2">
       <div>
         <p className="text-sm font-medium text-text-muted">Any price, split</p>
         <label htmlFor={`${id}-car`} className="mt-5 block text-sm text-text-secondary">
@@ -112,10 +115,11 @@ export function PriceSplit({ vehicles }: { vehicles: FinderVehicle[] }) {
         <p className="mt-3 text-xs text-text-muted">Autochek does not finance cars older than {DRIVE_PLAN.minYear}.</p>
       </div>
 
-      <dl aria-live="polite" className="grid content-center gap-5 md:border-l md:border-white/[0.06] md:pl-8">
+      <dl aria-live="polite" className="grid grid-cols-[minmax(0,1fr)] content-center gap-5 lg:border-l lg:border-white/[0.06] lg:pl-8">
         <div>
           <dt className="text-sm text-text-muted">You pay ({terms.eligible ? `${terms.depositPercent}%` : "—"})</dt>
-          <dd className="figures text-brand mt-1 font-display text-[2.6rem] leading-none md:text-[3.2rem]">
+          {/* Sized from the screen on a phone: at its full size "₦15,200,000" was wider than the card on a 360px one. */}
+          <dd className="figures text-brand mt-1 font-display text-[clamp(1.7rem,9.5vw,2.6rem)] leading-none md:text-[3.2rem]">
             {naira && terms.eligible ? formatNaira(depositMinor) : "—"}
           </dd>
         </div>

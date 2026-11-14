@@ -36,7 +36,7 @@ import { site } from "@/lib/site";
  * the connection, so each local client is its own key.
  */
 
-export type Bucket = "enquiry" | "partner" | "subscribe" | "review" | "comment" | "account" | "signin" | "partnerlogin" | "engage";
+export type Bucket = "enquiry" | "partner" | "subscribe" | "review" | "comment" | "account" | "signin" | "partnerlogin" | "engage" | "vincheck";
 
 const LIMITS: Record<Bucket, { max: number; windowSeconds: number }> = {
   /** Contact, car enquiries, viewings, fleet, sourcing, sell, Drive Plan, call-backs, alerts. */
@@ -60,6 +60,14 @@ const LIMITS: Record<Bucket, { max: number; windowSeconds: number }> = {
   partnerlogin: { max: 30, windowSeconds: 600 },
   /** Reactions and shares on articles, and fetches of a viewing's calendar file: silent when over, so nobody notices, nobody can inflate them, and nobody can walk through references. */
   engage: { max: 60, windowSeconds: 600 },
+  /**
+   * The free VIN check (/check). Checking one car counts twice ("Is this the car?", then the results), so this
+   * is sixty cars in ten minutes from one connection: room for many buyers behind one mobile network address
+   * on a busy day, and far fewer than a script would want. Answers are kept (a car for 30 days, a model's
+   * recalls for a day), so most of a crowd's checks never reach the US government's service at all; the limit
+   * is what stops the site being used to run thousands of lookups against that service in Sabicars' name.
+   */
+  vincheck: { max: 120, windowSeconds: 600 },
 };
 
 /** What a visitor sees when the ceiling is reached: plain, with a human to call. */

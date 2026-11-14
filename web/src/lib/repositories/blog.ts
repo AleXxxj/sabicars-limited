@@ -13,6 +13,8 @@ export interface PostCard {
   slug: string;
   title: string;
   category: string;
+  /** What it is about, as slugs ("truck", "drive-plan"): they choose the small moving picture on its card. */
+  tags: string[];
   standfirst: string;
   coverImageUrl: string | null;
   author: string;
@@ -26,6 +28,7 @@ const toPostCard = (p: BlogPost): PostCard => ({
   slug: p.slug,
   title: p.title,
   category: p.category,
+  tags: p.tags ?? [],
   standfirst: p.standfirst || p.excerpt,
   coverImageUrl: p.coverImageUrl,
   author: p.author,
@@ -44,7 +47,8 @@ const published = async () => and(eq(blogPosts.dealerId, await sabicarsDealerId(
  * moment, so both cases are safe.
  */
 function revivePostCard(p: PostCard): PostCard {
-  return { ...p, publishedAt: new Date(p.publishedAt) };
+  // A card cached before cards carried tags (14 November 2026) has none: it gets the default picture until it expires.
+  return { ...p, tags: p.tags ?? [], publishedAt: new Date(p.publishedAt) };
 }
 
 /*

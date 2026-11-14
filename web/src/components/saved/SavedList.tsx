@@ -48,7 +48,7 @@ export function SavedList() {
 
   return (
     <div className="grid gap-14">
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
         {shown.map((v) => (
           <VehicleCard key={v.id} vehicle={v} href={`/vehicles/${v.slug}`} />
         ))}
