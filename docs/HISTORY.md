@@ -14,6 +14,7 @@ Days before 8 November 2026 were reconstructed on 8 November from the saved Clau
 - After seeing the pictures: "its repeatative, i dont want a repeatative hero", and "real car real price is not really that neccessary, cus are there fake prices?"
 - Asked if the hero cars can be changed in the admin, then named a car for each of the seven slides (one of them the sold 2014 Hiace Hummer 2) and said: "make the vehicles all fit perfectly in the hero slide view like not zoomed in".
 - Sent two screenshots of the result, the photo shrunk to a small card: "look at what u did? this not what i asked u to do".
+- Then, of a photo narrower than the screen with blurred bands at its sides: "is still cropped bro let the vehicle fill in it space".
 **Decisions and why:** 
 - The hero is rebuilt on the Adedayo Aremu Autos hero's structure and measurements, in Sabicars' own colours: words on the photo, three doors (Buy in orange with the live stock count, Sell, Check VIN), the car's name and price, thin slide bars and a pause button.
 - The paragraph is replaced by one short line of two live facts (cars for sale, lowest Drive Plan deposit).
@@ -32,13 +33,15 @@ Days before 8 November 2026 were reconstructed on 8 November from the saved Clau
 - The owner now chooses which car stands on which slide: a new box in Admin, Audience ("Homepage cars: which car on which slide"), saved in the settings table, so no database change was needed. Ticking "Use in the homepage hero" could not say which slide, and a sold car drops out of the ticked list.
 - A sold car may be shown and is marked "Sold" where a price would be. A car is refused where the slide's words would be untrue of it: no sold car on the opening or Drive Plan slide, only a priced car from 2010 up on the Drive Plan slide, only a Hummer on the Hummer slide.
 - The hero has exactly seven slides. A ticked car that no slide uses is not shown (the first build added it as an extra slide with no words; dropped as a surprise).
-- The photo fills the hero and the car in it is whole, never enlarged. From a tablet up the whole photo stands on the right and the words on the left. On a phone the photo is as wide as the screen and the car stands above the words. Most cover photos are tall phone photos with the car low down, right under the words, so for a phone Cloudinary frames the car itself (g_auto, already used for link previews): a tall photo becomes a wide one at its full width, with the car whole in the middle.
+- The photo fills its space and the car in it is whole, never enlarged. Most cover photos are tall phone photos with the car low down, so Cloudinary frames the car itself (g_auto, already used for link previews): an upright or square photo becomes a wide one (1.15 wide to 1 high) at its full width, with the car whole in the middle. One framing at every width: on a phone it runs edge to edge; from a tablet up it stands on the right at the hero's full height, with the words on the left.
+- On a phone the hero is now as tall as the photo needs, not as tall as the screen allows. Adedayo's hero is cut to the screen so the doors are always in sight; on most phones that left about 400px, and the words lay over the lower half of the car. The owner chose the car. The doors follow right under: in sight on a tall phone, one short scroll away on a small one, where the bottom bar already has Cars and Check VIN.
 - The phone headline is smaller than Adedayo's, so every slide's words take two lines.
 **Ideas raised (not yet built):** 
 - Paid title history and foreign auction photos for the VIN check: need quotes from a licensed source first.
 - "Car evaluation": meaning still to be agreed (suggested: a price range from Sabicars' own stock that leads into Sell).
 **Rejected or reversed:** 
 - Showing the whole tall photo in the room above the words: it made the photo a small card, and Alex rejected it at once. Moving a tall photo up to hide its sky was tried next and cut the Changan's roof, so it was dropped for Cloudinary's own framing of the car.
+- Making the framed photo narrower on a short screen so the words stayed off it: it left blurred bands at the sides, which Alex read as cropped. Showing the whole tall photo on wide screens: it stood small at the side. Both dropped for the one framing at full size.
 - The 13 November instruction "am not saying change sabicars to adedayo design" is replaced, for the hero only, by today's "exactly like that of dayo".
 - The first try at the doors (added inside the old hero) is dropped in favour of the full rebuild.
 **Built and shipped:** 
