@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Wordmark } from "@/components/Logo";
 import { Button, ButtonAnchor } from "@/components/ui/Button";
+import { CURE_KEY, CURE_WINDOW_MS } from "@/lib/chunk-cure";
 import { site, whatsappLink } from "@/lib/site";
 
 /**
@@ -35,19 +36,15 @@ export function isChunkLoadError(error: unknown): boolean {
   return /ChunkLoadError|Failed to load chunk|Loading (CSS )?chunk [\w-]+ failed|dynamically imported module|Importing a module script failed/i.test(text);
 }
 
-/** When the page last reloaded itself for a missing chunk, kept for the tab's life only. */
-const CURE_KEY = "sc_chunk_reload";
-/** A second chunk error this soon after the reload is not a dropped download: it is reported. */
-const CURE_WINDOW_MS = 60_000;
-
 /**
  * Whether this error is cured by reloading the page once, and the reload itself. True for a chunk that did not arrive,
- * while the phone is online, and not already reloaded for one in the last minute; offline, a reload would only show
- * the browser's own error page, so the calm screen stays. Without session storage there is no way to stop a reload
- * loop, so the error is reported as before.
+ * while the phone is online, and not already reloaded for one in the last minute (the same key and minute as the
+ * first-load cure, lib/chunk-cure.ts); offline, a reload would only show the browser's own error page, so the calm
+ * screen stays. Without session storage there is no way to stop a reload loop, so the error is reported as before;
+ * that includes storage that can be read but not written (a full one), found only when the reload is due.
  */
 export function useReloadCure(error: BoundaryError): boolean {
-  const [cure] = useState(() => {
+  const [cure, setCure] = useState(() => {
     if (typeof window === "undefined" || !isChunkLoadError(error) || navigator.onLine === false) return false;
     try {
       return Date.now() - Number(sessionStorage.getItem(CURE_KEY) ?? 0) > CURE_WINDOW_MS;
@@ -60,6 +57,9 @@ export function useReloadCure(error: BoundaryError): boolean {
     try {
       sessionStorage.setItem(CURE_KEY, String(Date.now()));
     } catch {
+      // Not written, so a reload could loop: the calm screen and the report instead of "One moment…" for ever.
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- a one-time fallback after a failed write, not a render loop
+      setCure(false);
       return;
     }
     window.location.reload();

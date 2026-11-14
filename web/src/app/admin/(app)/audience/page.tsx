@@ -109,7 +109,7 @@ export default async function AudienceAdmin() {
           <section aria-label="Homepage hero video" className="border border-border-subtle bg-surface-1 p-5 md:p-6">
             <p className="text-sm font-semibold text-text-primary">Homepage hero video</p>
             <p className="mt-1 text-xs text-text-muted">
-              Plays once over the big photos at the top of the homepage, muted, for the seconds you set, then the photos come back. It stops when a visitor scrolls past it. A YouTube link or a video file. On a slow or data-saving connection (many phones in Nigeria) it does not start by itself: visitors get a &ldquo;Watch video&rdquo; button, so it only uses their data if they tap it. &ldquo;See it play&rdquo; shows it starting by itself, on any connection.
+              Visitors get a &ldquo;Watch video&rdquo; button on the big photos at the top of the homepage. It never starts by itself, so it only uses their data if they tap it. Tapped, it plays over the photos, muted, for the seconds you set, then the photos come back. It stops when a visitor scrolls past it. A YouTube link or a video file. &ldquo;See it play&rdquo; opens the homepage with it playing.
             </p>
             <div className="mt-5">
               {me.role === "sales" ? (

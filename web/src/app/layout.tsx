@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { APP_INTRO_SCRIPT } from "@/lib/app-intro";
 import { MARK_SVG, WORDMARK_SVG } from "@/lib/brand-marks";
+import { CHUNK_CURE_SCRIPT } from "@/lib/chunk-cure";
 import { archivo } from "@/lib/fonts";
 import { PARTNER_FLAG_SCRIPT } from "@/lib/partner-flag";
 import { site, siteUrl } from "@/lib/site";
@@ -45,6 +46,13 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     // report that mark as a mismatch. It reaches this element only, not its children. The script below
     // does the same with data-partner, so the header shows Account or Log in from the first paint.
     <html lang="en-NG" data-theme="dark" className={archivo.variable} suppressHydrationWarning>
+      <head>
+        {/* A file of the page's own that fails while it first loads reloads the page once (lib/chunk-cure.ts). A plain
+            inline script, not next/script: beforeInteractive scripts wait for Next's own code, the thing that failed.
+            In <head>, not first in <body>: there Chrome ran it too late to see a file that failed at once (tested on
+            the local build, 14 November 2026; in <head> it saw every case). */}
+        <script id="chunk-cure" dangerouslySetInnerHTML={{ __html: CHUNK_CURE_SCRIPT }} />
+      </head>
       <body>
         <Script id="partner-flag" strategy="beforeInteractive">
           {PARTNER_FLAG_SCRIPT}

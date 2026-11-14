@@ -507,8 +507,8 @@
 .hh-pause:hover {
   background: rgba(255, 255, 255, 0.08);
 }
-/* "Watch video": on a slow or data-saving connection the hero video waits to be asked for (HeroSlides). A small
-   glass pill at the start of the slide controls, so it is seen without covering the car. */
+/* "Watch video": the hero video never starts by itself; it waits to be asked for (HeroSlides). A small glass pill at
+   the start of the slide controls, so it is seen without covering the car. */
 .hh-watch {
   flex: none;
   display: inline-flex;
@@ -820,7 +820,8 @@
     padding: 0 40px;
   }
 }
-/* A hero video (Admin, Audience) lies over the photos and shows only once it is really playing. */
+/* A hero video (Admin, Audience) lies over the photos once asked for, and shows once it is really playing, or after
+   a moment with its own play button. */
 .hh-video {
   position: absolute;
   inset: 0;
@@ -834,9 +835,15 @@
 .hh-video.is-on {
   opacity: 1;
 }
-/* Asked for with "Watch video" and shown: the player takes taps, so a phone that blocks autoplay can still start it. */
-.hh-video.is-on.is-asked {
+/* Asked for with "Watch video", shown, and not started (a phone that will not start it by itself): the player takes
+   taps, so its own play button works. The words lie over the middle of the stage (all of it from 1024px up, and on a
+   small or turned phone), so they let taps through meanwhile; while the video is shown they are the opening words,
+   with no link in them (review, 14 November 2026: on a wide screen the play button sat under "you" in the headline). */
+.hh-video.is-on.is-waiting {
   pointer-events: auto;
+}
+.hh[data-video="waiting"] .hh-words {
+  pointer-events: none;
 }
 .hh-video video {
   width: 100%;

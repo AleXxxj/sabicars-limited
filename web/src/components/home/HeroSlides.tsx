@@ -23,31 +23,19 @@ function subscribeReduced(onChange: () => void) {
   mq.addEventListener("change", onChange);
   return () => mq.removeEventListener("change", onChange);
 }
-/** The connection type is read once; nothing to subscribe to. */
+/** Read once; nothing to subscribe to. */
 const noSubscription = () => () => {};
 
-/** How long a video meant to start by itself may take before the hero stops waiting and offers "Watch video" instead. */
-const START_WAIT_MS = 10_000;
 /** After "Watch video", how long before a player that has not started is shown anyway, with its own play button. */
 const SHOW_ASKED_MS = 2_500;
 /** After "Watch video", how long before a player that never started is given up, and the photos come back. */
 const ASKED_GIVE_UP_MS = 45_000;
 
 /**
- * The homepage opened with ?video plays the hero video whatever the connection: a preview for staff (linked from
- * Admin, Audience). Chrome rates many Lagos connections "3g" (the owner's office on 14 November 2026: 1.35 Mbps, 500 ms),
- * so without it the people who set the video could not see it play.
+ * The homepage opened with ?video starts the hero video at once, as if "Watch video" had been tapped: the preview staff
+ * open from Admin, Audience ("See it play").
  */
 const previewVideo = () => new URLSearchParams(window.location.search).has("video");
-
-/** Most visitors are on metered mobile data: no video for data-saver or slow connections, nor for anyone who asked for less motion. */
-function videoAllowed(): boolean {
-  if (previewVideo()) return true;
-  if (window.matchMedia(REDUCED).matches) return false;
-  const c = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
-  if (!c) return true;
-  return !c.saveData && !["slow-2g", "2g", "3g"].includes(c.effectiveType ?? "");
-}
 
 function youTubeId(url: string): string | null {
   const m = url.match(/(?:youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
@@ -81,15 +69,16 @@ function youTubeId(url: string): string | null {
  * The advance is driven by the segment's own fill animation ending, so the
  * bar and the change of slide can never drift apart.
  *
- * When staff set a hero video (Admin → Audience), it plays once over the
- * photos, muted, once it is really running, with a sound and a stop button;
- * then the slides carry on (the owner, 8 November 2026). It plays for the
- * seconds set beside it, 20 unless changed, counted in the video's own time,
- * and it stops for good when the visitor scrolls past it (the owner, 14
- * November 2026), so it never plays, or uses their data, for nobody. On a
- * slow or data-saving connection, or for someone who asked for less motion,
- * it does not start by itself: a "Watch video" button among the slide
- * controls offers it, the same day's choice of the owner.
+ * When staff set a hero video (Admin → Audience), a "Watch video" button
+ * among the slide controls offers it on every load, and it never starts by
+ * itself, so it uses nobody's data unasked (the owner, 14 November 2026, as
+ * he saw it on his computer). Tapped, the button says "Loading video…" until
+ * the video runs over the photos, muted, with a sound and a stop button; then
+ * the slides carry on, and the button is gone until the page is loaded again.
+ * It plays for the seconds set beside it, 20 unless changed, counted in the
+ * video's own time, and it stops for good when the visitor scrolls past it.
+ * A phone that will not start it (an iPhone in Low Power Mode) is shown the
+ * player itself after a moment, with its own play button to tap.
  */
 export function HeroSlides({
   slides,
@@ -124,32 +113,31 @@ export function HeroSlides({
   // The video has really started (the player said so), so it is shown until it ends or is stopped, through any pause to load.
   const [started, setStarted] = useState(false);
   const [videoDone, setVideoDone] = useState(false);
-  // It was meant to start by itself and did not, in START_WAIT_MS: the phone blocks autoplay (an iPhone in Low Power
-  // Mode, for one) or the player never woke. It gives way to the "Watch video" button rather than leave nothing.
-  const [stalled, setStalled] = useState(false);
   // Asked for, and still not started after SHOW_ASKED_MS: the player is shown anyway, so its own play button is there to tap.
   const [showAsked, setShowAsked] = useState(false);
   // The player has answered at least once, so it is listening and need not be asked again.
   const heard = useRef(false);
   const [muted, setMuted] = useState(true);
   const reduced = useSyncExternalStore(subscribeReduced, () => window.matchMedia(REDUCED).matches, () => false);
-  const connectionOk = useSyncExternalStore(noSubscription, videoAllowed, () => false);
   const section = useRef<HTMLElement>(null);
   const photos = useRef<HTMLDivElement>(null);
   const touch = useRef<{ x: number; y: number } | null>(null);
   const frame = useRef<HTMLIFrameElement>(null);
   const video = useRef<HTMLVideoElement>(null);
 
-  // A slow or data-saving connection, or a visitor who asked for less motion: the video does not start by itself.
-  // A "Watch video" button offers it instead, so it only uses their data if they ask (the owner, 14 November 2026).
-  // Offered once the page knows the connection, never in the server's HTML, so a fast connection never sees it flash.
+  // The video plays only when asked for: "Watch video" on every load (or ?video, staff's preview). Offered once the page
+  // is awake, never in the server's HTML: until then a tap on it would do nothing.
   const [asked, setAsked] = useState(false);
+  const preview = useSyncExternalStore(noSubscription, previewVideo, () => false);
   const hydrated = useSyncExternalStore(noSubscription, () => true, () => false);
-  const playVideo = Boolean(videoUrl) && ((connectionOk && !stalled) || asked) && !videoDone;
-  const offerVideo = Boolean(videoUrl) && hydrated && (!connectionOk || stalled) && !asked && !videoDone;
-  const loadingVideo = asked && !started && !videoDone;
+  const requested = asked || preview;
+  const playVideo = Boolean(videoUrl) && requested && !videoDone;
+  const offerVideo = Boolean(videoUrl) && hydrated && !requested && !videoDone;
+  const loadingVideo = playVideo && !started;
   // Shown over the photos: once it has started, or once it was asked for and given a moment.
-  const videoShown = !videoDone && (started || (asked && showAsked));
+  const videoShown = playVideo && (started || showAsked);
+  // Shown and not started: the player waits for a tap on its own play button, so it takes taps (home.css).
+  const waiting = videoShown && !started;
   const ytId = videoUrl ? youTubeId(videoUrl) : null;
   const auto = count > 1 && !reduced;
   const running = auto && !userPaused && !hidden && !offscreen && !focusInside && !videoShown;
@@ -173,25 +161,30 @@ export function HeroSlides({
     setVideoDone(true);
   }, []);
 
-  // Meant to start by itself, and not started in time: the "Watch video" button takes its place (the owner,
-  // 14 November 2026: the video worked on his computer and not on the live site, read on his iPhone).
-  useEffect(() => {
-    if (!playVideo || asked || started) return;
-    const t = setTimeout(() => setStalled(true), START_WAIT_MS);
-    return () => clearTimeout(t);
-  }, [playVideo, asked, started]);
-
   // Asked for and not started yet: shown after a moment, so a phone that blocks autoplay still offers the player's own
   // play button; given up after ASKED_GIVE_UP_MS if nothing happens, and the photos stay.
   useEffect(() => {
-    if (!asked || started || videoDone) return;
+    if (!playVideo || started) return;
     const show = setTimeout(() => setShowAsked(true), SHOW_ASKED_MS);
     const giveUp = setTimeout(finish, ASKED_GIVE_UP_MS);
     return () => {
       clearTimeout(show);
       clearTimeout(giveUp);
     };
-  }, [asked, started, videoDone, finish]);
+  }, [playVideo, started, finish]);
+
+  // Shown and waiting for a tap, its play button is in the middle of the player. On a short screen (a phone turned
+  // sideways, scrolled to reach "Watch video") the middle can lie under the header: the page moves just enough to bring
+  // it into sight. On any other screen it already is, and nothing moves.
+  useEffect(() => {
+    const el = photos.current;
+    if (!waiting || !el) return;
+    const r = el.getBoundingClientRect();
+    const middle = r.top + r.height / 2;
+    const header = 72;
+    if (middle >= header + 32 && middle <= window.innerHeight - 32) return;
+    window.scrollBy({ top: middle - (header + (window.innerHeight - header) / 2), behavior: reduced ? "auto" : "smooth" });
+  }, [waiting, reduced]);
 
   // Started: its share of the hero is its seconds, and a few more for loading. YouTube is told the same with end= and
   // says when it ends; this is the backstop for a player that goes quiet, so the slides always come back.
@@ -236,13 +229,16 @@ export function HeroSlides({
   useEffect(() => {
     if (!playVideo) return;
     const onMessage = (e: MessageEvent) => {
-      if (typeof e.data !== "string" || !/youtube(-nocookie)?\.com$/.test(new URL(e.origin).hostname)) return;
+      // This hero's own player only: not another frame, nor one already taken off the page.
+      if (!frame.current || e.source !== frame.current.contentWindow || typeof e.data !== "string") return;
       try {
+        if (!/youtube(-nocookie)?\.com$/.test(new URL(e.origin).hostname)) return;
         const data = JSON.parse(e.data) as { event?: string; info?: { playerState?: number } };
         heard.current = true;
-        if (data.event !== "infoDelivery" || data.info?.playerState === undefined) return;
-        if (data.info.playerState === 0) finish();
-        else if (data.info.playerState === 1) setStarted(true);
+        const state = data.info?.playerState;
+        // Its first answer counts too: a player that started before it was first asked says so only then.
+        if (data.event === "infoDelivery" && state === 0) finish();
+        else if ((data.event === "infoDelivery" || data.event === "initialDelivery") && state === 1) setStarted(true);
       } catch {
         /* not the player's message */
       }
@@ -321,6 +317,8 @@ export function HeroSlides({
       onTouchEnd={onTouchEnd}
       data-running={running ? "true" : "false"}
       data-words={shown === 0 ? "opening" : "service"}
+      // The player is waiting for a tap on its own play button: the words over it let taps through (home.css).
+      data-video={waiting ? "waiting" : undefined}
     >
       <div ref={photos} className="hh-photos" aria-hidden="true">
         {slides.map((s, i) =>
@@ -355,8 +353,10 @@ export function HeroSlides({
           ) : null,
         )}
         {playVideo && videoUrl && (
-          // Asked for: once shown it takes taps, so the player's own play button works on a phone that blocks autoplay.
-          <div className={`hh-video${videoShown ? " is-on" : ""}${asked ? " is-asked" : ""}`}>
+          // Shown and not started, it takes taps, so the player's own play button works on a phone that blocks autoplay;
+          // playing, it does not, so a tap or a swipe on the hero never pauses it by accident. data-started: it really
+          // plays (the smoke tests wait for it).
+          <div className={`hh-video${videoShown ? " is-on" : ""}${waiting ? " is-waiting" : ""}`} data-started={started || undefined}>
             {ytId ? (
               <iframe
                 ref={frame}
@@ -374,6 +374,10 @@ export function HeroSlides({
                 autoPlay
                 muted
                 playsInline
+                // A phone that would not start it: a tap on the shown video starts it.
+                onClick={(e) => {
+                  if (!started) e.currentTarget.play().catch(() => {});
+                }}
                 onPlaying={() => setStarted(true)}
                 // Its share of the hero, in its own time: YouTube is told the same with end= above.
                 onTimeUpdate={(e) => {

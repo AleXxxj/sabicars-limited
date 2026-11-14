@@ -9,10 +9,10 @@ const control =
 
 /**
  * The homepage hero video: paste a YouTube link or a video file link, say for
- * how many seconds it plays (20 if left as it is), save. It plays once over
- * the photo slideshow, muted, then the slideshow returns; it stops when the
- * visitor scrolls past it. On a slow or data-saving connection it waits for
- * the visitor to tap "Watch video".
+ * how many seconds it plays (20 if left as it is), save. Visitors get a
+ * "Watch video" button on the homepage hero; it never starts by itself.
+ * Tapped, it plays over the photo slideshow, muted, then the slideshow
+ * returns; it stops when the visitor scrolls past it.
  */
 export function HeroVideoForm({ current, seconds }: { current: string | null; seconds: number }) {
   const [state, action, pending] = useActionState(setHeroVideo, null);
@@ -72,8 +72,7 @@ export function HeroVideoForm({ current, seconds }: { current: string | null; se
         {current && (
           <span className="text-xs text-text-muted">
             On the homepage now.{" "}
-            {/* On a slow or data-saving connection (Chrome counts many Lagos connections as slow) the video waits for
-                the visitor's "Watch video"; this link shows it starting by itself, whatever the connection. */}
+            {/* Visitors start it with "Watch video"; this link opens the homepage with it already asked for (?video). */}
             <a href="/?video" target="_blank" rel="noopener" className="font-semibold text-green-300 underline underline-offset-2 hover:text-green-200">
               See it play
             </a>
