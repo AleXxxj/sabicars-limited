@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Wordmark } from "@/components/Logo";
 import { Button, ButtonAnchor } from "@/components/ui/Button";
-import { CURE_KEY, CURE_WINDOW_MS } from "@/lib/chunk-cure";
+import { CURE_KEY, CURE_WINDOW_MS, RELOADING_FLAG, whenSiteAnswers } from "@/lib/chunk-cure";
 import { site, whatsappLink } from "@/lib/site";
 
 /**
@@ -36,16 +36,22 @@ export function isChunkLoadError(error: unknown): boolean {
   return /ChunkLoadError|Failed to load chunk|Loading (CSS )?chunk [\w-]+ failed|dynamically imported module|Importing a module script failed/i.test(text);
 }
 
+type Reloading = { [RELOADING_FLAG]?: boolean };
+
 /**
  * Whether this error is cured by reloading the page once, and the reload itself. True for a chunk that did not arrive,
- * while the phone is online, and not already reloaded for one in the last minute (the same key and minute as the
- * first-load cure, lib/chunk-cure.ts); offline, a reload would only show the browser's own error page, so the calm
- * screen stays. Without session storage there is no way to stop a reload loop, so the error is reported as before;
- * that includes storage that can be read but not written (a full one), found only when the reload is due.
+ * not already reloaded for one in the last minute (the same key and minute as the first-load cure, lib/chunk-cure.ts),
+ * and true while that first-load cure is already reloading the page: then it is the same failure, so "One moment…" and
+ * no report (review of 7c1faac, 15 November 2026: the two cures together showed "Something went wrong" and alerted
+ * the managers). The reload waits until the site answers (whenSiteAnswers), so offline or with signal but no data the
+ * visitor sees "One moment…" until it can land, not the browser's own error page; the minute starts at the reload.
+ * Without session storage there is no way to stop a reload loop, so the error is reported as before; that includes
+ * storage that can be read but not written (a full one), found only when the reload is due.
  */
 export function useReloadCure(error: BoundaryError): boolean {
   const [cure, setCure] = useState(() => {
-    if (typeof window === "undefined" || !isChunkLoadError(error) || navigator.onLine === false) return false;
+    if (typeof window === "undefined" || !isChunkLoadError(error)) return false;
+    if ((window as Reloading)[RELOADING_FLAG]) return true;
     try {
       return Date.now() - Number(sessionStorage.getItem(CURE_KEY) ?? 0) > CURE_WINDOW_MS;
     } catch {
@@ -53,16 +59,25 @@ export function useReloadCure(error: BoundaryError): boolean {
     }
   });
   useEffect(() => {
-    if (!cure) return;
-    try {
-      sessionStorage.setItem(CURE_KEY, String(Date.now()));
-    } catch {
-      // Not written, so a reload could loop: the calm screen and the report instead of "One moment…" for ever.
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- a one-time fallback after a failed write, not a render loop
-      setCure(false);
-      return;
-    }
-    window.location.reload();
+    if (!cure || (window as Reloading)[RELOADING_FLAG]) return;
+    let gone = false;
+    whenSiteAnswers(
+      () => {
+        try {
+          sessionStorage.setItem(CURE_KEY, String(Date.now()));
+        } catch {
+          // Not written, so a reload could loop: the calm screen and the report instead of "One moment…" for ever.
+          setCure(false);
+          return;
+        }
+        (window as Reloading)[RELOADING_FLAG] = true;
+        window.location.reload();
+      },
+      () => gone,
+    );
+    return () => {
+      gone = true;
+    };
   }, [cure]);
   return cure;
 }

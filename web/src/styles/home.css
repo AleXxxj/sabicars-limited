@@ -535,7 +535,7 @@
   border-color: rgba(255, 255, 255, 0.55);
   background-color: rgba(9, 14, 10, 0.7);
 }
-.hh-watch:disabled {
+.hh-watch:disabled, .hh-watch[aria-disabled="true"] {
   cursor: default;
   opacity: 0.85;
 }
@@ -834,6 +834,14 @@
 }
 .hh-video.is-on {
   opacity: 1;
+}
+/* "Tap the video to play": the same pill as "Watch video", as words, when the phone refused to start the video. */
+.hh-tap {
+  cursor: default;
+}
+.hh-tap:hover {
+  border-color: rgba(255, 255, 255, 0.32);
+  background-color: rgba(9, 14, 10, 0.5);
 }
 /* Asked for with "Watch video", shown, and not started (a phone that will not start it by itself): the player takes
    taps, so its own play button works. The words lie over the middle of the stage (all of it from 1024px up, and on a
