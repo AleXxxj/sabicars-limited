@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "@/components/IntentLink";
-import { usePathname } from "next/navigation";
+import { useSitePathname } from "@/lib/site-pathname";
 
 /** A header link that knows when it is the current section. Sentence case, readable at a glance; `hint` says what it leads to on hover. */
 export function NavLink({ href, hint, children }: { href: string; hint?: string; children: React.ReactNode }) {
-  const pathname = usePathname();
+  const pathname = useSitePathname();
   const active = !href.includes("#") && (pathname === href || pathname.startsWith(`${href}/`));
   return (
     <Link

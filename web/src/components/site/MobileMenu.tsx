@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "@/components/IntentLink";
-import { usePathname } from "next/navigation";
+import { useSitePathname } from "@/lib/site-pathname";
 import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Menu, Phone, X } from "lucide-react";
@@ -33,7 +33,7 @@ import { NAV_ICON } from "./nav-icons";
  */
 export function MobileMenu({ variant = "icon" }: { variant?: "icon" | "pill" }) {
   const [open, setOpen] = useState(false);
-  const pathname = usePathname();
+  const pathname = useSitePathname();
   const trigger = useRef<HTMLButtonElement>(null);
   const close = useRef<HTMLButtonElement>(null);
   const panel = useRef<HTMLDivElement>(null);

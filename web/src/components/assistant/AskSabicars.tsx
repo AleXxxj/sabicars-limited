@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import { usePathname } from "next/navigation";
+import { useSitePathname } from "@/lib/site-pathname";
 import { ArrowUp, MessageCircle, Phone, PhoneCall, RotateCcw, X } from "lucide-react";
 import { PrivacyLink } from "@/components/forms/shared";
 import { Mark } from "@/components/Logo";
@@ -117,7 +117,7 @@ type RoomMessage = { id: string; role: "assistant" | "staff"; name: string | nul
  * and is forgotten when the tab closes.
  */
 export function AskSabicars() {
-  const pathname = usePathname();
+  const pathname = useSitePathname();
   const [open, setOpen] = useState(false);
   const [msgs, setMsgs] = useState<Msg[]>(() => stored<Msg[]>(MESSAGES_KEY, []));
   const [input, setInput] = useState("");

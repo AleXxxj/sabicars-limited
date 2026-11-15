@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "@/components/IntentLink";
-import { usePathname } from "next/navigation";
+import { useSitePathname } from "@/lib/site-pathname";
 import { TAB_BAR } from "@/lib/navigation";
 import { NAV_ICON } from "./nav-icons";
 
@@ -13,7 +13,7 @@ import { NAV_ICON } from "./nav-icons";
  * under its icon rather than being cut off.
  */
 export function MobileTabBar() {
-  const pathname = usePathname();
+  const pathname = useSitePathname();
   return (
     <nav
       aria-label="Quick"

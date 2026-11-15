@@ -18,6 +18,14 @@ export const E2E = {
   /** The homepage's hero video (Admin, Audience): the one the live site shows, a public YouTube video. */
   heroVideoUrl: "https://youtu.be/JU_iewg2SfM",
 
+  /**
+   * The 2013 Hummer's photo, so the homepage's hero has slides and its tests run before a deploy too. A Hummer bus photo
+   * already on Sabicars' own Cloudinary, which the Hiace and Hummer buyer's guide shows (src/content/articles/
+   * hiace-hummer-buyers-guide.ts), so it stays as long as that guide does. Nothing is uploaded for the tests, and the
+   * seed stores no Cloudinary id with it, so nothing can delete it from Cloudinary.
+   */
+  heroPhotoUrl: "https://res.cloudinary.com/dbmtqpex2/image/upload/v1782005097/sabicars/bqvwqfxh1bzvfwfzgmyj.jpg",
+
   /** A buyer who enquires about a car. Typed as a Lagos number; stored in E.164. */
   buyer: { name: "E2E Buyer", typedPhone: "0803 000 0001", phone: "+2348030000001" },
 

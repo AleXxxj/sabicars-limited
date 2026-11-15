@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
+import { useSitePathname } from "@/lib/site-pathname";
 import { BellRing, Mail, Share, Smartphone, Star, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Dialog } from "@/components/ui/Dialog";
@@ -109,7 +109,7 @@ const ios = () => /iPhone|iPad|iPod/.test(navigator.userAgent);
  * back once after a quiet minute: at most twice a visit.
  */
 export function EngagementPrompt() {
-  const pathname = usePathname();
+  const pathname = useSitePathname();
   const [kind, setKind] = useState<Kind | null>(null);
   const [installEvent, setInstallEvent] = useState<InstallEvent | null>(null);
   const [reviewOpen, setReviewOpen] = useState(false);

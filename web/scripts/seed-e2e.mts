@@ -3,7 +3,7 @@
  * Seeds a throwaway database for the end-to-end suites (e2e/flows), and
  * removes what they leave behind.
  *
- *   npm run e2e:seed            # the dealer, its showroom, three cars, a hero video — and the staff row, when E2E_STAFF_* are set
+ *   npm run e2e:seed            # the dealer, its showroom, three cars (the Hummer with a photo), a hero video — and the staff row, when E2E_STAFF_* are set
  *   npm run e2e:seed -- --clean # delete every row the seed and the suites created
  *
  * Safe to run again and again: every row is keyed on something fixed (the
@@ -72,6 +72,16 @@ export async function seed(sql: Sql): Promise<void> {
       returning id, (xmax = 0) as created`;
     console.log(`Vehicle ${v.year} ${v.make} ${v.model} (${v.slug}): ${row.created ? "created" : "found, reset to available"}.`);
   }
+
+  // A photo for the 2013 Hummer, a car from 2010 up, so the hero's Drive Plan slide is true of it. With no photo the
+  // homepage's hero has no slides, and its tests skipped here and ran only against the live site after a deploy (review
+  // of fd66678, 15 November 2026). A Hummer that has a photo keeps it.
+  const [photo] = await sql`
+    insert into vehicle_media (vehicle_id, kind, url, position)
+    select id, 'photo', ${E2E.heroPhotoUrl}, 0 from vehicles where dealer_id = ${dealer.id} and slug = ${E2E.vehicles.hummer.slug}
+    on conflict (vehicle_id, position) do nothing
+    returning id`;
+  console.log(`Hummer photo: ${photo ? "added" : "already there, kept"}.`);
 
   // A hero video, as the live site has one (Admin, Audience), so the homepage's video tests run before a deploy too and
   // not only against the live site after it (review of 666b037, 15 November 2026). A database that has one keeps it.

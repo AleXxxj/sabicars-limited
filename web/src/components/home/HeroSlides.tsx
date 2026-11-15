@@ -309,9 +309,19 @@ export function HeroSlides({
           return;
         }
         const info = (data.event === "infoDelivery" || data.event === "initialDelivery") && data.info && typeof data.info === "object"
-          ? (data.info as { playerState?: unknown; videoLoadedFraction?: unknown })
+          ? (data.info as { playerState?: unknown; videoLoadedFraction?: unknown; videoData?: unknown })
           : null;
         if (!info) return;
+        // It cannot play, in the player's own record of the video (its errorCode; "auth" when YouTube refused it). onError
+        // reaches only a page already listening, and a refusal that comes within moments of the player's own request
+        // (YouTube's check on data-centre machines, an age-restricted or removed video) can come first: then only this
+        // says so, from the player's first answer on (review of fd66678, 15 November 2026: 45 s of "Loading video…").
+        const code = info.videoData && typeof info.videoData === "object" ? (info.videoData as { errorCode?: unknown }).errorCode : undefined;
+        if (typeof code === "string" && code !== "") {
+          if (preview) setCantPlay(true);
+          finish();
+          return;
+        }
         // More of it loaded is a sign it is getting on, however slowly.
         if (typeof info.videoLoadedFraction === "number" && info.videoLoadedFraction > loadedFraction.current) {
           loadedFraction.current = info.videoLoadedFraction;
