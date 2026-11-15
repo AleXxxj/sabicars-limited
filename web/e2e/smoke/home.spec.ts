@@ -314,7 +314,17 @@ test.describe("Home", () => {
     }
     // A thumb: every swipe starts with a touch on whatever is under it, on the homepage's rows and the cars page's cards
     // nearly always a link (review, 14 November 2026: fetching on touch cost about 220 KB per scroll of /vehicles).
+    // Raw touches, as Playwright's own tap sends them (Input.dispatchTouchEvent), each swipe starting on a link in
+    // sight: Chrome's synthetic scroll gesture sent no touch to the page on GitHub's Linux runners (63f453b).
     const cdp = await page.context().newCDPSession(page);
+    const swipeUpFrom = async ({ x, y }: { x: number; y: number }) => {
+      const rise = Math.min(240, y - 20);
+      await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x, y }] });
+      for (let i = 1; i <= 8; i++) {
+        await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x, y: Math.round(y - (rise * i) / 8) }] });
+      }
+      await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+    };
     for (const path of ["/", "/vehicles"]) {
       await page.goto(path);
       await page.evaluate(() => {
@@ -328,17 +338,24 @@ test.describe("Home", () => {
           { capture: true, passive: true },
         );
       });
-      const { width, height } = page.viewportSize()!;
-      for (let i = 0; i < 12; i++) {
-        await cdp.send("Input.synthesizeScrollGesture", {
-          x: Math.round(width / 2),
-          y: Math.round(height * 0.7),
-          yDistance: -Math.round(height * 0.45),
-          gestureSourceType: "touch",
-          speed: 1200,
+      for (let i = 0; i < 8; i++) {
+        // The first of the site's own links in sight, clear of the header and the tab bar, that a thumb there would touch.
+        const spot = await page.evaluate(() => {
+          for (const a of document.querySelectorAll<HTMLAnchorElement>('a[href^="/"]')) {
+            const r = a.getBoundingClientRect();
+            const x = r.left + r.width / 2;
+            const y = r.top + r.height / 2;
+            if (r.width < 24 || r.height < 24 || y < 140 || y > innerHeight - 140) continue;
+            if (document.elementFromPoint(x, y)?.closest('a[href^="/"]') === a) return { x: Math.round(x), y: Math.round(y) };
+          }
+          return null;
         });
+        if (!spot) break;
+        await swipeUpFrom(spot);
+        await page.waitForTimeout(250);
       }
       await page.waitForTimeout(1500);
+      expect(new URL(page.url()).pathname, `a swipe on ${path} was taken for a tap`).toBe(path);
       const onLink = await page.evaluate(() => (window as unknown as { onLink: number }).onLink);
       expect(onLink, `no swipe on ${path} began on a link, so this proves nothing`).toBeGreaterThan(0);
     }
