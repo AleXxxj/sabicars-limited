@@ -1,4 +1,5 @@
 import "server-only";
+import { isGonePage } from "@/lib/gone-page";
 import { site, siteUrl } from "@/lib/site";
 import { and, count, eq, inArray, isNotNull, sql } from "drizzle-orm";
 import { db } from "@/db";
@@ -363,7 +364,9 @@ async function addressChecks(base: string): Promise<Check[]> {
     destinations.map(async (path) => {
       try {
         const r = await fetch(new URL(path, base), { redirect: "manual", signal: AbortSignal.timeout(5000) });
-        if (r.status !== 200) dead.push(`${path} (${r.status})`);
+        // An article or car that is not there answers 200 with the gone screen, not 404 (lib/gone-page.ts).
+        const gone = r.status === 200 && (r.headers.get("content-type") ?? "").includes("text/html") && isGonePage(await r.text());
+        if (r.status !== 200 || gone) dead.push(`${path} (${gone ? "nothing there" : r.status})`);
       } catch {
         dead.push(`${path} (unreachable)`);
       }

@@ -35,7 +35,10 @@ test.describe("Reserving a car", () => {
   });
 
   test("the return page refuses a made-up reference", async ({ page }) => {
-    const res = await page.goto("/reserve/done?reference=scr_notarealone1");
-    expect(res?.status(), "a reference nobody paid should be a 404").toBe(404);
+    await page.goto("/reserve/done?reference=scr_notarealone1");
+    // No deposit for a reference nobody paid: the page says there is nothing here (in the server's own HTML, so not a
+    // 404: see components/site/NotFoundScreen.tsx), and shows no amount or receipt.
+    await expect(page.getByRole("heading", { level: 1 }), "a reference nobody paid was not refused").toHaveText("That page is not here.");
+    await expect(page.getByText(/₦\d/), "a reference nobody paid showed an amount").toHaveCount(0);
   });
 });

@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 import {
   E2E,
   assertNoFaults,
+  assertServerReadsSeed,
   db,
   lagosLongDate,
   lagosToday,
@@ -63,30 +64,14 @@ async function removeEverythingThisSuiteCreates(): Promise<void> {
   });
 }
 
-test.beforeAll(async ({ playwright }) => {
+test.beforeAll(async () => {
   sql = db();
   const [car] = await sql`select id, status from vehicles where slug = ${hummer.slug}`;
   if (!car) throw new Error(`The seeded car ${hummer.slug} is missing. Run npm run e2e:seed against this database first.`);
   vehicleId = car.id;
 
-  // The server must be reading the same database this suite seeded and asserts against — never
-  // another one, and never the live one. `next start` loads .env.production.local ahead of .env.local,
-  // so a machine that kept the live DATABASE_URL there would quietly serve the live site (the live
-  // URL is kept in web/.env.live for exactly this reason, a name Next.js never loads); the seeded car
-  // is the proof of which database answers. Checked before a single form is sent.
-  const base = test.info().project.use.baseURL ?? "http://localhost:3000";
-  const api = await playwright.request.newContext({ baseURL: base });
-  try {
-    const status = (await api.get(`/vehicles/${hummer.slug}`)).status();
-    if (status !== 200) {
-      throw new Error(
-        `${base} answered ${status} for the seeded car /vehicles/${hummer.slug}, so it is not reading the database this suite seeded (DATABASE_URL). ` +
-          "Nothing was written. Start the server with the same DATABASE_URL as the seed (e.g. DATABASE_URL=… npx next start), then run again.",
-      );
-    }
-  } finally {
-    await api.dispose();
-  }
+  // The server must be reading the same database this suite seeded and asserts against: the seeded car is the proof.
+  await assertServerReadsSeed(test.info().project.use.baseURL ?? "http://localhost:3000");
 
   // A run that died half-way leaves its rows behind; start from nothing.
   await removeEverythingThisSuiteCreates();

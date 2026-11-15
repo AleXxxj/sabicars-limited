@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import Link from "@/components/IntentLink";
-import { notFound, permanentRedirect } from "next/navigation";
+import { permanentRedirect } from "next/navigation";
 import { ArrowRight, Check, Sparkles } from "lucide-react";
 import { AskButton } from "@/components/assistant/AskButton";
 import { SaveButton } from "@/components/saved/SaveButton";
 import { ButtonLink } from "@/components/ui/Button";
 import { VehicleImage } from "@/components/VehicleImage";
+import { GONE_ROBOTS, NotFoundScreen, PAGE_GONE } from "@/components/site/NotFoundScreen";
 import { comparePath } from "@/lib/assistant/parts";
 import { compareSummary, compareTitle, comparisonPairs, differences, slugsFromPair, suits } from "@/lib/compare";
 import { DEFAULT_ESTIMATE_MONTHS, ESTIMATE_NOTE, drivePlanTerms } from "@/lib/drive-plan";
@@ -42,7 +43,7 @@ async function load(pair: string): Promise<VehicleWithCover[] | null> {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { pair } = await params;
   const cars = await load(pair);
-  if (!cars) return { title: "Comparison not found" };
+  if (!cars) return { title: "Comparison not found", robots: GONE_ROBOTS };
   const title = compareTitle(cars);
   const description = `${compareSummary(cars)} ${cars.map((c) => `${vehicleTitle(c)}: ${priceLabel(c)}`).join(" · ")}.`;
   const cover = cars.find((c) => c.cover)?.cover;
@@ -69,7 +70,7 @@ function specTable(cars: VehicleWithCover[]) {
 export default async function ComparePage({ params }: Props) {
   const { pair } = await params;
   const cars = await load(pair);
-  if (!cars) notFound();
+  if (!cars) return <NotFoundScreen {...PAGE_GONE} />;
   const canonical = comparePath(cars.map((c) => c.slug));
   if (`/compare/${pair}` !== canonical) permanentRedirect(canonical);
 

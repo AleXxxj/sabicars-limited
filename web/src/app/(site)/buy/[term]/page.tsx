@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "@/components/IntentLink";
-import { notFound, permanentRedirect } from "next/navigation";
+import { permanentRedirect } from "next/navigation";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { PageIntro } from "@/components/site/PageIntro";
 import { ButtonLink } from "@/components/ui/Button";
 import { VehicleCard } from "@/components/VehicleCard";
+import { GONE_ROBOTS, NotFoundScreen, PAGE_GONE } from "@/components/site/NotFoundScreen";
 import { formatNaira } from "@/lib/money";
 import { searchTerms, vehiclesForTerm } from "@/lib/repositories/vehicles";
 import { termHref } from "@/lib/seo/search-terms";
@@ -31,7 +32,7 @@ const noun = (t: { label: string; family: string | null }) => (t.family ? t.labe
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { term } = await find((await params).term);
-  if (!term) return { title: "Not found" };
+  if (!term) return { title: "Page not found", robots: GONE_ROBOTS };
   const from = term.fromMinor ? ` from ${formatNaira(term.fromMinor, { compact: true })}` : "";
   return {
     title: `${noun(term)} for sale in Lagos`,
@@ -56,7 +57,7 @@ export default async function TermPage({ params }: Props) {
   const slug = (await params).term;
   if (termHref(slug) !== `/buy/${slug}`) permanentRedirect(termHref(slug));
   const { term, all } = await find(slug);
-  if (!term) notFound();
+  if (!term) return <NotFoundScreen {...PAGE_GONE} />;
 
   const cars = await vehiclesForTerm(term);
   const title = `${noun(term)} for sale in Lagos`;

@@ -1,9 +1,11 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { expect, test, type Locator, type Page, type Response } from "@playwright/test";
+import { expect, request, test, type Locator, type Page, type Response } from "@playwright/test";
 import { createServerClient } from "@supabase/ssr";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import postgres from "postgres";
+import { isGonePage } from "../src/lib/gone-page";
+import { E2E as SEED } from "./fixtures";
 
 export { E2E, E2E_NAME_PREFIX, E2E_PHONES, E2E_SLUG_PREFIX, E2E_VEHICLES } from "./fixtures";
 
@@ -98,6 +100,33 @@ export type Db = ReturnType<typeof postgres>;
  * cleans up in. It refuses a Supabase address: these tests write and delete
  * rows, and the live database is never the place for that.
  */
+/**
+ * The server under test must read the database the flows suite seeded and asserts against: never another one, and
+ * never the live one. `next start` loads .env.production.local ahead of .env.local, so a machine that kept the live
+ * DATABASE_URL there would quietly serve the live site, and SMOKE_BASE_URL, if still set, points the suite at the live
+ * site itself. The seeded car is the proof of which database answers: its own page, headed with its model. Its status
+ * alone proves nothing, since a car that is not there answers 200 with the gone screen (lib/gone-page.ts; review of
+ * 15 November 2026). Checked before a single form is sent; throws otherwise, and nothing is written.
+ */
+export async function assertServerReadsSeed(base: string): Promise<void> {
+  const { slug, model } = SEED.vehicles.hummer;
+  const api = await request.newContext({ baseURL: base });
+  try {
+    const res = await api.get(`/vehicles/${slug}`);
+    const html = res.status() === 200 ? await res.text() : "";
+    const headlines = [...html.matchAll(/<h1\b[^>]*>([\s\S]*?)<\/h1>/g)].map((m) => m[1].replace(/<[^>]+>/g, "").trim());
+    if (res.status() !== 200 || isGonePage(html) || !headlines.includes(model)) {
+      const seen = res.status() !== 200 ? `answered ${res.status()}` : isGonePage(html) ? "said the car is no longer listed" : "did not show it";
+      throw new Error(
+        `${base} ${seen} for the seeded car /vehicles/${slug}, so it is not reading the database this suite seeded (DATABASE_URL). ` +
+          "Nothing was written. Start the server with the same DATABASE_URL as the seed (e.g. DATABASE_URL=… npx next start), then run again.",
+      );
+    }
+  } finally {
+    await api.dispose();
+  }
+}
+
 export function db(): Db {
   const url = process.env.DATABASE_URL;
   if (!url) throw new Error("DATABASE_URL is not set. The flows suite needs the throwaway database that scripts/seed-e2e.mts seeded.");

@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { isGonePage } from "../../src/lib/gone-page";
 
 /**
  * No dead doors. A tester on another marketplace clicked a feature that
@@ -24,6 +25,8 @@ test.describe("Every link leads somewhere", () => {
       for (const href of internal) {
         const res = await request.get(href, { maxRedirects: 5 });
         if (res.status() >= 400) failures.push(`${res.status()} ${href}`);
+        // A page whose address has nothing behind it answers 200 with the gone screen, not 404 (lib/gone-page.ts).
+        else if ((res.headers()["content-type"] ?? "").includes("text/html") && isGonePage(await res.text())) failures.push(`gone ${href}`);
       }
       expect(failures, `${path} links to pages that do not answer`).toEqual([]);
     });

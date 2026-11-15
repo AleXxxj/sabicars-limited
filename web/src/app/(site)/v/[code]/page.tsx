@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "@/components/IntentLink";
-import { notFound } from "next/navigation";
 import { AlertTriangle, Check, CircleSlash, Wrench } from "lucide-react";
 import { ButtonLink } from "@/components/ui/Button";
+import { NotFoundScreen, PAGE_GONE } from "@/components/site/NotFoundScreen";
 import { CHECKS, RESULT_LABEL, SECTIONS, isFresh, maskVin, type ItemResult, type Result } from "@/lib/inspection/checklist";
 import { shareImageUrl } from "@/lib/media";
 import { reportByCode } from "@/lib/repositories/inspections";
@@ -84,7 +84,7 @@ function Finding({ label, item }: { label: string; item: ItemResult }) {
 export default async function ReportPage({ params }: Props) {
   const { code } = await params;
   const found = await reportByCode(code);
-  if (!found) notFound();
+  if (!found) return <NotFoundScreen {...PAGE_GONE} />;
   const { report: r, tally: t, vehicle: v, replacedBy } = found;
   const inspectedAt = r.inspectedAt!;
   const fresh = isFresh(inspectedAt);

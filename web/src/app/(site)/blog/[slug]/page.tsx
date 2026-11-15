@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "@/components/IntentLink";
-import { notFound } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { ArticleBody } from "@/components/blog/ArticleBody";
 import { CommentForm, Reactions, ShareBar } from "@/components/blog/Engage";
@@ -8,6 +7,7 @@ import { PostCard, postDate } from "@/components/blog/PostCard";
 import { Contents, ReadingProgress, ViewBeacon } from "@/components/blog/ReadingAids";
 import { SubscribeForm } from "@/components/subscribe/SubscribeForm";
 import { Cover } from "@/components/blog/Cover";
+import { GONE_ROBOTS, NotFoundScreen, PAGE_GONE } from "@/components/site/NotFoundScreen";
 import { anchorFor, plainText, readingMinutes } from "@/lib/blog/blocks";
 import { videoSource } from "@/lib/blog/video";
 import { shareImageUrl } from "@/lib/media";
@@ -25,7 +25,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const post = await postBySlug((await params).slug);
-  if (!post) return { title: "Not found" };
+  if (!post) return { title: "Page not found", robots: GONE_ROBOTS };
   const description = post.standfirst || post.excerpt || plainText(post.blocks, 160);
   return {
     title: post.title,
@@ -52,7 +52,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
  */
 export default async function ArticlePage({ params }: Props) {
   const post = await postBySlug((await params).slug);
-  if (!post) notFound();
+  if (!post) return <NotFoundScreen {...PAGE_GONE} />;
   const [comments, related] = await Promise.all([approvedComments(post.id), relatedPosts(post)]);
 
   const headings = post.blocks.filter((b) => b.type === "h2").map((b) => ({ id: anchorFor(b.text), text: b.text }));

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import { ButtonAnchor, ButtonLink } from "@/components/ui/Button";
+import { NotFoundScreen, PAGE_GONE } from "@/components/site/NotFoundScreen";
 import { formatNaira } from "@/lib/money";
 import { settleReturn } from "@/lib/reserve";
 import { refundFor } from "@/lib/reservations";
@@ -33,9 +33,9 @@ function Card({ kicker, title, children }: { kicker: string; title: string; chil
 export default async function ReserveDonePage({ searchParams }: Props) {
   const sp = await searchParams;
   const reference = (first(sp.reference) || first(sp.trxref)).trim();
-  if (!/^scr_[a-z0-9]{8,24}$/.test(reference)) notFound();
+  if (!/^scr_[a-z0-9]{8,24}$/.test(reference)) return <NotFoundScreen {...PAGE_GONE} />;
   const { outcome, reservation: r, title, slug } = await settleReturn(reference);
-  if (!r || outcome === "unknown") notFound();
+  if (!r || outcome === "unknown") return <NotFoundScreen {...PAGE_GONE} />;
   const car = title ?? "the car";
   const wa = whatsappLink(`Hello Sabicars, about my deposit on the ${car} (reference ${reference}).`);
   const paid = r.paidMinor ?? r.amountMinor;

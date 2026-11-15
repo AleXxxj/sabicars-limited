@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import Link from "@/components/IntentLink";
-import { notFound } from "next/navigation";
 import { ArrowLeft, BadgeCheck, CalendarClock, RotateCcw, Users } from "lucide-react";
 import { ReserveForm } from "@/components/reserve/ReserveForm";
 import { ButtonLink } from "@/components/ui/Button";
 import { VehicleImage } from "@/components/VehicleImage";
+import { CAR_GONE, NotFoundScreen } from "@/components/site/NotFoundScreen";
 import { VEHICLE_PLACEHOLDER } from "@/lib/media";
 import { formatNaira } from "@/lib/money";
 import { vehicleBySlug } from "@/lib/repositories/vehicles";
@@ -37,7 +37,7 @@ const RULES = [
  */
 export default async function ReservePage({ params }: Props) {
   const found = await vehicleBySlug((await params).slug);
-  if (!found) notFound();
+  if (!found) return <NotFoundScreen {...CAR_GONE} />;
   const { vehicle: v, media } = found;
   const title = vehicleTitle(v);
   const cover = media.find((m) => m.kind === "photo")?.url ?? VEHICLE_PLACEHOLDER;

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "@/components/IntentLink";
 import { ArrowRight, BadgeCheck, BellRing, Fuel, Gauge, Phone, Search, Settings2, Sparkles, type LucideIcon } from "lucide-react";
-import { notFound } from "next/navigation";
 import { AskButton } from "@/components/assistant/AskButton";
 import { ButtonAnchor, ButtonLink } from "@/components/ui/Button";
 import { VehicleCard } from "@/components/VehicleCard";
@@ -16,6 +15,7 @@ import { RecentlyViewed, RecordView } from "@/components/saved/RecentlyViewed";
 import { Gallery } from "@/components/vehicle/Gallery";
 import { RepaymentEstimate } from "@/components/vehicle/RepaymentEstimate";
 import { VerifiedPanel } from "@/components/vehicle/VerifiedPanel";
+import { CAR_GONE, GONE_ROBOTS, NotFoundScreen } from "@/components/site/NotFoundScreen";
 import { comparePath } from "@/lib/assistant/parts";
 import { DRIVE_PLAN, depositMinorFor, depositPercentLabel, drivePlanTerms } from "@/lib/drive-plan";
 import { bookedSlots } from "@/lib/leads";
@@ -60,7 +60,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const found = await vehicleBySlug((await params).slug);
-  if (!found) return { title: "Vehicle not found" };
+  if (!found) return { title: "Car no longer listed", robots: GONE_ROBOTS };
   const { vehicle: v, media } = found;
   const title = vehicleTitle(v);
   const cover = media.find((m) => m.kind === "photo");
@@ -98,7 +98,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 export default async function VehiclePage({ params }: Props) {
   const found = await vehicleBySlug((await params).slug);
-  if (!found) notFound();
+  if (!found) return <NotFoundScreen {...CAR_GONE} />;
   const { vehicle: v, media, location } = found;
 
   const title = vehicleTitle(v);

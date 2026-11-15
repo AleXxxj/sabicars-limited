@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Link from "@/components/IntentLink";
-import { notFound } from "next/navigation";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { AskButton } from "@/components/assistant/AskButton";
 import { MessageText } from "@/components/assistant/MessageText";
+import { GONE_ROBOTS, NotFoundScreen, PAGE_GONE } from "@/components/site/NotFoundScreen";
 import { answerBySlug, publishedAnswers } from "@/lib/repositories/ask";
 import { breadcrumbJsonLd, faqJsonLd, jsonLdScript } from "@/lib/seo/structured-data";
 import { pageAddress } from "@/lib/site";
@@ -25,7 +25,7 @@ const plain = (s: string) =>
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const a = await answerBySlug((await params).slug);
-  if (!a) return { title: "Answer not found" };
+  if (!a) return { title: "Answer not found", robots: GONE_ROBOTS };
   const description = plain(a.answer).slice(0, 158);
   return {
     title: a.question,
@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function AskAnswerPage({ params }: Props) {
   const a = await answerBySlug((await params).slug);
-  if (!a) notFound();
+  if (!a) return <NotFoundScreen {...PAGE_GONE} />;
   const others = (await publishedAnswers()).filter((o) => o.id !== a.id).slice(0, 6);
 
   return (

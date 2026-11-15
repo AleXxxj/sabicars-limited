@@ -1,7 +1,7 @@
 import { createHmac } from "node:crypto";
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { site } from "../../src/lib/site";
-import { E2E, assertNoFaults, db, waitUntilFormLooksHuman, watchForFaults, type Db, type FaultLog } from "../helpers";
+import { E2E, assertNoFaults, assertServerReadsSeed, db, waitUntilFormLooksHuman, watchForFaults, type Db, type FaultLog } from "../helpers";
 
 /**
  * The ceiling per connection (lib/rate-limit.ts), proved on the Refer & Earn
@@ -107,23 +107,10 @@ async function expectRegistered(page: Page, n: number): Promise<void> {
   expect(code, `registration ${n} was taken for a bot and saved nothing`).not.toBe("RECEIV");
 }
 
-test.beforeAll(async ({ playwright }) => {
+test.beforeAll(async () => {
   sql = db();
-  // The server must be reading the database this suite asserts against, never another one and never the
-  // live one: the seeded car is the proof. Checked before a single form is sent.
-  const base = test.info().project.use.baseURL ?? "http://localhost:3000";
-  const api = await playwright.request.newContext({ baseURL: base });
-  try {
-    const status = (await api.get(`/vehicles/${E2E.vehicles.hummer.slug}`)).status();
-    if (status !== 200) {
-      throw new Error(
-        `${base} answered ${status} for the seeded car, so it is not reading the database this suite seeded (DATABASE_URL). Nothing was written. ` +
-          "Start the server with the same DATABASE_URL as the seed, then run again.",
-      );
-    }
-  } finally {
-    await api.dispose();
-  }
+  // The server must be reading the database this suite asserts against: the seeded car is the proof.
+  await assertServerReadsSeed(test.info().project.use.baseURL ?? "http://localhost:3000");
   // A run that died half-way leaves its rows behind; start from nothing.
   await removeEverythingThisSuiteCreates();
 });

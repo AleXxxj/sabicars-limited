@@ -13,14 +13,39 @@ const PAGES: { path: string; headline: RegExp }[] = [
 ];
 
 test.describe("Pages", () => {
-  // Dead links keep the visitor in the showroom (audit, 9 November 2026: a bare "404" with no way back).
-  // Not watched for faults: the browser logs the 404 itself as a console error.
-  test("an old car link says the car is no longer listed, with a way to the cars", async ({ page }) => {
-    const response = await page.goto("/vehicles/no-such-car-e2e");
-    expect(response?.status(), "a missing car did not answer 404").toBe(404);
-    await expect(page.getByRole("heading", { level: 1 }), "the missing car page shows no headline").toHaveText("This car is no longer listed.");
-    await expect(page.getByRole("main").getByRole("link", { name: "See cars for sale" }), "the missing car page offers no way to the cars").toHaveAttribute("href", "/vehicles");
-  });
+  // Dead links keep the visitor in the showroom (audit, 9 November 2026: a bare "404" with no way back), and the words
+  // come in the page the server sends: Next's own not-found sent an empty page that the phone had to fill in with the
+  // site's code, a blank white screen on slow data (15 November 2026). Not watched for faults.
+  const GONE: { path: string; title: string; label: string }[] = [
+    { path: "/vehicles/no-such-car-e2e", title: "This car is no longer listed.", label: "an old car link" },
+    { path: "/reserve/no-such-car-e2e", title: "This car is no longer listed.", label: "a reserve link for a car that has gone" },
+    { path: "/blog/no-such-article-e2e", title: "That page is not here.", label: "an old article link" },
+    { path: "/ask/no-such-answer-e2e", title: "That page is not here.", label: "an old answer link" },
+    { path: "/buy/no-such-model-e2e", title: "That page is not here.", label: "a model nobody stocks" },
+    { path: "/compare/no-such-car-vs-no-other-car", title: "That page is not here.", label: "an old comparison" },
+    { path: "/v/NOSUCHCODE", title: "That page is not here.", label: "an unknown report code" },
+    { path: "/reserve/done?reference=nope", title: "That page is not here.", label: "a deposit return with no real reference" },
+  ];
+  for (const { path, title, label } of GONE) {
+    test(`${label} says so at once, from the server, with a way to the cars, and is kept out of search`, async ({ page, browser }) => {
+      const response = await page.goto(path);
+      expect(response?.ok(), `${path} did not answer`).toBe(true);
+      await expect(page.getByRole("heading", { level: 1 }), `${path} shows no headline`).toHaveText(title);
+      await expect(page.getByRole("main").getByRole("link", { name: "See cars for sale" }), `${path} offers no way to the cars`).toHaveAttribute("href", "/vehicles");
+      // As a 404 would be: search engines drop the address.
+      await expect(page.locator('meta[name="robots"]').first(), `${path} could be listed by search engines`).toHaveAttribute("content", /noindex/);
+      // In the page the server sends, not drawn later by the phone: with JavaScript off it reads the same.
+      const plain = await browser.newContext({ javaScriptEnabled: false });
+      try {
+        const bare = await plain.newPage();
+        await bare.goto(page.url());
+        await expect(bare.getByRole("heading", { level: 1 }), `${path} is blank until the site's code arrives`).toHaveText(title);
+        await expect(bare.getByRole("link", { name: "See cars for sale" }), `${path} offers no way on without the site's code`).toBeVisible();
+      } finally {
+        await plain.close();
+      }
+    });
+  }
 
   test("a wrong address keeps the site's frame and says what happened", async ({ page }) => {
     const response = await page.goto("/no-such-page-e2e");
