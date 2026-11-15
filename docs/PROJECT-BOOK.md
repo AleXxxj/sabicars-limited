@@ -209,7 +209,7 @@ Tests: `e2e/smoke/` (fifteen read-only walks, one per public area plus admin and
 **A deploy**
 1. A developer pushes to `platform` (after `npm run build` passes locally).
 2. Vercel builds `web/` and, if the build passes, makes it live at `sabicars.vercel.app` (later `sabicars.com`).
-3. GitHub Actions `e2e.yml` starts a throwaway Postgres, seeds it, runs the gates, proves backup and outbox, builds and starts the site, and drives the money paths.
+3. GitHub Actions `e2e.yml` starts a throwaway Postgres, seeds it, runs the gates, proves backup and outbox, builds and starts the site, and drives the money paths, then walks that site with the smoke suite. The walk reports with Playwright's `github` reporter too, so each failing test is an annotation on the run, readable by anyone through GitHub's API (`check-runs/{job}/annotations`), while the job log needs the owner's sign-in. A push that changes only `e2e.yml` starts this workflow alone: no `smoke.yml` run, so no "Deploy check failed" alert.
 4. `smoke.yml` waits for Vercel's status to turn green, then for `/api/health` to report that exact commit, then walks the live site on desktop and phone as a buyer and as staff.
 5. If anything fails it posts to `/api/ops/alert`: managers are pushed and emailed and the failure appears under Errors on System status.
 6. When a later walkthrough passes it posts the all-clear to the same route, and the deploy failures it had reported are resolved by themselves, shown as "resolved by a later passing check". Other errors stay until a manager resolves them.
