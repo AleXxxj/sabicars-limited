@@ -55,11 +55,13 @@ export function vehicleJsonLd(v: Vehicle, media: VehicleMedia[], url: string) {
     // for product results (price and availability shown in Google) as well as
     // being read as a vehicle.
     "@type": ["Product", "Car"],
-    name: `${v.year} ${v.make} ${v.model}`,
+    // With its trim when one is recorded: buyers search "Highlander XLE", not only "Highlander".
+    name: [String(v.year), v.make, v.model, v.trim].filter(Boolean).join(" "),
     url,
     sku: v.slug,
     brand: { "@type": "Brand", name: v.make },
     model: v.model,
+    ...(v.trim && { vehicleConfiguration: v.trim }),
     vehicleModelDate: String(v.year),
     itemCondition: v.condition === "brand_new" ? "https://schema.org/NewCondition" : "https://schema.org/UsedCondition",
     ...(photos.length && { image: photos }),

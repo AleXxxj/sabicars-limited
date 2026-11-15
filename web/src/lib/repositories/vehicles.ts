@@ -12,6 +12,7 @@ import { CAR_BODIES, type InventoryFilters } from "@/lib/inventory-filters";
 import { verificationMap, type Verification } from "@/lib/repositories/inspections";
 import { mayBePrefix, readWant, wantsSomething } from "@/lib/matching";
 import { modelFamily, termFor, type Term } from "@/lib/seo/search-terms";
+import { readSearch } from "@/lib/search-text";
 import { vehicleTitle } from "@/lib/vehicle";
 
 /**
@@ -650,8 +651,39 @@ export async function heroPickOptions(dealerId: string): Promise<{ slug: string;
 
 type Facet = "make" | "body" | "segment";
 
-function filterConditions(dealerId: string, f: InventoryFilters, omit: Facet[] = []): SQL[] {
+/** Where a searched word is looked for: what a car is called, what it is, its colour, and its page's address. */
+const SEARCHED = sql`lower(concat_ws(' ', ${vehicles.make}, ${vehicles.model}, ${vehicles.trim}, ${vehicles.exteriorColour}, ${vehicles.body}::text, ${vehicles.slug}))`;
+
+/** One searched word, or any of the words it stands for, anywhere in SEARCHED; "es350" finds the "ES 350" too. */
+function searchedWord(alternatives: string[]): SQL {
+  return or(
+    ...alternatives.flatMap((w) => [
+      sql`${SEARCHED} LIKE ${`%${w.replace(/[\\%_]/g, (c) => `\\${c}`)}%`}`,
+      sql`regexp_replace(${SEARCHED}, '[^a-z0-9]+', '', 'g') LIKE ${`%${w.replace(/[^a-z0-9]+/g, "")}%`}`,
+    ]),
+  )!;
+}
+
+/**
+ * The filters with the search box read into them (lib/search-text.ts): a budget, a deposit or "tokunbo" typed there
+ * counts as if chosen, unless the buyer chose one in its own box; years, seats and the words left are returned to match.
+ */
+function withSearch(chosen: InventoryFilters) {
+  if (!chosen.q) return { f: chosen, years: [] as number[], words: [] as string[][], minSeats: null as number | null };
+  const s = readSearch(chosen.q);
+  const f: InventoryFilters = { ...chosen };
+  if (!f.condition && s.condition) f.condition = s.condition;
+  if (!f.minPrice && !f.maxPrice && s.maxPrice) f.maxPrice = s.maxPrice;
+  if (!f.maxDeposit && s.maxDeposit) f.maxDeposit = s.maxDeposit;
+  return { f, years: s.years, words: s.words, minSeats: s.minSeats };
+}
+
+function filterConditions(dealerId: string, chosen: InventoryFilters, omit: Facet[] = []): SQL[] {
+  const { f, years, words, minSeats } = withSearch(chosen);
   const where: SQL[] = [eq(vehicles.dealerId, dealerId), inArray(vehicles.status, [...LISTED])];
+  if (years.length) where.push(inArray(vehicles.year, years));
+  if (minSeats) where.push(gte(vehicles.seats, minSeats));
+  for (const alternatives of words) where.push(searchedWord(alternatives));
   if (f.body && !omit.includes("body")) where.push(f.body === "car" ? inArray(vehicles.body, [...CAR_BODIES]) : eq(vehicles.body, f.body));
   if (f.segment && !omit.includes("segment")) where.push(eq(vehicles.segment, f.segment));
   if (f.make && !omit.includes("make")) where.push(eq(vehicles.make, f.make));

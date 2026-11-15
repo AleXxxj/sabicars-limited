@@ -7,7 +7,7 @@ import { useTransition } from "react";
 const DEFAULTS: Record<string, string> = { sort: "newest" };
 
 /**
- * A GET form that re-submits whenever a field changes.
+ * A GET form that re-submits whenever a field changes (a search box: when it is sent, or emptied).
  *
  * Without JavaScript it is an ordinary form with an Apply button, so filters
  * still work on a budget phone with scripts blocked by a data saver. With
@@ -34,7 +34,13 @@ export function AutoSubmitForm({ children, className }: { children: React.ReactN
       method="get"
       aria-busy={pending}
       className={`${className ?? ""} transition-opacity ${pending ? "opacity-60" : ""}`}
-      onChange={(e) => go(e.currentTarget)}
+      onChange={(e) => {
+        // A search box goes when the buyer asks (Search, or the keyboard's search key), not at every letter typed; emptied,
+        // it goes at once, so clearing it brings every car back.
+        const field = e.target as HTMLElement;
+        if (field instanceof HTMLInputElement && (field.type === "search" || field.type === "text") && field.value !== "") return;
+        go(e.currentTarget);
+      }}
       onSubmit={(e) => {
         e.preventDefault();
         go(e.currentTarget);

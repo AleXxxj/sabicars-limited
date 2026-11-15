@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { ArrowRight, Search, Sparkles } from "lucide-react";
 import { openAssistant } from "@/lib/assistant/open";
 import { formatNaira } from "@/lib/money";
+import { budgetFrom } from "@/lib/search-text";
 
 /** A make or a make and model family in stock, with its own page (/buy/…). */
 export interface SearchTerm {
@@ -22,22 +23,6 @@ interface Suggestion {
   ask?: string;
 }
 
-/**
- * A budget typed the way people say it — "20m", "₦20,000,000", "20 million",
- * "under 15m" — in whole naira, or null. A bare small number ("20", "2018",
- * "7-seater") is not a budget: it could be a year or a seat count, so the
- * first number that reads as money wins, wherever it sits ("2018 highlander 30m").
- */
-export function budgetFrom(text: string): number | null {
-  const plain = text.toLowerCase().replace(/[₦,]/g, "");
-  for (const m of plain.matchAll(/(\d+(?:\.\d+)?)\s*(m\b|mil\b|million|k\b)?/g)) {
-    const n = Number(m[1]);
-    const unit = m[2];
-    const naira = unit === "k" ? n * 1_000 : unit ? n * 1_000_000 : n;
-    if (naira >= 100_000) return Math.round(naira);
-  }
-  return null;
-}
 
 /**
  * Find your car: one field under the hero that answers "do they have what I

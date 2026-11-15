@@ -32,6 +32,11 @@ const schema = z.object({
    * the same money reaches a different price at each tier.
    */
   maxDeposit: naira.optional().catch(undefined),
+  /**
+   * What was typed in the search box, as typed: "2018 highlander", "tokunbo camry under 15m". The inventory query reads
+   * it (lib/search-text.ts readSearch): a budget, a year or "tokunbo" in it count as if chosen, unless chosen already.
+   */
+  q: z.string().trim().min(1).max(60).optional().catch(undefined),
   sort: z.enum(SORTS).catch("newest").default("newest"),
   page: z.coerce.number().int().min(1).max(500).catch(1).default(1),
 });
@@ -45,8 +50,12 @@ export const SORT_LABEL: Record<InventoryFilters["sort"], string> = {
   year_desc: "Year: newest first",
 };
 
-/** Price bands in naira, chosen for how Nigerian buyers actually budget. */
+/**
+ * Price bands in naira, chosen for how Nigerian buyers actually budget. "Under ₦10m" is offered whether or not a car
+ * that cheap is in stock (the owner, 15 November 2026): when none is, the list says so and offers Request a car.
+ */
 export const PRICE_BANDS: { label: string; min?: number; max?: number }[] = [
+  { label: "Under ₦10m", max: 10_000_000 },
   { label: "Under ₦20m", max: 20_000_000 },
   { label: "₦20m – ₦40m", min: 20_000_000, max: 40_000_000 },
   { label: "₦40m – ₦80m", min: 40_000_000, max: 80_000_000 },
@@ -97,5 +106,5 @@ export function filtersHref(current: InventoryFilters, change: Partial<Record<ke
 }
 
 export function hasActiveFilters(f: InventoryFilters): boolean {
-  return Boolean(f.body || f.segment || f.make || f.condition || f.minPrice || f.maxPrice || f.maxDeposit);
+  return Boolean(f.body || f.segment || f.make || f.condition || f.minPrice || f.maxPrice || f.maxDeposit || f.q);
 }
