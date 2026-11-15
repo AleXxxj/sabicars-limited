@@ -15,6 +15,9 @@ const naira = (n: number) => n * 100;
 export const E2E = {
   dealerSlug: "sabicars",
 
+  /** The homepage's hero video (Admin, Audience): the one the live site shows, a public YouTube video. */
+  heroVideoUrl: "https://youtu.be/JU_iewg2SfM",
+
   /** A buyer who enquires about a car. Typed as a Lagos number; stored in E.164. */
   buyer: { name: "E2E Buyer", typedPhone: "0803 000 0001", phone: "+2348030000001" },
 

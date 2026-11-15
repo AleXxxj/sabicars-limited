@@ -15,8 +15,8 @@ import { ErrorReport, ErrorScreen, ReloadingScreen, useReloadCure, type Boundary
  * Errors in the root layout itself fall through to global-error.tsx.
  */
 export default function ErrorPage({ error, reset }: { error: BoundaryError; reset: () => void }) {
-  const reloading = useReloadCure(error);
-  if (reloading) return <ReloadingScreen />;
+  const cure = useReloadCure(error);
+  if (cure !== "none") return <ReloadingScreen waiting={cure === "waiting"} />;
   return (
     <>
       <ErrorReport error={error} />

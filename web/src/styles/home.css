@@ -835,13 +835,53 @@
 .hh-video.is-on {
   opacity: 1;
 }
-/* "Tap the video to play": the same pill as "Watch video", as words, when the phone refused to start the video. */
+/* "Tap the video to play", when the phone refused to start the video: plain words beside Stop, not the pill of the
+   button just tapped, which they would look like and not be (review of 666b037, 15 November 2026). The play button
+   is the player's own, in its middle. */
 .hh-tap {
-  cursor: default;
+  flex: none;
+  margin: 0 10px 0 0;
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
 }
-.hh-tap:hover {
-  border-color: rgba(255, 255, 255, 0.32);
-  background-color: rgba(9, 14, 10, 0.5);
+/* Staff's preview (?video) of a video that cannot play: why, in the middle of the photo. Visitors never see it. */
+.hh-note {
+  position: relative;
+  z-index: 4;
+  grid-area: 1 / 1;
+  align-self: center;
+  justify-self: center;
+  max-width: min(34rem, calc(100% - 32px));
+  margin: 0;
+  padding: 12px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  border-radius: 12px;
+  background: rgba(9, 14, 10, 0.82);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  font-size: 14px;
+  line-height: 1.5;
+}
+/* On a tablet the words fill most of the stage: the note goes above them, at the top of the photo. */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .hh-note {
+    align-self: start;
+    margin-top: 16px;
+  }
+}
+/* On a wide screen the space above the words lies under the header: the note goes over the car at the right, in the
+   middle of the whole hero. */
+@media (min-width: 1024px) {
+  .hh-note {
+    grid-area: 1 / 1 / -1 / -1;
+    justify-self: end;
+    max-width: 360px;
+    margin-right: 40px;
+  }
 }
 /* Asked for with "Watch video", shown, and not started (a phone that will not start it by itself): the player takes
    taps, so its own play button works. The words lie over the middle of the stage (all of it from 1024px up, and on a

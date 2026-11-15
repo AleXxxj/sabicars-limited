@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { videoSource } from "@/lib/blog/video";
 import { CARS_NAV, MAIN_NAV, TAB_BAR, moreItemsOn } from "@/lib/navigation";
 import { assertNoFaults, watchForFaults } from "../helpers";
 
@@ -7,15 +8,43 @@ import { assertNoFaults, watchForFaults } from "../helpers";
  * ways in, the Drive Plan question, and a car with a price on it.
  */
 
+/** The page's own data, as Next writes it into the HTML the server sent (its flight rows), in one piece. */
+function flightOf(html: string): string {
+  let flight = "";
+  for (const m of html.matchAll(/self\.__next_f\.push\(\[1,("(?:[^"\\]|\\.)*")\]\)/g)) flight += JSON.parse(m[1]) as string;
+  return flight;
+}
+
 /**
- * How many cars the homepage's "Cars for sale" row shows (0 when nothing is in stock and the section is hidden). The
- * page names no total stock (the owner, 14 November 2026), so the row's cards are counted.
+ * The homepage's hero video, read from the page's own data in the HTML the server sent, and read the way Admin,
+ * Audience reads a link when it is saved (lib/blog/video.ts): a YouTube video, a video file, or a link the hero cannot
+ * play. So what must happen is known from the page, and a test never skips on what the browser happened to do: a
+ * missing "Watch video" or player fails (reviews of 7c1faac and 666b037, 15 November 2026).
  */
+function heroVideoIn(html: string): { url: string; kind: "youtube" | "file" | "other" } | null {
+  const m = flightOf(html).match(/"videoUrl":("(?:[^"\\]|\\.)*")/);
+  if (!m) return null;
+  const url = JSON.parse(m[1]) as string;
+  const kind = videoSource(url)?.kind;
+  return { url, kind: kind === "youtube" || kind === "file" ? kind : "other" };
+}
+
 /**
- * Whether the homepage has a hero video set, read from the page's own data in the HTML the server sent: so a missing
- * "Watch video" fails the tests, and only "no video set" skips them (review of 7c1faac, 15 November 2026).
+ * The files of the page Next shows when the app itself fails (app/global-error.tsx), named in every page's own data
+ * (its root row's "G"): every page is sent them, and Next cannot start the page without them.
  */
-const heroVideoSet = (html: string) => /\\"videoUrl\\":\\"https?:/.test(html);
+function rootErrorCode(html: string): string[] {
+  const flight = flightOf(html);
+  const ref = flight.match(/"G":\["\$([0-9a-f]+)"/)?.[1];
+  const row = ref ? flight.match(new RegExp(`(?:^|\\n)${ref}:I(\\[.*)`))?.[1] : undefined;
+  if (!row) return [];
+  try {
+    const [, files] = JSON.parse(row) as [unknown, unknown];
+    return Array.isArray(files) ? files.filter((f): f is string => typeof f === "string" && f.endsWith(".js")) : [];
+  } catch {
+    return [];
+  }
+}
 
 /** The hero, awake: React has taken it over, so its buttons work and what it adds after the first paint is there. */
 async function heroAwake(page: Page): Promise<void> {
@@ -28,28 +57,43 @@ async function heroAwake(page: Page): Promise<void> {
 }
 
 /**
- * Stand-ins for YouTube's player, served in its place, that answer the page the way the real one does: one the phone
- * refused to start (it answers, then says so, as on an iPhone in Low Power Mode), one still loading (it answers
- * "buffering" and never plays) and one that never answers at all.
+ * Stand-ins for YouTube's player, served in its place, that answer the page the way the real one does (its IFrame API
+ * messages): one that plays and goes on playing; one that plays to its end after 3 s; one the phone refused to start,
+ * which says so when asked (as on an iPhone in Low Power Mode); one refused without saying so (it tries to play, then
+ * goes back to waiting); one still loading (it answers "buffering" and never plays); one that cannot play at all (a
+ * deleted or private video: YouTube's error 150); and one that never answers at all.
  */
-const PLAYER = {
-  refused: `<html><body style="margin:0;background:#111"><script>
+const answer = (body: string) => `<html><body style="margin:0;background:#111"><script>
+function say(event, info) { parent.postMessage(JSON.stringify({ event: event, info: info, id: 1, channel: "widget" }), "*"); }
+var heard = false;
 addEventListener("message", function (e) {
   var d = String(e.data);
-  if (d.indexOf("listening") >= 0) parent.postMessage(JSON.stringify({ event: "initialDelivery", info: { playerState: -1 } }), "*");
-  if (d.indexOf("onAutoplayBlocked") >= 0) parent.postMessage(JSON.stringify({ event: "onAutoplayBlocked" }), "*");
+  if (d.indexOf("listening") >= 0 && !heard) { heard = true; first(); }
+  if (d.indexOf("onAutoplayBlocked") >= 0 && typeof blocked === "function") blocked();
 });
-</script></body></html>`,
-  loading: `<html><body style="margin:0;background:#111"><script>
-addEventListener("message", function (e) {
-  if (String(e.data).indexOf("listening") >= 0) parent.postMessage(JSON.stringify({ event: "initialDelivery", info: { playerState: 3 } }), "*");
-});
-setInterval(function () { parent.postMessage(JSON.stringify({ event: "infoDelivery", info: { playerState: 3 } }), "*"); }, 500);
-</script></body></html>`,
+${body}
+</script></body></html>`;
+const PLAYER = {
+  playing: answer(`function first() { say("initialDelivery", { playerState: 1 }); setInterval(function () { say("infoDelivery", { playerState: 1 }); }, 500); }`),
+  ends: answer(`function first() { say("initialDelivery", { playerState: 1 }); setTimeout(function () { say("infoDelivery", { playerState: 0 }); }, 3000); }`),
+  refused: answer(`function first() { say("initialDelivery", { playerState: -1 }); }
+function blocked() { say("onAutoplayBlocked"); }`),
+  refusedQuietly: answer(`function first() {
+  say("initialDelivery", { playerState: -1 });
+  setTimeout(function () { say("infoDelivery", { playerState: 3 }); }, 200);
+  setTimeout(function () { say("infoDelivery", { playerState: -1 }); }, 500);
+}`),
+  loading: answer(`function first() { say("initialDelivery", { playerState: 3 }); }
+setInterval(function () { say("infoDelivery", { playerState: 3 }); }, 500);`),
+  unavailable: answer(`function first() { say("initialDelivery", { playerState: -1 }); say("onError", 150); }`),
   silent: "<html></html>",
 };
 const YOUTUBE = /youtube(-nocookie)?\.com|ytimg\.com/;
 
+/**
+ * How many cars the homepage's "Cars for sale" row shows (0 when nothing is in stock and the section is hidden). The
+ * page names no total stock (the owner, 14 November 2026), so the row's cards are counted.
+ */
 async function vehiclesInStockToday(page: Page): Promise<number> {
   const link = page.getByRole("link", { name: "See all cars for sale" }).first();
   if (!(await link.count())) return 0;
@@ -227,6 +271,55 @@ test.describe("Home", () => {
     assertNoFaults(faults);
   });
 
+  test("the slides move on even when the page wakes after the first slide's time is up, as on a slow first load", async ({ page }) => {
+    // Review of 666b037, 15 November 2026: on a line under about 0.6 Mbps the first slide's bar filled before the page
+    // woke, its end went unheard, and the hero stayed on the first car for the whole visit. Here the page's code is
+    // held for 8 s, longer than any slide's time.
+    await page.route(/\/_next\/static\/.+\.js(\?.*)?$/, async (route) => {
+      await new Promise((r) => setTimeout(r, 8_000));
+      return route.continue();
+    });
+    await page.route(YOUTUBE, (r) => r.fulfill({ status: 200, contentType: "text/html", body: PLAYER.silent }));
+    await page.goto("/");
+    const segments = page.getByRole("group", { name: "Photos of our cars" }).locator(".hh-seg");
+    test.skip((await segments.count()) < 2, "Fewer than two slides, so nothing moves on");
+    await heroAwake(page);
+    const current = () => page.locator('.hh-seg[aria-current="true"]').getAttribute("aria-label");
+    const first = await current();
+    await expect.poll(current, { message: "the slides never moved on after a slow first load", timeout: 15_000 }).not.toBe(first);
+  });
+
+  test("a keyboard user who asked for a video that never plays keeps their place when it is given up", async ({ page }) => {
+    // Review of 666b037, 15 November 2026: the give-up took away the pill that had the focus; it fell to the page, and
+    // the slideshow stayed paused for good.
+    await page.clock.install();
+    await page.route(YOUTUBE, (r) => r.fulfill({ status: 200, contentType: "text/html", body: PLAYER.silent }));
+    const res = await page.goto("/");
+    const hero = heroVideoIn((await res?.text()) ?? "");
+    test.skip(!hero, "No hero video is set");
+    test.skip(hero!.kind !== "youtube", "The hero video is not a YouTube link; the stand-in answers as YouTube's player does");
+    const watch = page.getByRole("group", { name: "Photos of our cars" }).getByRole("button", { name: "Watch video" });
+    await expect(watch, "a hero video is set, and Watch video is not offered").toBeVisible({ timeout: 15_000 });
+    await heroAwake(page);
+    await watch.focus();
+    await page.keyboard.press("Enter");
+    await expect(page.getByRole("button", { name: "Loading video…" }), "Enter on Watch video did not ask for it").toBeVisible();
+    await page.clock.pauseAt((await page.evaluate(() => Date.now())) + 1_000);
+    await page.clock.runFor(50_000);
+    await expect(page.getByRole("button", { name: /Watch video|Loading video/ }), "a video that never played was not given up").toHaveCount(0);
+    const inHero = await page.evaluate(() => {
+      const a = document.activeElement;
+      return Boolean(a && a !== document.body && document.querySelector("section.hh")?.contains(a));
+    });
+    expect(inHero, "the keyboard's place fell to the page when the video was given up").toBe(true);
+    // And once the keyboard leaves the hero, the slides move again.
+    await page.locator("section.hh").evaluate((el) => {
+      const after = [...document.querySelectorAll<HTMLElement>("a[href], button")].find((b) => !el.contains(b) && Boolean(el.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING));
+      after?.focus({ preventScroll: true });
+    });
+    await expect(page.locator("section.hh"), "the slideshow stayed paused after the keyboard left the hero").toHaveAttribute("data-running", "true");
+  });
+
   test("a hero video never starts by itself: Watch video is offered on every load, and none of it loads unasked", async ({ page }) => {
     // The owner, 14 November 2026: the button on every load, and the video only once it is tapped.
     const video: string[] = [];
@@ -234,48 +327,67 @@ test.describe("Home", () => {
       if (/youtube|ytimg|googlevideo/.test(r.url())) video.push(r.url());
     });
     const res = await page.goto("/");
-    const set = heroVideoSet((await res?.text()) ?? "");
+    const hero = heroVideoIn((await res?.text()) ?? "");
     // Checked whether or not a video is set: awake, then long enough for a video that started by itself to be there.
     await heroAwake(page);
     await page.waitForTimeout(4_000);
     await expect(page.locator(".hh-video"), "the video was put on the page before anyone asked for it").toHaveCount(0);
     expect(video, "the video's player was fetched before anyone asked for it").toEqual([]);
-    test.skip(!set, "No hero video is set");
+    test.skip(!hero, "No hero video is set");
     const watch = page.getByRole("group", { name: "Photos of our cars" }).getByRole("button", { name: "Watch video" });
+    if (hero!.kind === "other") {
+      // A link the hero cannot play (an old one from before Admin checked links): nothing to offer.
+      await expect(watch, `the hero offers a video it cannot play (${hero!.url})`).toHaveCount(0);
+      return;
+    }
     await expect(watch, "a hero video is set, and Watch video is not offered").toBeVisible();
     await page.reload();
     await expect(watch, "Watch video is not offered again after a reload").toBeVisible({ timeout: 15_000 });
   });
 
+  /**
+   * Opens the homepage with YouTube's player answered by a stand-in, taps "Watch video", and returns the strip. Skips
+   * only on the page's own data: no video set, or a video file (the stand-ins answer as YouTube's player does).
+   */
+  async function watchWith(page: Page, player: keyof typeof PLAYER, path = "/") {
+    let served = 0;
+    await page.route(YOUTUBE, (r) => {
+      served++;
+      return r.fulfill({ status: 200, contentType: "text/html", body: PLAYER[player] });
+    });
+    const res = await page.goto(path);
+    const hero = heroVideoIn((await res?.text()) ?? "");
+    test.skip(!hero, "No hero video is set");
+    test.skip(hero!.kind !== "youtube", "The hero video is not a YouTube link; these stand-ins answer as YouTube's player does");
+    const controls = page.getByRole("group", { name: "Photos of our cars" });
+    if (path === "/") {
+      const watch = controls.getByRole("button", { name: "Watch video" });
+      await expect(watch, "a hero video is set, and Watch video is not offered").toBeVisible({ timeout: 15_000 });
+      await watch.click();
+    }
+    // A player that cannot play is gone again within moments: for it, that it was asked for.
+    if (player === "unavailable") await expect.poll(() => served, { message: "asking for the video did not load YouTube's player" }).toBeGreaterThan(0);
+    else await expect(page.locator('iframe[title="Sabicars showcase video"]'), "asking for the video did not load YouTube's player").toHaveCount(1);
+    return controls;
+  }
+
   test("Watch video plays the video; Stop brings the slides back, the button stays gone, and a fresh load offers it again", async ({ page }) => {
-    // Sabicars' own errors only: YouTube's player logs its own, inside its frame, and they are not the site's.
-    const theirs = /youtube|ytimg|googlevideo|google\.com|gstatic|doubleclick/;
+    // Sabicars' own errors only.
     const own: string[] = [];
     page.on("console", (m) => {
-      if (m.type() === "error" && !theirs.test(m.location().url) && !theirs.test(m.text())) own.push(m.text());
+      if (m.type() === "error" && !YOUTUBE.test(m.location().url)) own.push(m.text());
     });
-    page.on("pageerror", (e) => {
-      if (!theirs.test(e.stack ?? e.message)) own.push(e.message);
-    });
-    page.on("response", (r) => {
-      if (r.status() >= 500 && !theirs.test(r.url())) own.push(`${r.status()} ${r.url()}`);
-    });
-    const res = await page.goto("/");
-    test.skip(!heroVideoSet((await res?.text()) ?? ""), "No hero video is set");
-    const controls = page.getByRole("group", { name: "Photos of our cars" });
-    const watch = controls.getByRole("button", { name: "Watch video" });
-    await expect(watch, "a hero video is set, and Watch video is not offered").toBeVisible({ timeout: 15_000 });
-    await watch.click();
-    const player = page.locator('iframe[title="Sabicars showcase video"], .hh-video video');
-    await expect(player, "tapping Watch video did not load the video").toHaveCount(1);
-    // data-started is set only when the player says it plays.
-    const played = await page.locator(".hh-video[data-started]").waitFor({ state: "attached", timeout: 25_000 }).then(() => true, () => false);
-    test.skip(!played, "The video did not start in this browser; a phone that refuses it has its own test");
+    page.on("pageerror", (e) => own.push(e.message));
+    const controls = await watchWith(page, "playing");
+    // data-started is set only when the player says it plays; then it is shown.
+    await expect(page.locator(".hh-video[data-started]"), "the player says it plays, and the hero did not take it as playing").toBeAttached({ timeout: 10_000 });
+    await expect(page.locator(".hh-video.is-on"), "the video plays and is not shown").toHaveCount(1);
     const stop = controls.getByRole("button", { name: "Stop the video" });
     await expect(stop, "the video plays but there is no Stop button").toBeVisible();
+    await expect(controls.getByRole("button", { name: "Sound on" }), "the video plays but there is no Sound button").toBeVisible();
     await expect(page.locator("section.hh"), "the slides kept moving under the video").toHaveAttribute("data-running", "false");
     await stop.click();
-    await expect(player, "the video is still on the page after it was stopped").toHaveCount(0);
+    await expect(page.locator(".hh-video"), "the video is still on the page after it was stopped").toHaveCount(0);
     // The slides carry on from wherever they were.
     await expect(controls.getByRole("button", { name: /40% Drive Plan/ }), "the slides did not come back after the video was stopped").toHaveCount(1);
     await expect(controls.getByRole("button", { name: /Watch video|Loading video/ }), "the button came back after the video was watched").toHaveCount(0);
@@ -285,76 +397,129 @@ test.describe("Home", () => {
     await expect(controls.getByRole("button", { name: "Watch video" }), "a fresh load does not offer the video again").toBeVisible({ timeout: 15_000 });
   });
 
+  test("a hero video that plays to its end gives the slides back by itself, and the button stays gone", async ({ page }) => {
+    const controls = await watchWith(page, "ends");
+    await expect(page.locator(".hh-video[data-started]"), "the player says it plays, and the hero did not take it as playing").toBeAttached({ timeout: 10_000 });
+    await expect(page.locator(".hh-video"), "the video stayed after it ended").toHaveCount(0, { timeout: 10_000 });
+    await expect(controls.getByRole("button", { name: /40% Drive Plan/ }), "the slides did not come back after the video ended").toHaveCount(1);
+    await expect(controls.getByRole("button", { name: /Watch video|Loading video|Stop the video/ }), "the video's controls stayed after it ended").toHaveCount(0);
+  });
+
   test("a hero video stops for good when the visitor scrolls past it, and the slides are there on the way back", async ({ page }) => {
-    const res = await page.goto("/");
-    test.skip(!heroVideoSet((await res?.text()) ?? ""), "No hero video is set");
-    const controls = page.getByRole("group", { name: "Photos of our cars" });
-    const watch = controls.getByRole("button", { name: "Watch video" });
-    await expect(watch, "a hero video is set, and Watch video is not offered").toBeVisible({ timeout: 15_000 });
-    await watch.click();
-    const player = page.locator('iframe[title="Sabicars showcase video"], .hh-video video');
-    const played = await page.locator(".hh-video[data-started]").waitFor({ state: "attached", timeout: 25_000 }).then(() => true, () => false);
-    test.skip(!played, "The video did not start in this browser; a phone that refuses it has its own test");
+    const controls = await watchWith(page, "playing");
+    await expect(page.locator(".hh-video[data-started]"), "the player says it plays, and the hero did not take it as playing").toBeAttached({ timeout: 10_000 });
     // Down past the hero, a moment there, and back up, as a visitor would.
     await page.getByRole("heading", { name: "What do you need?" }).scrollIntoViewIfNeeded();
     await page.mouse.wheel(0, 1600);
-    await expect(player, "the video kept playing after the hero was scrolled out of sight").toHaveCount(0);
+    await expect(page.locator(".hh-video"), "the video kept playing after the hero was scrolled out of sight").toHaveCount(0);
     await page.evaluate(() => window.scrollTo(0, 0));
     await expect(controls.getByRole("button", { name: /40% Drive Plan/ }), "the slides are not there on the way back").toHaveCount(1);
     await expect(controls.getByRole("button", { name: "Stop the video" }), "the video started again on the way back").toHaveCount(0);
     await expect(controls.getByRole("button", { name: /Watch video|Loading video/ }), "the button came back on the way back").toHaveCount(0);
   });
 
-  test("a phone that will not start the video gets the player with its play button within reach, and the words to tap it", async ({ page }) => {
-    await page.route(YOUTUBE, (r) => r.fulfill({ status: 200, contentType: "text/html", body: PLAYER.refused }));
-    const res = await page.goto("/");
-    test.skip(!heroVideoSet((await res?.text()) ?? ""), "No hero video is set");
-    const controls = page.getByRole("group", { name: "Photos of our cars" });
-    const watch = controls.getByRole("button", { name: "Watch video" });
-    await expect(watch, "a hero video is set, and Watch video is not offered").toBeVisible({ timeout: 15_000 });
-    await watch.click();
-    const player = page.locator('iframe[title="Sabicars showcase video"]');
-    test.skip((await player.count()) === 0, "The hero video is not a YouTube link");
-    await expect(controls.getByText("Tap the video to play"), "a refused video does not say to tap it").toBeVisible({ timeout: 10_000 });
-    const stop = controls.getByRole("button", { name: "Stop the video" });
-    await expect(stop, "a refused video has no Stop button").toBeVisible();
-    // Its play button is in the middle of the stage, where the headline lies on a wide screen: a tap there must reach it
-    // (review, 14 November 2026: at 1180 px and up it landed on "you" in the headline).
-    const hit = await page.evaluate(() => {
-      const r = document.querySelector(".hh-video")!.getBoundingClientRect();
-      return document.elementFromPoint(r.left + r.width / 2, Math.min(r.top + r.height / 2, window.innerHeight - 1))?.tagName;
+  for (const kind of ["refused", "refusedQuietly"] as const) {
+    test(`a phone that will not start the video (${kind === "refused" ? "and says so" : "without saying so"}) gets the player with its play button within reach, and the words to tap it`, async ({ page }) => {
+      const controls = await watchWith(page, kind);
+      const player = page.locator('iframe[title="Sabicars showcase video"]');
+      const tap = controls.getByText("Tap the video to play");
+      await expect(tap, "a refused video does not say to tap it").toBeVisible({ timeout: 10_000 });
+      // Words, not a pill like the button just tapped: tapping them would do nothing (review of 666b037).
+      expect(await tap.evaluate((el) => getComputedStyle(el).borderTopWidth), "the words to tap the video look like a button").toBe("0px");
+      const stop = controls.getByRole("button", { name: "Stop the video" });
+      await expect(stop, "a refused video has no Stop button").toBeVisible();
+      // A keyboard and a screen reader can reach the player's own play button too.
+      await expect(player, "a keyboard cannot reach the refused player").toHaveAttribute("tabindex", "0");
+      await expect(page.locator(".hh-photos"), "a screen reader cannot reach the refused player").not.toHaveAttribute("aria-hidden", "true");
+      // Its play button is in the middle of the stage, where the headline lies on a wide screen: a tap there must reach it
+      // (review, 14 November 2026: at 1180 px and up it landed on "you" in the headline).
+      const hit = await page.evaluate(() => {
+        const r = document.querySelector(".hh-video")!.getBoundingClientRect();
+        return document.elementFromPoint(r.left + r.width / 2, Math.min(r.top + r.height / 2, window.innerHeight - 1))?.tagName;
+      });
+      expect(hit, "a tap on the refused player's play button lands on something else").toBe("IFRAME");
+      await stop.click();
+      await expect(player, "the video is still on the page after it was stopped").toHaveCount(0);
+      await expect(page.locator(".hh-photos"), "the photos are read out after the video was stopped").toHaveAttribute("aria-hidden", "true");
+      await expect(controls.getByRole("button", { name: /Watch video|Loading video/ }), "the button came back after the video was stopped").toHaveCount(0);
+      await page.reload();
+      await expect(controls.getByRole("button", { name: "Watch video" }), "a fresh load does not offer the video again").toBeVisible({ timeout: 15_000 });
     });
-    expect(hit, "a tap on the refused player's play button lands on something else").toBe("IFRAME");
-    await stop.click();
-    await expect(player, "the video is still on the page after it was stopped").toHaveCount(0);
-    await expect(controls.getByRole("button", { name: /Watch video|Loading video/ }), "the button came back after the video was stopped").toHaveCount(0);
-    await page.reload();
-    await expect(controls.getByRole("button", { name: "Watch video" }), "a fresh load does not offer the video again").toBeVisible({ timeout: 15_000 });
-  });
+  }
 
   for (const kind of ["loading", "silent"] as const) {
-    test(`a player that is ${kind === "loading" ? "still loading" : "not answering"} leaves the photos and "Loading video…" in place, and takes no tap`, async ({ page }) => {
+    test(`a player that is ${kind === "loading" ? "still loading" : "not answering"} leaves the photos and "Loading video…" in place, takes no tap, and is given up after 45 s with no sign of life`, async ({ page }) => {
       // Review of 7c1faac, 15 November 2026: on a slow line the photos gave way to a black box after 2.5 s, and a tap
-      // on it stopped the video for that visit. Until it plays, or the phone refuses it, nothing of the player shows.
-      await page.route(YOUTUBE, (r) => r.fulfill({ status: 200, contentType: "text/html", body: PLAYER[kind] }));
-      const res = await page.goto("/");
-      test.skip(!heroVideoSet((await res?.text()) ?? ""), "No hero video is set");
-      const controls = page.getByRole("group", { name: "Photos of our cars" });
-      const watch = controls.getByRole("button", { name: "Watch video" });
-      await expect(watch, "a hero video is set, and Watch video is not offered").toBeVisible({ timeout: 15_000 });
-      await watch.click();
-      test.skip((await page.locator('iframe[title="Sabicars showcase video"]').count()) === 0, "The hero video is not a YouTube link");
-      await page.waitForTimeout(5_000);
-      await expect(controls.getByRole("button", { name: "Loading video…" }), "the strip stopped saying the video is loading").toBeVisible();
-      await expect(page.locator(".hh-video.is-on"), "a player that is not playing covered the photos").toHaveCount(0);
-      await expect(controls.getByRole("button", { name: "Stop the video" }), "the strip gave way to the video's controls before it played").toHaveCount(0);
+      // on it stopped the video for that visit. Until it plays, or the phone refuses it, nothing of the player shows; and
+      // checked all the way to the give-up, not once at 5 s (review of 666b037), on the page's own clock.
+      await page.clock.install();
+      const controls = await watchWith(page, kind);
+      const loading = controls.getByRole("button", { name: "Loading video…" });
+      // From here the page's clock moves only when told to, so the seconds below are exact.
+      await page.clock.pauseAt((await page.evaluate(() => Date.now())) + 1_000);
+      for (let at = 4; at <= 40; at += 4) {
+        await page.clock.runFor(4_000);
+        await expect(loading, `the strip stopped saying the video is loading, ${at} s after the tap`).toBeVisible();
+        await expect(page.locator(".hh-video.is-on"), `a player that is not playing covered the photos, ${at} s after the tap`).toHaveCount(0);
+        await expect(controls.getByRole("button", { name: "Stop the video" }), `the strip gave way to the video's controls before it played, ${at} s after the tap`).toHaveCount(0);
+      }
       const hit = await page.evaluate(() => {
         const r = document.querySelector(".hh-video")!.getBoundingClientRect();
         return document.elementFromPoint(r.left + r.width / 2, Math.min(r.top + r.height / 2, window.innerHeight - 1))?.tagName;
       });
       expect(hit, "a tap on the hero would reach a player that is not playing").not.toBe("IFRAME");
+      await page.clock.runFor(8_000);
+      await expect(loading, "a video that never played was not given up after 45 s").toHaveCount(0);
+      await expect(page.locator(".hh-video"), "a video that never played is still on the page").toHaveCount(0);
+      await expect(controls.getByRole("button", { name: /40% Drive Plan/ }), "the slides are not there after the video was given up").toHaveCount(1);
     });
   }
+
+  test("a hero video that cannot play gives the slides back at once, and staff previewing it are told why", async ({ page }) => {
+    // Review of 666b037, 15 November 2026: YouTube said within a second that the video could not play, and the hero
+    // said "Loading video…" for 45 s regardless; "See it play" in Admin never said why.
+    const controls = await watchWith(page, "unavailable");
+    await expect(controls.getByRole("button", { name: /Watch video|Loading video/ }), "a video that cannot play kept the strip waiting").toHaveCount(0, { timeout: 5_000 });
+    await expect(page.locator(".hh-video"), "a video that cannot play is still on the page").toHaveCount(0);
+    await expect(controls.getByRole("button", { name: /40% Drive Plan/ }), "the slides are not there").toHaveCount(1);
+    await expect(page.getByText("This video can't play on the site"), "a visitor was shown the staff's note").toHaveCount(0);
+    // Staff's preview, from Admin, Audience: "See it play".
+    await watchWith(page, "unavailable", "/?video");
+    await expect(page.getByRole("status").filter({ hasText: "This video can't play on the site" }), "the preview does not say why the video cannot play").toBeVisible({
+      timeout: 5_000,
+    });
+  });
+
+  test("the real YouTube player, where it plays in this browser, is shown as it plays: never unseen, and never broken", async ({ page }) => {
+    // What YouTube's own player says to the page, heard alongside the hero.
+    await page.addInitScript(() => {
+      const w = window as unknown as { yt: unknown[] };
+      w.yt = [];
+      addEventListener("message", (e) => {
+        if (!/youtube/.test(e.origin)) return;
+        try {
+          w.yt.push(JSON.parse(String(e.data)));
+        } catch {
+          /* not a message of its API */
+        }
+      });
+    });
+    const res = await page.goto("/");
+    const hero = heroVideoIn((await res?.text()) ?? "");
+    test.skip(!hero, "No hero video is set");
+    test.skip(hero!.kind !== "youtube", "The hero video is not a YouTube link");
+    const watch = page.getByRole("group", { name: "Photos of our cars" }).getByRole("button", { name: "Watch video" });
+    await expect(watch, "a hero video is set, and Watch video is not offered").toBeVisible({ timeout: 15_000 });
+    await watch.click();
+    const shown = await page.locator(".hh-video[data-started]").waitFor({ state: "attached", timeout: 25_000 }).then(() => true, () => false);
+    if (shown) return;
+    const said = (await page.evaluate(() => (window as unknown as { yt: { event?: string; info?: unknown }[] }).yt)) ?? [];
+    const error = said.find((m) => m.event === "onError");
+    expect(error, `YouTube says the hero video cannot play (its error ${String(error?.info)}): it may have been deleted or made private. Put another link in Admin, Audience`).toBeUndefined();
+    const playing = said.some((m) => (m.event === "infoDelivery" || m.event === "initialDelivery") && (m.info as { playerState?: number } | null)?.playerState === 1);
+    expect(playing, "YouTube says the video plays, and the hero never showed it: it plays unseen, on the visitor's data").toBe(false);
+    test.skip(true, "YouTube's player did not start in this browser");
+  });
 
   test("scrolling fetches no other page ahead, with a mouse or a thumb; only pointing a mouse at a link does", async ({ page, isMobile }) => {
     const ahead: string[] = [];
@@ -469,7 +634,7 @@ test.describe("Home", () => {
     // a moment, and a tap before it is lost (GitHub's runs on 7c1faac, 14 November 2026). So: woken, then a tap.
     const more = page.getByRole("button", { name: "More", exact: true });
     await expect
-      .poll(() => more.evaluate((el) => Object.keys(el).some((k) => k.startsWith("__reactFiber"))), {
+      .poll(() => more.evaluate((el) => Object.keys(el).some((k) => k.startsWith("__reactFiber"))).catch(() => false), {
         message: "the reloaded page's code never woke it",
         timeout: 20_000,
       })
@@ -506,7 +671,7 @@ test.describe("Home", () => {
       await expect(page.getByRole("heading", { level: 1 }), "the reloaded page did not open").toContainText("Check any car", { timeout: 20_000 });
       // Its own part works: the box for the chassis number is React's, not the server's lifeless copy.
       await expect
-        .poll(() => page.evaluate(() => Object.keys(document.getElementById("vc-vin") ?? {}).some((k) => k.startsWith("__reactFiber"))), {
+        .poll(() => page.evaluate(() => Object.keys(document.getElementById("vc-vin") ?? {}).some((k) => k.startsWith("__reactFiber"))).catch(() => false), {
           message: "the reloaded page's own part never woke",
           timeout: 15_000,
         })
@@ -556,7 +721,7 @@ test.describe("Home", () => {
     const message = "I want the Hiace Hummer, can I see it on Saturday?";
     await page.locator('textarea[name="message"]').fill(message);
     await expect
-      .poll(() => page.evaluate(() => Object.keys(document.querySelector('textarea[name="message"]') ?? {}).some((k) => k.startsWith("__reactFiber"))), {
+      .poll(() => page.evaluate(() => Object.keys(document.querySelector('textarea[name="message"]') ?? {}).some((k) => k.startsWith("__reactFiber"))).catch(() => false), {
         message: "the contact form never woke after Next fetched its file again",
         timeout: 20_000,
       })
@@ -567,6 +732,10 @@ test.describe("Home", () => {
     await expect(page.locator('textarea[name="message"]'), "what the buyer typed was lost").toHaveValue(message);
     expect(alerts, "a file fetched again raised an alert").toEqual([]);
   });
+
+  /** Whether the element the selector finds has been woken by React (its mark on the element), on a page that may be loading. */
+  const woke = (page: Page, selector: string) =>
+    page.evaluate((sel) => Object.keys(document.querySelector(sel) ?? {}).some((k) => k.startsWith("__reactFiber")), selector).catch(() => false);
 
   test("a file Next is watching that fails twice gives \"One moment…\" and one reload, never the error page or an alert", async ({ page }) => {
     // Review of 7c1faac, 15 November 2026: the first-load cure and the error page's cure both took it, so the buyer saw
@@ -595,37 +764,103 @@ test.describe("Home", () => {
       await nextStarted;
       return route.abort("connectionreset");
     });
-    // The reload takes a moment to land, as on weak data: long enough for Next's own retry to fail meanwhile.
-    await page.route(/\/check$/, async (route) => {
-      if (route.request().isNavigationRequest() && documents > 1) await new Promise((r) => setTimeout(r, 2_500));
+    // The site takes a moment to answer, as on weak data: the cure waits for it, and the page meanwhile is in sight.
+    // (Holding the reload instead hid the page: Playwright's reads wait for a page on its way. Review of 666b037.)
+    await page.route(/\/api\/up(\?.*)?$/, async (route) => {
+      await new Promise((r) => setTimeout(r, 2_500));
       return route.continue();
     });
-    let sawErrorPage = false;
     await page.goto("/check");
-    // Watched until the reload: the error page must never show on the way.
-    for (let i = 0; i < 100 && documents < 2; i++) {
-      if (await page.getByText("Something went wrong on our side.").count().catch(() => 0)) sawErrorPage = true;
-      await page.waitForTimeout(100);
-    }
-    // And while the reload is on its way.
-    for (let i = 0; i < 30; i++) {
-      if (await page.getByText("Something went wrong on our side.").count().catch(() => 0)) sawErrorPage = true;
-      await page.waitForTimeout(100);
-    }
-    expect(sawErrorPage, "the buyer saw the error page for a failure that was being cured").toBe(false);
-    expect(documents, "the page did not reload itself after Next's own retry failed").toBe(2);
-    await expect
-      .poll(() => page.evaluate(() => Object.keys(document.getElementById("vc-vin") ?? {}).some((k) => k.startsWith("__reactFiber"))), {
-        message: "the reloaded page never woke",
-        timeout: 20_000,
-      })
-      .toBe(true);
+    await expect(page.getByRole("status").filter({ hasText: "One moment…" }), "the buyer was not told to wait a moment while the page cured itself").toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page.getByText("Something went wrong on our side."), "the buyer saw the error page for a failure that was being cured").toHaveCount(0);
+    expect(documents, "the page reloaded before the site answered").toBe(1);
+    await expect.poll(() => documents, { message: "the page did not reload itself after Next's own retry failed", timeout: 20_000 }).toBe(2);
+    await expect.poll(() => woke(page, "#vc-vin"), { message: "the reloaded page never woke", timeout: 20_000 }).toBe(true);
     expect(alerts, "a failure cured by one reload raised an alert").toEqual([]);
+  });
+
+  test("a line drop just after Next starts, on the code every page shares, reloads the page once, and it then works", async ({ page }) => {
+    // Review of 666b037, 15 November 2026: these files failing while Next watched them, and Next's own retry failing too,
+    // left the whole page dead (the form, Chat, Save and the menu never woke) with no reload and no report. Next cannot
+    // start a page without them, so no error page can show either.
+    const alerts: string[] = [];
+    page.on("request", (r) => {
+      if (r.url().includes("/api/ops/client-error")) alerts.push(r.postData() ?? "");
+    });
+    const shared = rootErrorCode(await (await page.request.get("/contact")).text()).map((f) => f.split("?")[0]);
+    expect(shared.length, "the page's own data names no files for the page Next shows when the app itself fails").toBeGreaterThan(0);
+    let documents = 0;
+    page.on("request", (r) => {
+      if (r.isNavigationRequest() && r.frame() === page.mainFrame()) documents++;
+    });
+    let landed = false;
+    page.on("response", (r) => {
+      if (r.request().isNavigationRequest() && r.frame() === page.mainFrame() && documents > 1) landed = true;
+    });
+    let nextStarted: Promise<void> | null = null;
+    await page.route(/\/_next\/static\/.+\.js(\?.*)?$/, async (route) => {
+      if (landed || !shared.includes(new URL(route.request().url()).pathname)) return route.continue();
+      nextStarted ??= untilNextStarted(page);
+      await nextStarted;
+      return route.abort("connectionreset");
+    });
+    await page.goto("/contact");
+    await expect.poll(() => documents, { message: "the page did not reload itself after the code every page shares failed twice", timeout: 30_000 }).toBe(2);
+    await expect.poll(() => woke(page, 'textarea[name="message"]'), { message: "the reloaded page never woke", timeout: 20_000 }).toBe(true);
+    expect(await page.evaluate(() => sessionStorage.getItem("sc_chunk_reload")), "the reload was not the site's own cure").not.toBeNull();
+    expect(alerts, "a failure cured by one reload raised an alert").toEqual([]);
+  });
+
+  test("while the site does not answer, \"One moment…\" gives the ways on, keeps asking as long as it takes, and opens the page once the line is back", async ({ page }) => {
+    // Review of 666b037, 15 November 2026: the cure stopped asking after ten minutes, and "One moment…", with nothing to
+    // tap, then stayed for good once the data came back.
+    const alerts: string[] = [];
+    page.on("request", (r) => {
+      if (r.url().includes("/api/ops/client-error")) alerts.push(r.postData() ?? "");
+    });
+    await page.clock.install();
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    const had = new Set(await page.evaluate(() => performance.getEntriesByType("resource").map((e) => e.name)));
+    let reloaded = false;
+    page.on("request", (r) => {
+      if (r.isNavigationRequest() && r.frame() === page.mainFrame()) reloaded = true;
+    });
+    // Signal but no data: the page's new code fails, and the site does not answer, until the line comes back.
+    let dead = true;
+    await page.route(/\/_next\/static\/.+\.js(\?.*)?$/, (route) => (!reloaded && !had.has(route.request().url()) ? route.abort("connectionreset") : route.continue()));
+    await page.route(/\/api\/up(\?.*)?$/, (route) => (dead ? route.abort("internetdisconnected") : route.continue()));
+    await page.getByRole("navigation", { name: "Start here" }).getByRole("link", { name: /^Check VIN/ }).click();
+    const status = page.getByRole("status").filter({ hasText: "One moment…" });
+    await expect(status, "the page did not say to wait a moment").toBeVisible({ timeout: 20_000 });
+    await expect(status, "the page did not say it cannot reach Sabicars").toContainText("We can't reach Sabicars right now", { timeout: 15_000 });
+    await expect(page.getByRole("button", { name: "Try again" }), "there is no way to try again").toBeVisible();
+    await expect(page.getByRole("link", { name: "Back to the homepage" }), "there is no way back to the homepage").toHaveAttribute("href", "/");
+    await expect(page.locator('main a[href^="tel:"]').first(), "there is no number to call").toBeVisible();
+    await expect(page.getByText("Something went wrong on our side."), "the page blamed the site for a line that answers nothing").toHaveCount(0);
+    // Eleven minutes with no answer, on the page's own clock: past the ten minutes after which it used to stop.
+    await page.clock.pauseAt((await page.evaluate(() => Date.now())) + 1_000);
+    for (let i = 0; i < 22; i++) {
+      await page.clock.runFor(30_000);
+      await page.waitForTimeout(50);
+    }
+    expect(reloaded, "the page reloaded while the site did not answer").toBe(false);
+    dead = false;
+    await page.clock.runFor(31_000);
+    await expect.poll(() => reloaded, { message: "the page stopped asking, and did not open once the line was back", timeout: 10_000 }).toBe(true);
+    await page.clock.resume();
+    await expect(page, "the page that opened is not the one the visitor tapped").toHaveURL(/\/check$/, { timeout: 20_000 });
+    await expect(page.getByRole("heading", { level: 1 }), "the page they tapped did not open").toContainText("Check any car", { timeout: 20_000 });
+    expect(alerts, "a line that answered nothing raised an alert").toEqual([]);
   });
 
   test("with signal but no data, a page whose code failed stays readable, and reloads once the site answers", async ({ page }) => {
     // Review of 7c1faac, 15 November 2026: the cure reloaded into a dead line, and the browser's own error page took
-    // the place of a page the buyer could read. Now it reloads only when the site answers.
+    // the place of a page the buyer could read. Now it reloads only when the site answers. The reload meets the dead
+    // line too, and the line stays dead for longer than two of the cure's asks: a cure that reloads blind fails here
+    // (review of 666b037).
     const own = await ownCode(page, "/check");
     test.skip(own.length === 0, "/check was sent with no code of its own");
     let documents = 0;
@@ -633,29 +868,78 @@ test.describe("Home", () => {
       if (r.isNavigationRequest() && r.frame() === page.mainFrame()) documents++;
     });
     let deadUntil = 0;
+    let reloadAt = 0;
     await page.route("**/*", (route) => {
       const req = route.request();
-      if (req.isNavigationRequest() || documents > 1) return route.continue();
+      const dead = deadUntil > 0 && Date.now() < deadUntil;
+      if (req.isNavigationRequest() && req.frame() === page.mainFrame()) {
+        if (deadUntil && !reloadAt) reloadAt = Date.now();
+        // With signal but no data the reload fails too: the browser's own error page.
+        return dead ? route.abort("internetdisconnected") : route.continue();
+      }
+      if (documents > 1) return route.continue();
       const path = new URL(req.url()).pathname;
       if (own.includes(path)) {
-        if (!deadUntil) deadUntil = Date.now() + 6_000;
+        if (!deadUntil) deadUntil = Date.now() + 12_000;
         return route.abort("connectionreset");
       }
-      if (deadUntil && Date.now() < deadUntil) return route.abort("internetdisconnected");
+      if (dead) return route.abort("internetdisconnected");
       return route.continue();
     });
     await page.goto("/check");
-    await page.waitForTimeout(4_000);
-    expect(documents, "the page reloaded into a line that answers nothing").toBe(1);
     await expect(page.getByRole("heading", { level: 1 }), "the readable page was lost").toContainText("Check any car");
-    await expect.poll(() => documents, { message: "the page did not reload once the site answered again", timeout: 25_000 }).toBe(2);
-    await expect
-      .poll(() => page.evaluate(() => Object.keys(document.getElementById("vc-vin") ?? {}).some((k) => k.startsWith("__reactFiber"))), {
-        message: "the reloaded page never woke",
-        timeout: 20_000,
-      })
-      .toBe(true);
+    await expect.poll(() => documents, { message: "the page did not reload once the site answered again", timeout: 35_000 }).toBe(2);
+    expect(reloadAt, "the page reloaded into a line that answers nothing").toBeGreaterThanOrEqual(deadUntil);
+    await expect.poll(() => woke(page, "#vc-vin"), { message: "the reloaded page never woke", timeout: 20_000 }).toBe(true);
   });
+
+  for (const which of ["a stylesheet", "its own code"] as const) {
+    test(`a page whose ${which === "a stylesheet" ? "stylesheet" : "own code"} fails while its stylesheets are still arriving reloads itself once, and then works`, async ({ page }) => {
+      // Review of 666b037, 15 November 2026: the self-heal script runs only once the page's stylesheets have arrived, so
+      // it could not hear a file that failed before then: an unstyled page, or /check's box that never woke, with no
+      // reload and no report.
+      const alerts: string[] = [];
+      page.on("request", (r) => {
+        if (r.url().includes("/api/ops/client-error")) alerts.push(r.postData() ?? "");
+      });
+      const html = await (await page.request.get("/check")).text();
+      const sheets = [...html.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map((m) => m[1].split("?")[0]);
+      const own = await ownCode(page, "/check");
+      test.skip(sheets.length < 2, "/check has fewer than two stylesheets");
+      test.skip(which === "its own code" && own.length === 0, "/check was sent with no code of its own");
+      let documents = 0;
+      page.on("request", (r) => {
+        if (r.isNavigationRequest() && r.frame() === page.mainFrame()) documents++;
+      });
+      // On the first load only: the file fails at once, while the page's other stylesheets take 1.5 s to arrive.
+      const failing = which === "a stylesheet" ? [sheets[0]] : own;
+      await page.route(/\/_next\/static\/.+\.(js|css)(\?.*)?$/, async (route) => {
+        const path = new URL(route.request().url()).pathname;
+        if (documents > 1) return route.continue();
+        if (failing.includes(path)) return route.abort("connectionreset");
+        if (sheets.includes(path)) await new Promise((r) => setTimeout(r, 1_500));
+        return route.continue();
+      });
+      await page.goto("/check");
+      await expect.poll(() => documents, { message: "the page did not reload itself", timeout: 25_000 }).toBe(2);
+      await expect(page.getByRole("heading", { level: 1 }), "the reloaded page did not open").toContainText("Check any car", { timeout: 20_000 });
+      const styled = () =>
+        page
+          .evaluate(() =>
+            [...document.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]')].every((l) => {
+              try {
+                return Boolean(l.sheet?.cssRules);
+              } catch {
+                return false;
+              }
+            }),
+          )
+          .catch(() => false);
+      await expect.poll(styled, { message: "the reloaded page is not styled", timeout: 15_000 }).toBe(true);
+      await expect.poll(() => woke(page, "#vc-vin"), { message: "the reloaded page's own part never woke", timeout: 15_000 }).toBe(true);
+      expect(alerts, "a failure cured by one reload raised an alert").toEqual([]);
+    });
+  }
 
   test("What do you need? has a door for each of the six things Sabicars does", async ({ page }) => {
     const faults = watchForFaults(page);

@@ -3,7 +3,7 @@
  * Seeds a throwaway database for the end-to-end suites (e2e/flows), and
  * removes what they leave behind.
  *
- *   npm run e2e:seed            # the dealer, its showroom, three cars — and the staff row, when E2E_STAFF_* are set
+ *   npm run e2e:seed            # the dealer, its showroom, three cars, a hero video — and the staff row, when E2E_STAFF_* are set
  *   npm run e2e:seed -- --clean # delete every row the seed and the suites created
  *
  * Safe to run again and again: every row is keyed on something fixed (the
@@ -72,6 +72,15 @@ export async function seed(sql: Sql): Promise<void> {
       returning id, (xmax = 0) as created`;
     console.log(`Vehicle ${v.year} ${v.make} ${v.model} (${v.slug}): ${row.created ? "created" : "found, reset to available"}.`);
   }
+
+  // A hero video, as the live site has one (Admin, Audience), so the homepage's video tests run before a deploy too and
+  // not only against the live site after it (review of 666b037, 15 November 2026). A database that has one keeps it.
+  const [video] = await sql`
+    insert into settings (dealer_id, key, value)
+    values (${dealer.id}, 'hero_video_url', ${sql.json(E2E.heroVideoUrl)})
+    on conflict (dealer_id, key) do nothing
+    returning key`;
+  console.log(`Hero video: ${video ? "set" : "already set, kept"}.`);
 
   await seedStaff(sql, dealer.id);
 }

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Wordmark } from "@/components/Logo";
 import { Button, ButtonAnchor } from "@/components/ui/Button";
-import { CURE_KEY, CURE_WINDOW_MS, RELOADING_FLAG, whenSiteAnswers } from "@/lib/chunk-cure";
+import { CHUNK_FAILED_AT, CHUNK_FAILED_WITHIN_MS, CURE_KEY, CURE_WINDOW_MS, RELOADING_FLAG, whenSiteAnswers } from "@/lib/chunk-cure";
 import { site, whatsappLink } from "@/lib/site";
 
 /**
@@ -36,7 +36,24 @@ export function isChunkLoadError(error: unknown): boolean {
   return /ChunkLoadError|Failed to load chunk|Loading (CSS )?chunk [\w-]+ failed|dynamically imported module|Importing a module script failed/i.test(text);
 }
 
-type Reloading = { [RELOADING_FLAG]?: boolean };
+type Reloading = { [RELOADING_FLAG]?: boolean; [CHUNK_FAILED_AT]?: number };
+
+/**
+ * A missing piece of code, by its name, or any error that comes moments after a file of the site's code failed to
+ * arrive (noted by lib/chunk-cure.ts): on a very slow line React gives up on the page that waits for it with its own
+ * error #482 instead, and that was shown as "Something went wrong" and alerted the managers (review of 666b037).
+ */
+function curedByReload(error: BoundaryError): boolean {
+  if (isChunkLoadError(error)) return true;
+  const failedAt = (window as Reloading)[CHUNK_FAILED_AT];
+  return typeof failedAt === "number" && Date.now() - failedAt < CHUNK_FAILED_WITHIN_MS;
+}
+
+/**
+ * The cure's state: "none" (report it and show the calm screen), "reloading" ("One moment…" while the page reloads
+ * itself) or "waiting" (the site did not answer: the page waits for it, and says how to get on meanwhile).
+ */
+export type CureState = "none" | "reloading" | "waiting";
 
 /**
  * Whether this error is cured by reloading the page once, and the reload itself. True for a chunk that did not arrive,
@@ -45,51 +62,79 @@ type Reloading = { [RELOADING_FLAG]?: boolean };
  * no report (review of 7c1faac, 15 November 2026: the two cures together showed "Something went wrong" and alerted
  * the managers). The reload waits until the site answers (whenSiteAnswers), so offline or with signal but no data the
  * visitor sees "One moment…" until it can land, not the browser's own error page; the minute starts at the reload.
+ * While the site does not answer, "waiting": the screen also gives the ways on, so it is never a dead end.
  * Without session storage there is no way to stop a reload loop, so the error is reported as before; that includes
  * storage that can be read but not written (a full one), found only when the reload is due.
  */
-export function useReloadCure(error: BoundaryError): boolean {
-  const [cure, setCure] = useState(() => {
-    if (typeof window === "undefined" || !isChunkLoadError(error)) return false;
-    if ((window as Reloading)[RELOADING_FLAG]) return true;
+export function useReloadCure(error: BoundaryError): CureState {
+  const [cure, setCure] = useState<CureState>(() => {
+    if (typeof window === "undefined" || !curedByReload(error)) return "none";
+    if ((window as Reloading)[RELOADING_FLAG]) return "reloading";
     try {
-      return Date.now() - Number(sessionStorage.getItem(CURE_KEY) ?? 0) > CURE_WINDOW_MS;
+      return Date.now() - Number(sessionStorage.getItem(CURE_KEY) ?? 0) > CURE_WINDOW_MS ? "reloading" : "none";
     } catch {
-      return false;
+      return "none";
     }
   });
+  const curing = cure !== "none";
   useEffect(() => {
-    if (!cure || (window as Reloading)[RELOADING_FLAG]) return;
-    let gone = false;
-    whenSiteAnswers(
+    if (!curing || (window as Reloading)[RELOADING_FLAG]) return;
+    return whenSiteAnswers(
       () => {
         try {
           sessionStorage.setItem(CURE_KEY, String(Date.now()));
         } catch {
           // Not written, so a reload could loop: the calm screen and the report instead of "One moment…" for ever.
-          setCure(false);
+          setCure("none");
           return;
         }
         (window as Reloading)[RELOADING_FLAG] = true;
         window.location.reload();
       },
-      () => gone,
+      () => setCure("waiting"),
     );
-    return () => {
-      gone = true;
-    };
-  }, [cure]);
+  }, [curing]);
   return cure;
 }
 
-/** What shows for the moment the page takes to reload itself: no alarm, nothing to do. */
-export function ReloadingScreen() {
+/**
+ * What shows for the moment the page takes to reload itself: no alarm, nothing to do. If the site does not answer
+ * (the phone's data is off, or has run out), the ways on as well, without blaming the site or saying the team was told:
+ * try again, the homepage, or a call, which needs no data (review of 666b037, 15 November 2026: "One moment…" alone,
+ * with nothing to tap, stayed for good).
+ */
+export function ReloadingScreen({ waiting = false }: { waiting?: boolean }) {
+  const phone = site.phones[0];
   return (
     <main className="flex min-h-svh flex-col items-center justify-center gap-6 px-5 text-center">
       <Wordmark className="h-7 w-auto md:h-8" />
-      <p className="text-text-secondary" role="status">
-        One moment…
-      </p>
+      <div role="status" className="flex max-w-md flex-col items-center gap-3 text-text-secondary">
+        <p>One moment…</p>
+        {waiting && (
+          <p className="leading-relaxed">
+            We can&apos;t reach Sabicars right now. Check your data or Wi-Fi. This page will open by itself as soon as the line is
+            back.
+          </p>
+        )}
+      </div>
+      {waiting && (
+        <>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <Button type="button" onClick={() => window.location.reload()}>
+              Try again
+            </Button>
+            <ButtonAnchor href="/" variant="secondary">
+              Back to the homepage
+            </ButtonAnchor>
+          </div>
+          <p className="text-text-secondary">
+            Or call{" "}
+            <a href={`tel:${phone.e164}`} className="figures whitespace-nowrap text-text-primary underline underline-offset-4 hover:text-accent-text">
+              {phone.display}
+            </a>
+          </p>
+        </>
+      )}
     </main>
   );
 }

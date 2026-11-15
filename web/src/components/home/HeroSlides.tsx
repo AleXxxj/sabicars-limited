@@ -2,8 +2,9 @@
 
 import Link from "@/components/IntentLink";
 import { ArrowRight, Pause, Play, Square, Volume2, VolumeX } from "lucide-react";
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type FocusEvent, type ReactNode, type TouchEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type FocusEvent, type ReactNode, type TouchEvent } from "react";
 import { VehicleImage } from "@/components/VehicleImage";
+import { videoSource } from "@/lib/blog/video";
 import { heroPhotoSources } from "@/lib/media";
 import type { HeroSlide } from "./heroDeck";
 
@@ -26,24 +27,33 @@ function subscribeReduced(onChange: () => void) {
 /** Read once; nothing to subscribe to. */
 const noSubscription = () => () => {};
 
-/** After "Watch video", or after the phone refused to start it, how long before a video that never plays is given up. */
+/**
+ * After "Watch video", or after the phone refused to start it, how long a video that never plays may go without a sign
+ * that it is getting on (the player's first answer, a start to load, more of it loaded) before it is given up. Counted
+ * from the last sign, not from the tap: on a very slow line the player first answered after 42 s and was then dropped
+ * at 45 s with its data already spent (review of 666b037, 15 November 2026).
+ */
 const ASKED_GIVE_UP_MS = 45_000;
 /** A YouTube player that tried to play (buffering) and fell back to waiting for this long was refused by the phone. */
 const REFUSED_AFTER_MS = 1_500;
-/** The player's own ways to say it was refused: posted on a page that subscribes to them (YouTube's IFrame API). */
-const SUBSCRIBE_REFUSED = JSON.stringify({ event: "command", func: "addEventListener", args: ["onAutoplayBlocked"], id: 1, channel: "widget" });
+/**
+ * What the page asks YouTube's player to tell it (its IFrame API): that the phone refused to start the video, and that
+ * the video cannot play at all (deleted, private, or its owner lets no other site play it).
+ */
+const SUBSCRIBE = ["onAutoplayBlocked", "onError"].map((name) => JSON.stringify({ event: "command", func: "addEventListener", args: [name], id: 1, channel: "widget" }));
 const LISTENING = JSON.stringify({ event: "listening", id: 1, channel: "widget" });
+/** Asks the player to answer, and to tell the page of a refusal or an error. */
+function askPlayer(player: Window | null | undefined) {
+  if (!player) return;
+  player.postMessage(LISTENING, "*");
+  for (const message of SUBSCRIBE) player.postMessage(message, "*");
+}
 
 /**
  * The homepage opened with ?video starts the hero video at once, as if "Watch video" had been tapped: the preview staff
  * open from Admin, Audience ("See it play").
  */
 const previewVideo = () => new URLSearchParams(window.location.search).has("video");
-
-function youTubeId(url: string): string | null {
-  const m = url.match(/(?:youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
-  return m ? m[1] : null;
-}
 
 /**
  * The home page's hero, built the way the Adedayo Aremu Autos hero is (the
@@ -83,7 +93,9 @@ function youTubeId(url: string): string | null {
  * A phone that will not start it (an iPhone in Low Power Mode) says so
  * through the player, and only then is the player shown, with its own play
  * button and "Tap the video to play" in the strip; until the video plays or
- * is refused, the photos stay, however slow the line.
+ * is refused, the photos stay, however slow the line. A video that cannot play
+ * at all (YouTube says so at once) is given up at once: the slides carry on,
+ * and staff previewing it with ?video are told why.
  */
 export function HeroSlides({
   slides,
@@ -130,6 +142,11 @@ export function HeroSlides({
   const askedAt = useRef<number | null>(null);
   // The player has answered at least once, so it is listening and need not be asked again.
   const heard = useRef(false);
+  // When the player last showed it is getting on, and how much of the video it had loaded then (ASKED_GIVE_UP_MS).
+  const lastSign = useRef(0);
+  const loadedFraction = useRef(0);
+  // The video cannot play at all (YouTube's onError, or a link the hero cannot play): said to staff in the ?video preview.
+  const [cantPlay, setCantPlay] = useState(false);
   const [muted, setMuted] = useState(true);
   const reduced = useSyncExternalStore(subscribeReduced, () => window.matchMedia(REDUCED).matches, () => false);
   const section = useRef<HTMLElement>(null);
@@ -143,18 +160,26 @@ export function HeroSlides({
   const [asked, setAsked] = useState(false);
   const preview = useSyncExternalStore(noSubscription, previewVideo, () => false);
   const hydrated = useSyncExternalStore(noSubscription, () => true, () => false);
+  // The link read the way Admin, Audience reads it when it is saved (lib/blog/video.ts), so any link it takes plays here:
+  // a YouTube video, or a video file. Anything else is not offered.
+  const source = useMemo(() => (videoUrl ? videoSource(videoUrl) : null), [videoUrl]);
+  const ytId = source?.kind === "youtube" ? source.id : null;
+  const file = source?.kind === "file" ? source.src : null;
+  const playable = Boolean(ytId || file);
   const requested = asked || preview;
-  const playVideo = Boolean(videoUrl) && requested && !videoDone;
-  const offerVideo = Boolean(videoUrl) && hydrated && !requested && !videoDone;
+  const playVideo = playable && requested && !videoDone;
+  const offerVideo = playable && hydrated && !requested && !videoDone;
   // "Loading video…" with the photos, until the player plays or the phone refuses it.
   const loadingVideo = playVideo && !started && !refused;
   // Shown over the photos: once it plays, or once the phone has refused to start it.
   const videoShown = playVideo && (started || refused);
   // Refused and not started: the player waits for a tap on its own play button, so it takes taps (home.css).
   const waiting = playVideo && refused && !started;
-  const ytId = videoUrl ? youTubeId(videoUrl) : null;
   const auto = count > 1 && !reduced;
-  const running = auto && !userPaused && !hidden && !offscreen && !focusInside && !videoShown;
+  // Never before the page is awake: the server's HTML would start the first segment's fill, and on a slow line it ends
+  // before anything listens for its end, so the slides never moved on (review of 666b037, 15 November 2026). Paused, the
+  // bar waits empty until the page can hear it end.
+  const running = hydrated && auto && !userPaused && !hidden && !offscreen && !focusInside && !videoShown;
 
   const goTo = useCallback(
     (to: number) => {
@@ -175,12 +200,15 @@ export function HeroSlides({
     setVideoDone(true);
   }, []);
 
-  // Asked for and not playing: given up after ASKED_GIVE_UP_MS if nothing happens, and the photos stay. A refusal starts
-  // the count again, so a visitor shown the play button has the same time to find it.
+  // Asked for and not playing: given up after ASKED_GIVE_UP_MS with no sign of it getting on, and the photos stay. A
+  // refusal starts the count again, so a visitor shown the play button has the same time to find it.
   useEffect(() => {
     if (!playVideo || started) return;
-    const giveUp = setTimeout(finish, ASKED_GIVE_UP_MS);
-    return () => clearTimeout(giveUp);
+    lastSign.current = Date.now();
+    const check = setInterval(() => {
+      if (Date.now() - lastSign.current >= ASKED_GIVE_UP_MS) finish();
+    }, 1_000);
+    return () => clearInterval(check);
   }, [playVideo, started, refused, finish]);
 
   // Refused, its play button is in the middle of the player. On a short screen (a phone turned sideways, scrolled to
@@ -206,9 +234,10 @@ export function HeroSlides({
     return () => clearTimeout(t);
   }, [started, videoDone, videoSeconds, finish]);
 
-  // Keyboard users keep their place: when the controls change under them (the loading pill gives way to Stop, or Stop to
-  // the slides), focus moves to the control that took its place instead of falling to the page, which also left the
-  // slideshow paused for good (review of 7c1faac, 15 November 2026). Only for focus the keyboard put there.
+  // Keyboard users keep their place: when the controls change under them (the loading pill gives way to Stop, Stop to
+  // the slides, or a video that never played is given up), focus moves to the control that took its place instead of
+  // falling to the page, which also left the slideshow paused for good (reviews of 7c1faac and 666b037, 15 November
+  // 2026). Only for focus the keyboard put there, and without scrolling: the visitor may have scrolled past the hero.
   useEffect(() => {
     const el = section.current;
     if (!el || !focusInside) return;
@@ -217,9 +246,9 @@ export function HeroSlides({
     const next = el.querySelector<HTMLElement>(
       videoShown ? '[aria-label="Stop the video"]' : '.hh-watch, [aria-label="Pause the slideshow"], [aria-label="Play the slideshow"], .hh-now',
     );
-    if (next) next.focus();
+    if (next) next.focus({ preventScroll: true });
     else setFocusInside(false);
-  }, [videoShown, focusInside]);
+  }, [videoShown, playVideo, focusInside]);
 
   // Hidden tab.
   useEffect(() => {
@@ -260,18 +289,38 @@ export function HeroSlides({
       if (!frame.current || e.source !== frame.current.contentWindow || typeof e.data !== "string") return;
       try {
         if (!/youtube(-nocookie)?\.com$/.test(new URL(e.origin).hostname)) return;
-        const data = JSON.parse(e.data) as { event?: string; info?: { playerState?: number } };
+        const data = JSON.parse(e.data) as { event?: string; info?: unknown };
         if (!heard.current) {
           heard.current = true;
-          // Awake now, so the subscription to its refusal is sure to be taken.
-          frame.current.contentWindow?.postMessage(SUBSCRIBE_REFUSED, "*");
+          lastSign.current = Date.now();
+          // Awake now, so the subscriptions to its refusal and its errors are sure to be taken.
+          askPlayer(frame.current.contentWindow);
+        }
+        // It cannot play at all (YouTube says so within a second, with a code: 100 deleted or private, 101 and 150 not
+        // allowed on other sites, 2 and 5 a bad link or a player fault). The slides carry on at once rather than after
+        // 45 s of "Loading video…" (review of 666b037, 15 November 2026), and staff previewing it are told.
+        if (data.event === "onError") {
+          if (preview) setCantPlay(true);
+          finish();
+          return;
         }
         if (data.event === "onAutoplayBlocked") {
           setRefused(true);
           return;
         }
-        const state = data.event === "infoDelivery" || data.event === "initialDelivery" ? data.info?.playerState : undefined;
+        const info = (data.event === "infoDelivery" || data.event === "initialDelivery") && data.info && typeof data.info === "object"
+          ? (data.info as { playerState?: unknown; videoLoadedFraction?: unknown })
+          : null;
+        if (!info) return;
+        // More of it loaded is a sign it is getting on, however slowly.
+        if (typeof info.videoLoadedFraction === "number" && info.videoLoadedFraction > loadedFraction.current) {
+          loadedFraction.current = info.videoLoadedFraction;
+          lastSign.current = Date.now();
+        }
+        const state = typeof info.playerState === "number" ? info.playerState : undefined;
         if (state === undefined) return;
+        // So is a start to load.
+        if (state === 3 && lastState.current !== 3) lastSign.current = Date.now();
         lastState.current = state;
         // Its first answer counts too: a player that started before it was first asked says so only then.
         if (state === 0 && data.event === "infoDelivery") finish();
@@ -297,24 +346,24 @@ export function HeroSlides({
       if (refuseTimer.current) clearTimeout(refuseTimer.current);
       refuseTimer.current = null;
     };
-  }, [playVideo, finish]);
+  }, [playVideo, preview, finish]);
 
   // Asking once, when the frame loads, is not enough: on a phone the player is often not awake yet and the question
   // is lost, and then the page never hears that it plays (on a slow line the player first answered after 22 s). YouTube's
   // own script asks again until it is answered; so does this, every 400 ms until it answers or the video is given up.
-  // Each time it also asks to be told if the phone refuses to start it.
+  // Each time it also asks to be told if the phone refuses to start it, or if it cannot play.
   useEffect(() => {
     if (!playVideo || !ytId) return;
     heard.current = false;
     triedToPlay.current = false;
     lastState.current = null;
+    loadedFraction.current = 0;
     const ask = setInterval(() => {
       if (heard.current) {
         clearInterval(ask);
         return;
       }
-      frame.current?.contentWindow?.postMessage(LISTENING, "*");
-      frame.current?.contentWindow?.postMessage(SUBSCRIBE_REFUSED, "*");
+      askPlayer(frame.current?.contentWindow);
     }, 400);
     return () => clearInterval(ask);
   }, [playVideo, ytId]);
@@ -322,11 +371,11 @@ export function HeroSlides({
   // A video file: asked to play straight away, so a refusal is known (a refused autoplay attribute says nothing).
   useEffect(() => {
     const v = video.current;
-    if (!playVideo || ytId || !v) return;
+    if (!playVideo || !file || !v) return;
     v.play().catch((e: unknown) => {
       if ((e as { name?: string } | null)?.name === "NotAllowedError") setRefused(true);
     });
-  }, [playVideo, ytId]);
+  }, [playVideo, file]);
 
   function toggleSound() {
     const next = !muted;
@@ -384,7 +433,9 @@ export function HeroSlides({
       // The player is waiting for a tap on its own play button: the words over it let taps through (home.css).
       data-video={waiting ? "waiting" : undefined}
     >
-      <div ref={photos} className="hh-photos" aria-hidden="true">
+      {/* Decoration, but for a player waiting for a tap on its own play button: a keyboard or a screen reader can then
+          reach it too. */}
+      <div ref={photos} className="hh-photos" aria-hidden={waiting ? undefined : "true"}>
         {slides.map((s, i) =>
           loaded.includes(i) ? (
             <div
@@ -416,7 +467,7 @@ export function HeroSlides({
             </div>
           ) : null,
         )}
-        {playVideo && videoUrl && (
+        {playVideo && (
           // Shown and not started, it takes taps, so the player's own play button works on a phone that blocks autoplay;
           // playing, it does not, so a tap or a swipe on the hero never pauses it by accident. data-started: it really
           // plays (the smoke tests wait for it).
@@ -425,19 +476,17 @@ export function HeroSlides({
               <iframe
                 ref={frame}
                 title="Sabicars showcase video"
-                // Decoration: the Tab key must go from "Skip to content" to the first real button, not into YouTube's player.
-                tabIndex={-1}
+                // Decoration while it plays: the Tab key goes from "Skip to content" to the first real button, not into
+                // YouTube's player. Waiting for a tap on its play button, it can be reached.
+                tabIndex={waiting ? 0 : -1}
                 src={`https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&mute=1&controls=0&playsinline=1&modestbranding=1&rel=0&enablejsapi=1&start=0&end=${videoSeconds}`}
                 allow="autoplay; encrypted-media"
-                onLoad={() => {
-                  frame.current?.contentWindow?.postMessage(LISTENING, "*");
-                  frame.current?.contentWindow?.postMessage(SUBSCRIBE_REFUSED, "*");
-                }}
+                onLoad={() => askPlayer(frame.current?.contentWindow)}
               />
             ) : (
               <video
                 ref={video}
-                src={videoUrl}
+                src={file ?? undefined}
                 autoPlay
                 muted
                 playsInline
@@ -452,12 +501,25 @@ export function HeroSlides({
                   if (e.currentTarget.currentTime >= videoSeconds) finish();
                 }}
                 onEnded={finish}
-                onError={finish}
+                onError={() => {
+                  if (preview) setCantPlay(true);
+                  finish();
+                }}
               />
             )}
           </div>
         )}
       </div>
+
+      {/* Staff's preview (?video, from Admin, Audience) of a video that cannot play: why, in plain words. Visitors are
+          never shown this; for them the slides simply carry on. */}
+      {preview && (cantPlay || (Boolean(videoUrl) && !playable)) && (
+        <p className="hh-note" role="status">
+          {playable
+            ? "This video can't play on the site. It may have been deleted or made private, or its owner doesn't let other sites play it. Put another link in Admin, Audience."
+            : "This link can't play in the hero: it takes a YouTube link or a video file. Put another link in Admin, Audience."}
+        </p>
+      )}
 
       {/* The words, on the photo. Every set lies in one grid cell (home.css), at the photo's foot, so none moves
           anything when it gives way to another. */}
@@ -488,9 +550,9 @@ export function HeroSlides({
             {videoShown ? (
               <div className="hh-track">
                 {waiting ? (
-                  // Refused by the phone: the player's own play button starts it, and the strip says so in words.
-                  <p className="hh-watch hh-tap" role="status">
-                    <Play aria-hidden size={12} />
+                  // Refused by the phone: the player's own play button starts it, and the strip says so in words. Words
+                  // only, not the pill of the button just tapped: tapping them would do nothing (review of 666b037).
+                  <p className="hh-tap" role="status">
                     Tap the video to play
                   </p>
                 ) : (

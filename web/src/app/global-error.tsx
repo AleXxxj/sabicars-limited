@@ -15,12 +15,12 @@ import "./globals.css";
  */
 export default function GlobalError({ error, reset }: { error: BoundaryError; reset: () => void }) {
   // A piece of code that did not arrive is cured by one reload, as in error.tsx.
-  const reloading = useReloadCure(error);
+  const cure = useReloadCure(error);
   return (
     <html lang="en-NG" data-theme="dark" className={archivo.variable}>
       <body>
-        {reloading ? (
-          <ReloadingScreen />
+        {cure !== "none" ? (
+          <ReloadingScreen waiting={cure === "waiting"} />
         ) : (
           <>
             <ErrorReport error={error} />
